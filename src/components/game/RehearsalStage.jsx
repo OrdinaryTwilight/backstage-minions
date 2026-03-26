@@ -1,9 +1,14 @@
-import { useEffect, useRef, useState, memo } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useGame } from "../../context/GameContext";
 
 const TOTAL_DURATION_MS = 20000;
 
-/**\n * RehearsalStage: Controlled cue timing practice\n * Similar to LiveShowStage but lower stakes - allows multiple cue misses\n * Memoized to prevent unnecessary re-renders\n */\nfunction RehearsalStage({ cues, onComplete, onFail }) {
+/**
+ * RehearsalStage: Controlled cue timing practice
+ * Similar to LiveShowStage but lower stakes - allows multiple cue misses
+ * Memoized to prevent unnecessary re-renders
+ */
+function RehearsalStage({ cues, onComplete, onFail }) {
   const { state, dispatch } = useGame();
   const [elapsed, setElapsed] = useState(0);
   const [cueResults, setCueResults] = useState({});

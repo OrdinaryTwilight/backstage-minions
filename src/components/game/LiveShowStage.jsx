@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, memo } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useGame } from "../../context/GameContext";
 
 // Total duration of simulated live show (30 seconds)

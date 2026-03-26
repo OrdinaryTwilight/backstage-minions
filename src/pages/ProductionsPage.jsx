@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NavBar from "../components/ui/NavBar";
+import NavBar from "../components/NavBar";
 import { PRODUCTIONS } from "../data/gameData";
 
 export default function ProductionsPage() {

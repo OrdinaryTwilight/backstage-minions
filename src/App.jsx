@@ -1,7 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, Suspense, lazy } from "react-router-dom";
-import { GameProvider } from "./context/GameContext";
+import { Suspense, lazy } from "react";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Spinner } from "./components/ui/Spinner";
+import { GameProvider } from "./context/GameContext";
 // Eager load critical routes
+import "./App.css";
 import HomePage from "./pages/HomePage";
 import StoriesPage from "./pages/StoriesPage";
 // Lazy load less critical routes for better initial load time
@@ -11,7 +13,6 @@ const SelectCharacterPage = lazy(() => import("./pages/SelectCharacterPage"));
 const GameLevelPage = lazy(() => import("./pages/GameLevelPage"));
 const LevelCompletePage = lazy(() => import("./pages/LevelCompletePage"));
 const LevelFailedPage = lazy(() => import("./pages/LevelFailedPage"));
-import "./App.css";
 
 function App() {
   return (
@@ -33,74 +34,3 @@ function App() {
 }
 
 export default App;
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
-}
-
-export default App

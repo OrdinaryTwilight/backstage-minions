@@ -20,4 +20,4 @@ export default memo(function DialogueBox({ speaker, text, choices, onChoice }) {
       )}
     </div>
   );
-}
+});

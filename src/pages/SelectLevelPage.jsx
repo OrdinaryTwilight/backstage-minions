@@ -1,5 +1,5 @@
 import { useNavigate, useParams } from "react-router-dom";
-import NavBar from "../components/ui/NavBar";
+import NavBar from "../components/NavBar";
 import { useGame } from "../context/GameContext";
 import { PRODUCTIONS, VENUES } from "../data/gameData";
 
