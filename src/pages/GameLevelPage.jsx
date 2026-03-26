@@ -1,0 +1,135 @@
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import ConflictMinigame from "../components/game/ConflictMinigame";
+import LiveShowStage from "../components/game/LiveShowStage";
+import PlanningStage from "../components/game/PlanningStage";
+import RehearsalStage from "../components/game/RehearsalStage";
+import WrapUpScene from "../components/game/WrapUpScene";
+import { useGame } from "../context/GameContext";
+import { CHARACTERS, CONFLICTS, CUE_SHEETS, STORIES } from "../data/gameData";
+
+function starsFromSession(session, totalCues) {
+  if (!session) return 0;
+  const hitRate = totalCues > 0 ? session.cuesHit / totalCues : 0;
+  if (hitRate >= 0.9) return 3;
+  if (hitRate >= 0.65) return 2;
+  return 1;
+}
+
+function pickConflict(trigger, seen) {
+  const eligible = CONFLICTS.filter(
+    c => c.trigger === trigger && !seen.includes(c.id)
+  );
+  if (!eligible.length || Math.random() > 0.6) return null;
+  return eligible[Math.floor(Math.random() * eligible.length)];
+}
+
+export default function GameLevelPage() {
+  const { productionId, difficulty, charId } = useParams();
+  const { state, dispatch } = useGame();
+  const navigate = useNavigate();
+  const [stage, setStage] = useState("planning");
+  const [conflict, setConflict] = useState(null);
+
+  // Guard: if no active session, redirect home
+  useEffect(() => {
+    if (!state.session) navigate("/");
+  }, [state.session]);
+
+  const char     = CHARACTERS.find(c => c.id === charId);
+  const cueSheet = CUE_SHEETS[productionId]?.[char?.department] ?? [];
+  const seen     = state.session?.conflictsSeen ?? [];
+
+  function advanceTo(nextStage) {
+    const c = pickConflict(nextStage, seen);
+    if (c) { setConflict(c); return; }
+    setStage(nextStage);
+    dispatch({ type: "ADVANCE_STAGE" });
+  }
+
+  function onConflictResolved(outcome) {
+    setConflict(null);
+    if (outcome === "fail") { handleFail(); return; }
+    dispatch({ type: "ADVANCE_STAGE" });
+    setStage(prev => {
+      const order = ["planning","rehearsal","liveshow","wrapup"];
+      return order[order.indexOf(prev) + 1] ?? "wrapup";
+    });
+  }
+
+  function handleFail() {
+    dispatch({ type: "FAIL_LEVEL" });
+    navigate("/failed");
+  }
+
+  function handleComplete() {
+    const stars = starsFromSession(state.session, cueSheet.length * 2);
+    const newStories = STORIES
+      .filter(s =>
+        s.unlockedBy.productionId === productionId &&
+        (difficulty === "professional" ||
+          s.unlockedBy.difficulty === difficulty) &&
+        stars >= s.unlockedBy.minStars
+      )
+      .map(s => s.id);
+    dispatch({
+      type: "COMPLETE_LEVEL",
+      productionId,
+      difficulty,
+      stars,
+      unlockedStories: newStories,
+    });
+    navigate("/complete", { state: { stars, newStories } });
+  }
+
+  const stageLabels = { planning:"Planning", rehearsal:"Rehearsal", liveshow:"Live Show", wrapup:"Wrap-up" };
+  const stageOrder  = ["planning","rehearsal","liveshow","wrapup"];
+
+  return (
+    <div>
+      {/* Stage indicator */}
+      <div style={{ marginBottom: "1rem", display: "flex", gap: "0.5rem" }}>
+        {stageOrder.map((s, i) => {
+          const current = stageOrder.indexOf(stage);
+          return (
+            <div key={s} style={{ flex: 1, padding: "0.5rem", background: i <= current ? "var(--accent)" : "var(--surface2)", borderRadius: "4px", textAlign: "center" }}>
+              {i < current ? "✓ " : ""}{stageLabels[s]}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Score */}
+      <div style={{ marginBottom: "1rem", padding: "0.5rem", background: "var(--surface2)", borderRadius: "4px" }}>
+        Score: {state.session?.score ?? 0}
+      </div>
+
+      {/* Conflict overlay */}
+      {conflict && (
+        <ConflictMinigame conflict={conflict} onResolved={handleConflictResolved} />
+      )}
+
+      {/* Active stage */}
+      {!conflict && stage === "planning" && (
+        <PlanningStage onComplete={() => advanceTo("rehearsal")} />
+      )}
+      {!conflict && stage === "rehearsal" && (
+        <RehearsalStage
+          cues={cueSheet}
+          onComplete={() => advanceTo("liveshow")}
+          onFail={handleFail}
+        />
+      )}
+      {!conflict && stage === "liveshow" && (
+        <LiveShowStage
+          cues={cueSheet}
+          onComplete={() => advanceTo("wrapup")}
+          onFail={handleFail}
+        />
+      )}
+      {!conflict && stage === "wrapup" && (
+        <WrapUpScene onComplete={handleComplete} />
+      )}
+    </div>
+  );
+}
