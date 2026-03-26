@@ -1,4 +1,6 @@
-export default function DialogueBox({ speaker, text, choices, onChoice }) {
+import { memo } from "react";
+
+export default memo(function DialogueBox({ speaker, text, choices, onChoice }) {
   return (
     <div style={{ padding: "1rem", background: "var(--surface2)", borderRadius: "8px", marginBottom: "1rem" }}>
       <h3>💬 {speaker}</h3>

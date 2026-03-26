@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import { useGame } from "../../context/GameContext";
 
 const TOTAL_DURATION_MS = 20000;
 
-export default function RehearsalStage({ cues, onComplete, onFail }) {
+/**\n * RehearsalStage: Controlled cue timing practice\n * Similar to LiveShowStage but lower stakes - allows multiple cue misses\n * Memoized to prevent unnecessary re-renders\n */\nfunction RehearsalStage({ cues, onComplete, onFail }) {
   const { state, dispatch } = useGame();
   const [elapsed, setElapsed] = useState(0);
   const [cueResults, setCueResults] = useState({});
@@ -35,7 +35,11 @@ export default function RehearsalStage({ cues, onComplete, onFail }) {
     onComplete();
   }, [done]);
 
-  function fireCue(cue) {
+  function fireCue(cue, event) {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     if (!active || cueResults[cue.id]) return;
     const hit = Math.abs(elapsed - cue.targetMs) <= cue.windowMs;
     setCueResults(r => ({ ...r, [cue.id]: { hit } }));
@@ -81,8 +85,24 @@ export default function RehearsalStage({ cues, onComplete, onFail }) {
       </div>
 
       {!active && !done && (
-        <button onClick={() => setActive(true)} style={{ cursor: "pointer", padding: "0.75rem 1.5rem", marginBottom: "1.5rem" }}>
-          ▶ Start rehearsal
+        <button 
+          onMouseDown={() => setActive(true)}
+          onTouchStart={() => setActive(true)}
+          style={{ 
+            cursor: "pointer", 
+            marginBottom: "1rem", 
+            padding: "0.75rem 1.5rem",
+            minWidth: "44px",
+            minHeight: "44px",
+            fontSize: "0.75rem",
+            fontFamily: "'Press Start 2P', monospace",
+            background: "var(--success, #40ff80)",
+            border: "2px solid var(--success-border, #20ff60)",
+            fontWeight: "bold",
+            touchAction: "none"
+          }}
+        >
+          🎬 Start Rehearsal
         </button>
       )}
 
@@ -100,7 +120,23 @@ export default function RehearsalStage({ cues, onComplete, onFail }) {
                 {result ? (result.hit ? "✅" : "❌") : "○"}
               </div>
               {active && !result && (
-                <button onClick={() => fireCue(c)} style={{ cursor: "pointer" }}>
+                <button 
+                  onMouseDown={(e) => fireCue(c, e)}
+                  onTouchStart={(e) => fireCue(c, e)}
+                  style={{ 
+                    cursor: "pointer",
+                    padding: "0.5rem 1rem",
+                    minWidth: "44px",
+                    minHeight: "44px",
+                    fontSize: "0.75rem",
+                    fontFamily: "'Press Start 2P', monospace",
+                    background: "var(--accent)",
+                    border: "2px solid var(--accent-border, #ff40ff)",
+                    color: "#000",
+                    fontWeight: "bold",
+                    touchAction: "none"
+                  }}
+                >
                   GO
                 </button>
               )}
@@ -112,16 +148,5 @@ export default function RehearsalStage({ cues, onComplete, onFail }) {
   );
 }
 
-
-
-function copyCode(id) {
-  const el = document.getElementById(id);
-  navigator.clipboard.writeText(el.textContent).then(() => {
-    document.querySelectorAll('.copy-btn').forEach(b => {
-      if(b.getAttribute('onclick')?.includes(`'${id}'`)) {
-        b.textContent = 'Copied!'; setTimeout(() => b.textContent = 'Copy', 1500);
-      }
-    });
-  });
-}
+export default memo(RehearsalStage);
 

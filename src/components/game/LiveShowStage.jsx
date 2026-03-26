@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, memo } from "react";
 import { useGame } from "../../context/GameContext";
 
 // Total duration of simulated live show (30 seconds)
@@ -16,8 +16,10 @@ const TOTAL_DURATION_MS = 30000;
  * - Uses requestAnimationFrame for smooth 60fps timing
  * - Real-time feedback via Stage Manager headset line
  * - Shows visual progress bar with cue markers
+ * 
+ * Memoized to prevent unnecessary re-renders when parent updates
  */
-export default function LiveShowStage({ cues, onComplete, onFail }) {
+function LiveShowStage({ cues, onComplete, onFail }) {
   const { state, dispatch } = useGame();
   
   // Timing state
@@ -68,11 +70,17 @@ export default function LiveShowStage({ cues, onComplete, onFail }) {
   }, [done]);
 
   /**
-   * Player clicks "GO" for a cue
+   * Player clicks/taps "GO" for a cue
    * Determines if timing was accurate (within window)
    * Updates score and life count accordingly
+   * Supports both mouse clicks and touch events
    */
-  function fireCue(cue) {
+  function fireCue(cue, event) {
+    // Prevent default touch behavior (prevents double-firing)
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
     // Guard: only fire once per cue, only during active show
     if (!active || cueResults[cue.id]) return;
     
@@ -137,8 +145,21 @@ export default function LiveShowStage({ cues, onComplete, onFail }) {
 
       {!active && !done && (
         <button
-          onClick={() => { setActive(true); setSmLine("\"And... go!\""); }}
-          style={{ cursor: "pointer", padding: "0.75rem 1.5rem", marginBottom: "1rem" }}
+          onMouseDown={() => { setActive(true); setSmLine("\"And... go!\""); }}
+          onTouchStart={() => { setActive(true); setSmLine("\"And... go!\""); }}
+          style={{ 
+            cursor: "pointer", 
+            padding: "0.75rem 1.5rem", 
+            marginBottom: "1rem",
+            minWidth: "44px",
+            minHeight: "44px",
+            fontSize: "0.75rem",
+            fontFamily: "'Press Start 2P', monospace",
+            background: "var(--success, #40ff80)",
+            border: "2px solid var(--success-border, #20ff60)",
+            fontWeight: "bold",
+            touchAction: "none"
+          }}
         >
           🔴 Go Live
         </button>
@@ -157,7 +178,23 @@ export default function LiveShowStage({ cues, onComplete, onFail }) {
                 {result ? (result.hit ? "✅" : "❌") : "○"}
               </div>
               {active && !result && (
-                <button onClick={() => fireCue(c)} style={{ cursor: "pointer" }}>
+                <button 
+                  onMouseDown={(e) => fireCue(c, e)}
+                  onTouchStart={(e) => fireCue(c, e)}
+                  style={{ 
+                    cursor: "pointer",
+                    padding: "0.5rem 1rem",
+                    minWidth: "44px",
+                    minHeight: "44px",
+                    fontSize: "0.75rem",
+                    fontFamily: "'Press Start 2P', monospace",
+                    background: "var(--accent)",
+                    border: "2px solid var(--accent-border, #ff40ff)",
+                    color: "#000",
+                    fontWeight: "bold",
+                    touchAction: "none"
+                  }}
+                >
                   GO
                 </button>
               )}
@@ -168,4 +205,6 @@ export default function LiveShowStage({ cues, onComplete, onFail }) {
     </div>
   );
 }
+
+export default memo(LiveShowStage);
 
