@@ -128,9 +128,9 @@ export function GameProvider({ children }) {
   }, [state]);
 
   return (
-    
+    <GameContext.Provider value={{ state, dispatch }}>
       {children}
-    
+    </GameContext.Provider>
   );
 }
 
