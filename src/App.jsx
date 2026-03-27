@@ -1,5 +1,6 @@
 import { Suspense, lazy, useEffect, useState } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Spinner } from "./components/ui/Spinner";
 import { GameProvider } from "./context/GameContext";
 // Eager load critical routes
@@ -40,6 +41,7 @@ function App() {
             <Route path="/level-failed/:productionId/:difficulty/:levelId" element={<Suspense fallback={<Spinner />}><LevelFailedPage /></Suspense>} />
             <Route path="/stories" element={<StoriesPage />} />
           </Routes>
+          <SpeedInsights />
         </Router>
       </GameProvider>
     );
