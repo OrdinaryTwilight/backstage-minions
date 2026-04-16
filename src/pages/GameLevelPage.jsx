@@ -1,50 +1,37 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ConflictMinigame from "../components/game/ConflictMinigame";
-import PlanningStage from "../components/game/PlanningStage";
-import WrapUpScene from "../components/game/WrapUpScene";
-// 1. Import your new combined stage
 import CueExecutionStage from "../components/game/CueExecutionStage";
+import EquipmentStage from "../components/game/EquipmentStage"; // New Stage
+import PlanningStage from "../components/game/PlanningStage";
+import SoundDesignStage from "../components/game/SoundDesignStage"; // New Stage
+import WrapUpScene from "../components/game/WrapUpScene";
 import { useGame } from "../context/GameContext";
 import { STAGE_LABELS, STAGE_ORDER } from "../data/constants";
-import { CHARACTERS, CONFLICTS, CUE_SHEETS, STORIES } from "../data/gameData";
-
-function starsFromSession(session, totalCues) {
-  if (!session) return 0;
-  const hitRate = totalCues > 0 ? session.cuesHit / totalCues : 0;
-  if (hitRate >= 0.9) return 3;
-  if (hitRate >= 0.65) return 2;
-  return 1;
-}
-
-function pickConflict(trigger, seen) {
-  const eligible = CONFLICTS.filter(
-    (c) => c.trigger === trigger && !seen.includes(c.id),
-  );
-  if (!eligible.length || Math.random() > 0.6) return null;
-  return eligible[Math.floor(Math.random() * eligible.length)];
-}
+import { CHARACTERS, CONFLICTS, CUE_SHEETS } from "../data/gameData";
 
 export default function GameLevelPage() {
   const { productionId, difficulty, charId } = useParams();
   const { state, dispatch } = useGame();
   const navigate = useNavigate();
 
-  const [stage, setStage] = useState("planning");
+  const [stage, setStage] = useState("equipment");
   const [conflict, setConflict] = useState(null);
+  const [gearMultiplier, setGearMultiplier] = useState(1);
   const [penaltyMultiplier, setPenaltyMultiplier] = useState(1);
 
-  // Crash guard: redirects user safely if page is refreshed mid-game
+  const char = CHARACTERS.find((c) => c.id === charId);
+  const isLighting = char?.department === "lighting";
+  const isSound = char?.department === "sound";
+
+  const cueSheet = CUE_SHEETS[productionId]?.[char?.department] ?? [];
+  const seen = state?.session?.conflictsSeen ?? [];
+
   useEffect(() => {
     if (!state?.session) navigate("/");
   }, [state?.session, navigate]);
 
-  // Prevent fatal render errors before redirect kicks in
   if (!state?.session) return null;
-
-  const char = CHARACTERS.find((c) => c.id === charId);
-  const cueSheet = CUE_SHEETS[productionId]?.[char?.department] ?? [];
-  const seen = state?.session?.conflictsSeen ?? [];
 
   function advanceTo(nextStage) {
     const c = pickConflict(nextStage, seen);
@@ -52,21 +39,40 @@ export default function GameLevelPage() {
       setConflict(c);
       return;
     }
+
+    // Role-based logic: Skip planning stages that don't match the department
+    if (nextStage === "planning" && !isLighting) {
+      setStage("sound_design");
+      return;
+    }
+    if (nextStage === "sound_design" && !isSound) {
+      setStage("rehearsal");
+      return;
+    }
+
     setStage(nextStage);
     dispatch({ type: "ADVANCE_STAGE" });
   }
 
+  function pickConflict(trigger, seenIds) {
+    const eligible = CONFLICTS.filter(
+      (c) => c.trigger === trigger && !seenIds.includes(c.id),
+    );
+    if (!eligible.length || Math.random() > 0.6) return null;
+    return eligible[Math.floor(Math.random() * eligible.length)];
+  }
+
   function onConflictResolved(outcome) {
     setConflict(null);
-    if (outcome === "escalated") {
-      setPenaltyMultiplier(0.7);
-    } else if (outcome === "fail") {
+    if (outcome === "escalated") setPenaltyMultiplier(0.7);
+    if (outcome === "fail") {
       handleFail();
       return;
     }
 
-    dispatch({ type: "ADVANCE_STAGE" });
-    setStage((prev) => STAGE_ORDER[STAGE_ORDER.indexOf(prev) + 1] ?? "wrapup");
+    const currentIndex = STAGE_ORDER.indexOf(stage);
+    const nextStage = STAGE_ORDER[currentIndex + 1] ?? "wrapup";
+    advanceTo(nextStage);
   }
 
   function handleFail() {
@@ -84,6 +90,11 @@ export default function GameLevelPage() {
         stars >= s.unlockedBy.minStars,
     ).map((s) => s.id);
 
+    // Navigate FIRST, then dispatch completion to avoid the "Crash Guard" redirect
+    navigate(`/level-complete/${productionId}/${difficulty}/${charId}`, {
+      state: { stars, newStories },
+    });
+
     dispatch({
       type: "COMPLETE_LEVEL",
       productionId,
@@ -91,65 +102,78 @@ export default function GameLevelPage() {
       stars,
       unlockedStories: newStories,
     });
-    navigate(`/level-complete/${productionId}/${difficulty}/${charId}`, {
-      state: { stars, newStories },
-    });
   }
 
   return (
-    <div className="stage-container">
+    <div className="page-container">
+      {/* Stage Progress Header */}
       <div style={{ marginBottom: "1rem", display: "flex", gap: "0.5rem" }}>
         {STAGE_ORDER.map((s, i) => {
           const current = STAGE_ORDER.indexOf(stage);
+          const isHidden =
+            (s === "planning" && !isLighting) ||
+            (s === "sound_design" && !isSound);
+          if (isHidden) return null;
+
           return (
             <div
               key={s}
               style={{
                 flex: 1,
                 padding: "0.5rem",
-                background: i <= current ? "var(--accent)" : "var(--surface2)",
                 borderRadius: "4px",
                 textAlign: "center",
-                fontSize: "0.8rem",
-                fontWeight: i <= current ? "bold" : "normal",
+                fontSize: "0.7rem",
+                background:
+                  i <= current
+                    ? "var(--bui-fg-success)"
+                    : "var(--color-surface-2)",
+                color: i <= current ? "#000" : "#888",
               }}
             >
-              {i < current ? "✓ " : ""}
               {STAGE_LABELS[s]}
             </div>
           );
         })}
       </div>
 
-      <div className="surface-panel" style={{ padding: "0.5rem" }}>
-        <strong>Score: {state?.session?.score ?? 0}</strong>
-      </div>
-
       {conflict ? (
         <ConflictMinigame conflict={conflict} onResolved={onConflictResolved} />
       ) : (
         <>
-          {stage === "planning" && (
-            <PlanningStage onComplete={() => advanceTo("rehearsal")} />
+          {stage === "equipment" && (
+            <EquipmentStage
+              onSelect={(pkg) => {
+                setGearMultiplier(pkg.multiplier);
+                dispatch({ type: "ADD_SCORE", delta: pkg.bonus });
+                advanceTo("planning");
+              }}
+            />
           )}
 
-          {/* 2. Use the new CueExecutionStage with stageType="rehearsal" */}
+          {stage === "planning" && isLighting && (
+            <PlanningStage onComplete={() => advanceTo("sound_design")} />
+          )}
+
+          {stage === "sound_design" && isSound && (
+            <SoundDesignStage onComplete={() => advanceTo("rehearsal")} />
+          )}
+
           {stage === "rehearsal" && (
             <CueExecutionStage
               stageType="rehearsal"
               cues={cueSheet}
-              penaltyMultiplier={penaltyMultiplier}
+              penaltyMultiplier={penaltyMultiplier * gearMultiplier}
               onComplete={() => advanceTo("liveshow")}
               onFail={handleFail}
             />
           )}
 
-          {/* 3. Use the new CueExecutionStage with stageType="live" */}
           {stage === "liveshow" && (
             <CueExecutionStage
               stageType="live"
               cues={cueSheet}
-              penaltyMultiplier={penaltyMultiplier}
+              penaltyMultiplier={penaltyMultiplier * gearMultiplier}
               onComplete={() => advanceTo("wrapup")}
               onFail={handleFail}
             />

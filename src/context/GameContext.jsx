@@ -61,7 +61,8 @@ function reducer(state, action) {
         ...state,
         session: {
           ...state.session,
-          score: state.session.score + action.delta,
+          // Ensure both values are numbers to prevent NaN
+          score: (state.session.score || 0) + (Number(action.delta) || 0),
         },
       };
 

@@ -6,13 +6,15 @@
 /** * Core Game Progression Order
  * @type {GameStage[]} 
  */
-export const STAGE_ORDER = ["planning", "rehearsal", "liveshow", "wrapup"];
+export const STAGE_ORDER = ["equipment", "planning", "sound_design", "rehearsal", "liveshow", "wrapup"];
 
 /** * UI Display Labels for Stages
  * @type {Object.<GameStage, string>} 
  */
 export const STAGE_LABELS = {
-  planning: "Planning",
+  equipment: "Load-In",
+  planning: "Lighting Plot",
+  sound_design: "Sound Map",
   rehearsal: "Rehearsal",
   liveshow: "Live Show",
   wrapup: "Wrap-up",
@@ -59,6 +61,7 @@ export const SCORING = {
   REHEARSAL_HIT: 50,
   LIVE_SHOW_HIT: 80,
   REDO_PENALTY: -50,
+  EQUIPMENT_BONUS: 20,
   PLANNING_MAX: 100,
   PLANNING_PER_FIXTURE: 15,
   CONTACT_EXCHANGE_BONUS: 30,

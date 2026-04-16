@@ -17,7 +17,8 @@ export default function PlanningStage({ onComplete }) {
   const [reportScore, setReportScore] = useState(null);
 
   const placedCount = grid.filter(Boolean).length;
-  const isFail = reportScore !== null && reportScore < 40; // Threshold for "More Coverage Needed"
+  // Stage Gating: Scores below 40 are considered a failure
+  const isFail = reportScore !== null && reportScore < 40;
 
   function placeLight(i) {
     if (submitted) return;
@@ -45,51 +46,8 @@ export default function PlanningStage({ onComplete }) {
       <h2 style={{ marginBottom: "0.5rem", color: "var(--bui-fg-info)" }}>
         🗺️ Drafting: Lighting Plot
       </h2>
-      <p
-        style={{
-          color: "var(--color-pencil-light)",
-          marginBottom: "1.5rem",
-          fontSize: "0.9rem",
-        }}
-      >
-        {submitted
-          ? "Awaiting Stage Manager approval..."
-          : "Select a fixture and map the stage coverage."}
-      </p>
 
-      {/* Fixture palette - More compact to balance the screen */}
-      <div
-        style={{
-          marginBottom: "1.5rem",
-          display: "flex",
-          gap: "0.5rem",
-          flexWrap: "wrap",
-        }}
-      >
-        {LIGHT_TYPES.map((l) => (
-          <button
-            key={l.id}
-            onClick={() => setSelectedType(l.id)}
-            className="action-button"
-            style={{
-              flex: 1,
-              minWidth: "80px", // Smaller buttons
-              padding: "0.5rem",
-              fontSize: "0.75rem",
-              borderColor:
-                selectedType === l.id ? l.color : "var(--glass-border)",
-              color:
-                selectedType === l.id ? l.color : "var(--color-pencil-light)",
-              background:
-                selectedType === l.id ? `${l.color}11` : "transparent",
-            }}
-          >
-            {l.icon}
-          </button>
-        ))}
-      </div>
-
-      {/* Grid - Enlarged for better touch/click targets */}
+      {/* Grid UI - Enlarged for better visibility */}
       <div
         style={{
           display: "grid",
@@ -97,7 +55,7 @@ export default function PlanningStage({ onComplete }) {
           gap: "0.75rem",
           marginBottom: "1.5rem",
           width: "100%",
-          maxWidth: "600px", // Larger grid
+          maxWidth: "600px",
           margin: "0 auto 2rem",
         }}
       >
@@ -111,7 +69,7 @@ export default function PlanningStage({ onComplete }) {
               onClick={() => placeLight(i)}
               className="plot-cell"
               style={{
-                aspectRatio: "1.2", // Slightly wider cells
+                aspectRatio: "1.2",
                 background: lt ? `${lt.color}33` : "rgba(0,0,0,0.1)",
                 borderColor: lt ? lt.color : "var(--glass-border)",
                 fontSize: "1.2rem",
@@ -123,7 +81,6 @@ export default function PlanningStage({ onComplete }) {
         })}
       </div>
 
-      {/* Reporting Logic */}
       {!submitted ? (
         <button
           onClick={submit}
@@ -155,7 +112,7 @@ export default function PlanningStage({ onComplete }) {
             }}
           >
             {isFail
-              ? '"This stage is a dark pit. Add more fixtures or the actors will be invisible."'
+              ? '"This stage is a dark pit. Add more fixtures."'
               : '"Clean plot. Let\'s get to rehearsal."'}
           </p>
           <div style={{ display: "flex", gap: "1rem" }}>
@@ -166,7 +123,7 @@ export default function PlanningStage({ onComplete }) {
             >
               Revise Plot
             </button>
-            {/* Logic: Only show/allow Continue if coverage is sufficient */}
+            {/* The Gate: Continue only appears if score is sufficient */}
             {!isFail && (
               <button
                 onClick={onComplete}
