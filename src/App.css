@@ -182,3 +182,26 @@
     border-right-color: var(--border);
   }
 }
+
+body {
+  margin: 0;
+  background-color: #1a1a1a;
+  display: flex;
+  justify-content: center;
+}
+
+#root {
+  width: 100%;
+  max-width: 480px;
+  /* This makes it look like a mobile phone! */
+  min-height: 100vh;
+  background-color: #242424;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.page-container {
+  padding: 1.5rem;
+  padding-bottom: 5rem;
+}
