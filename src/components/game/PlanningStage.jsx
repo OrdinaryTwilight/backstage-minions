@@ -16,6 +16,9 @@ export default function PlanningStage({ onComplete }) {
   const [submitted, setSubmitted] = useState(false);
   const [reportScore, setReportScore] = useState(null);
 
+  const placedCount = grid.filter(Boolean).length;
+  const isFail = reportScore !== null && reportScore < 40; // Threshold for "More Coverage Needed"
+
   function placeLight(i) {
     if (submitted) return;
     setGrid((g) => {
@@ -27,12 +30,10 @@ export default function PlanningStage({ onComplete }) {
   }
 
   function submit() {
-    const placed = grid.filter(Boolean).length;
     const score = Math.min(
-      placed * SCORING.PLANNING_PER_FIXTURE,
+      placedCount * SCORING.PLANNING_PER_FIXTURE,
       SCORING.PLANNING_MAX,
     );
-
     setReportScore(score);
     setSubmitted(true);
     dispatch({ type: "SET_PLOT_LIGHTS", lights: grid });
@@ -42,27 +43,27 @@ export default function PlanningStage({ onComplete }) {
   return (
     <div className="hardware-panel">
       <h2 style={{ marginBottom: "0.5rem", color: "var(--bui-fg-info)" }}>
-        🗺️ Planning stage
+        🗺️ Drafting: Lighting Plot
       </h2>
       <p
         style={{
           color: "var(--color-pencil-light)",
           marginBottom: "1.5rem",
-          lineHeight: "1.5",
+          fontSize: "0.9rem",
         }}
       >
-        Build your lighting plot. Select a fixture type, then tap the grid to
-        place it.
+        {submitted
+          ? "Awaiting Stage Manager approval..."
+          : "Select a fixture and map the stage coverage."}
       </p>
 
-      {/* Fixture palette */}
+      {/* Fixture palette - More compact to balance the screen */}
       <div
         style={{
           marginBottom: "1.5rem",
           display: "flex",
-          gap: "0.75rem",
+          gap: "0.5rem",
           flexWrap: "wrap",
-          justifyContent: "center",
         }}
       >
         {LIGHT_TYPES.map((l) => (
@@ -71,31 +72,33 @@ export default function PlanningStage({ onComplete }) {
             onClick={() => setSelectedType(l.id)}
             className="action-button"
             style={{
-              minWidth: "120px",
+              flex: 1,
+              minWidth: "80px", // Smaller buttons
+              padding: "0.5rem",
+              fontSize: "0.75rem",
               borderColor:
                 selectedType === l.id ? l.color : "var(--glass-border)",
               color:
                 selectedType === l.id ? l.color : "var(--color-pencil-light)",
               background:
-                selectedType === l.id
-                  ? `${l.color}11`
-                  : "var(--color-surface-translucent)",
+                selectedType === l.id ? `${l.color}11` : "transparent",
             }}
           >
-            {l.icon} {l.label}
+            {l.icon}
           </button>
         ))}
       </div>
 
-      {/* Grid */}
+      {/* Grid - Enlarged for better touch/click targets */}
       <div
         style={{
           display: "grid",
           gridTemplateColumns: `repeat(${PLOT_GRID_COLS}, 1fr)`,
-          gap: "0.5rem",
+          gap: "0.75rem",
           marginBottom: "1.5rem",
-          maxWidth: "400px",
-          margin: "0 auto 1.5rem",
+          width: "100%",
+          maxWidth: "600px", // Larger grid
+          margin: "0 auto 2rem",
         }}
       >
         {grid.map((cell, i) => {
@@ -108,63 +111,14 @@ export default function PlanningStage({ onComplete }) {
               onClick={() => placeLight(i)}
               className="plot-cell"
               style={{
-                background: lt ? `${lt.color}33` : "rgba(0,0,0,0.2)",
+                aspectRatio: "1.2", // Slightly wider cells
+                background: lt ? `${lt.color}33` : "rgba(0,0,0,0.1)",
                 borderColor: lt ? lt.color : "var(--glass-border)",
-                color: lt ? lt.color : "transparent",
+                fontSize: "1.2rem",
               }}
             >
-              {lt ? lt.icon : ""}
+              {lt ? lt.icon : "·"}
             </button>
-          );
-        })}
-      </div>
-
-      {/* Stage Preview Window */}
-      <div
-        className="console-screen"
-        style={{
-          height: "160px",
-          marginBottom: "1.5rem",
-          position: "relative",
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute",
-            bottom: "5px",
-            width: "100%",
-            textAlign: "center",
-            color: "var(--color-pencil-light)",
-            opacity: 0.4,
-            fontSize: "0.7rem",
-          }}
-        >
-          STAGE FRONT
-        </div>
-        {grid.map((cell, i) => {
-          if (!cell) return null;
-          const lt = LIGHT_TYPES.find((t) => t.id === cell.typeId);
-          const x = ((i % PLOT_GRID_COLS) / (PLOT_GRID_COLS - 1)) * 80 + 10;
-          const y =
-            (Math.floor(i / PLOT_GRID_COLS) / Math.max(1, PLOT_GRID_ROWS - 1)) *
-              70 +
-            10;
-          return (
-            <div
-              key={`pre-${i}`}
-              style={{
-                position: "absolute",
-                left: `${x}%`,
-                top: `${y}%`,
-                width: "100px",
-                height: "100px",
-                background: `radial-gradient(circle, ${lt?.color} 0%, transparent 70%)`,
-                transform: "translate(-50%, -50%)",
-                opacity: 0.5,
-                mixBlendMode: "screen",
-              }}
-            />
           );
         })}
       </div>
@@ -176,45 +130,52 @@ export default function PlanningStage({ onComplete }) {
           className="action-button btn-success"
           style={{ width: "100%", maxWidth: "none" }}
         >
-          Submit to Stage Manager
+          Submit Plot
         </button>
       ) : (
         <div
           className="surface-panel"
           style={{
-            borderLeft: "4px solid var(--bui-fg-info)",
-            background: "rgba(0,0,0,0.3)",
+            borderLeft: `4px solid ${isFail ? "var(--bui-fg-danger)" : "var(--bui-fg-success)"}`,
           }}
         >
-          <h3 style={{ color: "var(--bui-fg-info)", marginBottom: "1rem" }}>
-            📊 SM Report Card
+          <h3
+            style={{
+              color: isFail ? "var(--bui-fg-danger)" : "var(--bui-fg-success)",
+              marginBottom: "0.5rem",
+            }}
+          >
+            {isFail ? "⚠️ REJECTED: Inadequate Coverage" : "✅ APPROVED"}
           </h3>
           <p
             style={{
               fontStyle: "italic",
               marginBottom: "1.5rem",
-              color: "var(--color-pencil-light)",
+              fontSize: "0.9rem",
             }}
           >
-            {reportScore >= 80
-              ? '"Solid plot — let\'s move to rehearsal."'
-              : '"It\'ll do, but we need more coverage."'}
+            {isFail
+              ? '"This stage is a dark pit. Add more fixtures or the actors will be invisible."'
+              : '"Clean plot. Let\'s get to rehearsal."'}
           </p>
           <div style={{ display: "flex", gap: "1rem" }}>
             <button
               onClick={() => setSubmitted(false)}
               className="action-button"
-              style={{ flex: 1, minWidth: "0" }}
+              style={{ flex: 1 }}
             >
               Revise Plot
             </button>
-            <button
-              onClick={onComplete}
-              className="action-button btn-accent"
-              style={{ flex: 1, minWidth: "0" }}
-            >
-              Continue
-            </button>
+            {/* Logic: Only show/allow Continue if coverage is sufficient */}
+            {!isFail && (
+              <button
+                onClick={onComplete}
+                className="action-button btn-accent"
+                style={{ flex: 1 }}
+              >
+                Continue
+              </button>
+            )}
           </div>
         </div>
       )}
