@@ -53,20 +53,34 @@ function RehearsalStage({ cues, onComplete, onFail }) {
 
     if (!active || cueResults[cue.id]) return;
 
-    const hit = Math.abs(elapsed - cue.targetMs) <= cue.windowMs;
+    // Apply the penalty multiplier to the window!
+    const timeDiff = Math.abs(elapsed - cue.targetMs);
+    const hit = timeDiff <= cue.windowMs * penaltyMultiplier;
+
     setCueResults((r) => ({ ...r, [cue.id]: { hit } }));
 
     if (hit) {
       dispatch({ type: "CUE_HIT" });
-      dispatch({ type: "ADD_SCORE", delta: 50 });
+      dispatch({ type: "ADD_SCORE", delta: 80 });
+
+      // Dynamic Praise!
+      const praise = isLiked
+        ? '"Brilliant timing, you\'re saving us!"'
+        : '"Good cue."';
+      setSmLine(praise);
     } else {
       dispatch({ type: "CUE_MISSED" });
       dispatch({ type: "LOSE_LIFE" });
 
-      // Check if this miss depleted the last life
-      if (lives - 1 <= 0) {
-        setActive(false);
-        setFailed(true); // Stop the rehearsal and show Redo screen
+      // Dynamic Yell!
+      const yell =
+        (char?.stats?.social ?? 5) < 7
+          ? '"Wake up at the board! We are dying out here!"'
+          : '"Missed cue! Stay focused, you can do this."';
+      setSmLine(yell);
+
+      if ((state.session?.lives ?? 1) - 1 <= 0) {
+        onFail();
       }
     }
   }

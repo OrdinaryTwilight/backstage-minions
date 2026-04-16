@@ -19,7 +19,7 @@ const TOTAL_DURATION_MS = 30000;
  *
  * Memoized to prevent unnecessary re-renders when parent updates
  */
-function LiveShowStage({ cues, onComplete, onFail }) {
+function LiveShowStage({ cues, penaltyMultiplier = 1, onComplete, onFail }) {
   const { state, dispatch } = useGame();
 
   // Timing state
@@ -95,35 +95,41 @@ function LiveShowStage({ cues, onComplete, onFail }) {
    * Supports both mouse clicks and touch events
    */
   function fireCue(cue, event) {
-    // Prevent default touch behavior (prevents double-firing)
     if (event) {
       event.preventDefault();
       event.stopPropagation();
     }
-    // Guard: only fire once per cue, only during active show
+
     if (!active || cueResults[cue.id]) return;
 
-    // Check if time is within acceptable window
+    // Apply the penalty multiplier to the window!
     const timeDiff = Math.abs(elapsed - cue.targetMs);
-    const hit = timeDiff <= cue.windowMs;
+    const hit = timeDiff <= cue.windowMs * penaltyMultiplier;
 
-    // Record result
     setCueResults((r) => ({ ...r, [cue.id]: { hit } }));
 
     if (hit) {
-      // ✅ Successful cue execution
       dispatch({ type: "CUE_HIT" });
       dispatch({ type: "ADD_SCORE", delta: 80 });
-      setSmLine('"Good cue!"');
+
+      // Dynamic Praise!
+      const praise = isLiked
+        ? '"Brilliant timing, you\'re saving us!"'
+        : '"Good cue."';
+      setSmLine(praise);
     } else {
-      // ❌ Missed cue
       dispatch({ type: "CUE_MISSED" });
       dispatch({ type: "LOSE_LIFE" });
-      setSmLine('"MISSED CUE — stay focused!"');
 
-      // Check if this was the final life
+      // Dynamic Yell!
+      const yell =
+        (char?.stats?.social ?? 5) < 7
+          ? '"Wake up at the board! We are dying out here!"'
+          : '"Missed cue! Stay focused, you can do this."';
+      setSmLine(yell);
+
       if ((state.session?.lives ?? 1) - 1 <= 0) {
-        onFail(); // End show early
+        onFail();
       }
     }
   }

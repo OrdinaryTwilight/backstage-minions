@@ -157,6 +157,62 @@ export default function PlanningStage({ onComplete }) {
           </button>
         </div>
       )}
+      {/* Visual Stage Preview */}
+      <div
+        style={{
+          height: "150px",
+          background: "#111",
+          border: "2px solid var(--border)",
+          borderRadius: "8px",
+          marginBottom: "1rem",
+          position: "relative",
+          overflow: "hidden",
+        }}
+      >
+        <div
+          style={{
+            position: "absolute",
+            bottom: "10px",
+            width: "100%",
+            textAlign: "center",
+            color: "#555",
+            fontFamily: "monospace",
+          }}
+        >
+          STAGE FRONT
+        </div>
+
+        {grid.map((cell, i) => {
+          if (!cell) return null;
+          const lt = LIGHT_TYPES.find((t) => t.id === cell.typeId);
+
+          // Calculate X/Y position based on grid index
+          const x = ((i % PLOT_GRID_COLS) / (PLOT_GRID_COLS - 1)) * 90 + 5; // 5% to 95%
+          const y =
+            (Math.floor(i / PLOT_GRID_COLS) / Math.max(1, PLOT_GRID_ROWS - 1)) *
+              80 +
+            10;
+
+          return (
+            <div
+              key={`preview-${i}`}
+              style={{
+                position: "absolute",
+                left: `${x}%`,
+                top: `${y}%`,
+                width: "120px",
+                height: "120px",
+                // Create a soft light beam effect
+                background: `radial-gradient(circle, ${lt?.color} 0%, transparent 60%)`,
+                transform: "translate(-50%, -50%)",
+                opacity: 0.6,
+                mixBlendMode: "screen", // Makes overlapping lights blend naturally
+                pointerEvents: "none",
+              }}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 }

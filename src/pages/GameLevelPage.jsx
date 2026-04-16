@@ -24,22 +24,13 @@ function pickConflict(trigger, seen) {
   return eligible[Math.floor(Math.random() * eligible.length)];
 }
 
-function handleConflictResolved(outcome) {
-  if (outcome === "escalated") {
-    setPenaltyMultiplier(0.7); // Shrinks cue windows by 30% to simulate rushing
-  } else if (outcome === "fail") {
-    handleFail(); // Instant fail for severe conflicts
-    return;
-  }
-  // ... advance stage
-}
-
 export default function GameLevelPage() {
   const { productionId, difficulty, charId } = useParams();
   const { state, dispatch } = useGame();
   const navigate = useNavigate();
   const [stage, setStage] = useState("planning");
   const [conflict, setConflict] = useState(null);
+  const [penaltyMultiplier, setPenaltyMultiplier] = useState(1); // For conflict penalties
 
   // Guard: if no active session, redirect home
   useEffect(() => {
@@ -61,11 +52,16 @@ export default function GameLevelPage() {
   }
 
   function onConflictResolved(outcome) {
-    setConflict(null);
-    if (outcome === "fail") {
-      handleFail();
+    setConflict(null); // Closes the minigame
+
+    if (outcome === "escalated") {
+      setPenaltyMultiplier(0.7); // Shrinks cue windows by 30%
+    } else if (outcome === "fail") {
+      handleFail(); // Instant fail for severe conflicts
       return;
     }
+
+    // Advance stage
     dispatch({ type: "ADVANCE_STAGE" });
     setStage((prev) => {
       const order = ["planning", "rehearsal", "liveshow", "wrapup"];
@@ -167,8 +163,33 @@ export default function GameLevelPage() {
           onFail={handleFail}
         />
       )}
+
       {!conflict && stage === "wrapup" && (
         <WrapUpScene onComplete={handleComplete} />
+      )}
+      {conflict && (
+        <ConflictMinigame
+          conflict={conflict}
+          onResolved={onConflictResolved} // Use the consolidated function
+        />
+      )}
+
+      {/* Pass penaltyMultiplier to Rehearsal and LiveShow */}
+      {!conflict && stage === "rehearsal" && (
+        <RehearsalStage
+          cues={cueSheet}
+          penaltyMultiplier={penaltyMultiplier}
+          onComplete={() => advanceTo("liveshow")}
+          onFail={handleFail}
+        />
+      )}
+      {!conflict && stage === "liveshow" && (
+        <LiveShowStage
+          cues={cueSheet}
+          penaltyMultiplier={penaltyMultiplier}
+          onComplete={() => advanceTo("wrapup")}
+          onFail={handleFail}
+        />
       )}
     </div>
   );
