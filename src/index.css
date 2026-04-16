@@ -1,237 +1,74 @@
-/* --- 1. DESIGN TOKENS (The "Global Controller") --- */
+/* --- 1. DESIGN TOKENS (BUI Implementation) --- */
 :root {
-  /* Core Brand Colors */
-  --color-bg-main: #0a0a0a;
-  --color-bg-root: #1a1a1a;
-  --color-accent: #ff40ff;
-  --color-accent-dark: #d030d0;
-  --color-success: #4ade80;
-  --color-success-dark: #166534;
-  --color-danger: #ef4444;
-  --color-warning: #facc15;
+  /* Spotify & Backstage Core Palette */
+  --color-bg-app: #121212;
+  /* Deep charcoal base */
+  --color-surface-1: #181818;
+  /* Cards and sidebars */
+  --color-surface-2: #282828;
+  /* Elevated elements */
+  --color-spotify-green: #1DB954;
+  /* Branding accent */
+  --color-astronaut-blue: #024064;
+  /* Technical/Engineering blue */
 
-  /* Neutral Palette */
-  --color-text: #ffffff;
-  --color-text-muted: #aaaaaa;
-  --color-text-dim: #666666;
-  --color-border: #333333;
-  --color-surface-1: #111111;
-  --color-surface-2: #242424;
+  /* Status Tokens */
+  --bui-fg-success: #4ade80;
+  --bui-fg-danger: #f87171;
+  --bui-fg-warning: #fbbf24;
+  --bui-fg-info: #38bdf8;
 
-  /* Console Specifics */
-  --console-screen-bg: #051014;
-  --console-screen-text: #38bdf8;
-  --hardware-gradient: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+  /* Typography - Transition from Pixel to Professional */
+  --font-main: 'Inter', -apple-system, sans-serif;
+  --font-code: 'JetBrains Mono', 'Fira Code', monospace;
 
-  /* Typography */
-  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-pixel: 'Press Start 2P', monospace;
-  --font-mono: 'Courier New', Courier, monospace;
-
-  /* Layout */
-  --max-width-app: 960px;
+  /* Layout & Depth */
   --radius-sm: 4px;
   --radius-md: 8px;
-  --radius-lg: 12px;
-  --shadow-main: 0 0 40px rgba(0, 0, 0, 0.8);
+  --radius-lg: 16px;
+  --glass-bg: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --shadow-tactile: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-/* --- 2. BASE RESET & ACCESSIBILITY --- */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
+/* --- 2. BASE RESET --- */
 body {
   margin: 0;
-  padding: 0;
-  background-color: var(--color-bg-main);
-  color: var(--color-text);
+  background-color: var(--color-bg-app);
+  color: #ffffff;
   font-family: var(--font-main);
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-  line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-/* --- 3. LAYOUT WRAPPERS --- */
 #root {
-  width: 100%;
-  max-width: var(--max-width-app);
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
-  background-color: var(--color-bg-root);
-  box-shadow: var(--shadow-main);
-  position: relative;
-  overflow-x: hidden;
-  display: flex;
-  flex-direction: column;
+  /* Dark mode engineering background with subtle technical grid */
+  background-image:
+    linear-gradient(rgba(29, 185, 84, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(29, 185, 84, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
 }
 
-.page-container {
-  padding: 2rem;
-  padding-bottom: 5rem;
-  width: 100%;
-  flex: 1;
-}
-
-/* Responsive Two-Column System */
-.desktop-two-column {
-  display: flex;
-  flex-direction: column;
+/* --- 3. BENTO GRID SYSTEM --- */
+.bento-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
+  padding: 2rem;
 }
 
-@media (min-width: 768px) {
-  .desktop-two-column {
-    flex-direction: row;
-    align-items: stretch;
-  }
-
-  .desktop-col-main {
-    flex: 2;
-  }
-
-  .desktop-col-side {
-    flex: 1;
-  }
-}
-
-/* --- 4. HARDWARE & CONSOLE COMPONENTS --- */
-
-/* Brushed Metal / Plastic Panel */
-.hardware-panel {
-  background: var(--hardware-gradient);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  border: 1px solid var(--color-border);
-  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
-}
-
-/* Digital CRT / LED Screen */
-.console-screen {
-  background-color: var(--console-screen-bg);
-  border: 4px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1.5rem;
-  font-family: var(--font-mono);
-  color: var(--console-screen-text);
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
-}
-
-/* Heads Up Panel for Comms */
-.comms-panel {
-  background: var(--color-surface-1);
-  padding: 1rem;
-  border-radius: var(--radius-md);
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--color-border);
-  color: var(--color-success);
-  font-family: var(--font-mono);
-}
-
-/* --- 5. UI UTILITIES --- */
-.surface-panel {
-  background: var(--color-surface-2);
-  border-radius: var(--radius-md);
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.list-item-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0.5rem;
-  border-bottom: 1px solid var(--color-border);
-}
-
+/* --- 4. STATUS INDICATORS --- */
 .status-led {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  background: var(--color-border);
-  margin-right: 8px;
-  transition: background 0.2s, box-shadow 0.2s;
+  background: #333;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
 .status-led.on {
-  background: var(--color-danger);
-  box-shadow: 0 0 10px var(--color-danger);
-}
-
-/* --- 6. BUTTON SYSTEM --- */
-.action-button {
-  cursor: pointer;
-  padding: 0.75rem 1.5rem;
-  font-family: var(--font-pixel);
-  font-size: 0.75rem;
-  font-weight: bold;
-  border: none;
-  border-radius: var(--radius-sm);
-  transition: transform 0.1s ease, filter 0.1s ease;
-  touch-action: none;
-}
-
-.action-button:active:not(:disabled) {
-  transform: scale(0.96);
-}
-
-.action-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  filter: grayscale(1);
-}
-
-.btn-success {
-  background: var(--color-success);
-  color: #000;
-  border-bottom: 4px solid var(--color-success-dark);
-}
-
-.btn-accent {
-  background: var(--color-accent);
-  color: #000;
-  border-bottom: 4px solid var(--color-accent-dark);
-}
-
-/* Master Hardware GO Button */
-.btn-master-go {
-  background: radial-gradient(circle at 30% 30%, var(--color-success), var(--color-success-dark));
-  border: 4px solid #064e3b;
-  color: #fff;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  font-family: var(--font-pixel);
-  font-size: 1.2rem;
-  box-shadow: 0 8px 0 #022c22, 0 12px 20px rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-  transition: all 0.1s ease;
-}
-
-.btn-master-go:active:not(:disabled) {
-  transform: translateY(6px);
-  box-shadow: 0 2px 0 #022c22;
-}
-
-/* --- 7. ANIMATIONS --- */
-@keyframes flicker {
-  0% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.8;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-.comms-active {
-  animation: flicker 2s infinite ease-in-out;
+  background: var(--bui-fg-success);
+  box-shadow: 0 0 12px var(--bui-fg-success), inset 0 0 4px #fff;
 }
