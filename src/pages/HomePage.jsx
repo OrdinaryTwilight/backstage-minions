@@ -1,158 +1,196 @@
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
-import { useGame } from "../context/GameContext";
-import { PRODUCTIONS } from "../data/gameData";
-
-// Updated Stars component with clearer labels for new players
-function Stars({ n, label }) {
-  return (
-    <div style={{ textAlign: "center" }}>
-      <div
-        style={{
-          fontSize: "0.7rem",
-          color: "var(--bui-fg-info)",
-          marginBottom: "2px",
-        }}
-      >
-        {label}
-      </div>
-      <div style={{ color: "#fbbf24", fontSize: "1rem" }}>
-        {Array.from({ length: 3 }).map((_, i) => (
-          <span key={i} style={{ opacity: i < n ? 1 : 0.3 }}>
-            ★
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
+import DifficultyPill from "../components/ui/DifficultyPill"; //
+import { useGame } from "../context/GameContext"; //
+import { PRODUCTIONS } from "../data/gameData"; //
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { state } = useGame();
+  const { state } = useGame(); //
 
-  const todos = [];
-  PRODUCTIONS.forEach((p) => {
-    const hasAny = Object.keys(p.levels).some(
-      (d) => state?.progress?.[`${p.id}_${d}`]?.completed,
-    );
-    if (!hasAny)
-      todos.push({
-        text: `Play your first level in "${p.title}"`,
-        cta: () => navigate(`/productions/${p.id}`),
-      });
-  });
-
-  if (state?.unlockedStories?.length === 0)
-    todos.push({
-      text: "Unlock your first Story by completing a level",
-      cta: null,
-    });
+  const hasStarted = Object.keys(state?.progress || {}).length > 0;
+  const firstProd = PRODUCTIONS[0]; //
 
   return (
     <div className="page-container">
       <NavBar />
 
-      <h1 style={{ textAlign: "center", marginBottom: "0.5rem" }}>
-        🎬 Backstage Minions
-      </h1>
-      <p
-        style={{
-          textAlign: "center",
-          marginBottom: "2rem",
-          color: "var(--color-text-muted)",
-        }}
-      >
-        Technical theatre simulation
-      </p>
+      <header style={{ marginBottom: "2.5rem" }}>
+        <h1
+          className="annotation-text"
+          style={{ fontSize: "2.2rem", color: "var(--bui-fg-info)" }}
+        >
+          The Tech Booth
+        </h1>
+        <p style={{ opacity: 0.6, fontFamily: "var(--font-main)" }}>
+          Current Status: {state?.session ? "🔴 On-Call" : "⚪ Off-Duty"}
+        </p>
+      </header>
 
-      {todos.length > 0 && (
-        <section style={{ marginBottom: "2rem" }}>
-          <h2>📋 To-Do</h2>
-          {todos.map((t, i) => (
-            <div
-              key={i}
-              className="surface-panel"
-              style={{ borderLeft: "4px solid var(--color-accent)" }}
+      <div className="desktop-two-column">
+        <div className="desktop-col-main">
+          {/* Daily Call Sheet */}
+          <section
+            className="hardware-panel"
+            style={{
+              borderLeft: "6px solid var(--bui-fg-danger)",
+              padding: "1.5rem",
+            }}
+          >
+            <h2
+              className="annotation-text"
+              style={{ color: "var(--bui-fg-danger)", marginTop: 0 }}
             >
-              <p style={{ marginBottom: t.cta ? "1rem" : "0" }}>{t.text}</p>
-              {t.cta && (
-                <button className="action-button btn-accent" onClick={t.cta}>
-                  ▶ Go!
-                </button>
+              📌 Stage Manager's Call Sheet
+            </h2>
+            <div style={{ marginTop: "1rem" }}>
+              {!hasStarted ? (
+                <div className="list-item-row" style={{ border: "none" }}>
+                  <p className="annotation-text">
+                    Welcome to the crew. Start with: {firstProd.title}
+                  </p>
+                  <button
+                    className="action-button btn-success"
+                    onClick={() => navigate(`/productions/${firstProd.id}`)}
+                  >
+                    Begin Shift
+                  </button>
+                </div>
+              ) : (
+                <p className="annotation-text" style={{ opacity: 0.8 }}>
+                  Solid work on the last run. Check the logs for your next
+                  assignment.
+                </p>
               )}
             </div>
-          ))}
-        </section>
-      )}
+          </section>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "baseline",
-        }}
-      >
-        <h2>Your Progress</h2>
-        {/* ADDED: Simple legend for new players */}
-        <span style={{ fontSize: "0.7rem", color: "var(--color-text-dim)" }}>
-          Levels: School / Comm / Prof
-        </span>
-      </div>
-
-      {PRODUCTIONS.map((p) => (
-        <div
-          key={p.id}
-          onClick={() => navigate(`/productions/${p.id}`)}
-          className="surface-panel"
-          style={{
-            cursor: "pointer",
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <div style={{ flex: 1 }}>
-            <strong style={{ fontSize: "1.1rem" }}>
-              {p.poster} {p.title}
-            </strong>
-            <div
-              style={{ marginTop: "0.8rem", display: "flex", gap: "1.5rem" }}
-            >
-              {/* Changed S/C/P to clearer abbreviations */}
-              <Stars
-                label="SCH"
-                n={
-                  state?.progress?.[`${p.id}_school`]?.completed
-                    ? state.progress[`${p.id}_school`].stars || 0
-                    : 0
-                }
-              />
-              <Stars
-                label="COM"
-                n={
-                  state?.progress?.[`${p.id}_community`]?.completed
-                    ? state.progress[`${p.id}_community`].stars || 0
-                    : 0
-                }
-              />
-              <Stars
-                label="PRO"
-                n={
-                  state?.progress?.[`${p.id}_professional`]?.completed
-                    ? state.progress[`${p.id}_professional`].stars || 0
-                    : 0
-                }
-              />
-            </div>
-          </div>
-          <span
-            style={{ fontSize: "1.5rem", color: "var(--color-text-muted)" }}
+          {/* Productions List */}
+          <h2
+            className="annotation-text"
+            style={{ marginTop: "2.5rem", marginBottom: "1rem" }}
           >
-            ›
-          </span>
+            Active Productions
+          </h2>
+          <div
+            style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
+          >
+            {PRODUCTIONS.map((p) => (
+              <div
+                key={p.id}
+                className="hardware-panel"
+                style={{ cursor: "pointer" }}
+                onClick={() => navigate(`/productions/${p.id}`)}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    marginBottom: "1.2rem",
+                  }}
+                >
+                  <h3 style={{ fontSize: "1.3rem", margin: 0 }}>
+                    {p.poster} {p.title}
+                  </h3>
+                  <span
+                    className="problem-highlight"
+                    style={{ fontSize: "0.75rem" }}
+                  >
+                    Enter Stage Door ›
+                  </span>
+                </div>
+
+                <div style={{ display: "flex", gap: "0.75rem" }}>
+                  <DifficultyPill
+                    label="School"
+                    stars={state?.progress?.[`${p.id}_school`]?.stars || 0}
+                    unlocked={p.levels.school.unlocked}
+                  />
+                  <DifficultyPill
+                    label="Comm"
+                    stars={state?.progress?.[`${p.id}_community`]?.stars || 0}
+                    unlocked={p.levels.community.unlocked}
+                  />
+                  <DifficultyPill
+                    label="Prof"
+                    stars={
+                      state?.progress?.[`${p.id}_professional`]?.stars || 0
+                    }
+                    unlocked={p.levels.professional.unlocked}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
-      ))}
+
+        {/* Career Stats Sidebar */}
+        <div className="desktop-col-side">
+          <section
+            className="hardware-panel"
+            style={{ height: "100%", textAlign: "center" }}
+          >
+            <h2
+              className="annotation-text"
+              style={{ fontSize: "1.3rem", marginBottom: "1.5rem" }}
+            >
+              Career Log
+            </h2>
+            <div className="surface-panel" style={{ marginBottom: "1rem" }}>
+              <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>👥</div>
+              <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
+                {state?.contacts?.length || 0}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.7rem",
+                  opacity: 0.6,
+                  textTransform: "uppercase",
+                }}
+              >
+                Contacts
+              </div>
+            </div>
+            <div className="surface-panel" style={{ marginBottom: "1rem" }}>
+              <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📚</div>
+              <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
+                {state?.unlockedStories?.length || 0}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.7rem",
+                  opacity: 0.6,
+                  textTransform: "uppercase",
+                }}
+              >
+                Stories
+              </div>
+            </div>
+            <div
+              className="surface-panel"
+              style={{
+                background: "rgba(56, 189, 248, 0.1)",
+                border: "1px solid var(--color-architect-blue)",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "0.65rem",
+                  color: "var(--color-architect-blue)",
+                  textTransform: "uppercase",
+                  marginBottom: "4px",
+                }}
+              >
+                Current Rank
+              </div>
+              <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
+                {state?.contacts?.length > 4 ? "Booth Legend" : "Junior Tech"}
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
     </div>
   );
 }
