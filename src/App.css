@@ -1,124 +1,104 @@
-/* --- 1. PENCIL-SHADED HARDWARE --- */
+/* --- 1. GLASS-DOCK STYLE BUTTONS --- */
+.action-button,
+.btn {
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.8rem 1.5rem;
+  font-family: var(--font-main);
+  font-weight: bold;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+
+  /* Mirror the Navbar style */
+  background: var(--color-surface-translucent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  color: var(--color-pencil-light);
+
+  /* Width Control */
+  width: auto;
+  min-width: 160px;
+  max-width: 280px;
+  margin: 0.5rem auto;
+
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-tactile);
+  filter: url(#sketch-wobble);
+  /* Apply the hand-drawn wobble */
+}
+
+.action-button:active:not(:disabled) {
+  transform: scale(0.96);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Success and Accent highlights within the glass style */
+.btn-success {
+  border-color: var(--bui-fg-success);
+  color: var(--bui-fg-success);
+}
+
+.btn-accent {
+  border-color: var(--bui-fg-info);
+  color: var(--bui-fg-info);
+}
+
+/* --- 2. SKETCHY HARDWARE PANELS --- */
 .hardware-panel {
-  background: white;
-  border: 3px solid var(--color-pencil-lead);
+  background: rgba(20, 20, 20, 0.6);
+  border: 2px solid var(--color-pencil-light);
   padding: 1.5rem;
   position: relative;
-  /* Cross-hatch pencil shading effect */
-  background-image: repeating-linear-gradient(45deg,
-      transparent,
-      transparent 10px,
-      rgba(0, 0, 0, 0.03) 10px,
-      rgba(0, 0, 0, 0.03) 11px);
   filter: url(#sketch-wobble);
-  box-shadow: var(--shadow-sketch);
-  margin-bottom: 1.5rem;
+  border-top-left-radius: 255px 15px;
+  border-top-right-radius: 15px 225px;
+  border-bottom-right-radius: 225px 15px;
+  border-bottom-left-radius: 15px 255px;
+  box-shadow: var(--shadow-tactile);
+  margin-bottom: 2rem;
 }
 
-/* Architectural Annotations */
-.annotation-text {
-  font-family: var(--font-sketch);
-  color: var(--color-architect-blue);
-  font-size: 1.1rem;
-  line-height: 1.2;
-}
-
-/* Red "Pencil Circle" for high-stakes areas */
-.problem-highlight {
-  border: 3px solid #e11d48;
-  border-radius: 45% 55% 50% 50% / 55% 50% 50% 45%;
-  padding: 4px 8px;
-  transform: rotate(-2deg);
-  display: inline-block;
-}
-
-/* --- 2. SKETCHY CONSOLE SCREENS --- */
+/* --- 3. CONSOLE SCREEN READOUTS --- */
 .console-screen {
-  background: #eef2f7;
-  /* Blueprint-style tinted screen */
-  border: 2px solid var(--color-architect-blue);
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--color-architect-blue);
   border-radius: var(--radius-md);
   color: var(--color-architect-blue);
-  font-family: var(--font-code);
-  padding: 1rem;
+  font-family: var(--font-mono);
+  padding: 1.2rem;
   font-size: 0.85rem;
   overflow-x: auto;
-  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
 }
 
-/* --- 3. SKETCHY FADER CONTROLS --- */
-.fader-track {
-  width: 4px;
-  background: var(--color-pencil-lead);
-  height: clamp(120px, 25vh, 200px);
-  border-radius: 2px;
-  position: relative;
-}
-
-.fader-knob {
-  width: 34px;
-  height: 50px;
-  background: #fff;
-  border: 2px solid var(--color-pencil-lead);
-  border-radius: 4px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 4px;
-  align-items: center;
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  filter: url(#sketch-wobble);
-}
-
-.fader-knob::before {
-  content: "";
-  width: 20px;
-  height: 2px;
-  background: var(--color-pencil-lead);
-  box-shadow: 0 6px 0 var(--color-pencil-lead), 0 -6px 0 var(--color-pencil-lead);
-}
-
-/* --- 4. MASTER GO BUTTON (Hand-sketched) --- */
+/* --- 4. THE MASTER GO BUTTON (Sketch + Glass) --- */
 .btn-master-go {
-  width: clamp(80px, 20vw, 130px);
-  height: clamp(80px, 20vw, 130px);
+  width: clamp(100px, 20vw, 140px);
+  height: clamp(100px, 20vw, 140px);
   border-radius: 50%;
-  background: white;
-  border: 3px solid var(--color-pencil-lead);
-  color: var(--color-pencil-lead);
-  font-family: var(--font-sketch);
+
+  background: var(--color-surface-translucent);
+  backdrop-filter: blur(12px);
+  border: 3px solid var(--bui-fg-success);
+  color: var(--bui-fg-success);
+
+  font-family: var(--font-main);
   font-weight: bold;
-  font-size: 1.2rem;
+  font-size: 1.4rem;
   filter: url(#sketch-wobble);
-  box-shadow: var(--shadow-sketch);
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
   cursor: pointer;
-  transition: all 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem auto;
 }
 
 .btn-master-go:active:not(:disabled) {
-  transform: translate(4px, 4px);
-  box-shadow: 0 0 0 transparent;
-}
-
-/* --- 5. RESPONSIVE TWO-COLUMN LAYOUT --- */
-.desktop-two-column {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-@media (min-width: 768px) {
-  .desktop-two-column {
-    flex-direction: row;
-  }
-
-  .desktop-col-main {
-    flex: 2;
-  }
-
-  .desktop-col-side {
-    flex: 1;
-  }
+  transform: scale(0.92);
+  box-shadow: 0 0 5px var(--bui-fg-success);
 }
