@@ -1,25 +1,27 @@
-/* --- 1. DESIGN TOKENS (BUI Implementation) --- */
+/* --- 1. DESIGN TOKENS & PALETTE --- */
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;700&family=JetBrains+Mono&display=swap");
+
 :root {
   /* Spotify & Backstage Core Palette */
   --color-bg-app: #121212;
-  /* Deep charcoal base */
   --color-surface-1: #181818;
-  /* Cards and sidebars */
   --color-surface-2: #282828;
-  /* Elevated elements */
   --color-spotify-green: #1DB954;
-  /* Branding accent */
   --color-astronaut-blue: #024064;
-  /* Technical/Engineering blue */
 
-  /* Status Tokens */
+  /* Legacy Pixel Palette (Preserved for accents) */
+  --accent-pink: #ff80ff;
+  --accent-cyan: #80ffff;
+
+  /* BUI Status Tokens */
   --bui-fg-success: #4ade80;
   --bui-fg-danger: #f87171;
   --bui-fg-warning: #fbbf24;
   --bui-fg-info: #38bdf8;
 
-  /* Typography - Transition from Pixel to Professional */
+  /* Typography */
   --font-main: 'Inter', -apple-system, sans-serif;
+  --font-pixel: "Press Start 2P", monospace;
   --font-code: 'JetBrains Mono', 'Fira Code', monospace;
 
   /* Layout & Depth */
@@ -29,46 +31,100 @@
   --glass-bg: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.1);
   --shadow-tactile: 0 10px 30px rgba(0, 0, 0, 0.5);
+  --nav-h: 56px;
 }
 
 /* --- 2. BASE RESET --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
 body {
   margin: 0;
   background-color: var(--color-bg-app);
   color: #ffffff;
   font-family: var(--font-main);
   -webkit-font-smoothing: antialiased;
+  min-height: 100dvh;
 }
 
 #root {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  /* Dark mode engineering background with subtle technical grid */
+  /* Dark mode engineering background with technical grid */
   background-image:
     linear-gradient(rgba(29, 185, 84, 0.03) 1px, transparent 1px),
     linear-gradient(90deg, rgba(29, 185, 84, 0.03) 1px, transparent 1px);
   background-size: 50px 50px;
 }
 
-/* --- 3. BENTO GRID SYSTEM --- */
+/* --- 3. BENTO & LAYOUT --- */
+.page {
+  padding: 1.5rem 1rem calc(var(--nav-h) + 1.5rem);
+  max-width: 960px;
+  /* Widened for console view */
+  margin: 0 auto;
+}
+
 .bento-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 1.5rem;
-  padding: 2rem;
+  padding: 1rem;
 }
 
-/* --- 4. STATUS INDICATORS --- */
+/* --- 4. HARDWARE STATUS INDICATORS --- */
 .status-led {
   width: 10px;
   height: 10px;
   border-radius: 50%;
   background: #333;
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+  display: inline-block;
+  margin-right: 8px;
 }
 
 .status-led.on {
   background: var(--bui-fg-success);
   box-shadow: 0 0 12px var(--bui-fg-success), inset 0 0 4px #fff;
+}
+
+/* --- 5. TACTILE UI ELEMENTS (Merged) --- */
+.pxbox,
+.vn-panel {
+  background: var(--color-surface-1);
+  border: 1px solid var(--glass-border);
+  border-top: 1px solid #444;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-tactile);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+h1,
+.vn-panel h1 {
+  font-family: var(--font-pixel);
+  font-size: 1rem;
+  color: var(--color-spotify-green);
+  margin-bottom: 1rem;
+}
+
+/* Progress bar - Industrial Style */
+.progress-bar {
+  background: #000;
+  height: 12px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--color-spotify-green);
+  transition: width 0.3s ease;
 }
