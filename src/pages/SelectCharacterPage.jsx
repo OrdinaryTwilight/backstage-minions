@@ -57,7 +57,6 @@ export default function SelectCharacterPage() {
       difficulty,
       characterId: char.id,
     });
-    // FIX: Match the route in App.jsx!
     navigate(`/game/${productionId}/${difficulty}/${char.id}`);
   }
 
@@ -102,7 +101,6 @@ export default function SelectCharacterPage() {
         >
           {char.role}
         </p>
-
         <p
           style={{
             fontSize: "0.9rem",
@@ -115,7 +113,6 @@ export default function SelectCharacterPage() {
         </p>
 
         <div style={{ textAlign: "left" }}>
-          {/* FIX: Use the actual stats from gameData.js! */}
           <StatBar label="Technical" value={char.stats.technical} />
           <StatBar label="Social" value={char.stats.social} />
           <StatBar label="Stamina" value={char.stats.stamina} />

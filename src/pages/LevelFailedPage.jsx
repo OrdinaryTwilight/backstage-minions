@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function LevelFailedPage() {
   const navigate = useNavigate();
+
   return (
     <div
       className="page-container"
@@ -12,7 +13,6 @@ export default function LevelFailedPage() {
       >
         💔 Show stopped
       </h1>
-
       <p
         style={{
           color: "var(--text-muted)",

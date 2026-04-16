@@ -55,7 +55,7 @@ export default function SelectLevelPage() {
       </p>
 
       {Object.entries(production.levels).map(([diff, lvl]) => {
-        const prog = state.progress[`${productionId}_${diff}`];
+        const prog = state?.progress?.[`${productionId}_${diff}`];
         const venue = VENUES[lvl.venueId];
         const debut = !prog?.completed;
 
@@ -100,7 +100,6 @@ export default function SelectLevelPage() {
             </div>
 
             <button
-              // FIX: Navigate to Character Select!
               onClick={() =>
                 navigate(
                   `/productions/${productionId}/difficulty/${diff}/character`,

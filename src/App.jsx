@@ -4,9 +4,11 @@ import { Suspense, lazy, useEffect, useState } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Spinner } from "./components/ui/Spinner";
 import { GameProvider } from "./context/GameContext";
+
 // Eager load critical routes
 import "./App.css";
 import HomePage from "./pages/HomePage";
+
 // Lazy load less critical routes for better initial load time
 const ProductionsListPage = lazy(() => import("./pages/ProductionsListPage"));
 const ProductionsPage = lazy(() => import("./pages/ProductionsPage"));
@@ -15,6 +17,7 @@ const SelectCharacterPage = lazy(() => import("./pages/SelectCharacterPage"));
 const GameLevelPage = lazy(() => import("./pages/GameLevelPage"));
 const LevelCompletePage = lazy(() => import("./pages/LevelCompletePage"));
 const LevelFailedPage = lazy(() => import("./pages/LevelFailedPage"));
+const StoriesPage = lazy(() => import("./pages/StoriesPage"));
 
 function App() {
   const [mounted, setMounted] = useState(false);
@@ -32,11 +35,11 @@ function App() {
     return (
       <GameProvider>
         <Router>
-          {/* ADD THIS WRAPPER DIV HERE! */}
+          {/* Main App Layout Wrapper */}
           <div className="page-container">
             <Routes>
-              {/* ... all your Routes stay exactly the same ... */}
               <Route path="/" element={<HomePage />} />
+
               <Route
                 path="/productions"
                 element={
@@ -45,7 +48,70 @@ function App() {
                   </Suspense>
                 }
               />
-              {/* ... the rest of the routes ... */}
+
+              <Route
+                path="/productions/:productionId"
+                element={
+                  <Suspense fallback={<Spinner />}>
+                    <ProductionsPage />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/productions/:productionId/difficulty/:difficulty"
+                element={
+                  <Suspense fallback={<Spinner />}>
+                    <SelectLevelPage />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/productions/:productionId/difficulty/:difficulty/character"
+                element={
+                  <Suspense fallback={<Spinner />}>
+                    <SelectCharacterPage />
+                  </Suspense>
+                }
+              />
+
+              {/* CRITICAL FIX: Changed :levelId to :charId to match the GameLevelPage params */}
+              <Route
+                path="/game/:productionId/:difficulty/:charId"
+                element={
+                  <Suspense fallback={<Spinner />}>
+                    <GameLevelPage />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/level-complete/:productionId/:difficulty/:charId"
+                element={
+                  <Suspense fallback={<Spinner />}>
+                    <LevelCompletePage />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/level-failed/:productionId/:difficulty/:charId"
+                element={
+                  <Suspense fallback={<Spinner />}>
+                    <LevelFailedPage />
+                  </Suspense>
+                }
+              />
+
+              <Route
+                path="/stories"
+                element={
+                  <Suspense fallback={<Spinner />}>
+                    <StoriesPage />
+                  </Suspense>
+                }
+              />
             </Routes>
           </div>
           <Analytics />

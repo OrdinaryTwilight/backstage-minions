@@ -22,7 +22,7 @@ export default function HomePage() {
   const todos = [];
   PRODUCTIONS.forEach((p) => {
     const hasAny = Object.keys(p.levels).some(
-      (d) => state.progress[`${p.id}_${d}`]?.completed,
+      (d) => state?.progress?.[`${p.id}_${d}`]?.completed,
     );
     if (!hasAny)
       todos.push({
@@ -31,7 +31,7 @@ export default function HomePage() {
       });
   });
 
-  if (state.unlockedStories.length === 0)
+  if (state?.unlockedStories?.length === 0)
     todos.push({
       text: "Unlock your first Story by completing a level",
       cta: null,
@@ -85,16 +85,7 @@ export default function HomePage() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            padding: "1rem",
-            border: "2px solid transparent",
-            transition: "border 0.2s",
           }}
-          onMouseEnter={(e) =>
-            (e.currentTarget.style.borderColor = "var(--success)")
-          }
-          onMouseLeave={(e) =>
-            (e.currentTarget.style.borderColor = "transparent")
-          }
         >
           <div>
             <strong style={{ fontSize: "1.1rem" }}>
@@ -102,7 +93,7 @@ export default function HomePage() {
             </strong>
             <div style={{ marginTop: "0.5rem", display: "flex", gap: "1rem" }}>
               {Object.entries(p.levels).map(([diff]) => {
-                const prog = state.progress[`${p.id}_${diff}`];
+                const prog = state?.progress?.[`${p.id}_${diff}`];
                 return (
                   <div key={diff} style={{ fontSize: "0.75rem" }}>
                     {diff[0].toUpperCase()}

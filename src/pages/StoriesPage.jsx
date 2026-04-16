@@ -7,8 +7,10 @@ export default function StoriesPage() {
   const { state } = useGame();
   const [selected, setSelected] = useState(null);
 
-  const unlocked = STORIES.filter((s) => state.unlockedStories.includes(s.id));
-  const locked = STORIES.filter((s) => !state.unlockedStories.includes(s.id));
+  const unlocked = STORIES.filter((s) =>
+    state?.unlockedStories?.includes(s.id),
+  );
+  const locked = STORIES.filter((s) => !state?.unlockedStories?.includes(s.id));
 
   if (selected) {
     return (
@@ -89,12 +91,6 @@ export default function StoriesPage() {
                 border: "2px solid transparent",
                 transition: "border 0.2s",
               }}
-              onMouseEnter={(e) =>
-                (e.currentTarget.style.borderColor = "var(--success)")
-              }
-              onMouseLeave={(e) =>
-                (e.currentTarget.style.borderColor = "transparent")
-              }
             >
               <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "1.1rem" }}>
                 {s.title}
