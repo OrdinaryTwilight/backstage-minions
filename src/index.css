@@ -42,11 +42,24 @@ body {
   margin: 0;
   background-color: var(--color-blueprint-bg);
   color: var(--color-pencil-light);
-  font-family: var(--font-main);
+  font-family: 'Architects Daughter', cursive;
   /* Universal sketch font */
   font-size: 14px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+}
+
+h2, h3, p {
+  color: var(--color-pencil-light) !important;
+}
+
+/* Specific fix for Select Difficulty page contrast */
+.surface-panel h3 {
+  color: var(--bui-fg-info) !important;
+}
+
+.surface-panel div {
+  color: var(--color-pencil-light) !important;
 }
 
 @media (max-width: 640px) {

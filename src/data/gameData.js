@@ -182,31 +182,58 @@ export const CUE_SHEETS = {
 // --- CONFLICTS ---
 export const CONFLICTS = [
   {
-    id: "director_yell",
-    trigger: "rehearsal",
-    title: "Creative Differences",
-    description: "The Director storms up to the tech booth. 'Fix it right now!'",
+    id: "costume_vs_lighting",
+    trigger: "planning",
+    npc: "Costume Designer",
+    description: 'The Costume Designer storms in: "Your warm amber wash is going to make the white dresses look YELLOW on stage. Did you even think about us?"',
     choices: [
-      { 
-        id: "c1", text: "Politely ask for specifics.", stat: "social", threshold: 6, 
-        pass: { outcome: "resolved", pointDelta: 50, text: "The Director calms down." }, 
-        fail: { outcome: "escalated", pointDelta: -20, text: "The Director thinks you are rude." } 
+      {
+        id: "diplomatic",
+        text: "Fix it together: \"You're right — let's look at the plot and find a cooler gel.\"",
+        outcome: "resolved",
+        pointDelta: 50,
+        sideEffect: "costume_contact_unlocked",
       },
-    ]
+      {
+        id: "compromise",
+        text: "Check the intensity: \"We can dim them during their solos to reduce the spill.\"",
+        outcome: "neutral",
+        pointDelta: 20,
+      },
+      {
+        id: "defensive",
+        text: "Shut them down: \"I'm the LD here. The wash stays as planned.\"",
+        outcome: "escalated",
+        pointDelta: -30,
+      },
+    ],
   },
   {
-    id: "broken_comms",
-    trigger: "liveshow",
-    title: "Headset Static",
-    description: "Your headset fills with static. You can barely hear the Stage Manager.",
+    id: "late_cue",
+    trigger: "rehearsal",
+    npc: "Stage Manager",
+    description: 'Over headset the SM says: "LX2 was 4 bars late again. The cast is losing confidence. What\'s happening at the board?"',
     choices: [
-      { 
-        id: "c1", text: "Swap the XLR cable blind.", stat: "technical", threshold: 6, 
-        pass: { outcome: "resolved", pointDelta: 60, text: "Clean audio restores." }, 
-        fail: { outcome: "fail", pointDelta: -100, text: "You unplugged the main feed." } 
+      {
+        id: "honest",
+        text: "Accountability: \"Sorry — I miscounted. Can we take it from the top of the scene?\"",
+        outcome: "resolved",
+        pointDelta: 30,
       },
-    ]
-  }
+      {
+        id: "technical_fix",
+        text: "Suggest a trigger: \"I'll set a visual mark in the wings to hit it earlier.\"",
+        outcome: "resolved",
+        pointDelta: 40,
+      },
+      {
+        id: "blame",
+        text: "Deflect: \"The conductor changed the tempo without telling me.\"",
+        outcome: "escalated",
+        pointDelta: -20,
+      },
+    ],
+  },
 ];
 
 // --- STORIES ---

@@ -1,30 +1,29 @@
-import { memo } from "react";
-
-export default memo(function DialogueBox({ speaker, text, choices, onChoice }) {
+export default function DialogueBox({ speaker, text, choices, onChoice }) {
   return (
-    <div
-      style={{
-        padding: "1rem",
-        background: "var(--surface2)",
-        borderRadius: "8px",
-        marginBottom: "1rem",
-      }}
-    >
-      <h3>💬 {speaker}</h3>
-      <p>{text}</p>
-      {choices && (
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-          {choices.map((c, i) => (
-            <button
-              key={i}
-              onClick={() => onChoice(c)}
-              style={{ cursor: "pointer", padding: "0.5rem 1rem" }}
-            >
-              {c.text}
-            </button>
-          ))}
-        </div>
-      )}
+    <div className="pxbox">
+      <h3 style={{ color: "var(--bui-fg-info)", marginBottom: "0.5rem" }}>
+        {speaker}
+      </h3>
+      <p style={{ color: "var(--color-pencil-light)", marginBottom: "1.5rem" }}>
+        {text}
+      </p>
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+        {choices.map((c) => (
+          <button
+            key={c.id}
+            onClick={() => onChoice(c)}
+            className="action-button"
+            style={{
+              width: "100%",
+              maxWidth: "none",
+              textAlign: "left",
+              justifyContent: "flex-start",
+            }}
+          >
+            {c.text}
+          </button>
+        ))}
+      </div>
     </div>
   );
-});
+}

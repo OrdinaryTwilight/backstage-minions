@@ -25,6 +25,10 @@
   min-width: 160px;
   max-width: 280px;
   margin: 0.5rem auto;
+  width: 100%;
+  max-width: 320px; /* Reduced max-width for better balance */
+  margin: 0.5rem auto;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 
   transition: all 0.2s ease;
   box-shadow: var(--shadow-tactile);
@@ -35,6 +39,21 @@
 .action-button:active:not(:disabled) {
   transform: scale(0.96);
   background: rgba(255, 255, 255, 0.1);
+}
+
+/* Hover State */
+.action-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-pencil-light);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Heart Bug Fix: Ensure the heart container has a minimum height to prevent layout jump */
+.hud-container div:first-child {
+  min-height: 2rem;
+  display: flex;
+  align-items: center;
 }
 
 /* Success and Accent highlights within the glass style */
