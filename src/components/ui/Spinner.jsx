@@ -5,18 +5,22 @@
  */
 export function Spinner() {
   return (
-    <div style={{
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: '100vlh',
-      background: 'var(--bg)',
-      color: 'var(--text)'
-    }}>
-      <div style={{
-        fontSize: '2rem',
-        animation: 'spin 1s linear infinite'
-      }}>
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "100vlh",
+        background: "var(--bg)",
+        color: "var(--text)",
+      }}
+    >
+      <div
+        style={{
+          fontSize: "2rem",
+          animation: "spin 1s linear infinite",
+        }}
+      >
         ⏳
       </div>
       <style>{`

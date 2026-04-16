@@ -7,8 +7,10 @@ export default function ConflictMinigame({ conflict, onResolved }) {
   function handleChoice(choice) {
     dispatch({ type: "MARK_CONFLICT_SEEN", conflictId: conflict.id });
     dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
-    if (choice.sideEffect === "costume_contact_unlocked" ||
-        choice.sideEffect === "ally_gained") {
+    if (
+      choice.sideEffect === "costume_contact_unlocked" ||
+      choice.sideEffect === "ally_gained"
+    ) {
       dispatch({ type: "ADD_CONTACT", name: conflict.npc });
     }
     onResolved(choice.outcome);
@@ -17,7 +19,12 @@ export default function ConflictMinigame({ conflict, onResolved }) {
   return (
     <div>
       <h2>⚡ CONFLICT — resolve before continuing</h2>
-      <DialogueBox speaker={conflict.npc} text={conflict.description} choices={conflict.choices} onChoice={handleChoice} />
+      <DialogueBox
+        speaker={conflict.npc}
+        text={conflict.description}
+        choices={conflict.choices}
+        onChoice={handleChoice}
+      />
     </div>
   );
 }

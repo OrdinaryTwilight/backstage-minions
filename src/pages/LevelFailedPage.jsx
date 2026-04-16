@@ -6,13 +6,23 @@ export default function LevelFailedPage() {
     <>
       <h1>💔 Show stopped</h1>
       <p>
-        The show couldn't go on this time. Review the cue sheet, brush up on your technique,
-        and try again.
+        The show couldn't go on this time. Review the cue sheet, brush up on
+        your technique, and try again.
       </p>
-      <button onClick={() => navigate("/productions")} style={{ cursor: "pointer", padding: "0.75rem 1.5rem", marginRight: "1rem" }}>
+      <button
+        onClick={() => navigate("/productions")}
+        style={{
+          cursor: "pointer",
+          padding: "0.75rem 1.5rem",
+          marginRight: "1rem",
+        }}
+      >
         Back to productions
       </button>
-      <button onClick={() => navigate("/")} style={{ cursor: "pointer", padding: "0.75rem 1.5rem" }}>
+      <button
+        onClick={() => navigate("/")}
+        style={{ cursor: "pointer", padding: "0.75rem 1.5rem" }}
+      >
         Home
       </button>
     </>

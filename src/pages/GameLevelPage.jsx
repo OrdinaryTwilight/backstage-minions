@@ -18,10 +18,20 @@ function starsFromSession(session, totalCues) {
 
 function pickConflict(trigger, seen) {
   const eligible = CONFLICTS.filter(
-    c => c.trigger === trigger && !seen.includes(c.id)
+    (c) => c.trigger === trigger && !seen.includes(c.id),
   );
   if (!eligible.length || Math.random() > 0.6) return null;
   return eligible[Math.floor(Math.random() * eligible.length)];
+}
+
+function handleConflictResolved(outcome) {
+  if (outcome === "escalated") {
+    setPenaltyMultiplier(0.7); // Shrinks cue windows by 30% to simulate rushing
+  } else if (outcome === "fail") {
+    handleFail(); // Instant fail for severe conflicts
+    return;
+  }
+  // ... advance stage
 }
 
 export default function GameLevelPage() {
@@ -36,23 +46,29 @@ export default function GameLevelPage() {
     if (!state.session) navigate("/");
   }, [state.session]);
 
-  const char     = CHARACTERS.find(c => c.id === charId);
+  const char = CHARACTERS.find((c) => c.id === charId);
   const cueSheet = CUE_SHEETS[productionId]?.[char?.department] ?? [];
-  const seen     = state.session?.conflictsSeen ?? [];
+  const seen = state.session?.conflictsSeen ?? [];
 
   function advanceTo(nextStage) {
     const c = pickConflict(nextStage, seen);
-    if (c) { setConflict(c); return; }
+    if (c) {
+      setConflict(c);
+      return;
+    }
     setStage(nextStage);
     dispatch({ type: "ADVANCE_STAGE" });
   }
 
   function onConflictResolved(outcome) {
     setConflict(null);
-    if (outcome === "fail") { handleFail(); return; }
+    if (outcome === "fail") {
+      handleFail();
+      return;
+    }
     dispatch({ type: "ADVANCE_STAGE" });
-    setStage(prev => {
-      const order = ["planning","rehearsal","liveshow","wrapup"];
+    setStage((prev) => {
+      const order = ["planning", "rehearsal", "liveshow", "wrapup"];
       return order[order.indexOf(prev) + 1] ?? "wrapup";
     });
   }
@@ -64,14 +80,13 @@ export default function GameLevelPage() {
 
   function handleComplete() {
     const stars = starsFromSession(state.session, cueSheet.length * 2);
-    const newStories = STORIES
-      .filter(s =>
+    const newStories = STORIES.filter(
+      (s) =>
         s.unlockedBy.productionId === productionId &&
         (difficulty === "professional" ||
           s.unlockedBy.difficulty === difficulty) &&
-        stars >= s.unlockedBy.minStars
-      )
-      .map(s => s.id);
+        stars >= s.unlockedBy.minStars,
+    ).map((s) => s.id);
     dispatch({
       type: "COMPLETE_LEVEL",
       productionId,
@@ -82,8 +97,13 @@ export default function GameLevelPage() {
     navigate("/complete", { state: { stars, newStories } });
   }
 
-  const stageLabels = { planning:"Planning", rehearsal:"Rehearsal", liveshow:"Live Show", wrapup:"Wrap-up" };
-  const stageOrder  = ["planning","rehearsal","liveshow","wrapup"];
+  const stageLabels = {
+    planning: "Planning",
+    rehearsal: "Rehearsal",
+    liveshow: "Live Show",
+    wrapup: "Wrap-up",
+  };
+  const stageOrder = ["planning", "rehearsal", "liveshow", "wrapup"];
 
   return (
     <div>
@@ -92,21 +112,41 @@ export default function GameLevelPage() {
         {stageOrder.map((s, i) => {
           const current = stageOrder.indexOf(stage);
           return (
-            <div key={s} style={{ flex: 1, padding: "0.5rem", background: i <= current ? "var(--accent)" : "var(--surface2)", borderRadius: "4px", textAlign: "center" }}>
-              {i < current ? "✓ " : ""}{stageLabels[s]}
+            <div
+              key={s}
+              style={{
+                flex: 1,
+                padding: "0.5rem",
+                background: i <= current ? "var(--accent)" : "var(--surface2)",
+                borderRadius: "4px",
+                textAlign: "center",
+              }}
+            >
+              {i < current ? "✓ " : ""}
+              {stageLabels[s]}
             </div>
           );
         })}
       </div>
 
       {/* Score */}
-      <div style={{ marginBottom: "1rem", padding: "0.5rem", background: "var(--surface2)", borderRadius: "4px" }}>
+      <div
+        style={{
+          marginBottom: "1rem",
+          padding: "0.5rem",
+          background: "var(--surface2)",
+          borderRadius: "4px",
+        }}
+      >
         Score: {state.session?.score ?? 0}
       </div>
 
       {/* Conflict overlay */}
       {conflict && (
-        <ConflictMinigame conflict={conflict} onResolved={handleConflictResolved} />
+        <ConflictMinigame
+          conflict={conflict}
+          onResolved={handleConflictResolved}
+        />
       )}
 
       {/* Active stage */}

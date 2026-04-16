@@ -15,9 +15,23 @@ function StatBar({ label, value }) {
       <div>
         {label}: {value}/10
       </div>
-      <div style={{ width: "100%", height: "0.5rem", background: "var(--surface2)", borderRadius: "4px" }}>
+      <div
+        style={{
+          width: "100%",
+          height: "0.5rem",
+          background: "var(--surface2)",
+          borderRadius: "4px",
+        }}
+      >
         {/* Visual bar fills proportionally to value */}
-        <div style={{ width: `${(value/10)*100}%`, height: "100%", background: "var(--accent)", borderRadius: "4px" }}></div>
+        <div
+          style={{
+            width: `${(value / 10) * 100}%`,
+            height: "100%",
+            background: "var(--accent)",
+            borderRadius: "4px",
+          }}
+        ></div>
       </div>
     </div>
   );
@@ -26,7 +40,7 @@ function StatBar({ label, value }) {
 /**
  * SelectCharacterPage: Character selection before gameplay
  * Route: /productions/:productionId/:difficulty/character
- * 
+ *
  * Flow:
  * 1. Show available characters for this production/role combo
  * 2. Player browses characters with Prev/Next buttons
@@ -42,7 +56,9 @@ export default function SelectCharacterPage() {
   // Get available characters for this production
   // Characters must have a cue sheet entry for this production's department
   const cueSheet = CUE_SHEETS[productionId];
-  const available = CHARACTERS.filter(c => cueSheet && cueSheet[c.department]);
+  const available = CHARACTERS.filter(
+    (c) => cueSheet && cueSheet[c.department],
+  );
   const char = available[idx];
 
   /**
@@ -50,7 +66,12 @@ export default function SelectCharacterPage() {
    * Dispatches START_SESSION to initialize game state
    */
   function startGame() {
-    dispatch({ type:"START_SESSION", productionId, difficulty, characterId: char.id });
+    dispatch({
+      type: "START_SESSION",
+      productionId,
+      difficulty,
+      characterId: char.id,
+    });
     navigate(`/play/${productionId}/${difficulty}/${char.id}`);
   }
 
@@ -61,16 +82,28 @@ export default function SelectCharacterPage() {
     <>
       <NavBar />
       <main>
-        <button onClick={() => navigate(`/productions/${productionId}`)} style={{ cursor: "pointer", marginBottom: "1rem" }}>← Back</button>
+        <button
+          onClick={() => navigate(`/productions/${productionId}`)}
+          style={{ cursor: "pointer", marginBottom: "1rem" }}
+        >
+          ← Back
+        </button>
         <h1>🎭 Choose your role</h1>
         <p>Who will you be for this production?</p>
 
-        <div style={{ marginBottom: "2rem", padding: "1rem", border: "1px solid var(--border)", borderRadius: "8px" }}>
-          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>{char.icon}</div>
+        <div
+          style={{
+            marginBottom: "2rem",
+            padding: "1rem",
+            border: "1px solid var(--border)",
+            borderRadius: "8px",
+          }}
+        >
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>
+            {char.icon}
+          </div>
           <h2>{char.name}</h2>
-          <p style={{ color: "var(--text-dim)" }}>
-            {char.role}
-          </p>
+          <p style={{ color: "var(--text-dim)" }}>{char.role}</p>
           <p>{char.bio}</p>
           <div style={{ marginTop: "1rem" }}>
             <StatBar label="Charm" value={char.stats.charm} />
@@ -78,21 +111,41 @@ export default function SelectCharacterPage() {
           </div>
         </div>
 
-        <div style={{ display: "flex", gap: "1rem", alignItems: "center", justifyContent: "center", marginBottom: "2rem" }}>
-          <button onClick={() => setIdx((idx - 1 + available.length) % available.length)} style={{ cursor: "pointer" }}>
+        <div
+          style={{
+            display: "flex",
+            gap: "1rem",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "2rem",
+          }}
+        >
+          <button
+            onClick={() =>
+              setIdx((idx - 1 + available.length) % available.length)
+            }
+            style={{ cursor: "pointer" }}
+          >
             ← Prev
           </button>
           <div>
             {idx + 1} / {available.length}
           </div>
-          <button onClick={() => setIdx((idx + 1) % available.length)} style={{ cursor: "pointer" }}>
+          <button
+            onClick={() => setIdx((idx + 1) % available.length)}
+            style={{ cursor: "pointer" }}
+          >
             Next →
           </button>
         </div>
 
         <button
           onClick={startGame}
-          style={{ cursor: "pointer", padding: "0.75rem 1.5rem", fontSize: "1rem" }}
+          style={{
+            cursor: "pointer",
+            padding: "0.75rem 1.5rem",
+            fontSize: "1rem",
+          }}
         >
           🎬 Start Show
         </button>
@@ -101,17 +154,14 @@ export default function SelectCharacterPage() {
   );
 }
 
-
-
 function copyCode(id) {
   const el = document.getElementById(id);
   navigator.clipboard.writeText(el.textContent).then(() => {
-    document.querySelectorAll('.copy-btn').forEach(b => {
-      if(b.getAttribute('onclick')?.includes(`'${id}'`)) {
-        b.textContent = 'Copied!';
-        setTimeout(() => b.textContent = 'Copy', 1500);
+    document.querySelectorAll(".copy-btn").forEach((b) => {
+      if (b.getAttribute("onclick")?.includes(`'${id}'`)) {
+        b.textContent = "Copied!";
+        setTimeout(() => (b.textContent = "Copy"), 1500);
       }
     });
   });
 }
-
