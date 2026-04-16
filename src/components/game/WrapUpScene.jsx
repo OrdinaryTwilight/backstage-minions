@@ -34,11 +34,13 @@ export default function WrapUpScene({ onComplete }) {
   function handleChoice(choice) {
     dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
     if (choice.contact) dispatch({ type: "ADD_CONTACT", name: choice.contact });
+
     setFeedback(
       choice.contact
         ? `📇 ${choice.contact}'s contact saved! +${choice.pointDelta} pts`
         : null,
     );
+
     if (step + 1 < WRAPUP_DIALOGUES.length) {
       setTimeout(() => {
         setFeedback(null);
@@ -50,21 +52,15 @@ export default function WrapUpScene({ onComplete }) {
   }
 
   return (
-    <div style={{ padding: "1rem" }}>
+    <div className="stage-container">
       <h2>🥂 Wrap-up</h2>
 
       {feedback && (
-        <div
-          style={{
-            padding: "1rem",
-            background: "var(--surface2)",
-            borderRadius: "8px",
-            marginBottom: "1rem",
-          }}
-        >
+        <div className="surface-panel" style={{ marginBottom: "1rem" }}>
           {feedback}
         </div>
       )}
+
       {dialogue && (
         <DialogueBox
           speaker={dialogue.speaker}

@@ -1,19 +1,23 @@
 import { memo, useEffect, useRef, useState } from "react";
 import { useGame } from "../../context/GameContext";
+import { DURATIONS, SCORING } from "../../data/constants";
+import { CHARACTERS } from "../../data/gameData";
 
-const TOTAL_DURATION_MS = 20000;
-
-function RehearsalStage({ cues, onComplete, onFail }) {
+function RehearsalStage({ cues, penaltyMultiplier = 1, onComplete, onFail }) {
   const { state, dispatch } = useGame();
   const [elapsed, setElapsed] = useState(0);
   const [cueResults, setCueResults] = useState({});
   const [active, setActive] = useState(false);
   const [done, setDone] = useState(false);
+  const [failed, setFailed] = useState(false);
+
+  // ADDED: Missing state and variables from Live Show logic
+  const [smLine, setSmLine] = useState('"Standby for rehearsal."');
+  const char = CHARACTERS.find((c) => c.id === state.session.characterId);
+  const isLiked = state.contacts.includes("Stage Manager");
+
   const startRef = useRef(null);
   const rafRef = useRef(null);
-
-  // The new failed state for the redo mechanic
-  const [failed, setFailed] = useState(false);
 
   const lives = state.session?.lives ?? 3;
   const difficulty = state.session?.difficulty ?? "school";
@@ -24,8 +28,8 @@ function RehearsalStage({ cues, onComplete, onFail }) {
     function tick() {
       const now = performance.now() - startRef.current;
       setElapsed(now);
-      if (now >= TOTAL_DURATION_MS) {
-        setElapsed(TOTAL_DURATION_MS);
+      if (now >= DURATIONS.REHEARSAL_MS) {
+        setElapsed(DURATIONS.REHEARSAL_MS);
         setDone(true);
         return;
       }
@@ -43,7 +47,7 @@ function RehearsalStage({ cues, onComplete, onFail }) {
       return;
     }
     onComplete();
-  }, [done]);
+  }, [done, cues, cueResults, difficulty, onComplete, onFail]);
 
   function fireCue(cue, event) {
     if (event) {
@@ -53,7 +57,6 @@ function RehearsalStage({ cues, onComplete, onFail }) {
 
     if (!active || cueResults[cue.id]) return;
 
-    // Apply the penalty multiplier to the window!
     const timeDiff = Math.abs(elapsed - cue.targetMs);
     const hit = timeDiff <= cue.windowMs * penaltyMultiplier;
 
@@ -61,9 +64,8 @@ function RehearsalStage({ cues, onComplete, onFail }) {
 
     if (hit) {
       dispatch({ type: "CUE_HIT" });
-      dispatch({ type: "ADD_SCORE", delta: 80 });
+      dispatch({ type: "ADD_SCORE", delta: SCORING.REHEARSAL_HIT });
 
-      // Dynamic Praise!
       const praise = isLiked
         ? '"Brilliant timing, you\'re saving us!"'
         : '"Good cue."';
@@ -72,46 +74,53 @@ function RehearsalStage({ cues, onComplete, onFail }) {
       dispatch({ type: "CUE_MISSED" });
       dispatch({ type: "LOSE_LIFE" });
 
-      // Dynamic Yell!
       const yell =
         (char?.stats?.social ?? 5) < 7
           ? '"Wake up at the board! We are dying out here!"'
           : '"Missed cue! Stay focused, you can do this."';
       setSmLine(yell);
 
-      if ((state.session?.lives ?? 1) - 1 <= 0) {
-        onFail();
+      if (lives - 1 <= 0) {
+        setActive(false);
+        setFailed(true);
       }
     }
   }
 
-  const progress = Math.min((elapsed / TOTAL_DURATION_MS) * 100, 100);
+  const progress = Math.min((elapsed / DURATIONS.REHEARSAL_MS) * 100, 100);
 
   // 1. Conditional render for the Failed/Redo state
   if (failed) {
     return (
-      <div className="card" style={{ padding: "1rem" }}>
+      <div className="stage-container surface-panel">
         <h2>❌ Rehearsal Stopped</h2>
         <p>The Stage Manager called a hold. You missed too many cues.</p>
         <button
           onClick={() => {
-            dispatch({ type: "ADD_SCORE", delta: -50 });
-            dispatch({ type: "RESET_LIVES" }); // Restores the default 3 lives
+            dispatch({ type: "ADD_SCORE", delta: SCORING.REDO_PENALTY });
+            dispatch({ type: "RESET_LIVES" });
             setFailed(false);
             setElapsed(0);
             setCueResults({});
+            setSmLine('"Let\'s take it from the top."');
           }}
-          className="btn btn-primary"
+          className="action-button btn-accent"
+          style={{ width: "100%", marginTop: "1rem" }}
         >
-          Redo Rehearsal (-50 pts)
+          Redo Rehearsal ({SCORING.REDO_PENALTY} pts)
         </button>
       </div>
     );
   }
 
-  // 2. Standard render for the active Rehearsal Stage
+  // 2. Standard render
   return (
-    <div style={{ padding: "1rem" }}>
+    <div className="stage-container">
+      {/* Headset Dialogue */}
+      <div className="surface-panel" style={{ padding: "0.5rem" }}>
+        <strong>🎙️ SM headset: {smLine}</strong>
+      </div>
+
       <h2>🎬 Rehearsal</h2>
       <p>
         Watch the progress bar and hit each cue at the right moment. A missed
@@ -119,14 +128,7 @@ function RehearsalStage({ cues, onComplete, onFail }) {
       </p>
 
       {/* HUD */}
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          marginBottom: "1.5rem",
-        }}
-      >
+      <div className="hud-container">
         <div>
           {Array.from({ length: lives }).map((_, i) => (
             <span key={i} style={{ fontSize: "1.5rem" }}>
@@ -136,21 +138,13 @@ function RehearsalStage({ cues, onComplete, onFail }) {
         </div>
         <div>
           <strong>
-            {(elapsed / 1000).toFixed(1)}s / {TOTAL_DURATION_MS / 1000}s
+            {(elapsed / 1000).toFixed(1)}s / {DURATIONS.REHEARSAL_MS / 1000}s
           </strong>
         </div>
       </div>
 
       {/* Timeline bar */}
-      <div
-        style={{
-          marginBottom: "1.5rem",
-          background: "var(--surface2)",
-          borderRadius: "8px",
-          padding: "1rem",
-          position: "relative",
-        }}
-      >
+      <div className="surface-panel">
         <div
           style={{
             height: "4px",
@@ -166,41 +160,35 @@ function RehearsalStage({ cues, onComplete, onFail }) {
               background: "#4ade80",
               transition: "width 0.1s",
             }}
-          ></div>
+          />
         </div>
         {cues.map((c) => (
           <div
             key={c.id}
             style={{
               position: "absolute",
-              left: `calc(${(c.targetMs / TOTAL_DURATION_MS) * 100}% + 1rem)`,
+              left: `calc(${(c.targetMs / DURATIONS.REHEARSAL_MS) * 100}% + 1rem)`,
               top: "50%",
               transform: "translateY(-50%)",
               width: "2px",
               height: "12px",
               background: "#fbbf24",
             }}
-          ></div>
+          />
         ))}
       </div>
 
       {!active && !done && (
         <button
-          onMouseDown={() => setActive(true)}
-          onTouchStart={() => setActive(true)}
-          style={{
-            cursor: "pointer",
-            marginBottom: "1rem",
-            padding: "0.75rem 1.5rem",
-            minWidth: "44px",
-            minHeight: "44px",
-            fontSize: "0.75rem",
-            fontFamily: "'Press Start 2P', monospace",
-            background: "var(--success, #40ff80)",
-            border: "2px solid var(--success-border, #20ff60)",
-            fontWeight: "bold",
-            touchAction: "none",
+          onMouseDown={() => {
+            setActive(true);
+            setSmLine('"And... go!"');
           }}
+          onTouchStart={() => {
+            setActive(true);
+            setSmLine('"And... go!"');
+          }}
+          className="action-button btn-success"
         >
           🎬 Start Rehearsal
         </button>
@@ -212,16 +200,7 @@ function RehearsalStage({ cues, onComplete, onFail }) {
         {cues.map((c) => {
           const result = cueResults[c.id];
           return (
-            <div
-              key={c.id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "0.5rem",
-                borderBottom: "1px solid var(--border)",
-              }}
-            >
+            <div key={c.id} className="list-item-row">
               <div>
                 <strong>{c.id}</strong> — {c.label}
               </div>
@@ -230,19 +209,7 @@ function RehearsalStage({ cues, onComplete, onFail }) {
                 <button
                   onMouseDown={(e) => fireCue(c, e)}
                   onTouchStart={(e) => fireCue(c, e)}
-                  style={{
-                    cursor: "pointer",
-                    padding: "0.5rem 1rem",
-                    minWidth: "44px",
-                    minHeight: "44px",
-                    fontSize: "0.75rem",
-                    fontFamily: "'Press Start 2P', monospace",
-                    background: "var(--accent)",
-                    border: "2px solid var(--accent-border, #ff40ff)",
-                    color: "#000",
-                    fontWeight: "bold",
-                    touchAction: "none",
-                  }}
+                  className="action-button btn-accent"
                 >
                   GO
                 </button>

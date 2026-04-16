@@ -6,6 +6,7 @@ import PlanningStage from "../components/game/PlanningStage";
 import RehearsalStage from "../components/game/RehearsalStage";
 import WrapUpScene from "../components/game/WrapUpScene";
 import { useGame } from "../context/GameContext";
+import { STAGE_LABELS, STAGE_ORDER } from "../data/constants"; // Import constants!
 import { CHARACTERS, CONFLICTS, CUE_SHEETS, STORIES } from "../data/gameData";
 
 function starsFromSession(session, totalCues) {
@@ -28,14 +29,15 @@ export default function GameLevelPage() {
   const { productionId, difficulty, charId } = useParams();
   const { state, dispatch } = useGame();
   const navigate = useNavigate();
+
   const [stage, setStage] = useState("planning");
   const [conflict, setConflict] = useState(null);
-  const [penaltyMultiplier, setPenaltyMultiplier] = useState(1); // For conflict penalties
+  const [penaltyMultiplier, setPenaltyMultiplier] = useState(1);
 
   // Guard: if no active session, redirect home
   useEffect(() => {
     if (!state.session) navigate("/");
-  }, [state.session]);
+  }, [state.session, navigate]);
 
   const char = CHARACTERS.find((c) => c.id === charId);
   const cueSheet = CUE_SHEETS[productionId]?.[char?.department] ?? [];
@@ -61,11 +63,10 @@ export default function GameLevelPage() {
       return;
     }
 
-    // Advance stage
+    // Advance stage using the constant
     dispatch({ type: "ADVANCE_STAGE" });
     setStage((prev) => {
-      const order = ["planning", "rehearsal", "liveshow", "wrapup"];
-      return order[order.indexOf(prev) + 1] ?? "wrapup";
+      return STAGE_ORDER[STAGE_ORDER.indexOf(prev) + 1] ?? "wrapup";
     });
   }
 
@@ -83,6 +84,7 @@ export default function GameLevelPage() {
           s.unlockedBy.difficulty === difficulty) &&
         stars >= s.unlockedBy.minStars,
     ).map((s) => s.id);
+
     dispatch({
       type: "COMPLETE_LEVEL",
       productionId,
@@ -93,20 +95,12 @@ export default function GameLevelPage() {
     navigate("/complete", { state: { stars, newStories } });
   }
 
-  const stageLabels = {
-    planning: "Planning",
-    rehearsal: "Rehearsal",
-    liveshow: "Live Show",
-    wrapup: "Wrap-up",
-  };
-  const stageOrder = ["planning", "rehearsal", "liveshow", "wrapup"];
-
   return (
-    <div>
-      {/* Stage indicator */}
+    <div className="stage-container">
+      {/* Stage indicator using constants */}
       <div style={{ marginBottom: "1rem", display: "flex", gap: "0.5rem" }}>
-        {stageOrder.map((s, i) => {
-          const current = stageOrder.indexOf(stage);
+        {STAGE_ORDER.map((s, i) => {
+          const current = STAGE_ORDER.indexOf(stage);
           return (
             <div
               key={s}
@@ -116,80 +110,52 @@ export default function GameLevelPage() {
                 background: i <= current ? "var(--accent)" : "var(--surface2)",
                 borderRadius: "4px",
                 textAlign: "center",
+                fontSize: "0.8rem",
+                fontWeight: i <= current ? "bold" : "normal",
               }}
             >
               {i < current ? "✓ " : ""}
-              {stageLabels[s]}
+              {STAGE_LABELS[s]}
             </div>
           );
         })}
       </div>
 
-      {/* Score */}
-      <div
-        style={{
-          marginBottom: "1rem",
-          padding: "0.5rem",
-          background: "var(--surface2)",
-          borderRadius: "4px",
-        }}
-      >
-        Score: {state.session?.score ?? 0}
+      {/* Score Panel */}
+      <div className="surface-panel" style={{ padding: "0.5rem" }}>
+        <strong>Score: {state.session?.score ?? 0}</strong>
       </div>
 
-      {/* Conflict overlay */}
-      {conflict && (
-        <ConflictMinigame
-          conflict={conflict}
-          onResolved={handleConflictResolved}
-        />
-      )}
+      {/* RENDER LOGIC: Only render ONE stage based on state */}
 
-      {/* Active stage */}
-      {!conflict && stage === "planning" && (
-        <PlanningStage onComplete={() => advanceTo("rehearsal")} />
-      )}
-      {!conflict && stage === "rehearsal" && (
-        <RehearsalStage
-          cues={cueSheet}
-          onComplete={() => advanceTo("liveshow")}
-          onFail={handleFail}
-        />
-      )}
-      {!conflict && stage === "liveshow" && (
-        <LiveShowStage
-          cues={cueSheet}
-          onComplete={() => advanceTo("wrapup")}
-          onFail={handleFail}
-        />
-      )}
+      {conflict ? (
+        <ConflictMinigame conflict={conflict} onResolved={onConflictResolved} />
+      ) : (
+        <>
+          {stage === "planning" && (
+            <PlanningStage onComplete={() => advanceTo("rehearsal")} />
+          )}
 
-      {!conflict && stage === "wrapup" && (
-        <WrapUpScene onComplete={handleComplete} />
-      )}
-      {conflict && (
-        <ConflictMinigame
-          conflict={conflict}
-          onResolved={onConflictResolved} // Use the consolidated function
-        />
-      )}
+          {stage === "rehearsal" && (
+            <RehearsalStage
+              cues={cueSheet}
+              penaltyMultiplier={penaltyMultiplier}
+              onComplete={() => advanceTo("liveshow")}
+              onFail={handleFail}
+            />
+          )}
 
-      {/* Pass penaltyMultiplier to Rehearsal and LiveShow */}
-      {!conflict && stage === "rehearsal" && (
-        <RehearsalStage
-          cues={cueSheet}
-          penaltyMultiplier={penaltyMultiplier}
-          onComplete={() => advanceTo("liveshow")}
-          onFail={handleFail}
-        />
-      )}
-      {!conflict && stage === "liveshow" && (
-        <LiveShowStage
-          cues={cueSheet}
-          penaltyMultiplier={penaltyMultiplier}
-          onComplete={() => advanceTo("wrapup")}
-          onFail={handleFail}
-        />
+          {stage === "liveshow" && (
+            <LiveShowStage
+              cues={cueSheet}
+              penaltyMultiplier={penaltyMultiplier}
+              onComplete={() => advanceTo("wrapup")}
+              onFail={handleFail}
+            />
+          )}
+
+          {stage === "wrapup" && <WrapUpScene onComplete={handleComplete} />}
+        </>
       )}
     </div>
   );

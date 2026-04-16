@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useGame } from "../../context/GameContext";
+import { SCORING } from "../../data/constants";
 import {
   LIGHT_TYPES,
   PLOT_GRID_COLS,
@@ -27,21 +28,19 @@ export default function PlanningStage({ onComplete }) {
 
   function submit() {
     const placed = grid.filter(Boolean).length;
-    const score = Math.min(placed * 15, 100);
+    // Using your new constants file for the scoring math!
+    const score = Math.min(
+      placed * SCORING.PLANNING_PER_FIXTURE,
+      SCORING.PLANNING_MAX,
+    );
     setReportScore(score);
     setSubmitted(true);
     dispatch({ type: "SET_PLOT_LIGHTS", lights: grid });
     dispatch({ type: "ADD_SCORE", delta: score });
   }
 
-  function proceed() {
-    onComplete();
-  }
-
-  const lightMap = Object.fromEntries(LIGHT_TYPES.map((l) => [l.id, l]));
-
   return (
-    <div>
+    <div className="stage-container">
       <h2>🗺️ Planning stage</h2>
       <p>
         Build your lighting plot. Select a fixture type, then tap the grid to
@@ -115,56 +114,24 @@ export default function PlanningStage({ onComplete }) {
       </div>
 
       {/* Stage preview label */}
-      <p style={{ fontSize: "0.9rem", color: "var(--text-dim)" }}>
+      <p
+        style={{
+          fontSize: "0.9rem",
+          color: "var(--text-dim)",
+          marginBottom: "0.5rem",
+        }}
+      >
         🔭 Stage Preview — {grid.filter(Boolean).length} fixtures placed
       </p>
 
-      {!submitted ? (
-        <button
-          onClick={submit}
-          style={{
-            cursor: "pointer",
-            padding: "0.75rem 1.5rem",
-            marginTop: "1rem",
-          }}
-        >
-          Submit to Stage Manager
-        </button>
-      ) : (
-        <div
-          style={{
-            marginTop: "1rem",
-            padding: "1rem",
-            background: "var(--surface2)",
-            borderRadius: "8px",
-          }}
-        >
-          <h3>📊 SM Report Card</h3>
-          <div>Fixtures placed: {grid.filter(Boolean).length}</div>
-          <div>Score earned: +{reportScore} pts</div>
-          <p>
-            {reportScore >= 80
-              ? '"Solid plot — let\'s move to rehearsal."'
-              : reportScore >= 40
-                ? '"It\'ll do, but we need more coverage."'
-                : '"We\'ll have to make do. Onwards."'}
-          </p>
-          <button
-            onClick={onComplete}
-            style={{ cursor: "pointer", marginTop: "1rem" }}
-          >
-            Continue
-          </button>
-        </div>
-      )}
-      {/* Visual Stage Preview */}
+      {/* Visual Stage Preview - MOVED ABOVE SUBMIT BUTTON */}
       <div
         style={{
           height: "150px",
           background: "#111",
           border: "2px solid var(--border)",
           borderRadius: "8px",
-          marginBottom: "1rem",
+          marginBottom: "1.5rem",
           position: "relative",
           overflow: "hidden",
         }}
@@ -186,8 +153,7 @@ export default function PlanningStage({ onComplete }) {
           if (!cell) return null;
           const lt = LIGHT_TYPES.find((t) => t.id === cell.typeId);
 
-          // Calculate X/Y position based on grid index
-          const x = ((i % PLOT_GRID_COLS) / (PLOT_GRID_COLS - 1)) * 90 + 5; // 5% to 95%
+          const x = ((i % PLOT_GRID_COLS) / (PLOT_GRID_COLS - 1)) * 90 + 5;
           const y =
             (Math.floor(i / PLOT_GRID_COLS) / Math.max(1, PLOT_GRID_ROWS - 1)) *
               80 +
@@ -202,17 +168,53 @@ export default function PlanningStage({ onComplete }) {
                 top: `${y}%`,
                 width: "120px",
                 height: "120px",
-                // Create a soft light beam effect
                 background: `radial-gradient(circle, ${lt?.color} 0%, transparent 60%)`,
                 transform: "translate(-50%, -50%)",
                 opacity: 0.6,
-                mixBlendMode: "screen", // Makes overlapping lights blend naturally
+                mixBlendMode: "screen",
                 pointerEvents: "none",
               }}
             />
           );
         })}
       </div>
+
+      {/* Submission & Report Card Container */}
+      {!submitted ? (
+        <button
+          onClick={submit}
+          className="action-button btn-success"
+          style={{ width: "100%" }}
+        >
+          Submit to Stage Manager
+        </button>
+      ) : (
+        <div className="surface-panel">
+          <h3>📊 SM Report Card</h3>
+          <div>Fixtures placed: {grid.filter(Boolean).length}</div>
+          <div>Score earned: +{reportScore} pts</div>
+          <p
+            style={{
+              fontStyle: "italic",
+              marginTop: "0.5rem",
+              color: "var(--text-muted)",
+            }}
+          >
+            {reportScore >= 80
+              ? '"Solid plot — let\'s move to rehearsal."'
+              : reportScore >= 40
+                ? '"It\'ll do, but we need more coverage."'
+                : '"We\'ll have to make do. Onwards."'}
+          </p>
+          <button
+            onClick={onComplete}
+            className="action-button btn-accent"
+            style={{ width: "100%", marginTop: "1rem" }}
+          >
+            Continue
+          </button>
+        </div>
+      )}
     </div>
   );
 }
