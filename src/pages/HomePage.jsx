@@ -3,14 +3,26 @@ import NavBar from "../components/NavBar";
 import { useGame } from "../context/GameContext";
 import { PRODUCTIONS } from "../data/gameData";
 
-function Stars({ n }) {
+// Updated Stars component with clearer labels for new players
+function Stars({ n, label }) {
   return (
-    <div style={{ color: "#fbbf24", fontSize: "1rem" }}>
-      {Array.from({ length: 3 }).map((_, i) => (
-        <span key={i} style={{ opacity: i < n ? 1 : 0.3 }}>
-          ★
-        </span>
-      ))}
+    <div style={{ textAlign: "center" }}>
+      <div
+        style={{
+          fontSize: "0.7rem",
+          color: "var(--bui-fg-info)",
+          marginBottom: "2px",
+        }}
+      >
+        {label}
+      </div>
+      <div style={{ color: "#fbbf24", fontSize: "1rem" }}>
+        {Array.from({ length: 3 }).map((_, i) => (
+          <span key={i} style={{ opacity: i < n ? 1 : 0.3 }}>
+            ★
+          </span>
+        ))}
+      </div>
     </div>
   );
 }
@@ -48,7 +60,7 @@ export default function HomePage() {
         style={{
           textAlign: "center",
           marginBottom: "2rem",
-          color: "var(--text-muted)",
+          color: "var(--color-text-muted)",
         }}
       >
         Technical theatre simulation
@@ -61,7 +73,7 @@ export default function HomePage() {
             <div
               key={i}
               className="surface-panel"
-              style={{ borderLeft: "4px solid var(--accent)" }}
+              style={{ borderLeft: "4px solid var(--color-accent)" }}
             >
               <p style={{ marginBottom: t.cta ? "1rem" : "0" }}>{t.text}</p>
               {t.cta && (
@@ -74,7 +86,20 @@ export default function HomePage() {
         </section>
       )}
 
-      <h2>Your progress</h2>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "baseline",
+        }}
+      >
+        <h2>Your Progress</h2>
+        {/* ADDED: Simple legend for new players */}
+        <span style={{ fontSize: "0.7rem", color: "var(--color-text-dim)" }}>
+          Levels: School / Comm / Prof
+        </span>
+      </div>
+
       {PRODUCTIONS.map((p) => (
         <div
           key={p.id}
@@ -87,23 +112,43 @@ export default function HomePage() {
             alignItems: "center",
           }}
         >
-          <div>
+          <div style={{ flex: 1 }}>
             <strong style={{ fontSize: "1.1rem" }}>
               {p.poster} {p.title}
             </strong>
-            <div style={{ marginTop: "0.5rem", display: "flex", gap: "1rem" }}>
-              {Object.entries(p.levels).map(([diff]) => {
-                const prog = state?.progress?.[`${p.id}_${diff}`];
-                return (
-                  <div key={diff} style={{ fontSize: "0.75rem" }}>
-                    {diff[0].toUpperCase()}
-                    <Stars n={prog?.completed ? prog.stars || 0 : 0} />
-                  </div>
-                );
-              })}
+            <div
+              style={{ marginTop: "0.8rem", display: "flex", gap: "1.5rem" }}
+            >
+              {/* Changed S/C/P to clearer abbreviations */}
+              <Stars
+                label="SCH"
+                n={
+                  state?.progress?.[`${p.id}_school`]?.completed
+                    ? state.progress[`${p.id}_school`].stars || 0
+                    : 0
+                }
+              />
+              <Stars
+                label="COM"
+                n={
+                  state?.progress?.[`${p.id}_community`]?.completed
+                    ? state.progress[`${p.id}_community`].stars || 0
+                    : 0
+                }
+              />
+              <Stars
+                label="PRO"
+                n={
+                  state?.progress?.[`${p.id}_professional`]?.completed
+                    ? state.progress[`${p.id}_professional`].stars || 0
+                    : 0
+                }
+              />
             </div>
           </div>
-          <span style={{ fontSize: "1.5rem", color: "var(--text-muted)" }}>
+          <span
+            style={{ fontSize: "1.5rem", color: "var(--color-text-muted)" }}
+          >
             ›
           </span>
         </div>
