@@ -4,9 +4,9 @@ import { DURATIONS, SCORING } from "../../data/constants";
 import { CHARACTERS } from "../../data/gameData";
 
 // Modular UI Components
-import CueStack from "./ui/CueStack";
-import DepartmentMixer from "./ui/DepartmentMixer";
-import MasterControl from "./ui/MasterControl";
+import CueStack from "../ui/CueStack";
+import DepartmentMixer from "../ui/DepartmentMixer";
+import MasterControl from "../ui/MasterControl";
 
 function CueExecutionStage({
   stageType,
