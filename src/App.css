@@ -1,101 +1,164 @@
-/* --- 1. HARDWARE CONSOLE CHASSIS --- */
-.hardware-panel {
-  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%);
-  border: 1px solid #111;
-  border-top: 1px solid #444;
-  border-radius: var(--radius-lg);
+/* --- 1. LAYOUT REFINEMENTS --- */
+
+/* Ensures the root container stretches to fill height and handles flex alignment */
+#root {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-root);
+  max-width: var(--max-width-app);
+}
+
+/* Page container utilizes global spacing tokens */
+.page-container {
   padding: 2rem;
-  box-shadow: var(--shadow-tactile);
+  padding-bottom: 5rem;
+  flex: 1;
 }
 
-/* --- 2. GLASSMORPHIC SCREENS (The Monitor) --- */
-.console-screen {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  color: var(--bui-fg-info);
-  font-family: var(--font-code);
+/* --- 2. CONSOLE & HARDWARE UI --- */
+
+/* Unified hardware panel with established design tokens */
+.hardware-panel {
+  background: var(--hardware-gradient);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-border);
   padding: 1.5rem;
-  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.4);
-  position: relative;
-  overflow: hidden;
+  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
 }
 
-/* Scanline Overlay (Refined from Legacy index.css) */
-.console-screen::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: repeating-linear-gradient(0deg,
-      transparent,
-      transparent 2px,
-      rgba(0, 0, 0, 0.1) 2px,
-      rgba(0, 0, 0, 0.1) 4px);
-  pointer-events: none;
+/* Digital screen aesthetic for cue stacks and readouts */
+.console-screen {
+  background-color: var(--console-screen-bg);
+  color: var(--console-screen-text);
+  border: 4px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
 }
 
-/* --- 3. MASTER GO BUTTON (Physical Dome) --- */
+/* Comms/Headset panel with active status animation */
+.comms-panel {
+  background: var(--color-surface-1);
+  color: var(--color-success);
+  border: 1px solid var(--color-border);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+}
+
+/* --- 3. HARDWARE CONTROL ELEMENTS --- */
+
+/* Massive MASTER GO button with tactile feedback */
 .btn-master-go {
-  width: 130px;
-  height: 130px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #22c55e, #15803d 80%, #052e16);
-  border: 6px solid #111;
-  color: #fff;
-  font-weight: 800;
-  font-family: var(--font-main);
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  box-shadow: 0 10px 0 #052e16, 0 15px 25px rgba(0, 0, 0, 0.6);
-  transition: all 0.05s ease;
+  background: radial-gradient(circle at 30% 30%, var(--color-success), var(--color-success-dark));
+  border: 4px solid #064e3b;
+  color: var(--color-text);
+  font-family: var(--font-pixel);
+  font-size: 1.2rem;
+  box-shadow: 0 8px 0 #022c22, 0 12px 20px rgba(0, 0, 0, 0.4);
   cursor: pointer;
+  transition: all 0.1s ease;
 }
 
 .btn-master-go:active:not(:disabled) {
   transform: translateY(6px);
-  box-shadow: 0 4px 0 #052e16, 0 8px 15px rgba(0, 0, 0, 0.6);
-  background: radial-gradient(circle at 35% 35%, #15803d, #052e16);
+  box-shadow: 0 2px 0 #022c22;
 }
 
-/* --- 4. INDUSTRIAL MIXER FADERS --- */
-.fader-track {
+.btn-master-go:disabled {
+  filter: grayscale(1);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Status LEDs for hardware indicators */
+.status-led {
+  display: inline-block;
   width: 12px;
-  height: 200px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-border);
+  margin-right: 8px;
+}
+
+.status-led.on {
+  background: var(--color-danger);
+  box-shadow: 0 0 10px var(--color-danger);
+}
+
+/* --- 4. MIXER & FADER SYSTEM --- */
+
+.mixer-board {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-around;
+  padding: 1.5rem 1rem;
+  background: var(--hardware-gradient);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-border);
+}
+
+.fader-track {
+  width: 8px;
+  height: 120px;
   background: #000;
-  border-radius: 6px;
-  border-right: 1px solid #333;
-  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.8);
+  border-radius: var(--radius-sm);
   position: relative;
+  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
 }
 
 .fader-knob {
-  width: 40px;
-  height: 60px;
-  background: linear-gradient(to bottom, #777 0%, #444 45%, #222 50%, #444 55%, #777 100%);
-  border-radius: 4px;
-  border: 1px solid #111;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  cursor: grab;
+  width: 28px;
+  height: 44px;
+  background: linear-gradient(to bottom, #666, #333);
+  border: 2px solid #111;
+  border-radius: var(--radius-sm);
   position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 10%;
-  /* Default starting point */
+  left: -10px;
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.6);
 }
 
-/* --- 5. BLUEPRINT PLANNING LAYER --- */
-.a3-workspace,
-.plot-grid {
-  background-color: var(--color-astronaut-blue);
-  background-image:
-    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-  background-size: 20px 20px;
-  border: 2px solid rgba(255, 255, 255, 0.1);
-  padding: 1rem;
+/* --- 5. UTILITY & ANIMATIONS --- */
+
+/* Keyframe for eq-bounce audio simulation */
+@keyframes eq-bounce {
+  0% {
+    bottom: 10%;
+  }
+
+  25% {
+    bottom: 60%;
+  }
+
+  50% {
+    bottom: 20%;
+  }
+
+  75% {
+    bottom: 80%;
+  }
+
+  100% {
+    bottom: 30%;
+  }
+}
+
+.audio-active {
+  animation: eq-bounce 1s infinite alternate ease-in-out;
+}
+
+/* Standardized button overrides for Success and Accent actions */
+.btn-success {
+  background-color: var(--color-success);
+  color: #000;
+  border-bottom: 4px solid var(--color-success-dark);
+}
+
+.btn-accent {
+  background-color: var(--color-accent);
+  color: #000;
+  border-bottom: 4px solid var(--color-accent-dark);
 }
