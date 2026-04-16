@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import ConflictMinigame from "../components/game/ConflictMinigame";
-import LiveShowStage from "../components/game/LiveShowStage";
 import PlanningStage from "../components/game/PlanningStage";
-import RehearsalStage from "../components/game/RehearsalStage";
 import WrapUpScene from "../components/game/WrapUpScene";
+// 1. Import your new combined stage
+import CueExecutionStage from "../components/game/CueExecutionStage";
 import { useGame } from "../context/GameContext";
 import { STAGE_LABELS, STAGE_ORDER } from "../data/constants";
 import { CHARACTERS, CONFLICTS, CUE_SHEETS, STORIES } from "../data/gameData";
@@ -132,22 +132,29 @@ export default function GameLevelPage() {
           {stage === "planning" && (
             <PlanningStage onComplete={() => advanceTo("rehearsal")} />
           )}
+
+          {/* 2. Use the new CueExecutionStage with stageType="rehearsal" */}
           {stage === "rehearsal" && (
-            <RehearsalStage
+            <CueExecutionStage
+              stageType="rehearsal"
               cues={cueSheet}
               penaltyMultiplier={penaltyMultiplier}
               onComplete={() => advanceTo("liveshow")}
               onFail={handleFail}
             />
           )}
+
+          {/* 3. Use the new CueExecutionStage with stageType="live" */}
           {stage === "liveshow" && (
-            <LiveShowStage
+            <CueExecutionStage
+              stageType="live"
               cues={cueSheet}
               penaltyMultiplier={penaltyMultiplier}
               onComplete={() => advanceTo("wrapup")}
               onFail={handleFail}
             />
           )}
+
           {stage === "wrapup" && <WrapUpScene onComplete={handleComplete} />}
         </>
       )}
