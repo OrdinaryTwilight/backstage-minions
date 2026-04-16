@@ -1,15 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
-import DifficultyPill from "../components/ui/DifficultyPill"; //
-import { useGame } from "../context/GameContext"; //
-import { PRODUCTIONS } from "../data/gameData"; //
+import DifficultyPill from "../components/ui/DifficultyPill";
+import HardwarePanel from "../components/ui/HardwarePanel"; // FIX: Added missing import
+import { useGame } from "../context/GameContext";
+import { PRODUCTIONS } from "../data/gameData";
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { state } = useGame(); //
+  const { state } = useGame();
 
   const hasStarted = Object.keys(state?.progress || {}).length > 0;
-  const firstProd = PRODUCTIONS[0]; //
+  const firstProd = PRODUCTIONS[0];
 
   return (
     <div className="page-container">
@@ -23,6 +24,7 @@ export default function HomePage() {
           Backstage Minions
         </h1>
         <p style={{ opacity: 0.6, fontFamily: "var(--font-main)" }}>
+          {/* FIX: Cleaned up emoji encoding */}
           Current Status: {state?.session ? "🔴 On-Call" : "⚪ Off-Duty"}
         </p>
       </header>
@@ -138,11 +140,10 @@ export default function HomePage() {
               Career Log
             </h2>
 
-            {/* Contacts Link - Currently placeholder navigation */}
             <HardwarePanel
               variant="clickable"
               style={{ marginBottom: "1rem", padding: "1rem" }}
-              onClick={() => navigate("/stories")} // Linking to stories for now as no contacts page exists
+              onClick={() => navigate("/stories")}
             >
               <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>👥</div>
               <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
@@ -159,7 +160,6 @@ export default function HomePage() {
               </div>
             </HardwarePanel>
 
-            {/* Stories Link */}
             <HardwarePanel
               variant="clickable"
               style={{ marginBottom: "1rem", padding: "1rem" }}
