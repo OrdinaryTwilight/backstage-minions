@@ -14,32 +14,19 @@ export default function ProductionsListPage() {
   return (
     <div className="page-container">
       <NavBar />
-      <h1 style={{ textAlign: "center", marginBottom: "0.5rem" }}>
-        🎭 Productions
-      </h1>
-      <p
-        style={{
-          textAlign: "center",
-          marginBottom: "1.5rem",
-          color: "var(--text-muted)",
-        }}
-      >
-        Select a production to perform
-      </p>
-
-      <input
-        type="text"
-        placeholder="Search productions..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className="surface-panel"
-        style={{
-          width: "100%",
-          padding: "1rem",
-          outline: "none",
-          boxSizing: "border-box",
-        }}
+      <SectionHeader
+        title="Production Archives"
+        subtitle="Search active work orders."
       />
+
+      <div className="search-container">
+        <input
+          type="text"
+          className="search-input"
+          placeholder="Search archives..."
+          onChange={(e) => handleSearch(e.target.value)}
+        />
+      </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         {filtered.map((p) => (

@@ -1,35 +1,32 @@
-/* --- 1. DARK BLUEPRINT DESIGN TOKENS --- */
+/* --- 1. DESIGN TOKENS --- */
 @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Inter:wght@400;700&family=JetBrains+Mono&display=swap');
 
 :root {
-  /* Darkened Drafting Palette */
   --color-blueprint-bg: #121212;
-  /* Deep charcoal base */
   --color-pencil-light: #f1f5f9;
-  /* Light "chalk" lead */
   --color-architect-blue: #38bdf8;
-  /* Technical cyan */
   --color-surface-translucent: rgba(30, 30, 30, 0.8);
 
-  /* Status Tokens */
+  /* Status Colors */
   --bui-fg-success: #4ade80;
   --bui-fg-danger: #f87171;
   --bui-fg-info: #38bdf8;
+  --bui-fg-warning: #fbbf24;
 
-  /* Typography - Globally Sketch-like */
+  /* Typography */
   --font-main: 'Architects Daughter', cursive;
   --font-mono: 'JetBrains Mono', monospace;
+  --font-sketch: 'Architects Daughter', cursive;
 
   /* Layout & Glassmorphism */
   --radius-pill: 32px;
   --radius-md: 8px;
-  --glass-bg: rgba(255, 255, 255, 0.05);
   --glass-border: rgba(255, 255, 255, 0.15);
   --shadow-tactile: 0 10px 30px rgba(0, 0, 0, 0.5);
   --nav-h: 70px;
 }
 
-/* --- 2. RESPONSIVE BASE --- */
+/* --- 2. GLOBAL RESET & BASE --- */
 *,
 *::before,
 *::after {
@@ -42,24 +39,15 @@ body {
   margin: 0;
   background-color: var(--color-blueprint-bg);
   color: var(--color-pencil-light);
-  font-family: 'Architects Daughter', cursive;
-  /* Universal sketch font */
+  font-family: var(--font-main);
   font-size: 14px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-}
-
-h2, h3, p {
-  color: var(--color-pencil-light) !important;
-}
-
-/* Specific fix for Select Difficulty page contrast */
-.surface-panel h3 {
-  color: var(--bui-fg-info) !important;
-}
-
-.surface-panel div {
-  color: var(--color-pencil-light) !important;
+  /* Dark Technical Grid Background */
+  background-image:
+    radial-gradient(var(--color-pencil-light) 0.5px, transparent 0.5px),
+    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 30px 30px, 100% 40px;
 }
 
 @media (max-width: 640px) {
@@ -75,21 +63,21 @@ h2, h3, p {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  /* Dark Technical Grid */
-  background-image:
-    radial-gradient(var(--color-pencil-light) 0.5px, transparent 0.5px),
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 30px 30px, 100% 40px;
 }
 
-/* --- 3. DRAFTING LAYOUT HELPERS --- */
+/* --- 3. UTILITY CLASSES --- */
+.annotation-text {
+  font-family: var(--font-sketch);
+  color: var(--color-architect-blue);
+}
+
 .page-container {
   padding: 1.5rem 1rem calc(var(--nav-h) + 2rem);
   width: 100%;
   flex: 1;
 }
 
-/* --- 4. GLASS DOCK NAVIGATION (Hand-Drawn) --- */
+/* --- 4. NAVIGATION DOCK --- */
 .nav-bar {
   position: fixed;
   bottom: 1.5rem;
@@ -100,7 +88,6 @@ h2, h3, p {
   max-width: 500px;
   background: var(--color-surface-translucent);
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-pill);
   display: flex;
@@ -122,7 +109,7 @@ h2, h3, p {
   padding: 0.5rem;
   font-size: 0.8rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  transition: color 0.2s ease;
 }
 
 .nav-item.active {

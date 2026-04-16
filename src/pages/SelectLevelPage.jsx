@@ -1,6 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import DifficultyPill from "../components/ui/DifficultyPill";
+import HardwarePanel from "../components/ui/HardwarePanel";
+import SectionHeader from "../components/ui/SectionHeader";
 import { useGame } from "../context/GameContext";
 import { PRODUCTIONS } from "../data/gameData";
 
@@ -8,36 +10,18 @@ export default function SelectLevelPage() {
   const { productionId } = useParams();
   const navigate = useNavigate();
   const { state } = useGame();
-
   const production = PRODUCTIONS.find((p) => p.id === productionId);
 
-  // Fallback for refresh/direct navigation errors
-  if (!production) {
-    return (
-      <div className="page-container hardware-panel">
-        <h2 className="annotation-text">Production Not Found</h2>
-        <button className="action-button" onClick={() => navigate("/")}>
-          Return Home
-        </button>
-      </div>
-    );
-  }
+  if (!production)
+    return <div className="page-container">Briefing not found.</div>;
 
   return (
     <div className="page-container">
       <NavBar />
-
-      <header style={{ marginBottom: "2rem" }}>
-        <h1
-          className="annotation-text"
-          style={{ fontSize: "2rem", color: "var(--bui-fg-info)" }}
-        >
-          {production.poster} {production.title}
-        </h1>
-        <p className="annotation-text" style={{ opacity: 0.7 }}>
-          Select your contract difficulty:
-        </p>
-      </header>
+      <SectionHeader
+        title={`${production.poster} ${production.title}: Contract Tiers`}
+        subtitle="Review venue requirements and select your gig."
+      />
 
       <div className="bento-container" style={{ gridTemplateColumns: "1fr" }}>
         {Object.entries(production.levels).map(([diffKey, details]) => {
@@ -45,80 +29,49 @@ export default function SelectLevelPage() {
           const isUnlocked = details.unlocked || progress?.completed;
 
           return (
-            <div
+            <HardwarePanel
               key={diffKey}
-              className={`hardware-panel ${isUnlocked ? "clickable" : "locked"}`}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.5rem",
-                cursor: isUnlocked ? "pointer" : "not-allowed",
-              }}
+              variant={isUnlocked ? "clickable" : "locked"}
               onClick={() =>
                 isUnlocked &&
                 navigate(
                   `/productions/${productionId}/${diffKey}/select-character`,
                 )
               }
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
             >
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "flex-start",
-                }}
-              >
-                <div>
-                  <h3
-                    className="annotation-text"
-                    style={{ fontSize: "1.4rem", margin: 0 }}
-                  >
-                    {diffKey.toUpperCase()} LEVEL
-                  </h3>
-                  <p
-                    style={{
-                      fontSize: "0.85rem",
-                      opacity: 0.6,
-                      marginTop: "4px",
-                    }}
-                  >
-                    Location: {details.venueId.replace("_", " ")}
-                  </p>
-                </div>
-                {/* Unified Star Display using DifficultyPill */}
-                <div style={{ minWidth: "120px" }}>
-                  <DifficultyPill
-                    label="Contract Status"
-                    stars={progress?.stars || 0}
-                    unlocked={isUnlocked}
-                  />
-                </div>
-              </div>
-
-              {!isUnlocked && (
-                <div
+              <div style={{ flex: 1 }}>
+                <h3
+                  className="annotation-text"
+                  style={{ fontSize: "1.5rem", margin: 0 }}
+                >
+                  {diffKey.toUpperCase()} CONTRACT
+                </h3>
+                <p
                   style={{
-                    color: "var(--bui-fg-danger)",
-                    fontSize: "0.8rem",
-                    fontStyle: "italic",
+                    opacity: 0.6,
+                    fontSize: "0.85rem",
+                    marginTop: "4px",
                   }}
                 >
-                  * This level is currently locked. Complete the previous tier
-                  to unlock.
-                </div>
-              )}
-            </div>
+                  Venue: {details.venueId.replace("_", " ")}
+                </p>
+              </div>
+              <div style={{ minWidth: "140px" }}>
+                <DifficultyPill
+                  label="Status"
+                  stars={progress?.stars || 0}
+                  unlocked={isUnlocked}
+                />
+              </div>
+            </HardwarePanel>
           );
         })}
       </div>
-
-      <button
-        className="action-button"
-        style={{ marginTop: "2rem", width: "100%" }}
-        onClick={() => navigate("/")}
-      >
-        ‹ Back to Production List
-      </button>
     </div>
   );
 }
