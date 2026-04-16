@@ -1,315 +1,128 @@
-/* --- 1. DESIGN TOKENS (The "Global Controller") --- */
+/* --- 1. SKETCH & DRAFTING DESIGN TOKENS --- */
+@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Inter:wght@400;700&family=JetBrains+Mono&display=swap');
+
 :root {
-  /* Core Brand Colors */
-  --color-bg-main: #0a0a0a;
-  --color-bg-root: #1a1a1a;
-  --color-accent: #ff40ff;
-  --color-accent-dark: #d030d0;
-  --color-success: #4ade80;
-  --color-success-dark: #166534;
-  --color-danger: #ef4444;
-  --color-warning: #facc15;
+  /* Blueprint Paper Palette */
+  --color-blueprint-paper: #f8f1e5;
+  /* Warm drafting paper */
+  --color-pencil-lead: #333333;
+  --color-architect-blue: #2b5797;
+  --color-surface-paper: #ffffff;
 
-  /* Neutral Palette */
-  --color-text: #ffffff;
-  --color-text-muted: #aaaaaa;
-  --color-text-dim: #666666;
-  --color-border: #333333;
-  --color-surface-1: #111111;
-  --color-surface-2: #242424;
-
-  /* Console Specifics */
-  --console-screen-bg: #051014;
-  --console-screen-text: #38bdf8;
-  --hardware-gradient: linear-gradient(145deg, #2a2a2a, #1f1f1f);
+  /* Status Tokens (Adapted for paper) */
+  --bui-fg-success: #15803d;
+  --bui-fg-danger: #b91c1c;
+  --bui-fg-info: #0369a1;
 
   /* Typography */
-  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-pixel: 'Press Start 2P', monospace;
-  --font-mono: 'Courier New', Courier, monospace;
+  --font-main: 'Inter', -apple-system, sans-serif;
+  --font-sketch: 'Architects Daughter', cursive;
+  --font-code: 'JetBrains Mono', monospace;
 
-  /* Layout */
-  --max-width-app: 960px;
-  --radius-sm: 4px;
+  /* Layout & Depth */
   --radius-md: 8px;
-  --radius-lg: 12px;
-  --shadow-main: 0 0 40px rgba(0, 0, 0, 0.8);
+  --radius-lg: 16px;
+  --shadow-sketch: 8px 8px 0px rgba(0, 0, 0, 0.1);
+  --nav-h: 70px;
 }
 
-/* --- 2. BASE RESET & ACCESSIBILITY --- */
+/* --- 2. RESPONSIVE BASE --- */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
   margin: 0;
-  padding: 0;
-  background-color: var(--color-bg-main);
-  color: var(--color-text);
+  background-color: var(--color-blueprint-paper);
+  color: var(--color-pencil-lead);
   font-family: var(--font-main);
-  display: flex;
-  justify-content: center;
-  min-height: 100vh;
-  line-height: 1.5;
+  font-size: 14px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  min-height: 100dvh;
 }
 
-/* --- 3. LAYOUT WRAPPERS --- */
+/* Original mobile font scaling */
+@media (max-width: 640px) {
+  body {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 380px) {
+  body {
+    font-size: 11px;
+  }
+}
+
 #root {
   width: 100%;
-  max-width: var(--max-width-app);
+  max-width: 960px;
+  margin: 0 auto;
   min-height: 100vh;
-  background-color: var(--color-bg-root);
-  box-shadow: var(--shadow-main);
-  position: relative;
-  overflow-x: hidden;
   display: flex;
   flex-direction: column;
+  /* Blueprint Paper Texture */
+  background-image:
+    radial-gradient(var(--color-pencil-lead) 0.5px, transparent 0.5px),
+    linear-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 1px);
+  background-size: 30px 30px, 100% 40px;
 }
 
+/* --- 3. DRAFTING LAYOUT HELPERS --- */
 .page-container {
-  padding: 2rem;
-  padding-bottom: 5rem;
+  padding: 1.5rem 1rem calc(var(--nav-h) + 1.5rem);
   width: 100%;
   flex: 1;
 }
 
-/* Responsive Two-Column System */
-.desktop-two-column {
-  display: flex;
-  flex-direction: column;
+.bento-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 1.5rem;
 }
 
-@media (min-width: 768px) {
-  .desktop-two-column {
-    flex-direction: row;
-    align-items: stretch;
-  }
-
-  .desktop-col-main {
-    flex: 2;
-  }
-
-  .desktop-col-side {
-    flex: 1;
-  }
-}
-
-/* --- 4. HARDWARE & CONSOLE COMPONENTS --- */
-
-/* Brushed Metal / Plastic Panel */
-.hardware-panel {
-  background: var(--hardware-gradient);
-  border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  border: 1px solid var(--color-border);
-  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
-}
-
-/* Digital CRT / LED Screen */
-.console-screen {
-  background-color: var(--console-screen-bg);
-  border: 4px solid var(--color-border);
-  border-radius: var(--radius-md);
-  padding: 1.5rem;
-  font-family: var(--font-mono);
-  color: var(--console-screen-text);
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
-}
-
-/* Heads Up Panel for Comms */
-.comms-panel {
-  background: var(--color-surface-1);
-  padding: 1rem;
-  border-radius: var(--radius-md);
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--color-border);
-  color: var(--color-success);
-  font-family: var(--font-mono);
-}
-
-/* --- 5. UI UTILITIES --- */
-.surface-panel {
-  background: var(--color-surface-2);
-  border-radius: var(--radius-md);
-  padding: 1rem;
-  margin-bottom: 1.5rem;
-}
-
-.list-item-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 0.5rem;
-  border-bottom: 1px solid var(--color-border);
-}
-
-.status-led {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--color-border);
-  margin-right: 8px;
-  transition: background 0.2s, box-shadow 0.2s;
-}
-
-.status-led.on {
-  background: var(--color-danger);
-  box-shadow: 0 0 10px var(--color-danger);
-}
-
-/* --- 6. BUTTON SYSTEM --- */
-.action-button {
-  cursor: pointer;
-  padding: 0.75rem 1.5rem;
-  font-family: var(--font-pixel);
-  font-size: 0.75rem;
-  font-weight: bold;
-  border: none;
-  border-radius: var(--radius-sm);
-  transition: transform 0.1s ease, filter 0.1s ease;
-  touch-action: none;
-}
-
-.action-button:active:not(:disabled) {
-  transform: scale(0.96);
-}
-
-.action-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  filter: grayscale(1);
-}
-
-.btn-success {
-  background: var(--color-success);
-  color: #000;
-  border-bottom: 4px solid var(--color-success-dark);
-}
-
-.btn-accent {
-  background: var(--color-accent);
-  color: #000;
-  border-bottom: 4px solid var(--color-accent-dark);
-}
-
-/* Master Hardware GO Button */
-.btn-master-go {
-  background: radial-gradient(circle at 30% 30%, var(--color-success), var(--color-success-dark));
-  border: 4px solid #064e3b;
-  color: #fff;
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  font-family: var(--font-pixel);
-  font-size: 1.2rem;
-  box-shadow: 0 8px 0 #022c22, 0 12px 20px rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-  transition: all 0.1s ease;
-}
-
-.btn-master-go:active:not(:disabled) {
-  transform: translateY(6px);
-  box-shadow: 0 2px 0 #022c22;
-}
-
-/* --- 7. ANIMATIONS --- */
-@keyframes flicker {
-  0% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.8;
-  }
-
-  100% {
-    opacity: 1;
-  }
-}
-
-.comms-active {
-  animation: flicker 2s infinite ease-in-out;
-}
-
-/* --- UPDATED DOCK NAVIGATION --- */
+/* --- 4. FLOATING DOCK (Hand-Drawn style) --- */
 .nav-bar {
   position: fixed;
   bottom: 1.5rem;
-  /* Floating dock style */
   left: 50%;
   transform: translateX(-50%);
-  height: 64px;
+  height: var(--nav-h);
   width: 90%;
   max-width: 500px;
-  background: rgba(24, 24, 24, 0.8);
-  /* Translucent surface */
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 32px;
-  /* Pill shape */
+  background: white;
+  filter: url(#sketch-wobble);
+  /* Applies subtle line irregularities */
+  border: 2px solid var(--color-pencil-lead);
+  border-top-left-radius: 255px 15px;
+  border-top-right-radius: 15px 225px;
+  border-bottom-right-radius: 225px 15px;
+  border-bottom-left-radius: 15px 255px;
   display: flex;
   align-items: center;
   justify-content: space-around;
-  padding: 0 1rem;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   z-index: 1000;
+  box-shadow: var(--shadow-sketch);
 }
 
 .nav-item {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 4px;
   background: transparent;
   border: none;
-  color: #888;
+  color: var(--color-pencil-lead);
+  font-family: var(--font-sketch);
   cursor: pointer;
   padding: 0.5rem;
-  transition: all 0.2s ease;
-  font-family: var(--font-main);
-  /* Modern readable font */
-  font-weight: 600;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: 0.8rem;
 }
 
-.nav-item span:first-child {
-  font-size: 1.2rem;
-  /* Larger icons */
-  transition: transform 0.2s ease;
-}
-
-.nav-item:hover {
-  color: #fff;
-}
-
-/* Active State with Spotify Green glow */
 .nav-item.active {
-  color: var(--color-spotify-green);
-}
-
-.nav-item.active span:first-child {
-  transform: translateY(-4px);
-  /* Subtle lift */
-  filter: drop-shadow(0 0 8px var(--color-spotify-green));
-}
-
-.nav-item.active::after {
-  content: '';
-  position: absolute;
-  bottom: 6px;
-  width: 4px;
-  height: 4px;
-  background: var(--color-spotify-green);
-  border-radius: 50%;
-  box-shadow: 0 0 10px var(--color-spotify-green);
+  color: var(--color-architect-blue);
+  font-weight: bold;
 }

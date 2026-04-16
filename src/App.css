@@ -1,164 +1,124 @@
-/* --- 1. LAYOUT REFINEMENTS --- */
+/* --- 1. PENCIL-SHADED HARDWARE --- */
+.hardware-panel {
+  background: white;
+  border: 3px solid var(--color-pencil-lead);
+  padding: 1.5rem;
+  position: relative;
+  /* Cross-hatch pencil shading effect */
+  background-image: repeating-linear-gradient(45deg,
+      transparent,
+      transparent 10px,
+      rgba(0, 0, 0, 0.03) 10px,
+      rgba(0, 0, 0, 0.03) 11px);
+  filter: url(#sketch-wobble);
+  box-shadow: var(--shadow-sketch);
+  margin-bottom: 1.5rem;
+}
 
-/* Ensures the root container stretches to fill height and handles flex alignment */
-#root {
+/* Architectural Annotations */
+.annotation-text {
+  font-family: var(--font-sketch);
+  color: var(--color-architect-blue);
+  font-size: 1.1rem;
+  line-height: 1.2;
+}
+
+/* Red "Pencil Circle" for high-stakes areas */
+.problem-highlight {
+  border: 3px solid #e11d48;
+  border-radius: 45% 55% 50% 50% / 55% 50% 50% 45%;
+  padding: 4px 8px;
+  transform: rotate(-2deg);
+  display: inline-block;
+}
+
+/* --- 2. SKETCHY CONSOLE SCREENS --- */
+.console-screen {
+  background: #eef2f7;
+  /* Blueprint-style tinted screen */
+  border: 2px solid var(--color-architect-blue);
+  border-radius: var(--radius-md);
+  color: var(--color-architect-blue);
+  font-family: var(--font-code);
+  padding: 1rem;
+  font-size: 0.85rem;
+  overflow-x: auto;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+/* --- 3. SKETCHY FADER CONTROLS --- */
+.fader-track {
+  width: 4px;
+  background: var(--color-pencil-lead);
+  height: clamp(120px, 25vh, 200px);
+  border-radius: 2px;
+  position: relative;
+}
+
+.fader-knob {
+  width: 34px;
+  height: 50px;
+  background: #fff;
+  border: 2px solid var(--color-pencil-lead);
+  border-radius: 4px;
   display: flex;
   flex-direction: column;
-  background-color: var(--color-bg-root);
-  max-width: var(--max-width-app);
+  justify-content: center;
+  gap: 4px;
+  align-items: center;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  filter: url(#sketch-wobble);
 }
 
-/* Page container utilizes global spacing tokens */
-.page-container {
-  padding: 2rem;
-  padding-bottom: 5rem;
-  flex: 1;
+.fader-knob::before {
+  content: "";
+  width: 20px;
+  height: 2px;
+  background: var(--color-pencil-lead);
+  box-shadow: 0 6px 0 var(--color-pencil-lead), 0 -6px 0 var(--color-pencil-lead);
 }
 
-/* --- 2. CONSOLE & HARDWARE UI --- */
-
-/* Unified hardware panel with established design tokens */
-.hardware-panel {
-  background: var(--hardware-gradient);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border);
-  padding: 1.5rem;
-  box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.5);
-}
-
-/* Digital screen aesthetic for cue stacks and readouts */
-.console-screen {
-  background-color: var(--console-screen-bg);
-  color: var(--console-screen-text);
-  border: 4px solid var(--color-border);
-  border-radius: var(--radius-md);
-  font-family: var(--font-mono);
-  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.8);
-}
-
-/* Comms/Headset panel with active status animation */
-.comms-panel {
-  background: var(--color-surface-1);
-  color: var(--color-success);
-  border: 1px solid var(--color-border);
-  padding: 1rem;
-  border-radius: var(--radius-md);
-  font-family: var(--font-mono);
-}
-
-/* --- 3. HARDWARE CONTROL ELEMENTS --- */
-
-/* Massive MASTER GO button with tactile feedback */
+/* --- 4. MASTER GO BUTTON (Hand-sketched) --- */
 .btn-master-go {
-  width: 120px;
-  height: 120px;
+  width: clamp(80px, 20vw, 130px);
+  height: clamp(80px, 20vw, 130px);
   border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, var(--color-success), var(--color-success-dark));
-  border: 4px solid #064e3b;
-  color: var(--color-text);
-  font-family: var(--font-pixel);
+  background: white;
+  border: 3px solid var(--color-pencil-lead);
+  color: var(--color-pencil-lead);
+  font-family: var(--font-sketch);
+  font-weight: bold;
   font-size: 1.2rem;
-  box-shadow: 0 8px 0 #022c22, 0 12px 20px rgba(0, 0, 0, 0.4);
+  filter: url(#sketch-wobble);
+  box-shadow: var(--shadow-sketch);
   cursor: pointer;
   transition: all 0.1s ease;
 }
 
 .btn-master-go:active:not(:disabled) {
-  transform: translateY(6px);
-  box-shadow: 0 2px 0 #022c22;
+  transform: translate(4px, 4px);
+  box-shadow: 0 0 0 transparent;
 }
 
-.btn-master-go:disabled {
-  filter: grayscale(1);
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* Status LEDs for hardware indicators */
-.status-led {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--color-border);
-  margin-right: 8px;
-}
-
-.status-led.on {
-  background: var(--color-danger);
-  box-shadow: 0 0 10px var(--color-danger);
-}
-
-/* --- 4. MIXER & FADER SYSTEM --- */
-
-.mixer-board {
+/* --- 5. RESPONSIVE TWO-COLUMN LAYOUT --- */
+.desktop-two-column {
   display: flex;
+  flex-direction: column;
   gap: 1.5rem;
-  justify-content: space-around;
-  padding: 1.5rem 1rem;
-  background: var(--hardware-gradient);
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-border);
 }
 
-.fader-track {
-  width: 8px;
-  height: 120px;
-  background: #000;
-  border-radius: var(--radius-sm);
-  position: relative;
-  box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.8);
-}
-
-.fader-knob {
-  width: 28px;
-  height: 44px;
-  background: linear-gradient(to bottom, #666, #333);
-  border: 2px solid #111;
-  border-radius: var(--radius-sm);
-  position: absolute;
-  left: -10px;
-  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.6);
-}
-
-/* --- 5. UTILITY & ANIMATIONS --- */
-
-/* Keyframe for eq-bounce audio simulation */
-@keyframes eq-bounce {
-  0% {
-    bottom: 10%;
+@media (min-width: 768px) {
+  .desktop-two-column {
+    flex-direction: row;
   }
 
-  25% {
-    bottom: 60%;
+  .desktop-col-main {
+    flex: 2;
   }
 
-  50% {
-    bottom: 20%;
+  .desktop-col-side {
+    flex: 1;
   }
-
-  75% {
-    bottom: 80%;
-  }
-
-  100% {
-    bottom: 30%;
-  }
-}
-
-.audio-active {
-  animation: eq-bounce 1s infinite alternate ease-in-out;
-}
-
-/* Standardized button overrides for Success and Accent actions */
-.btn-success {
-  background-color: var(--color-success);
-  color: #000;
-  border-bottom: 4px solid var(--color-success-dark);
-}
-
-.btn-accent {
-  background-color: var(--color-accent);
-  color: #000;
-  border-bottom: 4px solid var(--color-accent-dark);
 }
