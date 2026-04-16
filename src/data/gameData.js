@@ -343,3 +343,10 @@ export const GEAR_PACKAGES = [
     bonus: -50 // Cost of luxury
   }
 ];
+
+export const NPC_ICONS = {
+  "Stage Manager": "📋",
+  "Costume Designer": "🧵",
+  "Senior Technician": "👨‍🔧",
+  "Director": "🎬"
+};

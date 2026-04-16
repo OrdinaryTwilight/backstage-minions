@@ -56,6 +56,7 @@ export default function ConflictMinigame({ conflict, onResolved }) {
       <h2 style={{ color: "var(--bui-fg-danger)" }}>⚡ CONFLICT</h2>
       <DialogueBox
         speaker={conflict.npc}
+        icon={NPC_ICONS[conflict.npc]} // Look up NPC icon
         text={conflict.description}
         choices={conflict.choices}
         onChoice={handleChoice}
