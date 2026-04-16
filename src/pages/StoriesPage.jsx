@@ -1,5 +1,8 @@
+// src/pages/StoriesPage.jsx
 import { useState } from "react";
 import NavBar from "../components/NavBar";
+import HardwarePanel from "../components/ui/HardwarePanel"; // FIX: Missing import
+import SectionHeader from "../components/ui/SectionHeader"; // FIX: Missing import
 import { useGame } from "../context/GameContext";
 import { STORIES } from "../data/gameData";
 
@@ -12,137 +15,93 @@ export default function StoriesPage() {
   );
   const locked = STORIES.filter((s) => !state?.unlockedStories?.includes(s.id));
 
-  if (selected) {
-    return (
-      <div className="page-container">
-        <NavBar />
-        <button
-          onClick={() => setSelected(null)}
-          className="action-button"
-          style={{
-            marginBottom: "1rem",
-            background: "transparent",
-            color: "white",
-            padding: 0,
-          }}
-        >
-          ← Back
-        </button>
-
-        <div className="surface-panel">
-          <h1
-            style={{
-              fontSize: "1.5rem",
-              color: "var(--accent)",
-              marginBottom: "1.5rem",
-            }}
-          >
-            {selected.title}
-          </h1>
-          <div
-            style={{
-              whiteSpace: "pre-wrap",
-              lineHeight: "1.6",
-              color: "var(--text-muted)",
-            }}
-          >
-            {selected.content}
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="page-container">
       <NavBar />
-      <h1 style={{ textAlign: "center", marginBottom: "0.5rem" }}>
-        📖 Stories
-      </h1>
-      <p
-        style={{
-          textAlign: "center",
-          color: "var(--text-muted)",
-          marginBottom: "2rem",
-        }}
-      >
-        Deep dives into the world of technical theatre. Unlock more by
-        completing levels.
-      </p>
 
-      {unlocked.length > 0 && (
-        <section style={{ marginBottom: "2rem" }}>
-          <h2
-            style={{
-              fontSize: "1.1rem",
-              marginBottom: "1rem",
-              color: "var(--success)",
-            }}
-          >
-            Unlocked
-          </h2>
-          {unlocked.map((s) => (
+      {/* Wrapper for the animation so it doesn't break the Navbar */}
+      <div className="content-reveal">
+        <SectionHeader
+          title="Technical Lore"
+          subtitle="Deep dives into the technical theatre archives."
+        />
+
+        {selected ? (
+          <HardwarePanel style={{ position: "relative" }}>
+            <button
+              onClick={() => setSelected(null)}
+              className="action-button"
+              style={{ marginBottom: "1.5rem" }}
+            >
+              ← Return to Index
+            </button>
+            <h2
+              className="annotation-text"
+              style={{ fontSize: "1.8rem", marginBottom: "1rem" }}
+            >
+              {selected.title}
+            </h2>
             <div
-              key={s.id}
-              onClick={() => setSelected(s)}
-              className="surface-panel"
               style={{
-                cursor: "pointer",
-                border: "2px solid transparent",
-                transition: "border 0.2s",
+                whiteSpace: "pre-wrap",
+                lineHeight: "1.8",
+                opacity: 0.9,
               }}
             >
-              <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "1.1rem" }}>
-                {s.title}
-              </h3>
-              <p
-                style={{
-                  color: "var(--text-muted)",
-                  fontSize: "0.85rem",
-                  margin: 0,
-                }}
-              >
-                {s.content.slice(0, 80)}…
-              </p>
+              {selected.content}
             </div>
-          ))}
-        </section>
-      )}
+          </HardwarePanel>
+        ) : (
+          <>
+            <section style={{ marginBottom: "2.5rem" }}>
+              <h2
+                className="annotation-text"
+                style={{ color: "var(--bui-fg-success)", marginBottom: "1rem" }}
+              >
+                Available Records
+              </h2>
+              <div className="bento-container">
+                {unlocked.map((s) => (
+                  <HardwarePanel
+                    key={s.id}
+                    variant="clickable"
+                    onClick={() => setSelected(s)}
+                  >
+                    <h3 style={{ margin: "0 0 0.5rem 0" }}>{s.title}</h3>
+                    <p style={{ fontSize: "0.85rem", opacity: 0.7 }}>
+                      {s.content.slice(0, 100)}…
+                    </p>
+                  </HardwarePanel>
+                ))}
+              </div>
+            </section>
 
-      {locked.length > 0 && (
-        <section>
-          <h2
-            style={{
-              fontSize: "1.1rem",
-              marginBottom: "1rem",
-              color: "var(--text-muted)",
-            }}
-          >
-            Locked
-          </h2>
-          {locked.map((s) => (
-            <div
-              key={s.id}
-              className="surface-panel"
-              style={{ opacity: "0.5" }}
-            >
-              <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "1rem" }}>
-                🔒 {s.title}
-              </h3>
-              <p
-                style={{
-                  color: "var(--text-muted)",
-                  fontSize: "0.8rem",
-                  margin: 0,
-                }}
+            <section>
+              <h2
+                className="annotation-text"
+                style={{ opacity: 0.5, marginBottom: "1rem" }}
               >
-                Complete {s.unlockedBy.difficulty} difficulty in "
-                {s.unlockedBy.productionId}" with {s.unlockedBy.minStars}+ stars
-              </p>
-            </div>
-          ))}
-        </section>
-      )}
+                Classified Data
+              </h2>
+              <div className="bento-container">
+                {locked.map((s) => (
+                  <HardwarePanel
+                    key={s.id}
+                    variant="locked"
+                    style={{ opacity: 0.4 }}
+                  >
+                    <h3 style={{ margin: 0 }}>🔒 {s.title}</h3>
+                    <p style={{ fontSize: "0.75rem", marginTop: "8px" }}>
+                      Clearance: {s.unlockedBy.difficulty} /{" "}
+                      {s.unlockedBy.minStars}★
+                    </p>
+                  </HardwarePanel>
+                ))}
+              </div>
+            </section>
+          </>
+        )}
+      </div>
     </div>
   );
 }

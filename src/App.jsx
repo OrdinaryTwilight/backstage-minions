@@ -35,57 +35,77 @@ function App() {
     return (
       <GameProvider>
         <Router>
-          {/* Main App Layout Wrapper */}
-          <div className="page-container">
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route
-                path="/productions"
-                element={
-                  <Suspense fallback={<Spinner />}>
-                    <ProductionsListPage />
-                  </Suspense>
-                }
-              />
-              <Route
-                path="/productions/:productionId"
-                element={
-                  <Suspense fallback={<Spinner />}>
-                    <ProductionsPage />
-                  </Suspense>
-                }
-              />
+          {/* REMOVED inner page-container wrapper to fix double padding */}
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route
+              path="/productions"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <ProductionsListPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/productions/:productionId"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <ProductionsPage />
+                </Suspense>
+              }
+            />
 
-              {/* Standardized route for selecting a difficulty tier */}
-              <Route
-                path="/productions/:productionId/difficulty/:difficulty"
-                element={
-                  <Suspense fallback={<Spinner />}>
-                    <SelectLevelPage />
-                  </Suspense>
-                }
-              />
+            <Route
+              path="/productions/:productionId/difficulty/:difficulty"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <SelectLevelPage />
+                </Suspense>
+              }
+            />
 
-              {/* Standardized route for selecting a character */}
-              <Route
-                path="/productions/:productionId/:difficulty/character"
-                element={
-                  <Suspense fallback={<Spinner />}>
-                    <SelectCharacterPage />
-                  </Suspense>
-                }
-              />
+            <Route
+              path="/productions/:productionId/difficulty/:difficulty/character"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <SelectCharacterPage />
+                </Suspense>
+              }
+            />
 
-              <Route
-                path="/game/:productionId/:difficulty/:charId"
-                element={
-                  <Suspense fallback={<Spinner />}>
-                    <GameLevelPage />
-                  </Suspense>
-                }
-              />
-            </Routes>
-          </div>
+            <Route
+              path="/game/:productionId/:difficulty/:charId"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <GameLevelPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/level-complete/:productionId/:difficulty/:charId"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <LevelCompletePage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/level-failed/:productionId/:difficulty/:charId"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <LevelFailedPage />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/stories"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <StoriesPage />
+                </Suspense>
+              }
+            />
+          </Routes>
           <Analytics />
           <SpeedInsights />
         </Router>

@@ -12,175 +12,181 @@ export default function HomePage() {
   const firstProd = PRODUCTIONS[0];
 
   return (
-    <div className="page-container animate-blueprint">
+    <div className="page-container">
       <NavBar />
-      <header style={{ marginBottom: "2.5rem" }}>
-        <h1
-          className="annotation-text animate-flicker"
-          style={{ fontSize: "2.2rem", color: "var(--bui-fg-info)" }}
-        >
-          Backstage Minions
-        </h1>
-        <div style={{ display: "flex", alignItems: "center", opacity: 0.6 }}>
-          <span
-            className={`status-indicator ${state?.session ? "status-on-call" : "status-off-duty"}`}
-          />
-          Current Status: {state?.session ? "On-Call" : "Off-Duty"}
-        </div>
-      </header>
-
-      <div className="desktop-two-column">
-        <div className="desktop-col-main">
-          <HardwarePanel
-            className="animate-pop"
-            style={{ borderLeft: "6px solid var(--bui-fg-danger)" }}
+      <div className="page-container animate-blueprint">
+        <header style={{ marginBottom: "2.5rem" }}>
+          <h1
+            className="annotation-text animate-flicker"
+            style={{ fontSize: "2.2rem", color: "var(--bui-fg-info)" }}
           >
-            <h2
-              className="annotation-text"
-              style={{ color: "var(--bui-fg-danger)", marginTop: 0 }}
-            >
-              📌 Call Sheet
-            </h2>
-            <div style={{ marginTop: "1rem" }}>
-              {!hasStarted ? (
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                  }}
-                >
-                  <p className="annotation-text">
-                    Accept your first contract: {firstProd.title}
-                  </p>
-                  <button
-                    className="action-button btn-success"
-                    onClick={() => navigate(`/productions/${firstProd.id}`)}
-                  >
-                    Accept
-                  </button>
-                </div>
-              ) : (
-                <p className="annotation-text" style={{ opacity: 0.8 }}>
-                  Maintain current rig. Archival data updated.
-                </p>
-              )}
-            </div>
-          </HardwarePanel>
-
-          <h2
-            className="annotation-text"
-            style={{ marginTop: "2.5rem", marginBottom: "1rem" }}
-          >
-            Work Orders
-          </h2>
-          <div
-            style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
-          >
-            {PRODUCTIONS.map((p, idx) => (
-              <HardwarePanel
-                key={p.id}
-                className="animate-blueprint"
-                style={{ cursor: "pointer", animationDelay: `${0.1 * idx}s` }}
-                onClick={() => navigate(`/productions/${p.id}`)}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "1.2rem",
-                  }}
-                >
-                  <h3 style={{ fontSize: "1.3rem", margin: 0 }}>
-                    {p.poster} {p.title}
-                  </h3>
-                  <span
-                    className="problem-highlight"
-                    style={{ fontSize: "0.75rem" }}
-                  >
-                    DEPLOY ›
-                  </span>
-                </div>
-                <div style={{ display: "flex", gap: "0.75rem" }}>
-                  <DifficultyPill
-                    label="School"
-                    stars={state?.progress?.[`${p.id}_school`]?.stars || 0}
-                    unlocked={p.levels.school.unlocked}
-                  />
-                  <DifficultyPill
-                    label="Comm"
-                    stars={state?.progress?.[`${p.id}_community`]?.stars || 0}
-                    unlocked={p.levels.community.unlocked}
-                  />
-                  <DifficultyPill
-                    label="Prof"
-                    stars={
-                      state?.progress?.[`${p.id}_professional`]?.stars || 0
-                    }
-                    unlocked={p.levels.professional.unlocked}
-                  />
-                </div>
-              </HardwarePanel>
-            ))}
+            Backstage Minions
+          </h1>
+          <div style={{ display: "flex", alignItems: "center", opacity: 0.6 }}>
+            <span
+              className={`status-indicator ${state?.session ? "status-on-call" : "status-off-duty"}`}
+            />
+            Current Status: {state?.session ? "On-Call" : "Off-Duty"}
           </div>
-        </div>
+        </header>
 
-        <div className="desktop-col-side">
-          <HardwarePanel style={{ textAlign: "center" }}>
-            <h2
-              className="annotation-text"
-              style={{ fontSize: "1.3rem", marginBottom: "1.5rem" }}
-            >
-              Career Log
-            </h2>
-
-            {/* Network Panel: Static display */}
-            <div
-              className="surface-panel"
-              style={{
-                marginBottom: "1rem",
-                padding: "1rem",
-                borderRadius: "8px",
-                background: "rgba(255,255,255,0.02)",
-              }}
-            >
-              <div style={{ fontSize: "2rem" }}>👥</div>
-              <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
-                {state?.contacts?.length || 0}
-              </div>
-              <div
-                style={{
-                  fontSize: "0.7rem",
-                  opacity: 0.6,
-                  textTransform: "uppercase",
-                }}
-              >
-                Network
-              </div>
-            </div>
-
-            {/* Stories Panel: Interactive link */}
+        <div className="desktop-two-column">
+          <div className="desktop-col-main">
             <HardwarePanel
-              variant="clickable"
-              style={{ marginBottom: "1rem", padding: "1rem" }}
-              onClick={() => navigate("/stories")}
+              className="animate-pop"
+              style={{ borderLeft: "6px solid var(--bui-fg-danger)" }}
             >
-              <div style={{ fontSize: "2rem" }}>📖</div>
-              <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
-                {state?.unlockedStories?.length || 0}
-              </div>
-              <div
-                style={{
-                  fontSize: "0.7rem",
-                  opacity: 0.6,
-                  textTransform: "uppercase",
-                }}
+              <h2
+                className="annotation-text"
+                style={{ color: "var(--bui-fg-danger)", marginTop: 0 }}
               >
-                Stories
+                📌 Call Sheet
+              </h2>
+              <div style={{ marginTop: "1rem" }}>
+                {!hasStarted ? (
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <p className="annotation-text">
+                      Accept your first contract: {firstProd.title}
+                    </p>
+                    <button
+                      className="action-button btn-success"
+                      onClick={() => navigate(`/productions/${firstProd.id}`)}
+                    >
+                      Accept
+                    </button>
+                  </div>
+                ) : (
+                  <p className="annotation-text" style={{ opacity: 0.8 }}>
+                    Maintain current rig. Archival data updated.
+                  </p>
+                )}
               </div>
             </HardwarePanel>
-          </HardwarePanel>
+
+            <h2
+              className="annotation-text"
+              style={{ marginTop: "2.5rem", marginBottom: "1rem" }}
+            >
+              Work Orders
+            </h2>
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1.5rem",
+              }}
+            >
+              {PRODUCTIONS.map((p, idx) => (
+                <HardwarePanel
+                  key={p.id}
+                  className="animate-blueprint"
+                  style={{ cursor: "pointer", animationDelay: `${0.1 * idx}s` }}
+                  onClick={() => navigate(`/productions/${p.id}`)}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      marginBottom: "1.2rem",
+                    }}
+                  >
+                    <h3 style={{ fontSize: "1.3rem", margin: 0 }}>
+                      {p.poster} {p.title}
+                    </h3>
+                    <span
+                      className="problem-highlight"
+                      style={{ fontSize: "0.75rem" }}
+                    >
+                      DEPLOY ›
+                    </span>
+                  </div>
+                  <div style={{ display: "flex", gap: "0.75rem" }}>
+                    <DifficultyPill
+                      label="School"
+                      stars={state?.progress?.[`${p.id}_school`]?.stars || 0}
+                      unlocked={p.levels.school.unlocked}
+                    />
+                    <DifficultyPill
+                      label="Comm"
+                      stars={state?.progress?.[`${p.id}_community`]?.stars || 0}
+                      unlocked={p.levels.community.unlocked}
+                    />
+                    <DifficultyPill
+                      label="Prof"
+                      stars={
+                        state?.progress?.[`${p.id}_professional`]?.stars || 0
+                      }
+                      unlocked={p.levels.professional.unlocked}
+                    />
+                  </div>
+                </HardwarePanel>
+              ))}
+            </div>
+          </div>
+
+          <div className="desktop-col-side">
+            <HardwarePanel style={{ textAlign: "center" }}>
+              <h2
+                className="annotation-text"
+                style={{ fontSize: "1.3rem", marginBottom: "1.5rem" }}
+              >
+                Career Log
+              </h2>
+
+              {/* Network Panel: Static display */}
+              <div
+                className="surface-panel"
+                style={{
+                  marginBottom: "1rem",
+                  padding: "1rem",
+                  borderRadius: "8px",
+                  background: "rgba(255,255,255,0.02)",
+                }}
+              >
+                <div style={{ fontSize: "2rem" }}>👥</div>
+                <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
+                  {state?.contacts?.length || 0}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.7rem",
+                    opacity: 0.6,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Network
+                </div>
+              </div>
+
+              {/* Stories Panel: Interactive link */}
+              <HardwarePanel
+                variant="clickable"
+                style={{ marginBottom: "1rem", padding: "1rem" }}
+                onClick={() => navigate("/stories")}
+              >
+                <div style={{ fontSize: "2rem" }}>📖</div>
+                <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
+                  {state?.unlockedStories?.length || 0}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.7rem",
+                    opacity: 0.6,
+                    textTransform: "uppercase",
+                  }}
+                >
+                  Stories
+                </div>
+              </HardwarePanel>
+            </HardwarePanel>
+          </div>
         </div>
       </div>
     </div>
