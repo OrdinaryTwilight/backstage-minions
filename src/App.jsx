@@ -1,6 +1,8 @@
 import { Analytics } from "@vercel/analytics/react";
 import { Suspense, lazy, useEffect, useState } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Spinner } from "./components/ui/Spinner";
 import { GameProvider } from "./context/GameContext";
 // Eager load critical routes
@@ -93,6 +95,7 @@ function App() {
             <Route path="/stories" element={<StoriesPage />} />
           </Routes>
           <Analytics />
+          <SpeedInsights />
         </Router>
       </GameProvider>
     );
