@@ -8,27 +8,33 @@ export default function ConflictMinigame({ conflict, onResolved }) {
 
   function handleChoice(choice) {
     dispatch({ type: "MARK_CONFLICT_SEEN", conflictId: conflict.id });
-    dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
+    // Safety check for pointDelta to prevent NaN score bugs
+    dispatch({ type: "ADD_SCORE", delta: Number(choice.pointDelta) || 0 });
 
     if (choice.sideEffect === "ally_gained") {
       dispatch({ type: "ADD_CONTACT", name: conflict.npc });
     }
 
-    // Instead of resolving immediately, show the aftermath
     setResult(choice);
   }
 
   if (result) {
+    const isEscalated = result.outcome === "escalated";
     return (
       <div className="hardware-panel">
-        <h2 style={{ color: "var(--bui-fg-info)" }}>⚡ CONFLICT RESOLVED</h2>
+        <h2
+          style={{
+            color: isEscalated ? "var(--bui-fg-danger)" : "var(--bui-fg-info)",
+          }}
+        >
+          ⚡ CONFLICT {isEscalated ? "ESCALATED" : "RESOLVED"}
+        </h2>
         <div className="pxbox">
           <h3
             style={{
-              color:
-                result.outcome === "resolved"
-                  ? "var(--bui-fg-success)"
-                  : "var(--bui-fg-danger)",
+              color: isEscalated
+                ? "var(--bui-fg-danger)"
+                : "var(--bui-fg-success)",
             }}
           >
             {result.outcome.toUpperCase()}

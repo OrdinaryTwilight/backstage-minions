@@ -61,8 +61,9 @@ function reducer(state, action) {
         ...state,
         session: {
           ...state.session,
-          // Ensure both values are numbers to prevent NaN
-          score: (state.session.score || 0) + (Number(action.delta) || 0),
+          // Force both values to be numbers to prevent NaN errors
+          score:
+            (Number(state.session.score) || 0) + (Number(action.delta) || 0),
         },
       };
 
@@ -117,7 +118,7 @@ function reducer(state, action) {
       const prev = state.progress[key]?.stars ?? 0;
       return {
         ...state,
-        session: null,
+        // session: null, // DELAY THIS: Nulling session too early can trigger "Crash Guards"
         progress: {
           ...state.progress,
           [key]: { stars: Math.max(prev, stars), completed: true },
@@ -127,6 +128,9 @@ function reducer(state, action) {
         ],
       };
     }
+
+    case "CLEAR_SESSION": // New action to call AFTER navigation is successful
+      return { ...state, session: null };
 
     // Fail level: clear session but preserve progress
     case "FAIL_LEVEL":
