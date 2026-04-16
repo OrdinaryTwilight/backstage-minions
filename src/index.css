@@ -116,3 +116,59 @@ body {
   color: var(--bui-fg-success);
   filter: drop-shadow(0 0 8px var(--bui-fg-success));
 }
+
+/* src/index.css extensions */
+
+@keyframes blueprint-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 5px rgba(56, 189, 248, 0.2);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+  }
+
+  100% {
+    box-shadow: 0 0 5px rgba(56, 189, 248, 0.2);
+  }
+}
+
+@keyframes stat-fill {
+  from {
+    width: 0;
+  }
+}
+
+/* Application classes */
+.animate-reveal {
+  animation: blueprint-reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+
+.status-on-call {
+  background: var(--bui-fg-success);
+  animation: pulse-glow 2s infinite;
+}
+
+.status-off-duty {
+  background: #666;
+}

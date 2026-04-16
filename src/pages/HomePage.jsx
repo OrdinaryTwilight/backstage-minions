@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import DifficultyPill from "../components/ui/DifficultyPill";
-import HardwarePanel from "../components/ui/HardwarePanel"; // FIX: Added missing import
+import HardwarePanel from "../components/ui/HardwarePanel";
 import { useGame } from "../context/GameContext";
 import { PRODUCTIONS } from "../data/gameData";
 
@@ -13,7 +13,7 @@ export default function HomePage() {
   const firstProd = PRODUCTIONS[0];
 
   return (
-    <div className="page-container">
+    <div className="page-container animate-reveal">
       <NavBar />
 
       <header style={{ marginBottom: "2.5rem" }}>
@@ -23,10 +23,19 @@ export default function HomePage() {
         >
           Backstage Minions
         </h1>
-        <p style={{ opacity: 0.6, fontFamily: "var(--font-main)" }}>
-          {/* FIX: Cleaned up emoji encoding */}
-          Current Status: {state?.session ? "🔴 On-Call" : "⚪ Off-Duty"}
-        </p>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            opacity: 0.6,
+            fontFamily: "var(--font-main)",
+          }}
+        >
+          <span
+            className={`status-indicator ${state?.session ? "status-on-call" : "status-off-duty"}`}
+          />
+          {state?.session ? "On-Call" : "Off-Duty"}
+        </div>
       </header>
 
       <div className="desktop-two-column">
@@ -34,10 +43,7 @@ export default function HomePage() {
           {/* Daily Call Sheet */}
           <section
             className="hardware-panel"
-            style={{
-              borderLeft: "6px solid var(--bui-fg-danger)",
-              padding: "1.5rem",
-            }}
+            style={{ borderLeft: "6px solid var(--bui-fg-danger)" }}
           >
             <h2
               className="annotation-text"
@@ -47,7 +53,13 @@ export default function HomePage() {
             </h2>
             <div style={{ marginTop: "1rem" }}>
               {!hasStarted ? (
-                <div className="list-item-row" style={{ border: "none" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                  }}
+                >
                   <p className="annotation-text">
                     Welcome to the crew. Start with: {firstProd.title}
                   </p>
@@ -77,11 +89,14 @@ export default function HomePage() {
           <div
             style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
           >
-            {PRODUCTIONS.map((p) => (
+            {PRODUCTIONS.map((p, idx) => (
               <div
                 key={p.id}
-                className="hardware-panel"
-                style={{ cursor: "pointer" }}
+                className="hardware-panel animate-reveal"
+                style={{
+                  cursor: "pointer",
+                  animationDelay: `${0.2 + idx * 0.1}s`,
+                }}
                 onClick={() => navigate(`/productions/${p.id}`)}
               >
                 <div
@@ -102,7 +117,6 @@ export default function HomePage() {
                     Enter Backstage ›
                   </span>
                 </div>
-
                 <div style={{ display: "flex", gap: "0.75rem" }}>
                   <DifficultyPill
                     label="School"
@@ -127,7 +141,7 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Career Stats Sidebar */}
+        {/* Career Log Sidebar */}
         <div className="desktop-col-side">
           <section
             className="hardware-panel"
@@ -140,11 +154,8 @@ export default function HomePage() {
               Career Log
             </h2>
 
-            <HardwarePanel
-              variant="clickable"
-              style={{ marginBottom: "1rem", padding: "1rem" }}
-              onClick={() => navigate("/stories")}
-            >
+            {/* Network Panel: Static display as requested */}
+            <HardwarePanel style={{ marginBottom: "1rem", padding: "1rem" }}>
               <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>👥</div>
               <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
                 {state?.contacts?.length || 0}
@@ -160,6 +171,7 @@ export default function HomePage() {
               </div>
             </HardwarePanel>
 
+            {/* Stories Panel: The only clickable panel in this block */}
             <HardwarePanel
               variant="clickable"
               style={{ marginBottom: "1rem", padding: "1rem" }}
@@ -180,14 +192,12 @@ export default function HomePage() {
               </div>
             </HardwarePanel>
 
-            {/* Current Rank - Static Display */}
             <div
               className="surface-panel"
               style={{
                 background: "rgba(56, 189, 248, 0.1)",
                 border: "1px solid var(--color-architect-blue)",
                 padding: "1rem",
-                borderRadius: "var(--radius-md)",
               }}
             >
               <div
