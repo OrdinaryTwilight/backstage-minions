@@ -28,11 +28,13 @@ export default function PlanningStage({ onComplete }) {
 
   function submit() {
     const placed = grid.filter(Boolean).length;
-    // Using your new constants file for the scoring math!
+
+    // Centralized scoring logic from constants.js
     const score = Math.min(
       placed * SCORING.PLANNING_PER_FIXTURE,
       SCORING.PLANNING_MAX,
     );
+
     setReportScore(score);
     setSubmitted(true);
     dispatch({ type: "SET_PLOT_LIGHTS", lights: grid });
@@ -40,11 +42,21 @@ export default function PlanningStage({ onComplete }) {
   }
 
   return (
-    <div className="stage-container">
-      <h2>🗺️ Planning stage</h2>
-      <p>
+    <div
+      className="hardware-panel"
+      style={{ background: "var(--surface2)", padding: "1.5rem" }}
+    >
+      <h2 style={{ marginBottom: "0.5rem" }}>🗺️ Planning stage</h2>
+      <p
+        style={{
+          color: "var(--text-muted)",
+          marginBottom: "1.5rem",
+          lineHeight: "1.5",
+        }}
+      >
         Build your lighting plot. Select a fixture type, then tap the grid to
         place it.
+        <br />
         <br />
         The Stage Preview on a real board would show you the effect — here, fill
         the plot before submitting to the Stage Manager.
@@ -53,7 +65,7 @@ export default function PlanningStage({ onComplete }) {
       {/* Fixture palette */}
       <div
         style={{
-          marginBottom: "1rem",
+          marginBottom: "1.5rem",
           display: "flex",
           gap: "0.5rem",
           flexWrap: "wrap",
@@ -64,15 +76,16 @@ export default function PlanningStage({ onComplete }) {
             key={l.id}
             onClick={() => setSelectedType(l.id)}
             style={{
-              padding: "0.4rem 0.8rem",
+              padding: "0.5rem 1rem",
               borderRadius: "8px",
-              fontSize: "0.82rem",
+              fontSize: "0.85rem",
               border: `2px solid ${selectedType === l.id ? l.color : "var(--border)"}`,
               background:
-                selectedType === l.id ? `${l.color}22` : "var(--surface2)",
+                selectedType === l.id ? `${l.color}22` : "var(--surface1)",
               color: selectedType === l.id ? l.color : "var(--text-muted)",
               cursor: "pointer",
               fontWeight: 600,
+              transition: "all 0.1s",
             }}
           >
             {l.icon} {l.label}
@@ -86,7 +99,7 @@ export default function PlanningStage({ onComplete }) {
           display: "grid",
           gridTemplateColumns: `repeat(${PLOT_GRID_COLS}, 1fr)`,
           gap: "0.25rem",
-          marginBottom: "1rem",
+          marginBottom: "1.5rem",
         }}
       >
         {grid.map((cell, i) => {
@@ -102,9 +115,10 @@ export default function PlanningStage({ onComplete }) {
                 aspectRatio: "1",
                 padding: "0",
                 cursor: "pointer",
-                background: lt ? `${lt.color}44` : "var(--surface2)",
+                background: lt ? `${lt.color}44` : "var(--surface1)",
                 border: "1px solid var(--border)",
-                fontSize: "1.2rem",
+                fontSize: "1.5rem",
+                borderRadius: "4px",
               }}
             >
               {lt ? lt.icon : "·"}
@@ -114,26 +128,37 @@ export default function PlanningStage({ onComplete }) {
       </div>
 
       {/* Stage preview label */}
-      <p
+      <div
         style={{
-          fontSize: "0.9rem",
-          color: "var(--text-dim)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-end",
           marginBottom: "0.5rem",
         }}
       >
-        🔭 Stage Preview — {grid.filter(Boolean).length} fixtures placed
-      </p>
+        <span
+          style={{
+            fontSize: "0.9rem",
+            color: "var(--text-dim)",
+            fontWeight: "bold",
+          }}
+        >
+          🔭 STAGE PREVIEW
+        </span>
+        <span style={{ fontSize: "0.8rem", color: "var(--accent)" }}>
+          {grid.filter(Boolean).length} fixtures placed
+        </span>
+      </div>
 
-      {/* Visual Stage Preview - MOVED ABOVE SUBMIT BUTTON */}
+      {/* Visual Stage Preview */}
       <div
+        className="console-screen"
         style={{
-          height: "150px",
-          background: "#111",
-          border: "2px solid var(--border)",
-          borderRadius: "8px",
+          height: "180px",
           marginBottom: "1.5rem",
           position: "relative",
           overflow: "hidden",
+          padding: 0,
         }}
       >
         <div
@@ -144,6 +169,7 @@ export default function PlanningStage({ onComplete }) {
             textAlign: "center",
             color: "#555",
             fontFamily: "monospace",
+            zIndex: 10,
           }}
         >
           STAGE FRONT
@@ -166,8 +192,8 @@ export default function PlanningStage({ onComplete }) {
                 position: "absolute",
                 left: `${x}%`,
                 top: `${y}%`,
-                width: "120px",
-                height: "120px",
+                width: "140px",
+                height: "140px",
                 background: `radial-gradient(circle, ${lt?.color} 0%, transparent 60%)`,
                 transform: "translate(-50%, -50%)",
                 opacity: 0.6,
@@ -189,15 +215,44 @@ export default function PlanningStage({ onComplete }) {
           Submit to Stage Manager
         </button>
       ) : (
-        <div className="surface-panel">
-          <h3>📊 SM Report Card</h3>
-          <div>Fixtures placed: {grid.filter(Boolean).length}</div>
-          <div>Score earned: +{reportScore} pts</div>
+        <div
+          className="surface-panel"
+          style={{ borderLeft: "4px solid var(--accent)", background: "#111" }}
+        >
+          <h3 style={{ color: "var(--accent)", marginBottom: "1rem" }}>
+            📊 SM Report Card
+          </h3>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "0.5rem",
+            }}
+          >
+            <span>Fixtures placed:</span>
+            <strong>{grid.filter(Boolean).length}</strong>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              marginBottom: "1rem",
+            }}
+          >
+            <span>Score earned:</span>
+            <strong style={{ color: "var(--success)" }}>
+              +{reportScore} pts
+            </strong>
+          </div>
+
           <p
             style={{
               fontStyle: "italic",
-              marginTop: "0.5rem",
+              padding: "1rem",
+              background: "var(--surface2)",
+              borderRadius: "4px",
               color: "var(--text-muted)",
+              marginBottom: "1.5rem",
             }}
           >
             {reportScore >= 80
@@ -209,9 +264,9 @@ export default function PlanningStage({ onComplete }) {
           <button
             onClick={onComplete}
             className="action-button btn-accent"
-            style={{ width: "100%", marginTop: "1rem" }}
+            style={{ width: "100%" }}
           >
-            Continue
+            Continue to Rehearsal
           </button>
         </div>
       )}

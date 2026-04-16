@@ -3,17 +3,22 @@ import { useGame } from "../../context/GameContext";
 import { DURATIONS, SCORING } from "../../data/constants";
 import { CHARACTERS } from "../../data/gameData";
 
+// Import the modular UI components
+import CueStack from "./ui/CueStack";
+import DepartmentMixer from "./ui/DepartmentMixer";
+import MasterControl from "./ui/MasterControl";
+
 function RehearsalStage({ cues, penaltyMultiplier = 1, onComplete, onFail }) {
   const { state, dispatch } = useGame();
+
   const [elapsed, setElapsed] = useState(0);
   const [cueResults, setCueResults] = useState({});
   const [active, setActive] = useState(false);
   const [done, setDone] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  // ADDED: Missing state and variables from Live Show logic
-  const [smLine, setSmLine] = useState('"Standby for rehearsal."');
-  const char = CHARACTERS.find((c) => c.id === state.session.characterId);
+  const [smLine, setSmLine] = useState("Standby for rehearsal.");
+  const char = CHARACTERS.find((c) => c.id === state.session?.characterId);
   const isLiked = state.contacts.includes("Stage Manager");
 
   const startRef = useRef(null);
@@ -22,6 +27,7 @@ function RehearsalStage({ cues, penaltyMultiplier = 1, onComplete, onFail }) {
   const lives = state.session?.lives ?? 3;
   const difficulty = state.session?.difficulty ?? "school";
 
+  // --- TIMER LOGIC ---
   useEffect(() => {
     if (!active) return;
     startRef.current = performance.now();
@@ -39,6 +45,7 @@ function RehearsalStage({ cues, penaltyMultiplier = 1, onComplete, onFail }) {
     return () => cancelAnimationFrame(rafRef.current);
   }, [active]);
 
+  // --- COMPLETION LOGIC ---
   useEffect(() => {
     if (!done) return;
     const missed = cues.filter((c) => !cueResults[c.id]?.hit).length;
@@ -49,37 +56,43 @@ function RehearsalStage({ cues, penaltyMultiplier = 1, onComplete, onFail }) {
     onComplete();
   }, [done, cues, cueResults, difficulty, onComplete, onFail]);
 
-  function fireCue(cue, event) {
+  // --- CUE FIRING LOGIC ---
+  const nextCue = cues.find((c) => !cueResults[c.id]);
+
+  function handleMasterGo(event) {
     if (event) {
       event.preventDefault();
       event.stopPropagation();
     }
 
-    if (!active || cueResults[cue.id]) return;
+    if (!active && !done) {
+      setActive(true);
+      setSmLine("And... go!");
+      return;
+    }
 
-    const timeDiff = Math.abs(elapsed - cue.targetMs);
-    const hit = timeDiff <= cue.windowMs * penaltyMultiplier;
+    if (!active || !nextCue) return;
 
-    setCueResults((r) => ({ ...r, [cue.id]: { hit } }));
+    const timeDiff = Math.abs(elapsed - nextCue.targetMs);
+    const hit = timeDiff <= nextCue.windowMs * penaltyMultiplier;
+
+    setCueResults((r) => ({ ...r, [nextCue.id]: { hit } }));
 
     if (hit) {
       dispatch({ type: "CUE_HIT" });
       dispatch({ type: "ADD_SCORE", delta: SCORING.REHEARSAL_HIT });
-
-      const praise = isLiked
-        ? '"Brilliant timing, you\'re saving us!"'
-        : '"Good cue."';
-      setSmLine(praise);
+      setSmLine(isLiked ? "Brilliant timing!" : "Good cue.");
     } else {
       dispatch({ type: "CUE_MISSED" });
       dispatch({ type: "LOSE_LIFE" });
 
-      const yell =
+      setSmLine(
         (char?.stats?.social ?? 5) < 7
-          ? '"Wake up at the board! We are dying out here!"'
-          : '"Missed cue! Stay focused, you can do this."';
-      setSmLine(yell);
+          ? "Wake up at the board!"
+          : "Missed cue! Stay focused.",
+      );
 
+      // Stop the rehearsal and trigger the redo state
       if (lives - 1 <= 0) {
         setActive(false);
         setFailed(true);
@@ -89,12 +102,14 @@ function RehearsalStage({ cues, penaltyMultiplier = 1, onComplete, onFail }) {
 
   const progress = Math.min((elapsed / DURATIONS.REHEARSAL_MS) * 100, 100);
 
-  // 1. Conditional render for the Failed/Redo state
+  // --- RENDER REDO SCREEN ---
   if (failed) {
     return (
       <div className="stage-container surface-panel">
-        <h2>❌ Rehearsal Stopped</h2>
-        <p>The Stage Manager called a hold. You missed too many cues.</p>
+        <h2 style={{ color: "#ef4444" }}>❌ Rehearsal Stopped</h2>
+        <p style={{ color: "var(--text-muted)", marginBottom: "1.5rem" }}>
+          The Stage Manager called a hold. You missed too many cues.
+        </p>
         <button
           onClick={() => {
             dispatch({ type: "ADD_SCORE", delta: SCORING.REDO_PENALTY });
@@ -102,10 +117,10 @@ function RehearsalStage({ cues, penaltyMultiplier = 1, onComplete, onFail }) {
             setFailed(false);
             setElapsed(0);
             setCueResults({});
-            setSmLine('"Let\'s take it from the top."');
+            setSmLine("Let's take it from the top.");
           }}
           className="action-button btn-accent"
-          style={{ width: "100%", marginTop: "1rem" }}
+          style={{ width: "100%" }}
         >
           Redo Rehearsal ({SCORING.REDO_PENALTY} pts)
         </button>
@@ -113,110 +128,55 @@ function RehearsalStage({ cues, penaltyMultiplier = 1, onComplete, onFail }) {
     );
   }
 
-  // 2. Standard render
+  // --- RENDER CONSOLE UI ---
   return (
-    <div className="stage-container">
-      {/* Headset Dialogue */}
-      <div className="surface-panel" style={{ padding: "0.5rem" }}>
-        <strong>🎙️ SM headset: {smLine}</strong>
-      </div>
-
-      <h2>🎬 Rehearsal</h2>
-      <p>
-        Watch the progress bar and hit each cue at the right moment. A missed
-        cue costs a life.
-      </p>
-
-      {/* HUD */}
-      <div className="hud-container">
-        <div>
-          {Array.from({ length: lives }).map((_, i) => (
-            <span key={i} style={{ fontSize: "1.5rem" }}>
-              ❤️
-            </span>
-          ))}
-        </div>
-        <div>
-          <strong>
-            {(elapsed / 1000).toFixed(1)}s / {DURATIONS.REHEARSAL_MS / 1000}s
-          </strong>
-        </div>
-      </div>
-
-      {/* Timeline bar */}
-      <div className="surface-panel">
+    <div className="hardware-panel">
+      <div
+        style={{
+          background: "#111",
+          padding: "1rem",
+          borderRadius: "8px",
+          marginBottom: "1.5rem",
+          border: "1px solid #333",
+          color: "#a3e635",
+          fontFamily: "monospace",
+        }}
+      >
         <div
-          style={{
-            height: "4px",
-            background: "var(--surface1)",
-            borderRadius: "2px",
-            overflow: "hidden",
-          }}
+          style={{ fontSize: "0.8rem", color: "#666", marginBottom: "0.25rem" }}
         >
-          <div
-            style={{
-              width: `${progress}%`,
-              height: "100%",
-              background: "#4ade80",
-              transition: "width 0.1s",
-            }}
-          />
+          CH 1 - SM COMMS
         </div>
-        {cues.map((c) => (
-          <div
-            key={c.id}
-            style={{
-              position: "absolute",
-              left: `calc(${(c.targetMs / DURATIONS.REHEARSAL_MS) * 100}% + 1rem)`,
-              top: "50%",
-              transform: "translateY(-50%)",
-              width: "2px",
-              height: "12px",
-              background: "#fbbf24",
-            }}
-          />
-        ))}
+        <div>
+          <span className={`status-led ${active ? "on" : ""}`}></span> {smLine}
+        </div>
       </div>
 
-      {!active && !done && (
-        <button
-          onMouseDown={() => {
-            setActive(true);
-            setSmLine('"And... go!"');
-          }}
-          onTouchStart={() => {
-            setActive(true);
-            setSmLine('"And... go!"');
-          }}
-          className="action-button btn-success"
-        >
-          🎬 Start Rehearsal
-        </button>
-      )}
+      <div className="desktop-two-column">
+        <div className="desktop-col-main">
+          <DepartmentMixer
+            department={char?.department}
+            active={active}
+            progress={progress}
+          />
+          <CueStack
+            department={char?.department}
+            cues={cues}
+            cueResults={cueResults}
+            nextCue={nextCue}
+            elapsed={elapsed}
+            duration={DURATIONS.REHEARSAL_MS}
+          />
+        </div>
 
-      {/* Cue sheet */}
-      <div>
-        <h3>CUE SHEET</h3>
-        {cues.map((c) => {
-          const result = cueResults[c.id];
-          return (
-            <div key={c.id} className="list-item-row">
-              <div>
-                <strong>{c.id}</strong> — {c.label}
-              </div>
-              <div>{result ? (result.hit ? "✅" : "❌") : "○"}</div>
-              {active && !result && (
-                <button
-                  onMouseDown={(e) => fireCue(c, e)}
-                  onTouchStart={(e) => fireCue(c, e)}
-                  className="action-button btn-accent"
-                >
-                  GO
-                </button>
-              )}
-            </div>
-          );
-        })}
+        <div className="desktop-col-side">
+          <MasterControl
+            lives={lives}
+            active={active}
+            done={done}
+            onGo={handleMasterGo}
+          />
+        </div>
       </div>
     </div>
   );
