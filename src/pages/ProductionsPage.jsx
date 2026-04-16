@@ -1,131 +1,87 @@
-import { useNavigate, useParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
-import { useGame } from "../context/GameContext";
-import { PRODUCTIONS, VENUES } from "../data/gameData";
+import { PRODUCTIONS } from "../data/gameData";
 
-const DIFF_LABELS = {
-  school: "School 🏫",
-  community: "Community 🏛️",
-  professional: "Professional ✨",
-};
-
-export default function ProductionsPage() {
-  const { productionId } = useParams();
+export default function ProductionsListPage() {
   const navigate = useNavigate();
-  const { state } = useGame();
-  const production = PRODUCTIONS.find((p) => p.id === productionId);
+  const [query, setQuery] = useState("");
 
-  if (!production) {
-    return (
-      <>
-        <NavBar />
-        <div className="game-window">
-          <div className="vn-panel">
-            <h1>❌ Production Not Found</h1>
-          </div>
-        </div>
-      </>
-    );
-  }
+  const filtered = PRODUCTIONS.filter((p) =>
+    p.title.toLowerCase().includes(query.toLowerCase()),
+  );
 
   return (
-    <>
+    <div className="page-container">
       <NavBar />
-      <div className="game-window">
-        <div className="vn-panel">
-          <button
-            onClick={() => navigate("/productions")}
-            className="btn btn-secondary"
-            style={{ marginBottom: "1.5rem" }}
-          >
-            ← Back to Productions
-          </button>
 
-          <div style={{ textAlign: "center", marginBottom: "2rem" }}>
-            <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>
-              {production.poster}
-            </div>
-            <h1 style={{ fontSize: "1.1rem" }}>{production.title}</h1>
-          </div>
+      <h1 style={{ textAlign: "center", marginBottom: "0.5rem" }}>
+        🎭 Productions
+      </h1>
+      <p
+        style={{
+          textAlign: "center",
+          marginBottom: "1.5rem",
+          color: "var(--text-muted)",
+        }}
+      >
+        Select a production to perform
+      </p>
 
-          <p
-            style={{
-              textAlign: "center",
-              marginBottom: "1.5rem",
-              lineHeight: "2.2",
-            }}
-          >
-            {production.description}
-          </p>
+      <input
+        type="text"
+        placeholder="Search productions..."
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        className="surface-panel"
+        style={{
+          width: "100%",
+          padding: "1rem",
+          border: "2px solid var(--border)",
+          color: "var(--text)",
+          fontSize: "1rem",
+          marginBottom: "1.5rem",
+          outline: "none",
+          boxSizing: "border-box",
+        }}
+      />
 
-          <a
-            href={production.learnMoreUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              display: "inline-block",
-              marginBottom: "2rem",
-              color: "var(--accent2)",
-              textDecoration: "underline",
-              fontSize: "0.55rem",
-            }}
-          >
-            Learn more about this production ↗
-          </a>
-
-          <h2 style={{ marginBottom: "1rem" }}>Select Difficulty</h2>
-
+      <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+        {filtered.map((p) => (
           <div
-            style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+            key={p.id}
+            onClick={() => navigate(`/productions/${p.id}`)}
+            className="surface-panel"
+            style={{
+              cursor: "pointer",
+              border: "2px solid transparent",
+              transition: "border 0.2s",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.borderColor = "var(--success)")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.borderColor = "transparent")
+            }
           >
-            {Object.entries(production.levels).map(([diff, lvl]) => {
-              const prog = state.progress[`${productionId}_${diff}`];
-              const venue = VENUES[lvl.venueId];
-              const isLocked = !lvl.unlocked;
-
-              return (
-                <button
-                  key={diff}
-                  onClick={() =>
-                    !isLocked &&
-                    navigate(`/productions/${productionId}/difficulty/${diff}`)
-                  }
-                  disabled={isLocked}
-                  className="btn btn-primary"
-                  style={{
-                    padding: "1rem",
-                    minHeight: "80px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "0.5rem",
-                    fontSize: "0.65rem",
-                    opacity: isLocked ? 0.5 : 1,
-                    cursor: isLocked ? "not-allowed" : "pointer",
-                  }}
-                >
-                  <div>{DIFF_LABELS[diff]}</div>
-                  <div
-                    style={{ fontSize: "0.5rem", color: "var(--text-muted)" }}
-                  >
-                    {prog?.completed
-                      ? "✓ Completed"
-                      : lvl.unlocked
-                        ? "▶ Play"
-                        : "🔒 Locked"}
-                  </div>
-                  {prog?.completed && (
-                    <div style={{ fontSize: "0.55rem" }}>
-                      {"★".repeat(prog.stars || 0)}
-                    </div>
-                  )}
-                </button>
-              );
-            })}
+            <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
+              {p.poster}
+            </div>
+            <h2 style={{ marginBottom: "0.5rem", fontSize: "1.2rem" }}>
+              {p.title}
+            </h2>
+            <p
+              style={{
+                fontSize: "0.85rem",
+                color: "var(--text-muted)",
+                lineHeight: "1.4",
+              }}
+            >
+              {p.description}
+            </p>
           </div>
-        </div>
+        ))}
       </div>
-    </>
+    </div>
   );
 }

@@ -12,81 +12,141 @@ export default function StoriesPage() {
 
   if (selected) {
     return (
-      <>
+      <div className="page-container">
         <NavBar />
-        <main>
-          <button
-            onClick={() => setSelected(null)}
-            style={{ cursor: "pointer", marginBottom: "1rem" }}
+        <button
+          onClick={() => setSelected(null)}
+          className="action-button"
+          style={{
+            marginBottom: "1rem",
+            background: "transparent",
+            color: "white",
+            padding: 0,
+          }}
+        >
+          ← Back
+        </button>
+
+        <div className="surface-panel">
+          <h1
+            style={{
+              fontSize: "1.5rem",
+              color: "var(--accent)",
+              marginBottom: "1.5rem",
+            }}
           >
-            ← Back
-          </button>
-          <h1>{selected.title}</h1>
-          <div style={{ whiteSpace: "pre-wrap", lineHeight: "1.6" }}>
+            {selected.title}
+          </h1>
+          <div
+            style={{
+              whiteSpace: "pre-wrap",
+              lineHeight: "1.6",
+              color: "var(--text-muted)",
+            }}
+          >
             {selected.content}
           </div>
-        </main>
-      </>
+        </div>
+      </div>
     );
   }
 
   return (
-    <>
+    <div className="page-container">
       <NavBar />
-      <main>
-        <h1>📖 Stories</h1>
-        <p>
-          Deep dives into the world of technical theatre. Unlock more by
-          completing levels.
-        </p>
+      <h1 style={{ textAlign: "center", marginBottom: "0.5rem" }}>
+        📖 Stories
+      </h1>
+      <p
+        style={{
+          textAlign: "center",
+          color: "var(--text-muted)",
+          marginBottom: "2rem",
+        }}
+      >
+        Deep dives into the world of technical theatre. Unlock more by
+        completing levels.
+      </p>
 
-        {unlocked.length > 0 && (
-          <section>
-            <h2>Unlocked</h2>
-            {unlocked.map((s) => (
-              <div
-                key={s.id}
-                onClick={() => setSelected(s)}
+      {unlocked.length > 0 && (
+        <section style={{ marginBottom: "2rem" }}>
+          <h2
+            style={{
+              fontSize: "1.1rem",
+              marginBottom: "1rem",
+              color: "var(--success)",
+            }}
+          >
+            Unlocked
+          </h2>
+          {unlocked.map((s) => (
+            <div
+              key={s.id}
+              onClick={() => setSelected(s)}
+              className="surface-panel"
+              style={{
+                cursor: "pointer",
+                border: "2px solid transparent",
+                transition: "border 0.2s",
+              }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.borderColor = "var(--success)")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.borderColor = "transparent")
+              }
+            >
+              <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "1.1rem" }}>
+                {s.title}
+              </h3>
+              <p
                 style={{
-                  cursor: "pointer",
-                  padding: "1rem",
-                  border: "1px solid var(--border)",
-                  borderRadius: "8px",
-                  marginBottom: "0.5rem",
+                  color: "var(--text-muted)",
+                  fontSize: "0.85rem",
+                  margin: 0,
                 }}
               >
-                <h3>{s.title}</h3>
-                <p>{s.content.slice(0, 80)}…</p>
-              </div>
-            ))}
-          </section>
-        )}
+                {s.content.slice(0, 80)}…
+              </p>
+            </div>
+          ))}
+        </section>
+      )}
 
-        {locked.length > 0 && (
-          <section>
-            <h2>Locked</h2>
-            {locked.map((s) => (
-              <div
-                key={s.id}
+      {locked.length > 0 && (
+        <section>
+          <h2
+            style={{
+              fontSize: "1.1rem",
+              marginBottom: "1rem",
+              color: "var(--text-muted)",
+            }}
+          >
+            Locked
+          </h2>
+          {locked.map((s) => (
+            <div
+              key={s.id}
+              className="surface-panel"
+              style={{ opacity: "0.5" }}
+            >
+              <h3 style={{ margin: "0 0 0.5rem 0", fontSize: "1rem" }}>
+                🔒 {s.title}
+              </h3>
+              <p
                 style={{
-                  padding: "1rem",
-                  border: "1px solid var(--border)",
-                  borderRadius: "8px",
-                  marginBottom: "0.5rem",
-                  opacity: "0.6",
+                  color: "var(--text-muted)",
+                  fontSize: "0.8rem",
+                  margin: 0,
                 }}
               >
-                <h3>🔒 {s.title}</h3>
-                <p>
-                  Complete {s.unlockedBy.difficulty} difficulty in "
-                  {s.unlockedBy.productionId}" with {s.unlockedBy.minStars}+
-                  stars
-                </p>
-              </div>
-            ))}
-          </section>
-        )}
-      </main>
-    </>
+                Complete {s.unlockedBy.difficulty} difficulty in "
+                {s.unlockedBy.productionId}" with {s.unlockedBy.minStars}+ stars
+              </p>
+            </div>
+          ))}
+        </section>
+      )}
+    </div>
   );
 }
