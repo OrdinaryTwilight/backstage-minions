@@ -1,9 +1,8 @@
-// src/pages/ProductionsListPage.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
-import HardwarePanel from "../components/ui/HardwarePanel"; // Fix: Import HardwarePanel
-import SectionHeader from "../components/ui/SectionHeader"; // Fix: Import SectionHeader
+import HardwarePanel from "../components/ui/HardwarePanel";
+import SectionHeader from "../components/ui/SectionHeader";
 import { PRODUCTIONS } from "../data/gameData";
 
 export default function ProductionsListPage() {
@@ -15,49 +14,39 @@ export default function ProductionsListPage() {
   );
 
   return (
-    <div className="page-container">
+    <div className="page-container animate-blueprint">
       <NavBar />
       <SectionHeader
-        title="Production Archives"
-        subtitle="Search active work orders and archival records."
+        title="Archives"
+        subtitle="Archived work orders and technical data."
       />
 
-      {/* Styled Blueprint Search Bar */}
       <div className="search-container">
         <input
           type="text"
           className="search-input"
           placeholder="Search archives..."
           value={query}
-          onChange={(e) => setQuery(e.target.value)} // Fix: Use setQuery
+          onChange={(e) => setQuery(e.target.value)} // FIX: Use setQuery
         />
       </div>
 
       <div className="bento-container">
-        {filtered.map((p) => (
+        {filtered.map((p, idx) => (
           <HardwarePanel
             key={p.id}
             variant="clickable"
+            className="animate-pop"
+            style={{ animationDelay: `${idx * 0.1}s` }}
             onClick={() => navigate(`/productions/${p.id}`)}
           >
-            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>
+            <div style={{ fontSize: "2.5rem", marginBottom: "0.5rem" }}>
               {p.poster}
             </div>
-            <h2
-              className="annotation-text"
-              style={{ marginBottom: "0.5rem", fontSize: "1.4rem" }}
-            >
+            <h2 className="annotation-text" style={{ fontSize: "1.4rem" }}>
               {p.title}
             </h2>
-            <p style={{ fontSize: "0.9rem", opacity: 0.8, lineHeight: "1.5" }}>
-              {p.description}
-            </p>
-            <div
-              className="problem-highlight"
-              style={{ marginTop: "1.5rem", fontSize: "0.75rem" }}
-            >
-              View Briefing ›
-            </div>
+            <p style={{ fontSize: "0.9rem", opacity: 0.7 }}>{p.description}</p>
           </HardwarePanel>
         ))}
       </div>

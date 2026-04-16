@@ -1,4 +1,3 @@
-// src/pages/HomePage.jsx
 import { useNavigate } from "react-router-dom";
 import NavBar from "../components/NavBar";
 import DifficultyPill from "../components/ui/DifficultyPill";
@@ -15,7 +14,6 @@ export default function HomePage() {
   return (
     <div className="page-container animate-blueprint">
       <NavBar />
-
       <header style={{ marginBottom: "2.5rem" }}>
         <h1
           className="annotation-text animate-flicker"
@@ -27,15 +25,14 @@ export default function HomePage() {
           <span
             className={`status-indicator ${state?.session ? "status-on-call" : "status-off-duty"}`}
           />
-          Current Status: {state?.session ? "Active Shift" : "Off-Duty"}
+          Current Status: {state?.session ? "On-Call" : "Off-Duty"}
         </div>
       </header>
 
       <div className="desktop-two-column">
         <div className="desktop-col-main">
-          {/* Daily Call Sheet */}
-          <section
-            className="hardware-panel animate-pop"
+          <HardwarePanel
+            className="animate-pop"
             style={{ borderLeft: "6px solid var(--bui-fg-danger)" }}
           >
             <h2
@@ -54,7 +51,7 @@ export default function HomePage() {
                   }}
                 >
                   <p className="annotation-text">
-                    New Contract Available: {firstProd.title}
+                    Accept your first contract: {firstProd.title}
                   </p>
                   <button
                     className="action-button btn-success"
@@ -65,25 +62,25 @@ export default function HomePage() {
                 </div>
               ) : (
                 <p className="annotation-text" style={{ opacity: 0.8 }}>
-                  Maintain current gear. Check archives for updates.
+                  Maintain current rig. Archival data updated.
                 </p>
               )}
             </div>
-          </section>
+          </HardwarePanel>
 
           <h2
             className="annotation-text"
             style={{ marginTop: "2.5rem", marginBottom: "1rem" }}
           >
-            Active Work Orders
+            Work Orders
           </h2>
           <div
             style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}
           >
             {PRODUCTIONS.map((p, idx) => (
-              <div
+              <HardwarePanel
                 key={p.id}
-                className="hardware-panel animate-blueprint"
+                className="animate-blueprint"
                 style={{ cursor: "pointer", animationDelay: `${0.1 * idx}s` }}
                 onClick={() => navigate(`/productions/${p.id}`)}
               >
@@ -124,14 +121,13 @@ export default function HomePage() {
                     unlocked={p.levels.professional.unlocked}
                   />
                 </div>
-              </div>
+              </HardwarePanel>
             ))}
           </div>
         </div>
 
-        {/* Career Log Sidebar */}
         <div className="desktop-col-side">
-          <section className="hardware-panel" style={{ textAlign: "center" }}>
+          <HardwarePanel style={{ textAlign: "center" }}>
             <h2
               className="annotation-text"
               style={{ fontSize: "1.3rem", marginBottom: "1.5rem" }}
@@ -139,13 +135,14 @@ export default function HomePage() {
               Career Log
             </h2>
 
-            {/* Network Panel: Static display as requested */}
+            {/* Network Panel: Static display */}
             <div
               className="surface-panel"
               style={{
                 marginBottom: "1rem",
                 padding: "1rem",
                 borderRadius: "8px",
+                background: "rgba(255,255,255,0.02)",
               }}
             >
               <div style={{ fontSize: "2rem" }}>👥</div>
@@ -163,14 +160,10 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Stories Panel: The only interactive link in the log */}
+            {/* Stories Panel: Interactive link */}
             <HardwarePanel
               variant="clickable"
-              style={{
-                marginBottom: "1rem",
-                padding: "1rem",
-                transition: "transform 0.2s ease",
-              }}
+              style={{ marginBottom: "1rem", padding: "1rem" }}
               onClick={() => navigate("/stories")}
             >
               <div style={{ fontSize: "2rem" }}>📖</div>
@@ -187,7 +180,7 @@ export default function HomePage() {
                 Stories
               </div>
             </HardwarePanel>
-          </section>
+          </HardwarePanel>
         </div>
       </div>
     </div>

@@ -39,7 +39,6 @@ function App() {
           <div className="page-container">
             <Routes>
               <Route path="/" element={<HomePage />} />
-
               <Route
                 path="/productions"
                 element={
@@ -48,7 +47,6 @@ function App() {
                   </Suspense>
                 }
               />
-
               <Route
                 path="/productions/:productionId"
                 element={
@@ -58,14 +56,17 @@ function App() {
                 }
               />
 
+              {/* Standardized route for selecting a difficulty tier */}
               <Route
-                path="/productions/:productionId/:difficulty"
+                path="/productions/:productionId/difficulty/:difficulty"
                 element={
                   <Suspense fallback={<Spinner />}>
                     <SelectLevelPage />
                   </Suspense>
                 }
               />
+
+              {/* Standardized route for selecting a character */}
               <Route
                 path="/productions/:productionId/:difficulty/character"
                 element={
@@ -75,39 +76,11 @@ function App() {
                 }
               />
 
-              {/* CRITICAL FIX: Changed :levelId to :charId to match the GameLevelPage params */}
               <Route
                 path="/game/:productionId/:difficulty/:charId"
                 element={
                   <Suspense fallback={<Spinner />}>
                     <GameLevelPage />
-                  </Suspense>
-                }
-              />
-
-              <Route
-                path="/level-complete/:productionId/:difficulty/:charId"
-                element={
-                  <Suspense fallback={<Spinner />}>
-                    <LevelCompletePage />
-                  </Suspense>
-                }
-              />
-
-              <Route
-                path="/level-failed/:productionId/:difficulty/:charId"
-                element={
-                  <Suspense fallback={<Spinner />}>
-                    <LevelFailedPage />
-                  </Suspense>
-                }
-              />
-
-              <Route
-                path="/stories"
-                element={
-                  <Suspense fallback={<Spinner />}>
-                    <StoriesPage />
                   </Suspense>
                 }
               />
