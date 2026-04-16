@@ -59,16 +59,15 @@ function App() {
               />
 
               <Route
-                path="/productions/:productionId/difficulty/:difficulty"
+                path="/productions/:productionId/:difficulty"
                 element={
                   <Suspense fallback={<Spinner />}>
                     <SelectLevelPage />
                   </Suspense>
                 }
               />
-
               <Route
-                path="/productions/:productionId/difficulty/:difficulty/character"
+                path="/productions/:productionId/:difficulty/character"
                 element={
                   <Suspense fallback={<Spinner />}>
                     <SelectCharacterPage />

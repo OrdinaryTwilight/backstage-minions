@@ -123,11 +123,13 @@ body {
   from {
     clip-path: inset(0 100% 0 0);
     opacity: 0;
+    transform: translateX(-10px);
   }
 
   to {
     clip-path: inset(0 0 0 0);
     opacity: 1;
+    transform: translateX(0);
   }
 }
 
@@ -149,6 +151,90 @@ body {
   from {
     width: 0;
   }
+}
+
+@keyframes technical-flicker {
+  0% {
+    opacity: 0.8;
+  }
+
+  5% {
+    opacity: 0.3;
+  }
+
+  10% {
+    opacity: 0.9;
+  }
+
+  15% {
+    opacity: 0.4;
+  }
+
+  25% {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes master-go-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4);
+  }
+
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 15px rgba(74, 222, 128, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+  }
+}
+
+@keyframes hardware-pop {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  80% {
+    transform: scale(1.02);
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* Global utility classes for easy reuse */
+.animate-blueprint {
+  animation: blueprint-reveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.animate-flicker {
+  animation: technical-flicker 0.4s ease-in-out;
+}
+
+.animate-pop {
+  animation: hardware-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-pulse-go {
+  animation: master-go-pulse 2s infinite;
 }
 
 /* Application classes */

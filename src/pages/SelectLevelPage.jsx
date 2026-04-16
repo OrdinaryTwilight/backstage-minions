@@ -34,9 +34,7 @@ export default function SelectLevelPage() {
               variant={isUnlocked ? "clickable" : "locked"}
               onClick={() =>
                 isUnlocked &&
-                navigate(
-                  `/productions/${productionId}/${diffKey}/select-character`,
-                )
+                navigate(`/productions/${productionId}/${diffKey}/character`)
               }
               style={{
                 display: "flex",
