@@ -1,387 +1,226 @@
-// ─── Productions ───────────────────────────────────────────────────────────────
+/**
+ * @typedef {Object} StatBlock
+ * @property {number} technical - Ability to handle equipment
+ * @property {number} social - Communication and networking skill
+ * @property {number} stamina - Resistance to stress and physical fatigue
+ */
+
+/**
+ * @typedef {Object} Character
+ * @property {string} id
+ * @property {string} name
+ * @property {string} role
+ * @property {'lighting' | 'sound'} department
+ * @property {string} bio
+ * @property {string} icon
+ * @property {StatBlock} stats
+ */
+
+/**
+ * @typedef {Object} Cue
+ * @property {string} id
+ * @property {string} label
+ * @property {number} targetMs
+ * @property {number} windowMs
+ */
+
+// --- PLANNING STAGE CONSTANTS ---
+export const PLOT_GRID_COLS = 5;
+export const PLOT_GRID_ROWS = 3;
+
+export const LIGHT_TYPES = [
+  { id: "spot", label: "Spotlight", color: "#fef08a", icon: "🔦" },
+  { id: "wash", label: "Wash", color: "#38bdf8", icon: "💡" },
+  { id: "led", label: "LED Par", color: "#f472b6", icon: "🚥" },
+];
+
+// --- VENUES ---
+export const VENUES = {
+  high_school: {
+    name: "Westview High Auditorium",
+    description: "Dusty curtains and a flickering lighting board from 1998. It builds character.",
+  },
+  church: {
+    name: "Grace Community Sanctuary",
+    description: "State-of-the-art digital soundboards, but absolutely zero backstage space.",
+  },
+  regional: {
+    name: "Downtown Repertory Theatre",
+    description: "A professional crew. The stakes are high, and the space is notoriously quirky.",
+  },
+  broadway: {
+    name: "The Grand Adelphi",
+    description: "The pinnacle. Massive scale, unforgiving timelines, and zero room for error.",
+  },
+};
+
+// --- PRODUCTIONS ---
 export const PRODUCTIONS = [
   {
     id: "phantom",
-    title: "The Phantom of the Opera",
+    title: "Phantom of the Opera",
     poster: "🎭",
-    description:
-      "Andrew Lloyd Webber's iconic musical set in the Paris Opéra house. " +
-      "A sprawling production with elaborate lighting, rigging, and pyrotechnics.",
-    learnMoreUrl:
-      "https://en.wikipedia.org/wiki/The_Phantom_of_the_Opera_(1986_musical)",
+    description: "A technically complex musical requiring precise timing for fog and falling chandeliers.",
+    learnMoreUrl: "https://en.wikipedia.org/wiki/The_Phantom_of_the_Opera_(1986_musical)",
     levels: {
-      school: { venueId: "drama_hall", stars: 0, unlocked: true },
-      community: { venueId: "civic_theatre", stars: 0, unlocked: false },
-      professional: { venueId: "grand_opera", stars: 0, unlocked: false },
+      school: { venueId: "high_school", unlocked: true },
+      community: { venueId: "regional", unlocked: false },
+      professional: { venueId: "broadway", unlocked: false },
     },
   },
   {
     id: "midsummer",
     title: "A Midsummer Night's Dream",
-    poster: "🌙",
-    description:
-      "Shakespeare's beloved comedy. A smaller cast but requires creative " +
-      "use of gobos, coloured gels, and practical forest set pieces.",
+    poster: "🧚",
+    description: "A whimsical play relying on atmospheric lighting and subtle ambient soundscapes.",
     learnMoreUrl: "https://en.wikipedia.org/wiki/A_Midsummer_Night%27s_Dream",
     levels: {
-      school: { venueId: "drama_hall", stars: 0, unlocked: true },
-      community: { venueId: "civic_theatre", stars: 0, unlocked: false },
-      professional: { venueId: "grand_opera", stars: 0, unlocked: false },
+      school: { venueId: "high_school", unlocked: true },
+      community: { venueId: "church", unlocked: false },
+      professional: { venueId: "regional", unlocked: false },
     },
   },
+  {
+    id: "crucible",
+    title: "The Crucible",
+    poster: "🔥",
+    description: "A heavy drama. Stark, high-contrast lighting and oppressive audio are required.",
+    learnMoreUrl: "https://en.wikipedia.org/wiki/The_Crucible",
+    levels: {
+      school: { venueId: "high_school", unlocked: true },
+      community: { venueId: "regional", unlocked: false },
+      professional: { venueId: "broadway", unlocked: false },
+    },
+  }
 ];
 
-// ─── Venues ────────────────────────────────────────────────────────────────────
-export const VENUES = {
-  drama_hall: {
-    name: "School Drama Hall",
-    description: "Basic fresnels and a single dimmer rack.",
-  },
-  civic_theatre: {
-    name: "Civic Theatre",
-    description: "Mid-sized proscenium with a digital lighting board.",
-  },
-  grand_opera: {
-    name: "Grand Opera House",
-    description: "Full fly tower, automated fixtures, and a 96-channel desk.",
-  },
-};
-
-// ─── Characters ────────────────────────────────────────────────────────────────
+// --- CHARACTERS ---
+/** @type {Character[]} */
 export const CHARACTERS = [
   {
-    id: "ben",
+    id: "char_ben",
     name: "Ben",
     role: "Lighting Designer",
     department: "lighting",
-    icon: "💡",
-    bio:
-      "A meticulous LD who started out rewiring practicals in his school hall. " +
-      "Loves a dramatic backlight moment.",
-    stats: { technical: 9, social: 6, stamina: 7 },
+    bio: "A seasoned designer who moved from architectural lighting to theatre. Prefers the company of their console over humans but has a hidden talent for networking during interval drinks.",
+    icon: "🧑‍💻",
+    stats: { technical: 9, social: 4, stamina: 6 },
   },
   {
-    id: "priya",
-    name: "Priya",
-    role: "Sound Operator",
+    id: "char_sam",
+    name: "Sam",
+    role: "A1 (Lead Audio)",
     department: "sound",
-    icon: "🎚️",
-    bio:
-      "Trained on church sound systems. Has an encyclopaedic knowledge of mic " +
-      "placement and feedback prevention.",
+    bio: "Cool under pressure. Sam found their start mixing in large community spaces and can handle a 40-piece orchestra without breaking a sweat, though archaic analog gear still proves a challenge.",
+    icon: "🎧",
+    stats: { technical: 7, social: 8, stamina: 5 },
+  },
+  {
+    id: "char_alex",
+    name: "Alex",
+    role: "Master Electrician",
+    department: "lighting",
+    bio: "The muscle and brains of the lighting crew. Alex has a background in electrical engineering and is more concerned with circuit loads than 'artistic vibes'.",
+    icon: "👷",
+    stats: { technical: 8, social: 5, stamina: 10 },
+  },
+  {
+    id: "char_jordan",
+    name: "Jordan",
+    role: "Sound Designer",
+    department: "sound",
+    bio: "A perfectionist who transitioned from a career in studio production to live performance. Jordan spends hours EQing a single footstep and has little patience for mic-dropping divas.",
+    icon: "🎛️",
+    stats: { technical: 8, social: 3, stamina: 6 },
+  },
+  {
+    id: "char_priya",
+    name: "Priya",
+    role: "Head of Lighting",
+    department: "lighting",
+    bio: "Highly respected for her efficiency and focus. Priya worked her way up through regional touring and knows every quirk of the Grand Adelphi’s rig. She doesn't tolerate communication breakdowns.",
+    icon: "👩🏾‍🔧",
     stats: { technical: 8, social: 7, stamina: 8 },
   },
   {
-    id: "sam",
-    name: "Sam",
-    role: "Stage Manager",
-    department: "stage_management",
-    icon: "📋",
-    bio: "Keeps the whole crew together with calm authority and an immaculate cue book.",
-    stats: { technical: 6, social: 10, stamina: 9 },
-  },
+    id: "char_casey",
+    name: "Casey",
+    role: "Audio Systems Engineer",
+    department: "sound",
+    bio: "A wizard with digital protocols and signal routing. Casey is non-binary and spent years working on international festival tours before finding a home in the musical theatre world.",
+    icon: "🧑🏻‍🚀",
+    stats: { technical: 10, social: 5, stamina: 7 },
+  }
 ];
 
-// ─── Cue sheets (per production + role) ───────────────────────────────────────
+// --- CUE SHEETS ---
+/** @type {Object.<string, Object.<string, Cue[]>>} */
 export const CUE_SHEETS = {
   phantom: {
     lighting: [
-      {
-        id: "LX1",
-        label: "Overture — house lights fade",
-        targetMs: 3000,
-        windowMs: 800,
-      },
-      {
-        id: "LX2",
-        label: "Chandelier ascends — warm wash up",
-        targetMs: 9000,
-        windowMs: 600,
-      },
-      {
-        id: "LX3",
-        label: "Christine enters — follow spot live",
-        targetMs: 15000,
-        windowMs: 700,
-      },
-      {
-        id: "LX4",
-        label: "Mirror scene — blue side light",
-        targetMs: 21000,
-        windowMs: 600,
-      },
-      {
-        id: "LX5",
-        label: "Phantom reveal — red special",
-        targetMs: 28000,
-        windowMs: 500,
-      },
-      {
-        id: "LX6",
-        label: "Masquerade — full colour blast",
-        targetMs: 35000,
-        windowMs: 700,
-      },
-      {
-        id: "LX7",
-        label: "Rooftop — moonlight only",
-        targetMs: 43000,
-        windowMs: 800,
-      },
-      {
-        id: "LX8",
-        label: "Final lair — blackout",
-        targetMs: 52000,
-        windowMs: 400,
-      },
+      { id: "LQ 1", label: "House to Half", targetMs: 2000, windowMs: 1500 },
+      { id: "LQ 2", label: "Chandelier Rise", targetMs: 11000, windowMs: 1000 },
+      { id: "LQ 3", label: "Blackout", targetMs: 26000, windowMs: 500 },
     ],
     sound: [
-      {
-        id: "SQ1",
-        label: "Organ sting — full volume",
-        targetMs: 4000,
-        windowMs: 500,
-      },
-      {
-        id: "SQ2",
-        label: "Phantom mic — channel 7 open",
-        targetMs: 10000,
-        windowMs: 600,
-      },
-      {
-        id: "SQ3",
-        label: "Christine track — playback start",
-        targetMs: 16000,
-        windowMs: 500,
-      },
-      {
-        id: "SQ4",
-        label: "Chandelier crash SFX",
-        targetMs: 22000,
-        windowMs: 400,
-      },
-      {
-        id: "SQ5",
-        label: "Reprise — underscore in",
-        targetMs: 30000,
-        windowMs: 700,
-      },
-      {
-        id: "SQ6",
-        label: "Masquerade — orchestra swell",
-        targetMs: 37000,
-        windowMs: 600,
-      },
-      {
-        id: "SQ7",
-        label: "Final chord — reverb tail",
-        targetMs: 45000,
-        windowMs: 500,
-      },
-      {
-        id: "SQ8",
-        label: "House music — post-show",
-        targetMs: 54000,
-        windowMs: 800,
-      },
+      { id: "SQ 1", label: "Organ Stinger", targetMs: 6500, windowMs: 500 },
+      { id: "SQ 2", label: "Actor 1 Mic ON", targetMs: 14000, windowMs: 1000 },
     ],
   },
   midsummer: {
     lighting: [
-      {
-        id: "LX1",
-        label: "Preshow — warm amber wash",
-        targetMs: 2000,
-        windowMs: 800,
-      },
-      {
-        id: "LX2",
-        label: "Forest appears — green gobo spin",
-        targetMs: 8000,
-        windowMs: 600,
-      },
-      {
-        id: "LX3",
-        label: "Puck enters — surprise special",
-        targetMs: 14000,
-        windowMs: 500,
-      },
-      {
-        id: "LX4",
-        label: "Love spell — lavender wash",
-        targetMs: 20000,
-        windowMs: 700,
-      },
-      {
-        id: "LX5",
-        label: "Dawn — slow sky fade",
-        targetMs: 27000,
-        windowMs: 900,
-      },
-      {
-        id: "LX6",
-        label: "Resolution — full bright",
-        targetMs: 35000,
-        windowMs: 600,
-      },
-      { id: "LX7", label: "Curtain call", targetMs: 42000, windowMs: 800 },
+      { id: "LQ 10", label: "Forest Wash", targetMs: 4000, windowMs: 2000 },
+      { id: "LQ 11", label: "Moonlight Spot", targetMs: 27000, windowMs: 1000 },
     ],
     sound: [
-      { id: "SQ1", label: "Opening fanfare", targetMs: 3000, windowMs: 600 },
-      { id: "SQ2", label: "Forest ambience in", targetMs: 9000, windowMs: 700 },
-      {
-        id: "SQ3",
-        label: "Fairy music — delicate bells",
-        targetMs: 15000,
-        windowMs: 600,
-      },
-      { id: "SQ4", label: "Donkey bray SFX", targetMs: 22000, windowMs: 400 },
-      {
-        id: "SQ5",
-        label: "Dawn chorus — birds in",
-        targetMs: 28000,
-        windowMs: 800,
-      },
-      {
-        id: "SQ6",
-        label: "Resolution fanfare",
-        targetMs: 36000,
-        windowMs: 600,
-      },
-      {
-        id: "SQ7",
-        label: "Curtain call music",
-        targetMs: 43000,
-        windowMs: 800,
-      },
-    ],
+      { id: "SQ 10", label: "Fairy Chimes", targetMs: 10000, windowMs: 1000 },
+      { id: "SQ 11", label: "Donkey Bray FX", targetMs: 16500, windowMs: 800 },
+    ]
   },
 };
 
-// ─── Lighting plot grid ────────────────────────────────────────────────────────
-export const LIGHT_TYPES = [
-  { id: "fresnel", label: "Fresnel", icon: "◉", color: "#EF9F27" },
-  { id: "profile", label: "Profile", icon: "◈", color: "#378ADD" },
-  { id: "par", label: "PAR can", icon: "●", color: "#1D9E75" },
-  { id: "followspot", label: "Follow spot", icon: "◎", color: "#D85A30" },
-];
-
-export const PLOT_GRID_COLS = 6;
-export const PLOT_GRID_ROWS = 4;
-
-// ─── Conflicts ─────────────────────────────────────────────────────────────────
+// --- CONFLICTS ---
 export const CONFLICTS = [
   {
-    id: "costume_vs_lighting",
-    trigger: "planning",
-    npc: "Costume Designer",
-    scenario:
-      'The Costume Designer storms in: "Your warm amber wash is going to make the ' +
-      'white dresses look YELLOW on stage. Did you even think about us?"',
-    choices: [
-      {
-        id: "diplomatic",
-        text: "\"You're right — let's look at the plot together and find a fix.\"",
-        outcome: "resolved",
-        pointDelta: +50,
-        sideEffect: "costume_contact_unlocked",
-      },
-      {
-        id: "defensive",
-        text: '"I\'m the LD here. The wash stays."',
-        outcome: "escalated",
-        pointDelta: -30,
-        sideEffect: "sm_warning",
-      },
-    ],
-  },
-  {
-    id: "late_cue",
+    id: "director_yell",
     trigger: "rehearsal",
-    npc: "Stage Manager",
-    scenario:
-      'Over headset the SM says: "LX2 was 4 bars late again. The cast is losing ' +
-      "confidence. What's happening at the board?\"",
+    title: "Creative Differences",
+    description: "The Director storms up to the tech booth. 'Fix it right now!'",
     choices: [
-      {
-        id: "honest",
-        text: '"Sorry — I miscounted. Can we take it from the top of that section?"',
-        outcome: "resolved",
-        pointDelta: +30,
-        sideEffect: null,
+      { 
+        id: "c1", text: "Politely ask for specifics.", stat: "social", threshold: 6, 
+        pass: { outcome: "resolved", pointDelta: 50, text: "The Director calms down." }, 
+        fail: { outcome: "escalated", pointDelta: -20, text: "The Director thinks you are rude." } 
       },
-      {
-        id: "blame",
-        text: '"The conductor changed the tempo without telling me."',
-        outcome: "escalated",
-        pointDelta: -20,
-        sideEffect: "conductor_friction",
-      },
-    ],
+    ]
   },
   {
-    id: "newcomer_hazing",
-    trigger: "wrapup",
-    npc: "Senior Technician",
-    scenario:
-      'A senior tech says loudly to a colleague: "New crew always bottle the big ' +
-      'shows. No experience, no business being here."',
+    id: "broken_comms",
+    trigger: "liveshow",
+    title: "Headset Static",
+    description: "Your headset fills with static. You can barely hear the Stage Manager.",
     choices: [
-      {
-        id: "stand_up",
-        text: "\"That's not fair — everyone starts somewhere. Let's focus on the debrief.\"",
-        outcome: "resolved",
-        pointDelta: +40,
-        sideEffect: "ally_gained",
+      { 
+        id: "c1", text: "Swap the XLR cable blind.", stat: "technical", threshold: 6, 
+        pass: { outcome: "resolved", pointDelta: 60, text: "Clean audio restores." }, 
+        fail: { outcome: "fail", pointDelta: -100, text: "You unplugged the main feed." } 
       },
-      {
-        id: "ignore",
-        text: "Say nothing and move on.",
-        outcome: "neutral",
-        pointDelta: 0,
-        sideEffect: null,
-      },
-    ],
-  },
+    ]
+  }
 ];
 
-// ─── Stories (unlockable lore) ──────────────────────────────────────────────────
+// --- STORIES ---
 export const STORIES = [
   {
-    id: "story_jargon",
-    title: "Speaking in Cues: Theatre Jargon 101",
-    unlockedBy: { productionId: "phantom", difficulty: "school", minStars: 1 },
-    content:
-      "Backstage has its own language. 'LX' is short for electrics (lighting). " +
-      "'SQ' denotes a sound cue. 'Barn doors' aren't on a farm — they're the metal " +
-      "flaps that shape a Fresnel beam. 'Check' means lower the intensity slightly, " +
-      "while 'kill' means cut it entirely. And if the SM says 'places', drop everything — " +
-      "the show is about to start.",
+    id: "story_1",
+    title: "The All-Black Uniform",
+    content: "Backstage workers wear all black as camouflage for 'invisible excellence'.",
+    unlockedBy: { productionId: "phantom", difficulty: "school", minStars: 1 }
   },
   {
-    id: "story_hierarchy",
-    title: "Who's the Boss Backstage?",
-    unlockedBy: { productionId: "phantom", difficulty: "school", minStars: 2 },
-    content:
-      "The Stage Manager runs the show once it opens. They call every cue over headset " +
-      "and are the final authority in the building during a performance. Above them in " +
-      "pre-production sits the Director. The Production Manager oversees budgets and " +
-      "logistics. Designers (lighting, sound, set, costume) report to the director " +
-      "creatively but coordinate with the PM on resources.",
-  },
-  {
-    id: "story_women_in_tech_theatre",
-    title: "Women Behind the Board",
-    unlockedBy: {
-      productionId: "phantom",
-      difficulty: "community",
-      minStars: 1,
-    },
-    content:
-      "Research by Nidweski (2021) found that while many women participate in " +
-      "technical theatre at school level, professional crews remain male-dominated. " +
-      "Interviewees cited casual assumptions that technical work is 'masculine' as a " +
-      "persistent barrier. Networking — exchanging contacts after shows, joining industry " +
-      "associations — was identified as the key strategy for women building sustainable careers.",
-  },
+    id: "story_2",
+    title: "The God Voice",
+    content: "The Stage Manager (SM) is the ultimate authority during a run.",
+    unlockedBy: { productionId: "crucible", difficulty: "professional", minStars: 2 }
+  }
 ];
