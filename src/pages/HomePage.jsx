@@ -20,7 +20,7 @@ export default function HomePage() {
           className="annotation-text"
           style={{ fontSize: "2.2rem", color: "var(--bui-fg-info)" }}
         >
-          The Tech Booth
+          Backstage Minions
         </h1>
         <p style={{ opacity: 0.6, fontFamily: "var(--font-main)" }}>
           Current Status: {state?.session ? "🔴 On-Call" : "⚪ Off-Duty"}
@@ -97,7 +97,7 @@ export default function HomePage() {
                     className="problem-highlight"
                     style={{ fontSize: "0.75rem" }}
                   >
-                    Enter Stage Door ›
+                    Enter Backstage ›
                   </span>
                 </div>
 

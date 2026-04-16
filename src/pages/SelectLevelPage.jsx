@@ -1,26 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
 import NavBar from "../components/NavBar";
+import DifficultyPill from "../components/ui/DifficultyPill";
 import { useGame } from "../context/GameContext";
-import { PRODUCTIONS, VENUES } from "../data/gameData";
-
-const DIFF_LABELS = {
-  school: "School 🏫",
-  community: "Community 🏛️",
-  professional: "Professional ✨",
-};
-const LIVES = { school: 4, community: 3, professional: 2 };
-
-function Stars({ n }) {
-  return (
-    <div style={{ color: "#fbbf24", fontSize: "1.2rem", marginTop: "0.5rem" }}>
-      {Array.from({ length: 3 }).map((_, i) => (
-        <span key={i} style={{ opacity: i < n ? 1 : 0.3 }}>
-          ★
-        </span>
-      ))}
-    </div>
-  );
-}
+import { PRODUCTIONS } from "../data/gameData";
 
 export default function SelectLevelPage() {
   const { productionId } = useParams();
@@ -28,91 +10,115 @@ export default function SelectLevelPage() {
   const { state } = useGame();
 
   const production = PRODUCTIONS.find((p) => p.id === productionId);
-  if (!production)
-    return <div className="page-container">Production not found.</div>;
+
+  // Fallback for refresh/direct navigation errors
+  if (!production) {
+    return (
+      <div className="page-container hardware-panel">
+        <h2 className="annotation-text">Production Not Found</h2>
+        <button className="action-button" onClick={() => navigate("/")}>
+          Return Home
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container">
       <NavBar />
-      <button
-        onClick={() => navigate(`/productions/${productionId}`)}
-        className="action-button"
-        style={{
-          marginBottom: "1rem",
-          background: "transparent",
-          color: "white",
-          padding: 0,
-        }}
-      >
-        ← Back
-      </button>
 
-      <h1 style={{ marginBottom: "0.5rem", fontSize: "1.5rem" }}>
-        {production.poster} {production.title}
-      </h1>
-      <p style={{ color: "var(--text-muted)", marginBottom: "2rem" }}>
-        Select your difficulty.
-      </p>
+      <header style={{ marginBottom: "2rem" }}>
+        <h1
+          className="annotation-text"
+          style={{ fontSize: "2rem", color: "var(--bui-fg-info)" }}
+        >
+          {production.poster} {production.title}
+        </h1>
+        <p className="annotation-text" style={{ opacity: 0.7 }}>
+          Select your contract difficulty:
+        </p>
+      </header>
 
-      {Object.entries(production.levels).map(([diff, lvl]) => {
-        const prog = state?.progress?.[`${productionId}_${diff}`];
-        const venue = VENUES[lvl.venueId];
-        const debut = !prog?.completed;
+      <div className="bento-container" style={{ gridTemplateColumns: "1fr" }}>
+        {Object.entries(production.levels).map(([diffKey, details]) => {
+          const progress = state?.progress?.[`${productionId}_${diffKey}`];
+          const isUnlocked = details.unlocked || progress?.completed;
 
-        return (
-          <div
-            key={diff}
-            className="surface-panel"
-            style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}
-          >
+          return (
             <div
+              key={diffKey}
+              className={`hardware-panel ${isUnlocked ? "clickable" : "locked"}`}
               style={{
                 display: "flex",
-                justifyContent: "space-between",
-                alignItems: "flex-start",
+                flexDirection: "column",
+                gap: "1.5rem",
+                cursor: isUnlocked ? "pointer" : "not-allowed",
               }}
-            >
-              <div>
-                <h3 style={{ margin: "0 0 0.25rem 0" }}>
-                  {DIFF_LABELS[diff]}{" "}
-                  {debut && lvl.unlocked && (
-                    <span
-                      style={{ color: "var(--accent)", fontSize: "0.8rem" }}
-                    >
-                      ✦ Debut!
-                    </span>
-                  )}
-                </h3>
-                <div
-                  style={{ fontSize: "0.85rem", color: "var(--text-muted)" }}
-                >
-                  {venue.name}
-                </div>
-              </div>
-              <Stars n={prog?.completed ? prog.stars || 3 : 0} />
-            </div>
-
-            <p style={{ fontSize: "0.85rem", margin: "0.5rem 0" }}>
-              {venue.description}
-            </p>
-            <div style={{ fontSize: "0.9rem", marginBottom: "1rem" }}>
-              ❤️ Lives: {LIVES[diff]}
-            </div>
-
-            <button
               onClick={() =>
+                isUnlocked &&
                 navigate(
-                  `/productions/${productionId}/difficulty/${diff}/character`,
+                  `/productions/${productionId}/${diffKey}/select-character`,
                 )
               }
-              className="action-button btn-success"
-              style={{ width: "100%" }}
             >
-              {prog?.completed ? "Play again" : "Start"}
-            </button>
-          </div>
-        );
-      })}
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                }}
+              >
+                <div>
+                  <h3
+                    className="annotation-text"
+                    style={{ fontSize: "1.4rem", margin: 0 }}
+                  >
+                    {diffKey.toUpperCase()} LEVEL
+                  </h3>
+                  <p
+                    style={{
+                      fontSize: "0.85rem",
+                      opacity: 0.6,
+                      marginTop: "4px",
+                    }}
+                  >
+                    Location: {details.venueId.replace("_", " ")}
+                  </p>
+                </div>
+                {/* Unified Star Display using DifficultyPill */}
+                <div style={{ minWidth: "120px" }}>
+                  <DifficultyPill
+                    label="Contract Status"
+                    stars={progress?.stars || 0}
+                    unlocked={isUnlocked}
+                  />
+                </div>
+              </div>
+
+              {!isUnlocked && (
+                <div
+                  style={{
+                    color: "var(--bui-fg-danger)",
+                    fontSize: "0.8rem",
+                    fontStyle: "italic",
+                  }}
+                >
+                  * This level is currently locked. Complete the previous tier
+                  to unlock.
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <button
+        className="action-button"
+        style={{ marginTop: "2rem", width: "100%" }}
+        onClick={() => navigate("/")}
+      >
+        ‹ Back to Production List
+      </button>
     </div>
   );
 }
