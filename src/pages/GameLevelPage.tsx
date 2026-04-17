@@ -4,6 +4,7 @@ import { useGame } from "../context/GameContext";
 import { useGameData } from "../hooks/useGameData";
 
 // Components
+import CableCoilingStage from "../components/game/CableCoilingStage";
 import ConflictMinigame from "../components/game/ConflictMinigame";
 import CueExecutionStage from "../components/game/CueExecutionStage";
 import EquipmentStage from "../components/game/EquipmentStage";
@@ -17,6 +18,7 @@ const STAGE_COMPONENTS: Record<string, any> = {
   planning: PlanningStage,
   sound_design: SoundDesignStage,
   execution: CueExecutionStage,
+  cable_coiling: CableCoilingStage,
   wrapup: WrapUpScene,
 };
 
