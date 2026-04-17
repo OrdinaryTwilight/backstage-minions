@@ -39,7 +39,7 @@ export function useGameLoop(
     let shuffled = [...available].sort(() => 0.5 - Math.random());
     let count = Math.floor(Math.random() * 3) + 2;
 
-    // FIX: Add extra Actor NPCs if we are in the Green Room
+    // FIX 1: Ensure the Director and Lead Actor ALWAYS spawn in the Green Room
     if (currentRoom === "greenRoom") {
       const extraActors = [
         {
@@ -54,6 +54,12 @@ export function useGameLoop(
           name: "Understudy",
           icon: "🤺",
           department: "Actor",
+        },
+        {
+          id: "director_npc",
+          name: "Director",
+          icon: "🎬",
+          department: "Director",
         },
       ];
       shuffled = [...extraActors, ...shuffled].sort(
@@ -119,9 +125,20 @@ export function useGameLoop(
 
         let currentNpcs: NPC[] = [];
         setNpcs((prevNpcs) => {
-          currentNpcs = prevNpcs.map((npc) =>
-            updateSingleNpc(npc, newX, newY, isPlayerMoving, currentZones),
-          );
+          currentNpcs = prevNpcs.map((npc) => {
+            // FIX 2: Freeze the NPC in place if the player steps within interaction radius!
+            const distToPlayer = Math.hypot(newX - npc.x, newY - npc.y);
+            if (distToPlayer < 80) {
+              return npc; // Skip updating position so they stop and wait for you
+            }
+            return updateSingleNpc(
+              npc,
+              newX,
+              newY,
+              isPlayerMoving,
+              currentZones,
+            );
+          });
           return currentNpcs;
         });
 
@@ -131,7 +148,6 @@ export function useGameLoop(
           currentZones,
         );
 
-        // FIX: Calculate closest NPC distance to override static zones if standing right next to them
         let closestNpcId: string | null = null;
         let closestDist = Infinity;
 

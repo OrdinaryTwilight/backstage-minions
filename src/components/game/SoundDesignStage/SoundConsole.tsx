@@ -45,8 +45,8 @@ export default function SoundConsole({
           lineHeight: "1.4",
         }}
       >
-        PUZZLE: Route Inputs to Channels. Route Channels to Buses. Push Faders
-        above 0. Avoid Dead Channels!
+        Route Inputs to Channels. Route Channels to Buses. Push Faders above 0.
+        Avoid Dead Channels!
       </p>
 
       <div
