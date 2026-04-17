@@ -1,6 +1,6 @@
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
-import { Suspense, lazy, useEffect, useState } from "react";
+import { Suspense, lazy } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Spinner } from "./components/ui/Spinner";
 import { GameProvider } from "./context/GameContext";
@@ -20,18 +20,8 @@ const LevelFailedPage = lazy(() => import("./pages/LevelFailedPage"));
 const StoriesPage = lazy(() => import("./pages/StoriesPage"));
 
 function App() {
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  if (!mounted)
-    return (
-      <div style={{ color: "white", padding: "20px" }}>Loading System...</div>
-    );
-
   return (
+
     <GameProvider>
       <Router>
         <Routes>

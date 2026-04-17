@@ -1,69 +1,86 @@
 /**
- * @typedef {Object} StatBlock
- * @property {number} technical - Ability to handle equipment
- * @property {number} social - Communication and networking skill
- * @property {number} stamina - Resistance to stress and physical fatigue
+ * StatBlock - Represents character statistics
  */
+export interface StatBlock {
+  technical: number; // Ability to handle equipment
+  social: number; // Communication and networking skill
+  stamina: number; // Resistance to stress and physical fatigue
+}
 
 /**
- * @typedef {Object} Character
- * @property {string} id
- * @property {string} name
- * @property {string} role
- * @property {'lighting' | 'sound'} department
- * @property {string} bio
- * @property {string} icon
- * @property {StatBlock} stats
+ * Character - Represents a playable character in the game
  */
+export interface Character {
+  id: string;
+  name: string;
+  role: string;
+  department: "lighting" | "sound";
+  bio: string;
+  icon: string;
+  stats: StatBlock;
+}
 
 /**
- * @typedef {Object} Cue
- * @property {string} id
- * @property {string} label
- * @property {number} targetMs
- * @property {number} windowMs
+ * Cue - Represents a technical cue (lighting or sound)
  */
+export interface Cue {
+  id: string;
+  label: string;
+  targetMs: number; // Target time in milliseconds
+  windowMs: number; // Acceptable timing window in milliseconds
+  targetLevel?: number; // Optional intensity level (0-100)
+}
 
 /**
- * @typedef {Object} ConflictChoice
- * @property {string} id
- * @property {string} text - The choice presented to the player
- * @property {string} outcome - 'resolved', 'neutral', or 'escalated'
- * @property {number} pointDelta - Impact on total score
- * @property {string} aftermathText - NPC dialogue response shown after selection
- * @property {string} [sideEffect] - Special triggers like unlocking contacts
+ * ConflictChoice - Represents a choice in a conflict scenario
  */
+export interface ConflictChoice {
+  id: string;
+  text: string; // The choice presented to the player
+  outcome: "resolved" | "neutral" | "escalated";
+  pointDelta: number; // Impact on total score
+  aftermathText: string; // NPC dialogue response shown after selection
+  sideEffect?: string; // Special triggers like unlocking contacts
+}
 
 /**
- * @typedef {Object} Conflict
- * @property {string} id
- * @property {string} trigger - The stage that triggers this conflict
- * @property {string} npc - Name of the character involved
- * @property {string} description - The opening dialogue or scenario
- * @property {ConflictChoice[]} choices
+ * Conflict - Represents a conflict scenario in the game
  */
+export interface Conflict {
+  id: string;
+  trigger: string; // The stage that triggers this conflict
+  npc: string; // Name of the character involved
+  description: string; // The opening dialogue or scenario
+  choices: ConflictChoice[];
+}
 
 /**
- * @typedef {Object} Venue
- * @property {string} name
- * @property {string} description
+ * Venue - Represents a performance venue
  */
+export interface Venue {
+  name: string;
+  description: string;
+}
 
 /**
- * @typedef {Object} LevelDetails
- * @property {string} venueId
- * @property {boolean} unlocked
+ * LevelDetails - Details about a specific difficulty level of a production
  */
+export interface LevelDetails {
+  venueId: string;
+  unlocked: boolean;
+}
 
 /**
- * @typedef {Object} Production
- * @property {string} id
- * @property {string} title
- * @property {string} poster
- * @property {string} description
- * @property {string} learnMoreUrl
- * @property {Object.<string, LevelDetails>} levels
+ * Production - Represents a theatrical production
  */
+export interface Production {
+  id: string;
+  title: string;
+  poster: string;
+  description: string;
+  learnMoreUrl: string;
+  levels: Record<string, LevelDetails>;
+}
 
 // --- PLANNING STAGE CONSTANTS ---
 export const PLOT_GRID_COLS = 5;
@@ -76,8 +93,7 @@ export const LIGHT_TYPES = [
 ];
 
 // --- VENUES ---
-/** @type {Object.<string, Venue>} */
-export const VENUES = {
+export const VENUES: Record<string, Venue> = {
   high_school: {
     name: "Westview High Auditorium",
     description: "Dusty curtains and a flickering lighting board from 1998. It builds character.",
@@ -97,8 +113,7 @@ export const VENUES = {
 };
 
 // --- PRODUCTIONS ---
-/** @type {Production[]} */
-export const PRODUCTIONS = [
+export const PRODUCTIONS: Production[] = [
   {
     id: "phantom",
     title: "Phantom of the Opera",
@@ -146,8 +161,7 @@ export const PRODUCTION_STAGES = [
 ];
 
 // --- CHARACTERS ---
-/** @type {Character[]} */
-export const CHARACTERS = [
+export const CHARACTERS: Character[] = [
   {
     id: "char_ben",
     name: "Ben",
@@ -205,8 +219,7 @@ export const CHARACTERS = [
 ];
 
 // --- CUE SHEETS ---
-/** @type {Object.<string, Object.<string, Cue[]>>} */
-export const CUE_SHEETS = {
+export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
   phantom: {
     lighting: [
       { id: "LQ 1", label: "House to Half", targetMs: 2000, windowMs: 1500, targetLevel: 50 },
@@ -241,8 +254,7 @@ export const CUE_SHEETS = {
 };
 
 // --- CONFLICTS ---
-/** @type {Conflict[]} */
-export const CONFLICTS = [
+export const CONFLICTS: Conflict[] = [
   {
     id: "costume_vs_lighting",
     trigger: "planning",

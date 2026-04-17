@@ -11,7 +11,8 @@ export default function SoundDesignStage({ onComplete }) {
   const [patch, setPatch] = useState({ inputs: {}, outputs: {} });
   const [submitted, setSubmitted] = useState(false);
 
-  const char = CHARACTERS.find((c) => c.id === state.session.characterId);
+  // Character data available but not used in current implementation
+  void CHARACTERS.find((c) => c.id === state.session.characterId);
 
   const sources = ["Vocals 1", "Vocals 2", "Pit Orchestra", "SFX Playback"];
   const consoleChannels = [1, 2, 3, 4];
