@@ -1,5 +1,6 @@
-import { Conflict, CONFLICTS, PRODUCTION_STAGES } from "../data/gameData";
+import { CHARACTERS, Conflict, CONFLICTS } from "../data/gameData";
 import { GameAction, GameState } from "../types/game";
+import { generateStageSequence } from "../utils/levelFlowEngine";
 const getLivesForDifficulty = (difficulty: string): number => {
   if (difficulty === "professional") return 2;
   if (difficulty === "community") return 3;
@@ -9,11 +10,16 @@ const getLivesForDifficulty = (difficulty: string): number => {
 const createNewSession = (
   action: GameAction & { type: "START_SESSION" },
 ): GameState["session"] => {
+  const char = CHARACTERS.find((c) => c.id === action.characterId);
+  const dept = char?.department?.toLowerCase() || "lighting";
   return {
     productionId: action.productionId,
     difficulty: action.difficulty,
     characterId: action.characterId,
-    stages: PRODUCTION_STAGES,
+
+    // USE THE ENGINE HERE!
+    stages: generateStageSequence(dept, action.difficulty),
+
     currentStageIndex: 0,
     gearId: null,
     score: 0,

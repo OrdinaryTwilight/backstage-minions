@@ -80,12 +80,3 @@ export const PRODUCTIONS: Production[] = [
     },
   },
 ];
-
-export const PRODUCTION_STAGES = [
-  "equipment",
-  "planning",
-  "sound_design",
-  "execution",
-  "cable_coiling",
-  "wrapup",
-];
