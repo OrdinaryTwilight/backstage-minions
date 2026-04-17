@@ -37,7 +37,8 @@ export default function SoundDesignStage({ onComplete }) {
     <div className="page-container animate-blueprint">
       <SectionHeader
         title="Signal Flow Patching"
-        subtitle="Route inputs through the console to the destination buses."
+        subtitle="Route inputs through the console to output buses."
+        helpText="Click a channel number next to an input (e.g., Vocals) to patch it. Then, route output buses to those same channels. Aim for a complete path from source to speaker."
       />
 
       <div className="desktop-two-column">

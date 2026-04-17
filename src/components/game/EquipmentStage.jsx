@@ -18,6 +18,7 @@ export default function EquipmentStage({ onComplete }) {
       <SectionHeader
         title="Inventory Logistics"
         subtitle="Select a gear package for this production tier."
+        helpText="Choose your gear wisely. Higher quality gear provides score bonuses but may reduce your starting 'Lives' (stability) depending on difficulty."
       />
 
       <div className="bento-container">

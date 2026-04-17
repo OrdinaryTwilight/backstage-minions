@@ -161,3 +161,50 @@
   display: flex;
   align-items: center;
 }
+
+.help-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--bui-fg-info);
+  color: var(--bui-fg-info);
+  font-size: 0.8rem;
+  cursor: help;
+  margin-left: 10px;
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+
+.help-trigger:hover {
+  background: rgba(56, 189, 248, 0.2);
+  box-shadow: 0 0 10px var(--bui-fg-info);
+}
+
+.tooltip-overlay {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 280px;
+  background: var(--color-surface-translucent);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--bui-fg-info);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  z-index: 1100;
+  box-shadow: var(--shadow-tactile);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-pencil-light);
+  pointer-events: none;
+  margin-top: 10px;
+  animation: hardware-pop 0.3s ease-out;
+}
+
+.tooltip-overlay b {
+  color: var(--bui-fg-warning);
+  display: block;
+  margin-bottom: 5px;
+}

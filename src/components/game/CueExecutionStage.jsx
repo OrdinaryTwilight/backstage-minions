@@ -46,8 +46,9 @@ export default function CueExecutionStage({ cueSheet, onComplete }) {
   return (
     <div className="page-container animate-blueprint">
       <SectionHeader
-        title={`${char?.icon} Tech Booth: Session #${state.session.productionId?.toUpperCase()}`}
+        title="Booth Operations"
         subtitle="Coordinate the master clock and maintain fader precision."
+        helpText="Wait for the clock to approach the Target Time. Ensure at least 2 faders match the 'Target Intensity' shown in the HUD, then hit GO. Timing and precision both affect your score."
       />
 
       <div className="desktop-two-column">

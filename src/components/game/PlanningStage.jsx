@@ -52,7 +52,8 @@ export default function PlanningStage({ onComplete }) {
     <div className="page-container animate-blueprint">
       <SectionHeader
         title="Optical Drafting"
-        subtitle="Configure the rig and simulate beam dispersion on the stage floor."
+        subtitle="Configure the rig and simulate beam dispersion."
+        helpText="Select a fixture type (Spot/Wash) and click the grid to place them. Spots are narrow; Washes cover large areas. You need at least 3 fixtures for technical approval."
       />
 
       <div className="desktop-two-column">
