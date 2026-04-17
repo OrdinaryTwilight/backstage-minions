@@ -1,13 +1,14 @@
-// src/components/ui/HardwarePanel.jsx
 export default function HardwarePanel({
   children,
   variant = "",
+  className = "", // Capture className separately
   style,
   ...props
 }) {
   return (
     <div
-      className={`hardware-panel ${variant}`}
+      // Merge all classes together
+      className={`hardware-panel ${variant} ${className}`}
       style={{ filter: "url(#sketch-wobble)", ...style }}
       {...props}
     >

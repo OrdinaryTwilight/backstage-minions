@@ -66,10 +66,12 @@ export default function GameLevelPage() {
         stars >= s.unlockedBy.minStars,
     ).map((s) => s.id);
 
-    // Navigate before clearing session to prevent the Crash Guard from firing
+    // 1. Navigate FIRST while session still exists
     navigate(`/level-complete/${productionId}/${difficulty}/${charId}`, {
       state: { stars, newStories },
     });
+
+    // 2. Record the completion
     dispatch({
       type: "COMPLETE_LEVEL",
       productionId,
@@ -77,7 +79,8 @@ export default function GameLevelPage() {
       stars,
       unlockedStories: newStories,
     });
-    dispatch({ type: "CLEAR_SESSION" });
+
+    // Clear the session only when the player chooses to exit the results screen.
   }
 
   return (

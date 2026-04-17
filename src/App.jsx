@@ -35,17 +35,8 @@ function App() {
     return (
       <GameProvider>
         <Router>
-          {/* REMOVED inner page-container wrapper to fix double padding */}
           <Routes>
             <Route path="/" element={<HomePage />} />
-            <Route
-              path="/productions"
-              element={
-                <Suspense fallback={<Spinner />}>
-                  <ProductionsListPage />
-                </Suspense>
-              }
-            />
             <Route
               path="/productions/:productionId"
               element={
@@ -56,7 +47,7 @@ function App() {
             />
 
             <Route
-              path="/productions/:productionId/difficulty/:difficulty"
+              path="/productions/:productionId/:difficulty"
               element={
                 <Suspense fallback={<Spinner />}>
                   <SelectLevelPage />
@@ -65,7 +56,7 @@ function App() {
             />
 
             <Route
-              path="/productions/:productionId/difficulty/:difficulty/character"
+              path="/productions/:productionId/:difficulty/character"
               element={
                 <Suspense fallback={<Spinner />}>
                   <SelectCharacterPage />
@@ -78,22 +69,6 @@ function App() {
               element={
                 <Suspense fallback={<Spinner />}>
                   <GameLevelPage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/level-complete/:productionId/:difficulty/:charId"
-              element={
-                <Suspense fallback={<Spinner />}>
-                  <LevelCompletePage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/level-failed/:productionId/:difficulty/:charId"
-              element={
-                <Suspense fallback={<Spinner />}>
-                  <LevelFailedPage />
                 </Suspense>
               }
             />

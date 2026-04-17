@@ -13,8 +13,11 @@ export default function HomePage() {
 
   return (
     <div className="page-container">
+      {/* NavBar stays fixed to the viewport */}
       <NavBar />
-      <div className="page-container animate-blueprint">
+
+      {/* Animation wrapper moved inside to prevent breaking fixed positioning */}
+      <div className="animate-blueprint">
         <header style={{ marginBottom: "2.5rem" }}>
           <h1
             className="annotation-text animate-flicker"
@@ -32,6 +35,7 @@ export default function HomePage() {
 
         <div className="desktop-two-column">
           <div className="desktop-col-main">
+            {/* These will now correctly show their borders */}
             <HardwarePanel
               className="animate-pop"
               style={{ borderLeft: "6px solid var(--bui-fg-danger)" }}
@@ -140,7 +144,6 @@ export default function HomePage() {
                 Career Log
               </h2>
 
-              {/* Network Panel: Static display */}
               <div
                 className="surface-panel"
                 style={{
@@ -165,7 +168,6 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Stories Panel: Interactive link */}
               <HardwarePanel
                 variant="clickable"
                 style={{ marginBottom: "1rem", padding: "1rem" }}
