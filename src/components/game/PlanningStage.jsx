@@ -10,6 +10,10 @@ import Button from "../ui/Button";
 import HardwarePanel from "../ui/HardwarePanel";
 import SectionHeader from "../ui/SectionHeader";
 
+/**
+ * PlanningStage: A technical drafting console for lighting designers.
+ * Rearranged for horizontal technical comparison.
+ */
 export default function PlanningStage({ onComplete }) {
   const { dispatch } = useGame();
   const [selectedType, setSelectedType] = useState(LIGHT_TYPES[0].id);
@@ -46,34 +50,41 @@ export default function PlanningStage({ onComplete }) {
   return (
     <div className="page-container animate-blueprint">
       <SectionHeader
-        title="Optical Drafting"
-        subtitle="Rig the house and simulate beam dispersion."
-        helpText="Use the grid to place fixtures. The top-down plot shows the spatial rig, while the live simulation shows floor coverage."
+        title="Optical Drafting Console"
+        subtitle="Map the rig and verify coverage symmetry."
+        helpText="Toggle fixtures on the technical plot (left) to see real-time beam simulation (right). Technical approval requires balanced coverage."
       />
 
-      {/* Grid Layout: Main console + Side Diagnostics */}
+      {/* TOP ROW: Technical Comparison Views */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 320px",
+          gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
           gap: "2rem",
+          marginBottom: "2rem",
         }}
       >
-        {/* LEFT COLUMN: Drafting Boards */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-          {/* 1. The Interaction Grid */}
+        {/* VIEW 1: Technical Plot (Plan View) */}
+        <section>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "0 1rem 0.5rem",
+              fontSize: "0.65rem",
+              opacity: 0.6,
+            }}
+          >
+            <span>[ STAGE RIGHT ]</span>
+            <span className="annotation-text">PLOT_PLAN_VIEW</span>
+            <span>[ STAGE LEFT ]</span>
+          </div>
           <HardwarePanel style={{ borderLeft: "4px solid var(--bui-fg-info)" }}>
-            <h3
-              className="annotation-text"
-              style={{ fontSize: "0.9rem", marginBottom: "1rem" }}
-            >
-              [ INPUT_GRID_V2 ]
-            </h3>
             <div
               style={{
                 display: "grid",
                 gridTemplateColumns: `repeat(${PLOT_GRID_COLS}, 1fr)`,
-                gap: "10px",
+                gap: "8px",
               }}
             >
               {grid.map((cell, i) => {
@@ -96,156 +107,48 @@ export default function PlanningStage({ onComplete }) {
                 );
               })}
             </div>
-
-            <div style={{ marginTop: "1.5rem", display: "flex", gap: "8px" }}>
-              {LIGHT_TYPES.map((l) => (
-                <Button
-                  key={l.id}
-                  onClick={() => setSelectedType(l.id)}
-                  style={{
-                    flex: 1,
-                    borderColor: selectedType === l.id ? l.color : "",
-                  }}
-                >
-                  {l.icon} {l.label}
-                </Button>
-              ))}
-            </div>
           </HardwarePanel>
+        </section>
 
-          {/* 2. NEW: Top-Down Technical Plot */}
-          <HardwarePanel
+        {/* VIEW 2: Optical Simulation */}
+        <section>
+          <div
             style={{
-              height: "300px",
-              background: "rgba(0,0,0,0.3)",
-              position: "relative",
-              overflow: "hidden",
+              display: "flex",
+              justifyContent: "space-between",
+              padding: "0 1rem 0.5rem",
+              fontSize: "0.65rem",
+              opacity: 0.6,
             }}
           >
-            <h3
-              className="annotation-text"
-              style={{ fontSize: "0.8rem", opacity: 0.5 }}
-            >
-              PLAN VIEW: RIGGING SCHEMATIC
-            </h3>
-
-            <div
-              style={{
-                position: "relative",
-                width: "100%",
-                height: "100%",
-                padding: "20px",
-              }}
-            >
-              {/* Proscenium Arch & Stage Lines */}
-              <div
-                style={{
-                  position: "absolute",
-                  top: "10%",
-                  left: "10%",
-                  right: "10%",
-                  bottom: "10%",
-                  border: "1px dashed var(--glass-border)",
-                  opacity: 0.4,
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  top: "10%",
-                  left: "50%",
-                  height: "80%",
-                  width: "1px",
-                  background: "var(--color-architect-blue)",
-                  opacity: 0.2,
-                }}
-              />{" "}
-              {/* CL (Center Line) */}
-              {/* Plot Markers */}
-              {grid.map((cell, i) => {
-                if (!cell) return null;
-                const lt = LIGHT_TYPES.find((t) => t.id === cell.typeId);
-                const col = i % PLOT_GRID_COLS;
-                const row = Math.floor(i / PLOT_GRID_COLS);
-
-                return (
-                  <div
-                    key={`plot-${i}`}
-                    style={{
-                      position: "absolute",
-                      left: `${(col / (PLOT_GRID_COLS - 1)) * 80 + 10}%`,
-                      top: `${(row / (PLOT_GRID_ROWS - 1)) * 60 + 15}%`,
-                      transform: "translate(-50%, -50%)",
-                      textAlign: "center",
-                      zIndex: 10,
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: "1.2rem",
-                        filter: `drop-shadow(0 0 5px ${lt.color})`,
-                      }}
-                    >
-                      {lt.icon}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: "0.5rem",
-                        color: lt.color,
-                        textTransform: "uppercase",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      LX_{i + 1}
-                    </div>
-                  </div>
-                );
-              })}
-              {/* Stage Edge (DS) */}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "10%",
-                  left: "5%",
-                  right: "5%",
-                  height: "4px",
-                  background: "#333",
-                  borderRadius: "4px",
-                }}
-              />
-            </div>
-          </HardwarePanel>
-        </div>
-
-        {/* RIGHT COLUMN: Live Diagnostics */}
-        <div className="desktop-col-side">
+            <span>[ STAGE RIGHT ]</span>
+            <span className="annotation-text">OPTICAL_SIM_REPL</span>
+            <span>[ STAGE LEFT ]</span>
+          </div>
           <HardwarePanel
             style={{
               height: "100%",
               background: "#050505",
+              position: "relative",
               overflow: "hidden",
             }}
           >
             <div
-              className="annotation-text"
-              style={{ fontSize: "0.7rem", opacity: 0.5 }}
-            >
-              [OPTICAL_SIMULATION_LIVE]
-            </div>
-            <div
               style={{
                 position: "relative",
-                height: "320px",
-                marginTop: "1rem",
+                height: "280px",
+                marginTop: "0.5rem",
                 background: "rgba(255,255,255,0.02)",
                 borderRadius: "4px",
               }}
             >
+              {/* Volumetric Beams */}
               {grid.map((cell, i) => {
                 if (!cell) return null;
                 const type = LIGHT_TYPES.find((t) => t.id === cell.typeId);
                 const col = i % PLOT_GRID_COLS;
                 const isSpot = type.id === "spot";
+
                 return (
                   <div
                     key={i}
@@ -261,17 +164,20 @@ export default function PlanningStage({ onComplete }) {
                       opacity: 0.5,
                       filter: `blur(${isSpot ? "1px" : "12px"})`,
                       zIndex: 1,
+                      transition: "all 0.3s ease",
                     }}
                   />
                 );
               })}
-              {/* Floor Pools */}
+
+              {/* Floor Illumination Pools */}
               <div
                 style={{
                   position: "absolute",
                   bottom: 0,
                   width: "100%",
                   height: "20%",
+                  zIndex: 2,
                 }}
               >
                 {grid.map((cell, i) => {
@@ -285,13 +191,14 @@ export default function PlanningStage({ onComplete }) {
                         position: "absolute",
                         left: `${(col / (PLOT_GRID_COLS - 1)) * 100}%`,
                         bottom: "25%",
-                        width: type.id === "spot" ? "12px" : "45px",
+                        width: n.id === "spot" ? "12px" : "45px",
                         height: "8px",
                         background: type.color,
                         borderRadius: "50%",
                         filter: "blur(5px)",
                         transform: "translateX(-50%)",
                         boxShadow: `0 0 20px ${type.color}`,
+                        transition: "all 0.3s ease",
                       }}
                     />
                   );
@@ -299,15 +206,49 @@ export default function PlanningStage({ onComplete }) {
               </div>
             </div>
           </HardwarePanel>
-        </div>
+        </section>
       </div>
 
+      {/* BOTTOM ROW: Fixture Input Grid */}
+      <div className="animate-pop">
+        <HardwarePanel style={{ borderTop: "2px solid var(--glass-border)" }}>
+          <h3
+            className="annotation-text"
+            style={{
+              fontSize: "0.8rem",
+              marginBottom: "1rem",
+              textTransform: "uppercase",
+              opacity: 0.8,
+            }}
+          >
+            Fixture Selection Matrix
+          </h3>
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            {LIGHT_TYPES.map((l) => (
+              <Button
+                key={l.id}
+                onClick={() => setSelectedType(l.id)}
+                style={{
+                  flex: 1,
+                  minWidth: "150px",
+                  borderColor: selectedType === l.id ? l.color : "",
+                  background: selectedType === l.id ? `${l.color}11` : "",
+                }}
+              >
+                {l.icon} {l.label}
+              </Button>
+            ))}
+          </div>
+        </HardwarePanel>
+      </div>
+
+      {/* Control Footer */}
       <div style={{ marginTop: "2rem" }}>
         {!submitted ? (
           <Button
             variant="success"
-            className="btn-xl"
             onClick={submit}
+            className="btn-xl"
             style={{ width: "100%" }}
           >
             Commit Technical Plot
