@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useGame } from "../../context/GameContext";
-import { Conflict, ConflictChoice, NPC_ICONS } from "../../data/gameData";
+import { NPC_ICONS } from "../../data/gameData";
+import { Conflict, ConflictChoice } from "../../types/game";
+import Button from "../ui/Button";
+import HardwarePanel from "../ui/HardwarePanel";
 import DialogueBox from "./DialogueBox";
 
 interface ConflictMinigameProps {
@@ -10,55 +13,48 @@ interface ConflictMinigameProps {
 
 export default function ConflictMinigame({ conflict, onResolved }: ConflictMinigameProps) {
   const { dispatch } = useGame();
-  const [result, setResult] = useState<ConflictChoice | null>(null);
+  const [selectedChoice, setSelectedChoice] = useState<ConflictChoice | null>(null);
 
-  function handleChoice(choice: ConflictChoice) {
+  const handleChoice = (choice: ConflictChoice) => {
     dispatch({ type: "MARK_CONFLICT_SEEN", conflictId: conflict.id });
-    dispatch({ type: "ADD_SCORE", delta: Number(choice.pointDelta) || 0 });
+    dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
 
     if (choice.sideEffect === "ally_gained") {
       dispatch({ type: "ADD_CONTACT", name: conflict.npc });
     }
-
-    setResult(choice);
-  }
-
-  if (result) {
-    const isEscalated = result.outcome === "escalated";
-    return (
-      <div className="hardware-panel animate-pop">
-        <h2 style={{ color: isEscalated ? "var(--bui-fg-danger)" : "var(--bui-fg-info)" }}>
-          ⚡ CONFLICT {isEscalated ? "ESCALATED" : "RESOLVED"}
-        </h2>
-        <div className="pxbox">
-          <h3 style={{ color: isEscalated ? "var(--bui-fg-danger)" : "var(--bui-fg-success)" }}>
-            {result.outcome.toUpperCase()}
-          </h3>
-          <p style={{ margin: "1rem 0" }}>{result.aftermathText}</p>
-          <button
-            className="action-button btn-accent"
-            onClick={() => onResolved(result.outcome)}
-          >
-            Continue Work
-          </button>
-        </div>
-      </div>
-    );
-  }
+    setSelectedChoice(choice);
+  };
 
   return (
-    <div>
-      <h2 style={{ color: "var(--bui-fg-danger)" }}>⚡ CONFLICT</h2>
-      {/* FIX 1: Cast conflict.npc to 'keyof typeof NPC_ICONS' to resolve TS7053 indexing error.
-         FIX 2: Passing ConflictChoice[] works because it satisfies 'DialogueBoxChoice' constraint.
-      */}
-      <DialogueBox
-        speaker={conflict.npc}
-        icon={NPC_ICONS[conflict.npc as keyof typeof NPC_ICONS]} 
-        text={conflict.description}
-        choices={conflict.choices}
-        onChoice={handleChoice}
-      />
+    <div className="page-container content-reveal">
+      <HardwarePanel style={{ maxWidth: '800px', margin: '0 auto' }}>
+        <h2 style={{ color: 'var(--bui-fg-warning)' }}>⚡ Technical Conflict</h2>
+        
+        {!selectedChoice ? (
+          <DialogueBox
+            speaker={conflict.npc}
+            icon={NPC_ICONS[conflict.npc as keyof typeof NPC_ICONS]}
+            text={conflict.description}
+            choices={conflict.choices}
+            onChoice={handleChoice}
+          />
+        ) : (
+          <div className="animate-pop">
+            <h3 style={{ 
+              color: selectedChoice.outcome === 'escalated' ? 'var(--bui-fg-danger)' : 'var(--bui-fg-success)',
+              marginBottom: '1rem'
+            }}>
+              RESULT: {selectedChoice.outcome.toUpperCase()}
+            </h3>
+            <p style={{ lineHeight: 1.6, marginBottom: '2rem', opacity: 0.9 }}>
+              {selectedChoice.aftermathText}
+            </p>
+            <Button variant="accent" onClick={() => onResolved(selectedChoice.outcome)}>
+              Resume Technical Operations →
+            </Button>
+          </div>
+        )}
+      </HardwarePanel>
     </div>
   );
 }
