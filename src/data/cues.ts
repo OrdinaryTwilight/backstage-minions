@@ -111,4 +111,53 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
       },
     ],
   },
+  // ADD MACBETH HERE!
+  macbeth: {
+    lighting: [
+      {
+        id: "LQ 30",
+        label: "Witches' Heath Wash",
+        targetMs: 12000,
+        windowMs: 2000,
+        targetLevel: 25,
+      },
+      {
+        id: "LQ 31",
+        label: "Lightning Flash",
+        targetMs: 24000,
+        windowMs: 500,
+        targetLevel: 100,
+      },
+      {
+        id: "LQ 32",
+        label: "Banquo's Ghost Spot",
+        targetMs: 36000,
+        windowMs: 1500,
+        targetLevel: 60,
+      },
+    ],
+    sound: [
+      {
+        id: "SQ 30",
+        label: "Thunderclap FX",
+        targetMs: 12000,
+        windowMs: 500,
+        targetLevel: 95,
+      },
+      {
+        id: "SQ 31",
+        label: "Ominous Drone",
+        targetMs: 28000,
+        windowMs: 2000,
+        targetLevel: 40,
+      },
+      {
+        id: "SQ 32",
+        label: "Battle Drums",
+        targetMs: 45000,
+        windowMs: 1000,
+        targetLevel: 85,
+      },
+    ],
+  },
 };
