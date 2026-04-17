@@ -556,3 +556,114 @@ body {
   flex-direction: column;
   gap: 1.5rem;
 }
+
+/* Networks Page Layout */
+.networks-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  height: 70vh;
+  margin-top: 2rem;
+}
+
+.contacts-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.contact-item.active {
+  border-color: var(--bui-fg-info);
+  box-shadow: 0 0 10px var(--bui-fg-info);
+}
+
+.contact-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.contact-icon {
+  font-size: 2rem;
+}
+
+.contact-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.contact-role {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin: 0;
+}
+
+/* Chat Terminal Styling */
+.chat-terminal {
+  display: flex;
+  flex-direction: column;
+}
+
+.terminal-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0 !important;
+}
+
+.terminal-header {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 1rem;
+  font-family: monospace;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.message-history {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.message.incoming {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 4px;
+  max-width: 80%;
+  border-left: 3px solid var(--bui-fg-info);
+}
+
+.message-text {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.timestamp {
+  font-size: 0.7rem;
+  opacity: 0.5;
+  display: block;
+  margin-top: 0.5rem;
+}
+
+.terminal-input-area {
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+}

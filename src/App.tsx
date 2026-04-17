@@ -9,6 +9,7 @@ import { VisualSettingsProvider } from "./context/VisualSettingsContext";
 // Eager load critical routes
 import "./App.css";
 import HomePage from "./pages/HomePage";
+import NetworksPage from "./pages/NetworksPage";
 
 // Lazy load
 const ProductionsListPage = lazy(() => import("./pages/ProductionsListPage"));
@@ -26,86 +27,88 @@ function App() {
       <GameProvider>
         <Router>
           <Routes>
-          <Route path="/" element={<HomePage />} />
+            <Route path="/" element={<HomePage />} />
 
-          <Route
-            path="/productions"
-            element={
-              <Suspense fallback={<Spinner />}>
-                <ProductionsListPage />
-              </Suspense>
-            }
-          />
+            <Route
+              path="/productions"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <ProductionsListPage />
+                </Suspense>
+              }
+            />
 
-          <Route
-            path="/productions/:productionId"
-            element={
-              <Suspense fallback={<Spinner />}>
-                <ProductionsPage />
-              </Suspense>
-            }
-          />
+            <Route
+              path="/productions/:productionId"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <ProductionsPage />
+                </Suspense>
+              }
+            />
 
-          {/* Matches: /productions/phantom/difficulty/school */}
-          <Route
-            path="/productions/:productionId/difficulty/:difficulty"
-            element={
-              <Suspense fallback={<Spinner />}>
-                <SelectLevelPage />
-              </Suspense>
-            }
-          />
+            {/* Matches: /productions/phantom/difficulty/school */}
+            <Route
+              path="/productions/:productionId/difficulty/:difficulty"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <SelectLevelPage />
+                </Suspense>
+              }
+            />
 
-          {/* Matches: /productions/phantom/difficulty/school/character */}
-          <Route
-            path="/productions/:productionId/difficulty/:difficulty/character"
-            element={
-              <Suspense fallback={<Spinner />}>
-                <SelectCharacterPage />
-              </Suspense>
-            }
-          />
+            {/* Matches: /productions/phantom/difficulty/school/character */}
+            <Route
+              path="/productions/:productionId/difficulty/:difficulty/character"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <SelectCharacterPage />
+                </Suspense>
+              }
+            />
 
-          <Route
-            path="/game/:productionId/:difficulty/:charId"
-            element={
-              <Suspense fallback={<Spinner />}>
-                <GameLevelPage />
-              </Suspense>
-            }
-          />
+            <Route
+              path="/game/:productionId/:difficulty/:charId"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <GameLevelPage />
+                </Suspense>
+              }
+            />
 
-          <Route
-            path="/level-complete/:productionId/:difficulty/:charId"
-            element={
-              <Suspense fallback={<Spinner />}>
-                <LevelCompletePage />
-              </Suspense>
-            }
-          />
+            <Route
+              path="/level-complete/:productionId/:difficulty/:charId"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <LevelCompletePage />
+                </Suspense>
+              }
+            />
 
-          <Route
-            path="/level-failed/:productionId/:difficulty/:charId"
-            element={
-              <Suspense fallback={<Spinner />}>
-                <LevelFailedPage />
-              </Suspense>
-            }
-          />
+            <Route
+              path="/level-failed/:productionId/:difficulty/:charId"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <LevelFailedPage />
+                </Suspense>
+              }
+            />
 
-          <Route
-            path="/stories"
-            element={
-              <Suspense fallback={<Spinner />}>
-                <StoriesPage />
-              </Suspense>
-            }
-          />
-        </Routes>
-        <Analytics />
-        <SpeedInsights />
-      </Router>
-    </GameProvider>
+            <Route
+              path="/stories"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <StoriesPage />
+                </Suspense>
+              }
+            />
+
+            <Route path="/networks" element={<NetworksPage />} />
+          </Routes>
+          <Analytics />
+          <SpeedInsights />
+        </Router>
+      </GameProvider>
     </VisualSettingsProvider>
   );
 }

@@ -31,6 +31,7 @@ const initialState: GameState = {
   progress: {},
   unlockedStories: [],
   contacts: [],
+  unreadContacts: [],
 };
 
 /**
@@ -266,11 +267,20 @@ function reducer(state: GameState, action: GameAction): GameState {
       };
 
     case "ADD_CONTACT":
+      if (state.contacts.includes(action.contactId)) return state;
       return {
         ...state,
-        contacts: [...state.contacts, action.name],
+        contacts: [...state.contacts, action.contactId],
+        unreadContacts: [...state.unreadContacts, action.contactId],
       };
 
+    case "MARK_CONTACT_READ":
+      return {
+        ...state,
+        unreadContacts: state.unreadContacts.filter(
+          (id) => id !== action.contactId,
+        ),
+      };
     case "CLEAR_SESSION":
       return { ...state, session: null };
 

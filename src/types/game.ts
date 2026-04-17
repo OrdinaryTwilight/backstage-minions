@@ -180,6 +180,7 @@ export interface GameState {
   progress: Record<string, LevelProgress>;
   unlockedStories: string[];
   contacts: string[];
+  unreadContacts: string[];
 }
 
 // ============================================================================
@@ -235,7 +236,6 @@ export type GameAction =
   | { type: "SET_PLOT_LIGHTS"; lights: LightPlotNode[] }
   | { type: "MARK_CONFLICT_SEEN"; conflictId: string }
   | { type: "RESOLVE_CONFLICT"; conflictId: string }
-  | { type: "ADD_CONTACT"; name: string }
   | {
       type: "COMPLETE_LEVEL";
       productionId: string;
@@ -243,4 +243,6 @@ export type GameAction =
       stars: number;
       unlockedStories: string[];
     }
-  | { type: "CLEAR_SESSION" };
+  | { type: "CLEAR_SESSION" }
+  | { type: "ADD_CONTACT"; contactId: string }
+  | { type: "MARK_CONTACT_READ"; contactId: string };

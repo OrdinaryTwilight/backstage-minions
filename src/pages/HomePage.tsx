@@ -10,6 +10,7 @@ export default function HomePage() {
   const { state } = useGame();
   const hasStarted = Object.keys(state?.progress || {}).length > 0;
   const firstProd = PRODUCTIONS[0];
+  const hasNotifications = state.unreadContacts.length > 0;
 
   return (
     <div className="page-container">
@@ -25,7 +26,7 @@ export default function HomePage() {
           >
             Backstage Minions
           </h1>
-          <div 
+          <div
             style={{ display: "flex", alignItems: "center", opacity: 0.6 }}
             role="status"
             aria-live="polite"
@@ -103,7 +104,7 @@ export default function HomePage() {
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
+                    if (e.key === "Enter" || e.key === " ") {
                       navigate(`/productions/${p.id}`);
                     }
                   }}
@@ -161,44 +162,52 @@ export default function HomePage() {
                 Career Log
               </h2>
 
-              <div
-                className="surface-panel"
-                style={{
-                  marginBottom: "1rem",
-                  padding: "1rem",
-                  borderRadius: "8px",
-                  background: "rgba(255,255,255,0.02)",
-                }}
+              <HardwarePanel
+                variant="clickable"
+                onClick={() => navigate("/networks")}
+                className="animate-pop"
+                style={{ position: "relative" }}
               >
-                <div style={{ fontSize: "2rem" }}>👥</div>
-                <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
-                  {state?.contacts?.length || 0}
-                </div>
+                {hasNotifications && (
+                  <div className="notification-badge">
+                    {state.unreadContacts.length}
+                  </div>
+                )}
                 <div
-                  style={{
-                    fontSize: "0.7rem",
-                    opacity: 0.6,
-                    textTransform: "uppercase",
-                  }}
+                  style={{ display: "flex", alignItems: "center", gap: "1rem" }}
                 >
-                  Network
+                  <div style={{ fontSize: "2rem" }}>📟</div>
+                  <div>
+                    <h3 style={{ margin: 0 }}>Comms Network</h3>
+                    <p style={{ fontSize: "0.8rem", opacity: 0.7, margin: 0 }}>
+                      {hasNotifications
+                        ? "New frequencies detected!"
+                        : "Manage contacts and secure frequencies."}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </HardwarePanel>
 
               <HardwarePanel
                 variant="clickable"
-                style={{ marginBottom: "1rem", padding: "1rem", cursor: "pointer" }}
+                style={{
+                  marginBottom: "1rem",
+                  padding: "1rem",
+                  cursor: "pointer",
+                }}
                 onClick={() => navigate("/stories")}
                 role="button"
                 tabIndex={0}
                 onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
+                  if (e.key === "Enter" || e.key === " ") {
                     navigate("/stories");
                   }
                 }}
                 aria-label={`View unlocked stories. ${state?.unlockedStories?.length || 0} stories available.`}
               >
-                <div style={{ fontSize: "2rem" }} aria-hidden="true">📖</div>
+                <div style={{ fontSize: "2rem" }} aria-hidden="true">
+                  📖
+                </div>
                 <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
                   {state?.unlockedStories?.length || 0}
                 </div>
