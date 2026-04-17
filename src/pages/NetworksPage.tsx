@@ -64,10 +64,11 @@ export default function NetworksPage() {
               <div className="message-history">
                 <div className="message incoming">
                   <p className="message-text">
-                    {/* Placeholder for dynamic chat lore based on your new stories */}
-                    "Hey! Thanks for helping out during the last production.
-                    This channel is open if you need tech support or just want
-                    to vent about the Director."
+                    {activeContact.role === "Stage Manager"
+                      ? "Great job on that last focus session. The Director was actually happy for once."
+                      : activeContact.role === "System Admin"
+                        ? "Welcome to the Comms Network. Remember: Channel A is for Cues, Channel B is for gossip."
+                        : `Hey! It's ${activeContact.name}. Ready for the next load-in?`}
                   </p>
                   <span className="timestamp">12:04 PM</span>
                 </div>

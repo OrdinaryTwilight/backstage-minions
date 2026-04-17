@@ -178,4 +178,28 @@ export const AVAILABLE_NPCS = [
       };
     },
   },
+  {
+    id: "npc_stage_manager",
+    name: "Alex P.",
+    role: "Stage Manager",
+    color: "#ffffff",
+    dialogue: () => ({
+      speaker: "Alex P. (Stage Manager)",
+      text: "Is the headset loop clear? We're 2 minutes from curtain.",
+      choices: [
+        { id: "copy", text: "Copy that.", pointDelta: 0, contact: null },
+      ],
+    }),
+  },
+  {
+    id: "sys_comms",
+    name: "Headset Hub",
+    role: "System Admin",
+    color: "#00ff00",
+    dialogue: () => ({
+      speaker: "System",
+      text: "Comms link established. Signal strength: 100%.",
+      choices: [],
+    }),
+  },
 ];
