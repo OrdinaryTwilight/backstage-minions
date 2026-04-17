@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { CHARACTERS, OVERWORLD_ZONES } from "../../data/gameData";
+import { useEffect, useRef, useState } from "react";
+import { CHARACTERS, OVERWORLD_MAPS } from "../../data/gameData";
 import { useKeyPress } from "../../hooks/useKeyPress";
 import DialogueBox from "./DialogueBox";
 
@@ -33,8 +33,20 @@ interface OverworldStageProps {
   readonly onComplete: () => void;
   readonly department?: string;
   readonly charId?: string;
-  readonly nextStageKey?: string; // <-- NEW: Tells the overworld where the player should go
+  readonly nextStageKey?: string;
 }
+
+const COMMS_CHATTER = [
+  { speaker: "SM", text: "Quiet on headset, please." },
+  { speaker: "LX", text: "Spot 2 is drifting, fixing it now." },
+  { speaker: "SND", text: "Mics 4 and 5 are hot, actors watch your mouths." },
+  { speaker: "ASM", text: "Actors are at places." },
+  {
+    speaker: "WARDROBE",
+    text: "We have a ripped seam, holding actors in Green Room!",
+  },
+  { speaker: "PROPS", text: "Who took my gaff tape?!" },
+];
 
 export default function OverworldStage({
   onComplete,
@@ -46,11 +58,20 @@ export default function OverworldStage({
   const GAME_HEIGHT = 450;
   const PLAYER_SIZE = 32;
 
+  const [currentRoom, setCurrentRoom] = useState<string>("stage");
+  const currentZones = OVERWORLD_MAPS[currentRoom] || OVERWORLD_MAPS["stage"];
+
   const [pos, setPos] = useState({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
   const [targetPos, setTargetPos] = useState<{ x: number; y: number } | null>(
     null,
   );
   const [npcs, setNpcs] = useState<NPC[]>([]);
+
+  const [headsetOn, setHeadsetOn] = useState(true);
+  const [commsLog, setCommsLog] = useState<
+    { id: number; speaker: string; text: string }[]
+  >([]);
+  const nextCommsId = useRef(0);
 
   const [activeZone, setActiveZone] = useState<string | null>(null);
   const [activeDialogue, setActiveDialogue] = useState<DialogueState | null>(
@@ -78,7 +99,6 @@ export default function OverworldStage({
 
   const playerChar = CHARACTERS.find((c) => c.id === charId);
 
-  // --- DYNAMIC DESTINATION LOGIC ---
   let targetZoneId = "";
   let targetLabel = "";
   let instructionText = "";
@@ -101,14 +121,14 @@ export default function OverworldStage({
   useEffect(() => {
     const available = CHARACTERS.filter((c) => c.id !== charId);
     const shuffled = [...available].sort(() => 0.5 - Math.random());
-    const count = Math.floor(Math.random() * 3) + 3;
+    const count = Math.floor(Math.random() * 3) + 2;
 
     const spawned = shuffled.slice(0, count).map((npc) => {
       let spawnX, spawnY;
       do {
         spawnX = Math.random() * (GAME_WIDTH - 200) + 100;
         spawnY = Math.random() * (GAME_HEIGHT - 200) + 100;
-      } while (checkCollision(spawnX, spawnY));
+      } while (checkCollision(spawnX, spawnY, currentZones));
       return {
         id: npc.id,
         name: npc.name,
@@ -124,7 +144,29 @@ export default function OverworldStage({
       };
     });
     setNpcs(spawned as any);
-  }, [charId]);
+  }, [charId, currentRoom]);
+
+  useEffect(() => {
+    if (!headsetOn) return;
+    const interval = setInterval(() => {
+      if (Math.random() > 0.6) {
+        const chatter =
+          COMMS_CHATTER[Math.floor(Math.random() * COMMS_CHATTER.length)];
+        const newMessage = {
+          id: nextCommsId.current++,
+          speaker: chatter.speaker,
+          text: chatter.text,
+        };
+
+        setCommsLog((prev) => {
+          const updated = [...prev, newMessage];
+          if (updated.length > 4) updated.shift();
+          return updated;
+        });
+      }
+    }, 4000);
+    return () => clearInterval(interval);
+  }, [headsetOn]);
 
   const handleStageClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -135,8 +177,12 @@ export default function OverworldStage({
     setTargetPos({ x, y });
   };
 
-  const checkCollision = (newX: number, newY: number) => {
-    for (const zone of Object.values(OVERWORLD_ZONES)) {
+  const checkCollision = (
+    newX: number,
+    newY: number,
+    mapZones = currentZones,
+  ) => {
+    for (const zone of Object.values(mapZones)) {
       if (zone.isSolid) {
         if (
           newX < zone.x + zone.w &&
@@ -154,7 +200,7 @@ export default function OverworldStage({
     playerX: number,
     playerY: number,
   ): string | null => {
-    for (const [key, zone] of Object.entries(OVERWORLD_ZONES)) {
+    for (const [key, zone] of Object.entries(currentZones)) {
       if (
         playerX < zone.x + zone.w + 20 &&
         playerX + PLAYER_SIZE > zone.x - 20 &&
@@ -253,7 +299,6 @@ export default function OverworldStage({
           }),
         );
 
-        // FIX: Proximity check correctly prioritizes NPCs or Zones without overwriting each other
         let currentActive = findActiveStaticZone(newX, newY);
         if (!currentActive) {
           const npcDistances = npcs.map((npc) => ({
@@ -261,8 +306,11 @@ export default function OverworldStage({
             distance: Math.hypot(newX - npc.x, newY - npc.y),
           }));
           if (npcDistances.length > 0) {
-            const closestNpc = npcDistances.reduce((prev, current) =>
-              current.distance < prev.distance ? current : prev,
+            // FIX: Added initial value for reduce
+            const closestNpc = npcDistances.reduce(
+              (prev, current) =>
+                current.distance < prev.distance ? current : prev,
+              npcDistances[0],
             );
             if (closestNpc.distance < 40) currentActive = closestNpc.npc.id;
 
@@ -298,17 +346,22 @@ export default function OverworldStage({
   const triggerInteraction = () => {
     if (!activeZone || activeDialogue) return;
     setTargetPos(null);
-    const staticZone = OVERWORLD_ZONES[activeZone];
+    // FIX: Grab the zone from the currently active room, NOT the whole map object!
+    const staticZone = currentZones[activeZone];
     const activeNpc = npcs.find((n) => n.id === activeZone);
 
     if (staticZone) {
-      if (activeZone === targetZoneId) {
-        onComplete(); // Successfully advanced to the right place!
+      if (staticZone.isDoor) {
+        setCurrentRoom(staticZone.isDoor);
+        setPos({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
+        setFeedbackMsg(`Entering ${staticZone.isDoor}...`);
+        setTimeout(() => setFeedbackMsg(null), 1000);
+      } else if (activeZone === targetZoneId && currentRoom === "stage") {
+        onComplete();
       } else if (
-        activeZone === "lightBooth" ||
-        activeZone === "soundBooth" ||
-        activeZone === "wings" ||
-        activeZone === "stageManager"
+        ["lightBooth", "soundBooth", "wings", "stageManager"].includes(
+          activeZone,
+        )
       ) {
         setFeedbackMsg(`Not here! Head to the ${targetLabel}!`);
         setTimeout(() => setFeedbackMsg(null), 2500);
@@ -322,6 +375,7 @@ export default function OverworldStage({
         setActiveDialogue(staticZone.dialogue);
       }
     } else if (activeNpc) {
+      // FIX: Inject random chatter so they don't all say the same line!
       const randomLine =
         npcChatter[Math.floor(Math.random() * npcChatter.length)];
       setActiveDialogue({
@@ -351,6 +405,69 @@ export default function OverworldStage({
     >
       <div
         style={{
+          position: "absolute",
+          top: "100px",
+          left: "20px",
+          zIndex: 1000,
+          pointerEvents: "none",
+        }}
+      >
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setHeadsetOn(!headsetOn);
+          }}
+          style={{
+            pointerEvents: "auto",
+            background: headsetOn ? "var(--bui-fg-success)" : "#555",
+            color: "#000",
+            border: "2px solid #fff",
+            borderRadius: "50%",
+            width: "40px",
+            height: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            boxShadow: "0 4px 6px rgba(0,0,0,0.5)",
+          }}
+        >
+          🎧
+        </button>
+        {headsetOn && (
+          <div
+            style={{
+              marginTop: "10px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "5px",
+              width: "200px",
+            }}
+          >
+            {commsLog.map((log) => (
+              <div
+                key={log.id}
+                style={{
+                  background: "rgba(0,0,0,0.7)",
+                  borderLeft: "3px solid var(--bui-fg-info)",
+                  padding: "5px 10px",
+                  borderRadius: "0 4px 4px 0",
+                  color: "#fff",
+                  fontSize: "0.8rem",
+                  animation: "slide-up-fade 0.3s ease-out",
+                }}
+              >
+                <strong style={{ color: "var(--bui-fg-info)" }}>
+                  [{log.speaker}]:
+                </strong>{" "}
+                {log.text}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      <div
+        style={{
           textAlign: "center",
           background: "var(--color-surface-translucent)",
           padding: "1rem",
@@ -363,6 +480,16 @@ export default function OverworldStage({
             color: "var(--bui-fg-warning)",
             margin: 0,
             fontFamily: "var(--font-mono)",
+          }}
+        >
+          CURRENT LOCATION: {currentRoom.toUpperCase().replace("ROOM", " ROOM")}
+        </h2>
+        <h2
+          style={{
+            color: "var(--bui-fg-warning)",
+            margin: 0,
+            fontFamily: "var(--font-mono)",
+            marginTop: "0.5rem",
           }}
         >
           CURRENT OBJECTIVE
@@ -387,7 +514,8 @@ export default function OverworldStage({
           padding: 0,
         }}
       >
-        {Object.entries(OVERWORLD_ZONES).map(([key, zone]) => (
+        {/* FIX: Swapped OVERWORLD_MAPS to currentZones here in the DOM loop */}
+        {Object.entries(currentZones).map(([key, zone]) => (
           <div
             key={key}
             style={{
@@ -404,8 +532,7 @@ export default function OverworldStage({
               border: activeZone === key ? "3px solid #fbbf24" : "none",
               boxSizing: "border-box",
               fontWeight: "bold",
-              fontFamily:
-                "var(--font-sketch)" /* FIX: Architect's Daughter Font */,
+              fontFamily: "var(--font-sketch)",
             }}
           >
             {zone.label}
@@ -496,7 +623,6 @@ export default function OverworldStage({
           </div>
         )}
 
-        {/* FIX: Player Character is now their specific Emoji / Icon */}
         <div
           style={{
             position: "absolute",

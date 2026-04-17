@@ -95,4 +95,5 @@ export interface ZoneConfig {
   targetDept?: string;
   dialogue?: any;
   dialogues?: any[];
+  isDoor?: string;
 }
