@@ -1,192 +1,122 @@
-import { memo, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { useGame } from "../../context/GameContext";
-import { DURATIONS, SCORING } from "../../data/constants";
 import { CHARACTERS } from "../../data/gameData";
-
 import CueStack from "../ui/CueStack";
 import DepartmentMixer from "../ui/DepartmentMixer";
+import HardwarePanel from "../ui/HardwarePanel";
 import MasterControl from "../ui/MasterControl";
+import SectionHeader from "../ui/SectionHeader";
 
-function CueExecutionStage({
-  stageType,
-  cues,
-  penaltyMultiplier = 1,
-  onComplete,
-  onFail,
-}) {
+export default function CueExecutionStage({ cueSheet, onComplete }) {
   const { state, dispatch } = useGame();
-  const [elapsed, setElapsed] = useState(0);
-  const [cueResults, setCueResults] = useState({});
-  const [active, setActive] = useState(false);
-  const [done, setDone] = useState(false);
-  const [failed, setFailed] = useState(false);
+  const [currentIdx, setCurrentIdx] = useState(0);
+  const [faderLevels, setFaderLevels] = useState([80, 80, 80, 80, 100]); // 4 channels + Master
 
-  const [smLine, setSmLine] = useState(
-    stageType === "live"
-      ? "Places everyone. This is the real thing."
-      : "Standby for rehearsal.",
-  );
+  const char = CHARACTERS.find((c) => c.id === state.session.characterId);
+  const currentCue = cueSheet[currentIdx];
+  const isLastCue = currentIdx === cueSheet.length - 1;
 
-  const char = CHARACTERS.find((c) => c.id === state?.session?.characterId);
-  const isLiked = state?.contacts?.includes("Stage Manager") ?? false;
-  const currentLives = state?.session?.lives; // Direct reference for heart tracking
+  // Hybrid Logic: Checks if faders are in the 'Safe Zone' for the current cue
+  const checkFaderAlignment = () => {
+    const target = currentCue?.targetLevel || 80;
+    const margin = 10;
+    // Check if Master and at least 2 channels are in range
+    const masterOk = Math.abs(faderLevels[4] - 100) < margin;
+    const channelsOk =
+      faderLevels.slice(0, 4).filter((l) => Math.abs(l - target) < margin)
+        .length >= 2;
+    return masterOk && channelsOk;
+  };
 
-  const startRef = useRef(null);
-  const rafRef = useRef(null);
+  function handleGo() {
+    const isAligned = checkFaderAlignment();
 
-  const durationMs =
-    stageType === "rehearsal" ? DURATIONS.REHEARSAL_MS : DURATIONS.LIVE_SHOW_MS;
-  const scoreDelta =
-    stageType === "rehearsal" ? SCORING.REHEARSAL_HIT : SCORING.LIVE_SHOW_HIT;
-
-  useEffect(() => {
-    if (!active) return;
-    startRef.current = performance.now();
-    function tick() {
-      const now = performance.now() - startRef.current;
-      setElapsed(now);
-      if (now >= durationMs) {
-        setElapsed(durationMs);
-        setDone(true);
-        return;
-      }
-      rafRef.current = requestAnimationFrame(tick);
-    }
-    rafRef.current = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [active, durationMs]);
-
-  useEffect(() => {
-    if (!done) return;
-    if (stageType === "rehearsal") {
-      const missed = cues.filter((c) => !cueResults[c.id]?.hit).length;
-      if (state.session.difficulty === "professional" && missed > 1) {
-        onFail();
-        return;
-      }
-    }
-    onComplete();
-  }, [
-    done,
-    cues,
-    cueResults,
-    onComplete,
-    onFail,
-    stageType,
-    state.session.difficulty,
-  ]);
-
-  const nextCue = cues.find((c) => !cueResults[c.id]);
-
-  function handleMasterGo(event) {
-    if (event) {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-    if (!active && !done) {
-      setActive(true);
-      setSmLine("And... go!");
-      return;
-    }
-    if (!active || !nextCue) return;
-
-    const timeDiff = Math.abs(elapsed - nextCue.targetMs);
-    const hit = timeDiff <= nextCue.windowMs * penaltyMultiplier;
-    setCueResults((r) => ({ ...r, [nextCue.id]: { hit } }));
-
-    if (hit) {
-      dispatch({ type: "CUE_HIT" });
-      dispatch({ type: "ADD_SCORE", delta: scoreDelta });
-      setSmLine(isLiked ? "Brilliant timing!" : "Good cue.");
+    if (isAligned) {
+      dispatch({ type: "HIT_CUE" });
+      dispatch({ type: "ADD_SCORE", delta: 10 });
     } else {
-      dispatch({ type: "CUE_MISSED" });
-      dispatch({ type: "LOSE_LIFE" });
-      setSmLine(
-        (char?.stats?.social ?? 5) < 7
-          ? "Wake up at the board!"
-          : "Missed cue! Stay focused.",
-      );
-
-      // BUG FIX: Check context state directly to catch immediate life loss
-      if ((state.session?.lives || 1) - 1 <= 0) {
-        if (stageType === "rehearsal") {
-          setActive(false);
-          setFailed(true);
-        } else {
-          onFail();
-        }
-      }
+      dispatch({ type: "MISS_CUE" });
     }
-  }
 
-  if (failed && stageType === "rehearsal") {
-    return (
-      <div
-        className="hardware-panel"
-        style={{ textAlign: "center", padding: "3rem 1.5rem" }}
-      >
-        <h2 style={{ color: "var(--bui-fg-danger)", marginBottom: "1rem" }}>
-          ❌ Rehearsal Stopped
-        </h2>
-        <p style={{ color: "var(--color-pencil-light)", marginBottom: "2rem" }}>
-          The Stage Manager called a hold. You missed too many cues.
-        </p>
-        <button
-          onClick={() => {
-            dispatch({ type: "ADD_SCORE", delta: SCORING.REDO_PENALTY });
-            dispatch({ type: "RESET_LIVES" });
-            setFailed(false);
-            setElapsed(0);
-            setCueResults({});
-          }}
-          className="action-button btn-accent"
-        >
-          Redo Rehearsal ({SCORING.REDO_PENALTY} pts)
-        </button>
-      </div>
-    );
+    if (isLastCue) {
+      onComplete();
+    } else {
+      setCurrentIdx((prev) => prev + 1);
+    }
   }
 
   return (
-    <div className="hardware-panel">
-      <div className="comms-panel" style={{ color: "var(--bui-fg-success)" }}>
-        <div
-          style={{ fontSize: "0.7rem", opacity: 0.6, marginBottom: "0.25rem" }}
-        >
-          CH 1 - SM COMMS
-        </div>
-        <div>
-          <span className={`status-led ${active ? "on" : ""}`}></span> {smLine}
-        </div>
-      </div>
+    <div className="page-container animate-blueprint">
+      <SectionHeader
+        title={`${char?.icon} Tech Booth: Session #${state.session.productionId.toUpperCase()}`}
+        subtitle="Coordinate the master clock and maintain fader precision."
+      />
 
       <div className="desktop-two-column">
+        {/* Left: Console HUD */}
         <div className="desktop-col-main">
-          <DepartmentMixer
-            department={char?.department}
-            active={active}
-            progress={(elapsed / durationMs) * 100}
-          />
-          <CueStack
-            department={char?.department}
-            cues={cues}
-            cueResults={cueResults}
-            nextCue={nextCue}
-            elapsed={elapsed}
-            duration={durationMs}
-          />
+          <HardwarePanel
+            style={{
+              borderTop: "4px solid var(--bui-fg-warning)",
+              marginBottom: "1.5rem",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <div>
+                <h2 className="annotation-text" style={{ fontSize: "1.4rem" }}>
+                  Next Cue: {currentCue?.id}
+                </h2>
+                <div
+                  className="console-screen"
+                  style={{
+                    marginTop: "0.8rem",
+                    background: "transparent",
+                    padding: 0,
+                  }}
+                >
+                  CMD: {currentCue?.action.toUpperCase()}
+                </div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <span
+                  className="annotation-text"
+                  style={{ fontSize: "0.7rem", opacity: 0.5 }}
+                >
+                  TARGET INTENSITY
+                </span>
+                <div
+                  style={{ fontSize: "1.8rem", color: "var(--bui-fg-warning)" }}
+                >
+                  {currentCue?.targetLevel || 80}%
+                </div>
+              </div>
+            </div>
+          </HardwarePanel>
+
+          <CueStack cues={cueSheet} currentIndex={currentIdx} />
         </div>
+
+        {/* Right: Tactical Controls */}
         <div className="desktop-col-side">
-          <MasterControl
-            lives={currentLives}
-            active={active}
-            done={done}
-            onGo={handleMasterGo}
-          />
+          <div className="animate-pop">
+            <DepartmentMixer
+              department={char?.department}
+              levels={faderLevels}
+              setLevels={setFaderLevels}
+            />
+
+            <div style={{ marginTop: "2rem" }}>
+              <MasterControl onGo={handleGo} disabled={false} />
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
-
-export default memo(CueExecutionStage);

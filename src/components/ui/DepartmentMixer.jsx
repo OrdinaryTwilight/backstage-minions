@@ -1,135 +1,133 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import HardwarePanel from "./HardwarePanel";
 
 /**
- * ChannelStrip: A single fader track for a mixer.
- * Simulates a professional console with VU meters and tactical buttons.
+ * FaderTrack: A professional-grade channel strip.
+ * Fixes alignment by using a vertical container with a relative fader slot.
  */
-function ChannelStrip({ label, color, initialValue = 80 }) {
-  const [value, setValue] = useState(initialValue);
-  const [isMuted, setIsMuted] = useState(false);
+function FaderTrack({ label, color, onLevelChange, currentLevel }) {
+  // Simulate active signal flicker for realism
+  const [flicker, setFlicker] = useState(0);
+  
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFlicker(Math.random() * (currentLevel / 10));
+    }, 100);
+    return () => clearInterval(interval);
+  }, [currentLevel]);
 
   return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "8px",
-        padding: "10px",
-        background: "rgba(0,0,0,0.2)",
-        borderRadius: "4px",
-        border: "1px solid var(--glass-border)",
-      }}
-    >
-      <div
-        className="vu-meter"
-        style={{
-          width: "8px",
-          height: "60px",
-          background: "#111",
-          position: "relative",
-          overflow: "hidden",
-          borderRadius: "1px",
-        }}
-      >
-        <div
+    <div style={{ 
+      display: 'flex', 
+      flexDirection: 'column', 
+      alignItems: 'center', 
+      width: '70px', 
+      height: '350px', 
+      gap: '12px',
+      padding: '10px 0',
+      background: 'rgba(0,0,0,0.2)',
+      borderRadius: '4px',
+      border: '1px solid var(--glass-border)'
+    }}>
+      {/* VU Meter: Indicates signal intensity */}
+      <div style={{ width: '8px', height: '50px', background: '#000', border: '1px solid #333', position: 'relative' }}>
+        <div style={{ 
+          position: 'absolute', 
+          bottom: 0, 
+          width: '100%', 
+          height: `${Math.min(currentLevel + flicker, 100)}%`, 
+          background: currentLevel > 90 ? '#ef4444' : '#22c55e',
+          transition: 'height 0.1s ease'
+        }} />
+      </div>
+
+      {/* Fader Track: Fixed alignment logic */}
+      <div style={{ 
+        position: 'relative', 
+        height: '220px', 
+        width: '6px', 
+        background: '#111', 
+        border: '1px solid #444', 
+        borderRadius: '3px' 
+      }}>
+        <input 
+          type="range" 
+          min="0" max="100" 
+          value={currentLevel} 
+          onChange={(e) => onLevelChange(parseInt(e.target.value))}
           style={{
-            position: "absolute",
-            bottom: 0,
-            width: "100%",
-            height: `${value}%`,
-            background:
-              value > 90 ? "var(--bui-fg-danger)" : "var(--bui-fg-success)",
-            opacity: 0.8,
-            transition: "height 0.1s ease",
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            width: '220px', // Matches track height
+            transform: 'translate(-50%, -50%) rotate(-90deg)', // Perfect vertical rotation
+            cursor: 'ns-resize',
+            appearance: 'none',
+            background: 'transparent',
+            zIndex: 10
           }}
         />
+        {/* Visual Fader Cap Overlay */}
+        <div style={{
+          position: 'absolute',
+          left: '50%',
+          bottom: `${currentLevel}%`,
+          width: '30px',
+          height: '40px',
+          background: '#444',
+          border: '2px solid #666',
+          borderRadius: '3px',
+          transform: 'translate(-50%, 50%)',
+          pointerEvents: 'none',
+          boxShadow: '0 4px 8px rgba(0,0,0,0.5)'
+        }} />
       </div>
 
-      {/* Tactical Fader */}
-      <div
-        style={{
-          position: "relative",
-          height: "180px",
-          width: "30px",
-          background: "linear-gradient(to bottom, #222, #111)",
-          borderRadius: "15px",
-          border: "1px solid #444",
-        }}
-      >
-        <input
-          type="range"
-          min="0"
-          max="100"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          style={{
-            appearance: "none",
-            background: "transparent",
-            width: "180px",
-            height: "30px",
-            transform: "rotate(-90deg) translate(-75px, 0)",
-            cursor: "ns-resize",
-          }}
-        />
-      </div>
-
-      <div style={{ display: "flex", gap: "4px" }}>
-        <button
-          onClick={() => setIsMuted(!isMuted)}
-          style={{
-            fontSize: "0.6rem",
-            padding: "4px",
-            background: isMuted ? "var(--bui-fg-danger)" : "#333",
-            border: "none",
-            borderRadius: "2px",
-            color: "#fff",
-          }}
-        >
-          MUTE
-        </button>
-      </div>
-
-      <span className="annotation-text" style={{ fontSize: "0.65rem", color }}>
+      <span className="annotation-text" style={{ fontSize: '0.65rem', color, textAlign: 'center' }}>
         {label}
       </span>
     </div>
   );
 }
 
-export default function DepartmentMixer({ department, activeCues }) {
-  const channels =
-    department === "lighting"
-      ? ["FOH WASH", "CYC LIGHTS", "MOVERS", "SPECIALS"]
-      : ["MICS", "PIT", "SFX", "FOLDBACK"];
+export default function DepartmentMixer({ department, levels, setLevels }) {
+  const channels = department === 'lighting' 
+    ? ['WASH', 'CYC', 'SPOT', 'KEYS']
+    : ['VOX', 'PIT', 'SFX', 'BAND'];
 
   return (
-    <HardwarePanel
-      style={{
-        display: "flex",
-        gap: "12px",
-        padding: "15px",
-        background: "linear-gradient(180deg, #1a1a1a, #0a0a0a)",
-        borderTop: "4px solid var(--color-architect-blue)",
-      }}
-    >
+    <HardwarePanel style={{ 
+      display: 'flex', 
+      justifyContent: 'space-around', 
+      padding: '25px 15px', 
+      background: 'linear-gradient(180deg, #151515, #0a0a0a)',
+      borderTop: '4px solid var(--color-architect-blue)'
+    }}>
       {channels.map((ch, i) => (
-        <ChannelStrip key={i} label={ch} color="var(--color-architect-blue)" />
+        <FaderTrack 
+          key={ch} 
+          label={ch} 
+          color="var(--color-architect-blue)" 
+          currentLevel={levels[i]}
+          onLevelChange={(val) => {
+            const newLevels = [...levels];
+            newLevels[i] = val;
+            setLevels(newLevels);
+          }}
+        />
       ))}
-
-      {/* Master Section */}
-      <div
-        style={{
-          marginLeft: "auto",
-          paddingLeft: "15px",
-          borderLeft: "1px solid #444",
-        }}
-      >
-        <ChannelStrip
-          label="MASTER"
-          color="var(--bui-fg-success)"
-          initialValue={100}
+      
+      {/* MASTER SECTION */}
+      <div style={{ borderLeft: '1px solid #333', paddingLeft: '15px' }}>
+        <FaderTrack 
+          label="MASTER" 
+          color="var(--bui-fg-success)" 
+          currentLevel={levels[4]}
+          onLevelChange={(val) => {
+            const newLevels = [...levels];
+            newLevels[4] = val;
+            setLevels(newLevels);
+          }}
         />
       </div>
     </HardwarePanel>
