@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { AVAILABLE_NPCS } from "../../data/characters";
 import { useKeyPress } from "../../hooks/useKeyPress";
 import DialogueBox from "./DialogueBox";
 
@@ -13,38 +14,6 @@ interface ZoneConfig {
   targetDept?: string;
   dialogue?: any;
 }
-
-
-const AVAILABLE_NPCS = [
-  {
-    id: "npc_zainab", name: "Zainab", role: "Wardrobe Sup.", color: "#e63946",
-    dialogue: (dept?: string) => ({
-      speaker: "Zainab (Wardrobe)",
-      text: dept === "lighting" 
-        ? "Please tell me you aren't using that ghastly green gel for the finale. It ruins the silks!"
-        : "Hey! The lead's mic pack is pulling on their costume. We need a smaller pouch.",
-      choices: [{ id: "ok", text: "I'll look into it right now.", pointDelta: 0, contact: null }]
-    })
-  },
-  {
-    id: "npc_mateo", name: "Mateo", role: "Head Rigger", color: "#f9a826",
-    dialogue: (dept?: string) => ({
-      speaker: "Mateo (Rigging)",
-      text: dept === "lighting"
-        ? "I just hung the new movers on the first electric. Safety cables are tight!"
-        : "Watch your step! I just routed a massive audio snake across the deck.",
-      choices: [{ id: "ok", text: "Thanks for the heads up.", pointDelta: 0, contact: null }]
-    })
-  },
-  {
-    id: "npc_sam", name: "Sam", role: "ASM", color: "#457b9d",
-    dialogue: () => ({
-      speaker: "Sam (Assistant Stage Manager)",
-      text: "I'm looking for a missing prop sword... Have you seen a giant piece of foam painted silver?",
-      choices: [{ id: "ok", text: "Haven't seen it, sorry!", pointDelta: 0, contact: null }]
-    })
-  }
-];
 
 const ZONES: Record<string, ZoneConfig> = {
   lightBooth: { x: 650, y: 40, w: 100, h: 90, label: "LX BOOTH", color: "#4a4e69", isSolid: true, targetDept: "lighting" },
@@ -88,8 +57,8 @@ export default function OverworldStage({ onComplete, department }: OverworldStag
 
   // SPAWN NPCs (Run Once)
   useEffect(() => {
-    // 60% chance for each NPC to spawn, making the backstage feel alive and varied
-    const spawnedNpcs = AVAILABLE_NPCS.filter(() => Math.random() > 0.4).map(npc => ({
+    // 70% chance for each NPC to spawn, making the backstage feel alive and varied
+    const spawnedNpcs = AVAILABLE_NPCS.filter(() => Math.random() > 0.3).map(npc => ({
       ...npc,
       x: Math.random() * (GAME_WIDTH - 200) + 100, // Spawn away from edges
       y: Math.random() * (GAME_HEIGHT - 200) + 100,

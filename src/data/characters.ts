@@ -57,9 +57,41 @@ export const CHARACTERS: Character[] = [
     stats: { technical: 10, social: 5, stamina: 7 },
   }
 ];
+
 export const NPC_ICONS = {
   "Stage Manager": "📋",
   "Costume Designer": "🧵",
   "Senior Technician": "👨‍🔧",
   "Director": "🎬"
 };
+
+export const AVAILABLE_NPCS = [
+  {
+    id: "npc_zainab", name: "Zainab", role: "Wardrobe Sup.", color: "#e63946",
+    dialogue: (dept?: string) => ({
+      speaker: "Zainab (Wardrobe)",
+      text: dept === "lighting" 
+        ? "Please tell me you aren't using that ghastly green gel for the finale. It ruins the silks!"
+        : "Hey! The lead's mic pack is pulling on their costume. We need a smaller pouch.",
+      choices: [{ id: "ok", text: "I'll look into it right now.", pointDelta: 0, contact: null }]
+    })
+  },
+  {
+    id: "npc_mateo", name: "Mateo", role: "Head Rigger", color: "#f9a826",
+    dialogue: (dept?: string) => ({
+      speaker: "Mateo (Rigging)",
+      text: dept === "lighting"
+        ? "I just hung the new movers on the first electric. Safety cables are tight!"
+        : "Watch your step! I just routed a massive audio snake across the deck.",
+      choices: [{ id: "ok", text: "Thanks for the heads up.", pointDelta: 0, contact: null }]
+    })
+  },
+  {
+    id: "npc_sam", name: "Sam", role: "ASM", color: "#457b9d",
+    dialogue: () => ({
+      speaker: "Sam (Assistant Stage Manager)",
+      text: "I'm looking for a missing prop sword... Have you seen a giant piece of foam painted silver?",
+      choices: [{ id: "ok", text: "Haven't seen it, sorry!", pointDelta: 0, contact: null }]
+    })
+  }
+];
