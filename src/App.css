@@ -1,124 +1,262 @@
-/* --- Core Layout Containers --- */
-.page-container {
-  max-width: 1400px;
-  /* Slightly wider for professional desktop views */
-  margin: 0 auto;
-  padding: 8rem 2rem 4rem;
-  min-height: 100vh;
-}
+/* --- 1. BUTTONS & CONTROLS --- */
+/* src/App.css updates */
 
-/* The "Two-Column" Booth Window Logic */
-.desktop-two-column {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  /* Main console vs Side hardware */
-  gap: 2.5rem;
-  align-items: start;
-}
-
-@media (max-width: 1024px) {
-  .desktop-two-column {
-    grid-template-columns: 1fr;
-    /* Stack on tablet/mobile */
-  }
-}
-
-.desktop-col-main {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-}
-
-.desktop-col-side {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
-  position: sticky;
-  top: 100px;
-}
-
-/* --- Responsive BUI Components --- */
-.hardware-panel {
-  background: var(--color-surface-translucent);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-md);
-  padding: 2rem;
-  box-shadow: var(--shadow-tactile);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.hardware-panel.clickable {
+/* 1. Base Button Styles - Consolidated and thickened */
+.btn,
+.action-button {
   cursor: pointer;
-}
-
-.hardware-panel.clickable:hover {
-  border-color: var(--bui-fg-info);
-  transform: translateY(-4px);
-  box-shadow: 0 15px 45px rgba(56, 189, 248, 0.1);
-}
-
-/* Technical Plot Grid */
-.plot-grid {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 12px;
-}
-
-.plot-cell {
-  aspect-ratio: 1;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-sm);
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.plot-cell.active {
-  background: rgba(56, 189, 248, 0.15);
-  border-color: var(--bui-fg-info);
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
-}
-
-/* --- Buttons --- */
-.btn {
-  font-family: var(--font-mono);
-  font-weight: 700;
+  padding: 1rem 2rem;
+  /* Increased padding for better height */
+  font-family: var(--font-main);
+  font-weight: bold;
+  font-size: 1rem;
   text-transform: uppercase;
-  padding: 1.25rem 2rem;
-  border-radius: var(--radius-pill);
-  cursor: pointer;
+  letter-spacing: 1.5px;
+  background: var(--color-surface-translucent);
+  /* The dark theme background */
+  backdrop-filter: blur(12px);
   border: 2px solid var(--glass-border);
-  background: var(--glass-bg);
+  /* Slightly thicker border */
+  border-radius: var(--radius-pill);
   color: var(--color-pencil-light);
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 100%;
+  /* REMOVED: max-width: 320px; - Let the container control width */
+  margin: 0.5rem 0;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-tactile);
   filter: url(#sketch-wobble);
 }
 
+/* 2. Success Variant (The 'Sign' and 'Commit' buttons) */
 .btn-success {
   border-color: var(--bui-fg-success);
   color: var(--bui-fg-success);
+  background: rgba(74, 222, 128, 0.05);
+  /* Subtle tint instead of white */
 }
 
+.btn-success:hover {
+  background: rgba(74, 222, 128, 0.15);
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
+}
+
+/* 3. Accent Variant (The 'Initialize Stage' buttons) */
 .btn-accent {
   border-color: var(--bui-fg-info);
   color: var(--bui-fg-info);
+  background: rgba(56, 189, 248, 0.05);
 }
 
+.btn-accent:hover {
+  background: rgba(56, 189, 248, 0.15);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+}
+
+/* 4. Utility for Extra Large Buttons */
 .btn-xl {
-  width: 100%;
+  padding: 1.5rem 2rem;
   font-size: 1.2rem;
-  padding: 1.5rem;
 }
 
-/* --- RPG & Effects --- */
+.action-button:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: var(--color-pencil-light);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.action-button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* --- 2. THE MASTER GO BUTTON --- */
+.btn-master-go {
+  width: clamp(100px, 20vw, 140px);
+  height: clamp(100px, 20vw, 140px);
+  border-radius: 50%;
+  background: var(--color-surface-translucent);
+  backdrop-filter: blur(12px);
+  border: 3px solid var(--bui-fg-success);
+  color: var(--bui-fg-success);
+  font-family: var(--font-main);
+  font-weight: bold;
+  font-size: 1.4rem;
+  filter: url(#sketch-wobble);
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 1rem auto;
+  transition: transform 0.1s ease;
+}
+
+.btn-master-go:active:not(:disabled) {
+  transform: scale(0.92);
+  box-shadow: 0 0 5px var(--bui-fg-success);
+}
+
+/* --- 3. HARDWARE & SCREENS --- */
+.hardware-panel {
+  background: rgba(20, 20, 20, 0.6);
+  border: 2px solid var(--color-pencil-light);
+  padding: var(--panel-padding);
+  position: relative;
+  filter: url(#sketch-wobble);
+  /* Asymmetric border radius for hand-drawn look */
+  border-top-left-radius: 255px 15px;
+  border-top-right-radius: 15px 225px;
+  border-bottom-right-radius: 225px 15px;
+  border-bottom-left-radius: 15px 255px;
+  box-shadow: var(--shadow-tactile);
+  margin-bottom: var(--section-margin);
+}
+
+.console-screen {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--color-architect-blue);
+  border-radius: var(--radius-md);
+  color: var(--color-architect-blue);
+  font-family: var(--font-mono);
+  padding: var(--space-sm);
+  font-size: 0.85rem;
+  overflow-x: auto;
+}
+
+/* --- 4. SEARCH SYSTEM --- */
+.search-container {
+  position: relative;
+  margin-bottom: var(--section-margin);
+  max-width: 500px;
+  width: 100%;
+}
+
+.search-input {
+  width: 100%;
+  background: var(--color-surface-translucent);
+  backdrop-filter: blur(12px);
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-pill);
+  padding: var(--space-sm) var(--space-md);
+  color: var(--color-pencil-light);
+  font-family: var(--font-sketch);
+  font-size: 1.1rem;
+  outline: none;
+  transition: all 0.2s ease;
+  filter: url(#sketch-wobble);
+}
+
+.search-input:focus {
+  border-color: var(--color-architect-blue);
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+}
+
+/* --- 5. HUD FIXES --- */
+.hud-container div:first-child {
+  min-height: var(--space-md);
+  display: flex;
+  align-items: center;
+}
+
+.help-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid var(--bui-fg-info);
+  color: var(--bui-fg-info);
+  font-size: 0.8rem;
+  cursor: help;
+  margin-left: var(--space-xs);
+  transition: all 0.2s ease;
+  vertical-align: middle;
+}
+
+.help-trigger:hover {
+  background: rgba(56, 189, 248, 0.2);
+  box-shadow: 0 0 10px var(--bui-fg-info);
+}
+
+.tooltip-overlay {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 280px;
+  background: var(--color-surface-translucent);
+  backdrop-filter: blur(15px);
+  border: 1px solid var(--bui-fg-info);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  z-index: 1100;
+  box-shadow: var(--shadow-tactile);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--color-pencil-light);
+  pointer-events: none;
+  margin-top: var(--space-xs);
+  animation: hardware-pop var(--duration-normal) ease-out;
+}
+
+.tooltip-overlay b {
+  color: var(--bui-fg-warning);
+  display: block;
+  margin-bottom: var(--space-xs);
+}
+
+/* --- 6. FEEDBACK OVERLAY --- */
+/**
+ * Feedback Overlay: Provides visual feedback for cue execution
+ * Shows immediate hit/miss feedback in the booth execution stage
+ * Animation duration matches the visual feedback timeout in CueExecutionStage.tsx
+ */
+.feedback-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.feedback-overlay.flash-hit {
+  animation: flash-hit var(--duration-slow) ease-out forwards;
+}
+
+.feedback-overlay.flash-miss {
+  animation: flash-miss var(--duration-slow) ease-out forwards;
+}
+
+@keyframes flash-hit {
+  0% {
+    background: rgba(74, 222, 128, 0.4);
+    opacity: 1;
+  }
+  100% {
+    background: rgba(74, 222, 128, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes flash-miss {
+  0% {
+    background: rgba(239, 68, 68, 0.4);
+    opacity: 1;
+  }
+  100% {
+    background: rgba(239, 68, 68, 0);
+    opacity: 0;
+  }
+}
+
 .character-transit {
   position: fixed;
   inset: 0;
@@ -127,14 +265,125 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  z-index: 9999;
+  z-index: 2000;
+  animation: transit-fade 1.5s ease-in-out forwards;
 }
 
 .walking-icon {
-  font-size: 5rem;
-  animation: bob 0.8s infinite alternate ease-in-out;
+  font-size: 4rem;
+  animation: bob 0.6s infinite alternate ease-in-out;
 }
 
+@keyframes bob {
+  from {
+    transform: translateY(0) rotate(-5deg);
+  }
+
+  to {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes transit-fade {
+  0% {
+    opacity: 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  80% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+/* Reusable Technical Overlay */
+.tech-glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.tech-glow::before {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  /* Scanline Pattern */
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+    linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 10;
+  background-size: 100% 3px, 3px 100%;
+  pointer-events: none;
+}
+
+.tech-glow::after {
+  content: " ";
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(18, 16, 16, 0.1);
+  opacity: 0;
+  z-index: 11;
+  pointer-events: none;
+  animation: flicker 0.15s infinite;
+}
+
+@keyframes flicker {
+  0% {
+    opacity: 0.1;
+  }
+
+  50% {
+    opacity: 0.05;
+  }
+
+  100% {
+    opacity: 0.1;
+  }
+}
+
+/* Row-level feedback animations */
+@keyframes row-hit {
+  0% {
+    background-color: rgba(74, 222, 128, 0.4);
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes row-miss {
+  0% {
+    background-color: rgba(239, 68, 68, 0.4);
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+.row-flash-hit {
+  animation: row-hit 0.8s ease-out forwards;
+}
+
+.row-flash-miss {
+  animation: row-miss 0.8s ease-out forwards;
+}
+
+/* Technical Glow / Scanline Filter */
 .tech-glow {
   position: relative;
   overflow: hidden;
@@ -146,63 +395,7 @@
   inset: 0;
   pointer-events: none;
   background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-    linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-  background-size: 100% 4px, 4px 100%;
-  z-index: 50;
-}
-
-/* --- Keyframes --- */
-@keyframes bob {
-  from {
-    transform: translateY(0);
-  }
-
-  to {
-    transform: translateY(-20px);
-  }
-}
-
-@keyframes flicker {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.7;
-  }
-}
-
-.animate-flicker {
-  animation: flicker 0.15s infinite;
-}
-
-/* --- Feedback States --- */
-.row-flash-hit {
-  animation: row-hit 0.8s ease-out forwards;
-}
-
-.row-flash-miss {
-  animation: row-miss 0.8s ease-out forwards;
-}
-
-@keyframes row-hit {
-  0% {
-    background: rgba(74, 222, 128, 0.3);
-  }
-
-  100% {
-    background: transparent;
-  }
-}
-
-@keyframes row-miss {
-  0% {
-    background: rgba(239, 68, 68, 0.3);
-  }
-
-  100% {
-    background: transparent;
-  }
+    linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 255, 0, 0.03));
+  background-size: 100% 3px, 3px 100%;
+  z-index: 10;
 }
