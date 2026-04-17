@@ -36,8 +36,20 @@ export default function GameLevelPage() {
   const ActiveStage = STAGE_COMPONENTS[currentStageKey];
 
   function handleStageAdvance() {
-    // Instead of a timeout, drop the player into the Overworld
-    setIsInOverworld(true);
+    // Determine if the *current* stage and the *next* stage happen in the same place
+    const noOverworldStages = ['execution', 'wrapup']; // Add any stages that shouldn't trigger an overworld walk
+    
+    if (noOverworldStages.includes(currentStageKey)) {
+      // Skip overworld, go straight to the next UI
+      if (state.session!.currentStageIndex < state.session!.stages.length - 1) {
+        dispatch({ type: "NEXT_STAGE" });
+      } else {
+        handleComplete();
+      }
+    } else {
+      // Drop player into the overworld to walk to the next destination
+      setIsInOverworld(true);
+    }
   }
 
   function handleOverworldComplete() {

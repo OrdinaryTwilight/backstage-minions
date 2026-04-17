@@ -6,23 +6,29 @@ interface OverworldStageProps {
   nextStageName?: string;
 }
 
+// Define our interactable zones
+const ZONES = {
+  booth: { x: 650, y: 50, w: 100, h: 100, label: "BOOTH", color: "#4a4e69" },
+  stageManager: { x: 50, y: 250, w: 60, h: 60, label: "SM DESK", color: "#9a031e" },
+  propsTable: { x: 400, y: 350, w: 120, h: 60, label: "PROPS", color: "#5f0f40" }
+};
+
 export default function OverworldStage({ onComplete, nextStageName }: OverworldStageProps) {
-  // Player Position
-  const [pos, setPos] = useState({ x: 100, y: 100 });
-  const [isNearConsole, setIsNearConsole] = useState(false);
+  // We use a fixed internal resolution, but CSS will scale it to fit the screen
+  const GAME_WIDTH = 800;
+  const GAME_HEIGHT = 450; 
   
-  // Movement Keys
+  const [pos, setPos] = useState({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
+  const [activeZone, setActiveZone] = useState<string | null>(null);
+  
   const up = useKeyPress("w");
   const down = useKeyPress("s");
   const left = useKeyPress("a");
   const right = useKeyPress("d");
   const interact = useKeyPress("e");
 
-  // Console Hitbox Configuration (The Control Booth)
-  const consoleBox = { x: 300, y: 50, width: 80, height: 80 };
-  const speed = 5;
+  const speed = 6;
 
-  // Game Loop for Movement
   useEffect(() => {
     const interval = setInterval(() => {
       setPos((prev) => {
@@ -34,73 +40,82 @@ export default function OverworldStage({ onComplete, nextStageName }: OverworldS
         if (left) newX -= speed;
         if (right) newX += speed;
 
-        // Basic bounds checking (assuming a 600x400 container)
-        newX = Math.max(0, Math.min(newX, 550));
-        newY = Math.max(0, Math.min(newY, 350));
+        // Keep player inside bounds
+        newX = Math.max(0, Math.min(newX, GAME_WIDTH - 32));
+        newY = Math.max(0, Math.min(newY, GAME_HEIGHT - 32));
 
-        // Check distance to console
-        const distance = Math.hypot(newX - consoleBox.x, newY - consoleBox.y);
-        setIsNearConsole(distance < 60);
+        // Check distance to all zones
+        let currentZone = null;
+        for (const [key, zone] of Object.entries(ZONES)) {
+          // Simple AABB Collision box check with a little padding
+          if (
+            newX < zone.x + zone.w + 20 &&
+            newX + 32 > zone.x - 20 &&
+            newY < zone.y + zone.h + 20 &&
+            newY + 32 > zone.y - 20
+          ) {
+            currentZone = key;
+          }
+        }
+        setActiveZone(currentZone);
 
         return { x: newX, y: newY };
       });
-    }, 1000 / 60); // 60 FPS
+    }, 1000 / 60);
 
     return () => clearInterval(interval);
   }, [up, down, left, right]);
 
-  // Handle Interaction
   useEffect(() => {
-    if (isNearConsole && interact) {
-      onComplete(); // Triggers the next minigame!
+    // Only advance to the minigame if they are at the correct zone!
+    // Right now, we assume all next stages require the Booth, but you can adjust this logic.
+    if (interact && activeZone === "booth") {
+      onComplete();
     }
-  }, [interact, isNearConsole, onComplete]);
+  }, [interact, activeZone, onComplete]);
 
   return (
-    <div className="stage-container" style={{ position: "relative", width: "600px", height: "400px", background: "#1a1a2e", border: "4px solid #fff", overflow: "hidden", margin: "0 auto" }}>
-      
-      {/* HUD */}
-      <div style={{ position: "absolute", top: 10, left: 10, color: "white", zIndex: 10 }}>
-        <p>Use W,A,S,D to move.</p>
-        <p>Head to the Control Booth for: {nextStageName || "Showtime"}</p>
-      </div>
-
-      {/* The Control Booth (Interactable) */}
-      <div style={{
-        position: "absolute",
-        left: consoleBox.x,
-        top: consoleBox.y,
-        width: consoleBox.width,
-        height: consoleBox.height,
-        background: "#4a4e69",
-        border: isNearConsole ? "2px solid #fbbf24" : "2px solid #22223b",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        color: "white"
+    // Responsive container scaling
+    <div style={{ width: "100%", maxWidth: "900px", margin: "0 auto", padding: "1rem" }}>
+      <div style={{ 
+        position: "relative", 
+        width: "100%", 
+        aspectRatio: "16/9", 
+        background: "#1a1a2e", 
+        border: "4px solid #fff", 
+        overflow: "hidden" 
       }}>
-        BOOTH
-      </div>
+        
+        {/* Render Zones dynamically */}
+        {Object.entries(ZONES).map(([key, zone]) => (
+          <div key={key} style={{
+            position: "absolute", left: `${(zone.x / GAME_WIDTH) * 100}%`, top: `${(zone.y / GAME_HEIGHT) * 100}%`,
+            width: `${(zone.w / GAME_WIDTH) * 100}%`, height: `${(zone.h / GAME_HEIGHT) * 100}%`,
+            background: zone.color, display: "flex", alignItems: "center", justifyContent: "center", color: "white",
+            border: activeZone === key ? "3px solid #fbbf24" : "none",
+            boxSizing: "border-box"
+          }}>
+            {zone.label}
+          </div>
+        ))}
 
-      {/* Interaction Prompt */}
-      {isNearConsole && (
-        <div style={{ position: "absolute", left: consoleBox.x - 20, top: consoleBox.y - 30, color: "#fbbf24", fontWeight: "bold" }}>
-          [Press E]
-        </div>
-      )}
+        {/* Interaction Prompt */}
+        {activeZone && (
+          <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", color: "#fbbf24", fontWeight: "bold", fontSize: "1.2rem", zIndex: 50 }}>
+            Press [E] to interact with {ZONES[activeZone as keyof typeof ZONES].label}
+          </div>
+        )}
 
-      {/* The Player Character */}
-      <div style={{
-        position: "absolute",
-        left: pos.x,
-        top: pos.y,
-        width: "32px",
-        height: "32px",
-        background: "var(--accent)", // Use your CSS variables
-        borderRadius: "4px",
-        transition: "none", // Prevent CSS smoothing so it feels like crisp 8-bit movement
-      }}>
-        {/* You can replace this div with an actual 8-bit sprite img tag later */}
+        {/* The Player Character - Fixed visibility using hardcoded colors and zIndex */}
+        <div style={{
+          position: "absolute",
+          left: `${(pos.x / GAME_WIDTH) * 100}%`,
+          top: `${(pos.y / GAME_HEIGHT) * 100}%`,
+          width: "4%", height: "7%", // Percentage based on viewport
+          background: "#06d6a0", // Bright visible green!
+          borderRadius: "4px",
+          zIndex: 100
+        }} />
       </div>
     </div>
   );

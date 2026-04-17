@@ -19,6 +19,27 @@ export default function SoundDesignStage({ onComplete }: SoundDesignStageProps) 
   const char = state.session ? CHARACTERS.find((c) => c.id === state.session?.characterId) : null;
   void char; // Mark as intentionally unused
 
+  // Generate random target values for your EQ or Faders at the start of the stage
+  const [targets, setTargets] = useState({
+    mic1: Math.floor(Math.random() * 80) + 10,
+    mic2: Math.floor(Math.random() * 80) + 10,
+    playback: Math.floor(Math.random() * 80) + 10,
+  });
+
+// Current player slider states
+const [levels, setLevels] = useState({ mic1: 0, mic2: 0, playback: 0 });
+
+function checkWinCondition() {
+  // Check if player's levels are within a margin of error (+/- 5) of the targets
+  const isMic1Good = Math.abs(levels.mic1 - targets.mic1) <= 5;
+  const isMic2Good = Math.abs(levels.mic2 - targets.mic2) <= 5;
+  const isPlaybackGood = Math.abs(levels.playback - targets.playback) <= 5;
+
+  if (isMic1Good && isMic2Good && isPlaybackGood) {
+    onComplete(); // Call the prop function to move to the next stage!
+  }
+}
+
   const sources = ["Vocals 1", "Vocals 2", "Pit Orchestra", "SFX Playback"];
   const consoleChannels = [1, 2, 3, 4];
   const outputBuses = ["Main L/R", "Foldback (Stage)", "Subwoofers"];
