@@ -60,7 +60,7 @@ export default function PlanningStage({ onComplete }: PlanningStageProps) {
   return (
     <div className="page-container animate-blueprint">
       <SectionHeader
-        title="Optical Drafting Console"
+        title="Lighting Plot Drafting"
         subtitle="Map the rig and verify coverage symmetry."
         helpText="Toggle fixtures on the technical plot (left) to see real-time beam simulation (right). Technical approval requires balanced coverage."
       />
