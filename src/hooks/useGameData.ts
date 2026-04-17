@@ -109,3 +109,26 @@ export function useCharacterForDepartment(
     return CHARACTERS.filter((c) => c.department === department);
   }, [department]);
 }
+
+/**
+ * Custom hook to centralize technical data lookups and normalization.
+ * Using a NAMED EXPORT to ensure compatibility with GameLevelPage.
+ */
+export function useGameData(productionId?: string, charId?: string) {
+  const production = useMemo(() => {
+    if (!productionId) return null;
+    return PRODUCTIONS.find(p => p.id.toLowerCase() === productionId.toLowerCase());
+  }, [productionId]);
+
+  const char = useMemo(() => {
+    if (!charId) return null;
+    return CHARACTERS.find(c => c.id.toLowerCase() === charId.toLowerCase());
+  }, [charId]);
+
+  const departmentCues = useMemo((): Cue[] => {
+    if (!production || !char) return [];
+    return CUE_SHEETS[production.id]?.[char.department] || [];
+  }, [production, char]);
+
+  return { production, char, departmentCues };
+}
