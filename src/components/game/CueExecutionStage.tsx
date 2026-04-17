@@ -9,9 +9,8 @@ import MasterControl from "../ui/MasterControl";
 import SectionHeader from "../ui/SectionHeader";
 
 interface CueExecutionStageProps {
-  readonly cueSheet: Cue[];
-  readonly onComplete: () => void;
-  readonly onFail?: () => void;
+  cueSheet: Cue[];
+  onComplete: () => void;
 }
 
 export default function CueExecutionStage({
@@ -48,13 +47,12 @@ export default function CueExecutionStage({
     return () => clearInterval(interval);
   }, [isLastCue, isReady]);
 
-  // Auto-fail logic if the playhead passes the cue entirely
   useEffect(() => {
     if (!currentCue || isLastCue || !isReady) return;
     const expirationTime =
       currentCue.targetMs + (currentCue.windowMs || 1000) + 100;
     if (elapsedMs > expirationTime) {
-      handleGo(true); // Force miss, but keep the show going!
+      handleGo(true);
     }
   }, [elapsedMs, currentCue, isLastCue, isReady]);
 
@@ -67,12 +65,14 @@ export default function CueExecutionStage({
 
     const targetLevel = currentCue?.targetLevel || 80;
     const margin = 10;
-    const masterOk = Math.abs(faderLevels[4] - 100) < margin;
-    const channelsOk =
-      faderLevels.slice(0, 4).filter((l) => Math.abs(l - targetLevel) < margin)
-        .length >= 2;
 
-    const isAligned = masterOk && channelsOk;
+    // FIX: Using <= ensures it strictly matches the visual green bar!
+    const masterOk = Math.abs(faderLevels[4] - 100) <= margin;
+    const acceptableChannels = faderLevels
+      .slice(0, 4)
+      .filter((l) => Math.abs(l - targetLevel) <= margin).length;
+
+    const isAligned = masterOk && acceptableChannels >= 2;
     const tooHigh = faderLevels
       .slice(0, 4)
       .some((l) => l > targetLevel + margin);
@@ -100,7 +100,9 @@ export default function CueExecutionStage({
           `Whoa, levels are way too high for ${currentCue.id}! (-10 pts)`,
         );
       } else {
-        setSmMessage(`Levels are too low for ${currentCue.id}! (-10 pts)`);
+        setSmMessage(
+          `Levels are too low for ${currentCue.id}! Push the faders! (-10 pts)`,
+        );
       }
     }
 
@@ -145,65 +147,78 @@ export default function CueExecutionStage({
           boxShadow: "0 10px 20px rgba(0,0,0,0.5)",
         }}
       >
-        {/* FIX: Start Show button moved inline with the SM Comms */}
+        {/* FIX: Start Show button moved below the comms row to prevent UI stretching */}
         <div
           style={{
             display: "flex",
+            flexDirection: "column",
             gap: "10px",
-            alignItems: "center",
             marginBottom: "1rem",
-            background: "#000",
-            padding: "8px",
-            borderRadius: "4px",
-            border: "1px solid #333",
           }}
         >
           <div
             style={{
-              background: "var(--bui-fg-danger)",
-              color: "#fff",
-              padding: "2px 6px",
+              display: "flex",
+              gap: "10px",
+              alignItems: "center",
+              background: "#000",
+              padding: "8px",
               borderRadius: "4px",
-              fontSize: "0.8rem",
-              fontWeight: "bold",
+              border: "1px solid #333",
             }}
           >
-            SM COMMS
-          </div>
-          <div
-            style={{
-              color: "var(--color-pencil-light)",
-              fontFamily: "var(--font-mono)",
-              flex: 1,
-            }}
-          >
-            {smMessage}
-          </div>
-
-          {!isReady ? (
-            <Button
-              onClick={handleReady}
-              style={{
-                padding: "6px 16px",
-                background: "var(--bui-fg-success)",
-                color: "#000",
-                fontSize: "0.9rem",
-                fontWeight: "bold",
-              }}
-            >
-              Start Show
-            </Button>
-          ) : (
             <div
               style={{
-                color: "var(--bui-fg-info)",
+                background: "var(--bui-fg-danger)",
+                color: "#fff",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                fontSize: "0.8rem",
                 fontWeight: "bold",
-                fontFamily: "var(--font-mono)",
-                minWidth: "60px",
-                textAlign: "right",
               }}
             >
-              {(elapsedMs / 1000).toFixed(1)}s
+              SM COMMS
+            </div>
+            <div
+              style={{
+                color: "var(--color-pencil-light)",
+                fontFamily: "var(--font-mono)",
+                flex: 1,
+              }}
+            >
+              {smMessage}
+            </div>
+
+            {isReady && (
+              <div
+                style={{
+                  color: "var(--bui-fg-info)",
+                  fontWeight: "bold",
+                  fontFamily: "var(--font-mono)",
+                  minWidth: "60px",
+                  textAlign: "right",
+                }}
+              >
+                {(elapsedMs / 1000).toFixed(1)}s
+              </div>
+            )}
+          </div>
+
+          {!isReady && (
+            <div>
+              <Button
+                onClick={handleReady}
+                style={{
+                  display: "inline-block",
+                  padding: "6px 16px",
+                  background: "var(--bui-fg-success)",
+                  color: "#000",
+                  fontSize: "0.9rem",
+                  fontWeight: "bold",
+                }}
+              >
+                "I'm Patched and Ready, SM." (Start Show)
+              </Button>
             </div>
           )}
         </div>
@@ -346,7 +361,6 @@ export default function CueExecutionStage({
         </div>
         <div className="desktop-col-side">
           <div className="animate-pop">
-            {/* FIX: Passed targetLevel down to the Mixer to inform the Green Bar calculation */}
             <DepartmentMixer
               department={char?.department}
               levels={faderLevels}

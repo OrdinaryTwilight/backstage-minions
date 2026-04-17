@@ -145,7 +145,7 @@ export function useGameLoop(
             distances[0],
           );
 
-          if (closest.dist < 40) {
+          if (closest.dist < 80) {
             closestNpcId = closest.npc.id;
             closestDist = closest.dist;
           }
