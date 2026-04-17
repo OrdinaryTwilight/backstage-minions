@@ -1,9 +1,13 @@
-import { createContext, ReactNode, useContext, useEffect, useReducer } from "react";
-import { CONFLICTS, PRODUCTION_STAGES } from "../data/gameData";
 import {
-  GameAction,
-  GameState
-} from "../types/game";
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useReducer,
+} from "react";
+import { CONFLICTS, PRODUCTION_STAGES } from "../data/gameData";
+import { Conflict, GameAction, GameState } from "../types/game";
 
 /**
  * GameContext: Central state management for active gameplay
@@ -83,34 +87,76 @@ const initialState: GameState = {
  *   Merges saved game state (from localStorage) into current state.
  *   Used on app mount to restore previous session or career progress.
  */
+
+const getLivesForDifficulty = (difficulty: string): number => {
+  if (difficulty === "professional") return 2;
+  if (difficulty === "community") return 3;
+  return 4;
+};
+
+const createNewSession = (
+  action: GameAction & { type: "START_SESSION" },
+): GameState["session"] => {
+  return {
+    productionId: action.productionId,
+    difficulty: action.difficulty,
+    characterId: action.characterId,
+    stages: PRODUCTION_STAGES,
+    currentStageIndex: 0,
+    gearId: null,
+    score: 0,
+    lives: getLivesForDifficulty(action.difficulty),
+    cuesHit: 0,
+    cuesMissed: 0,
+    plotLights: [],
+    conflictsSeen: [],
+    activeConflict: null,
+  };
+};
+
+const getNextConflict = (session: GameState["session"]): Conflict | null => {
+  if (!session) return null;
+  const nextIdx = session.currentStageIndex + 1;
+  const nextStageKey = session.stages[nextIdx];
+
+  const availableConflicts = CONFLICTS.filter(
+    (c) => c.trigger === nextStageKey && !session.conflictsSeen.includes(c.id),
+  );
+
+  if (availableConflicts.length === 0 || Math.random() <= 0.5) {
+    return null;
+  }
+
+  const randIndex = Math.floor(Math.random() * availableConflicts.length);
+  return availableConflicts[randIndex];
+};
+
+const addToSessionCounter = (
+  session: GameState["session"],
+  property: "score" | "cuesHit" | "cuesMissed",
+  delta: number,
+): GameState["session"] => {
+  if (!session) return null;
+  const current = session[property];
+  return {
+    ...session,
+    [property]: (Number(current) || 0) + delta,
+  };
+};
+
 function reducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "LOAD_SAVE":
       return { ...state, ...action.payload };
 
-    case "START_SESSION":
+    case "START_SESSION": {
       return {
         ...state,
-        session: {
-          productionId: action.productionId,
-          difficulty: action.difficulty,
-          characterId: action.characterId,
-          stages: PRODUCTION_STAGES,
-          currentStageIndex: 0,
-          gearId: null,
-          score: 0,
-          lives: action.difficulty === "professional"
-            ? 2
-            : action.difficulty === "community"
-              ? 3
-              : 4,
-          cuesHit: 0,
-          cuesMissed: 0,
-          plotLights: [],
-          conflictsSeen: [],
-          activeConflict: null
-        },
+        session: createNewSession(
+          action as GameAction & { type: "START_SESSION" },
+        ),
       };
+    }
 
     case "SET_GEAR":
       return {
@@ -126,42 +172,24 @@ function reducer(state: GameState, action: GameAction): GameState {
     case "NEXT_STAGE": {
       if (!state.session) return state;
       const nextIdx = state.session.currentStageIndex + 1;
-      const nextStageKey = state.session.stages[nextIdx];
-      
-      // Find ALL conflicts matching the upcoming stage that haven't been seen yet
-      const availableConflicts = CONFLICTS.filter(c =>
-        c.trigger === nextStageKey &&
-        !state.session?.conflictsSeen.includes(c.id)
-      );
-
-      // RANDOMNESS: 50% chance to trigger a conflict if one is available for this stage
-      let triggerConflict = null;
-      if (availableConflicts.length > 0 && Math.random() > 0.5) {
-        // Pick a random conflict from the available pool
-        const randIndex = Math.floor(Math.random() * availableConflicts.length);
-        triggerConflict = availableConflicts[randIndex];
-      }
-
       return {
         ...state,
         session: {
           ...state.session,
           currentStageIndex: nextIdx,
-          activeConflict: triggerConflict // Might be null, might be a conflict!
-        }
+          activeConflict: getNextConflict(state.session),
+        },
       };
     }
 
     case "ADD_SCORE":
       return {
         ...state,
-        session: state.session
-          ? {
-              ...state.session,
-              score:
-                (Number(state.session.score) || 0) + (Number(action.delta) || 0),
-            }
-          : null,
+        session: addToSessionCounter(
+          state.session,
+          "score",
+          Number(action.delta) || 0,
+        ),
       };
 
     case "LOSE_LIFE":
@@ -175,17 +203,13 @@ function reducer(state: GameState, action: GameAction): GameState {
     case "CUE_HIT":
       return {
         ...state,
-        session: state.session
-          ? { ...state.session, cuesHit: state.session.cuesHit + 1 }
-          : null,
+        session: addToSessionCounter(state.session, "cuesHit", 1),
       };
 
     case "CUE_MISSED":
       return {
         ...state,
-        session: state.session
-          ? { ...state.session, cuesMissed: state.session.cuesMissed + 1 }
-          : null,
+        session: addToSessionCounter(state.session, "cuesMissed", 1),
       };
 
     case "SET_PLOT_LIGHTS":
@@ -218,20 +242,28 @@ function reducer(state: GameState, action: GameAction): GameState {
         session: state.session
           ? {
               ...state.session,
-              conflictsSeen: [...state.session.conflictsSeen, action.conflictId],
+              conflictsSeen: [
+                ...state.session.conflictsSeen,
+                action.conflictId,
+              ],
             }
           : null,
       };
-    
+
     case "RESOLVE_CONFLICT":
-  return {
-    ...state,
-    session: state.session ? {
-      ...state.session,
-      activeConflict: null,
-      conflictsSeen: [...state.session.conflictsSeen, action.conflictId]
-    } : null
-  };
+      return {
+        ...state,
+        session: state.session
+          ? {
+              ...state.session,
+              activeConflict: null,
+              conflictsSeen: [
+                ...state.session.conflictsSeen,
+                action.conflictId,
+              ],
+            }
+          : null,
+      };
 
     case "ADD_CONTACT":
       return {
@@ -254,7 +286,7 @@ interface GameContextType {
 
 const GameContext = createContext<GameContextType | null>(null);
 
-export function GameProvider({ children }: { children: ReactNode }) {
+export function GameProvider({ children }: { readonly children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initialState);
 
   useEffect(() => {
@@ -271,11 +303,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(toSave));
   }, [state]);
 
-  return (
-    <GameContext.Provider value={{ state, dispatch }}>
-      {children}
-    </GameContext.Provider>
-  );
+  const value = useMemo(() => ({ state, dispatch }), [state, dispatch]);
+
+  return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 }
 
 export function useGame(): GameContextType {

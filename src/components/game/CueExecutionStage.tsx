@@ -8,8 +8,8 @@ import MasterControl from "../ui/MasterControl";
 import SectionHeader from "../ui/SectionHeader";
 
 interface CueExecutionStageProps {
-  cueSheet: Cue[];
-  onComplete: () => void;
+  readonly cueSheet: Cue[];
+  readonly onComplete: () => void;
 }
 
 export default function CueExecutionStage({
@@ -188,13 +188,14 @@ export default function CueExecutionStage({
                     width: isCurrent ? "14px" : "10px",
                     height: isCurrent ? "14px" : "10px",
                     borderRadius: "50%",
-                    background: isPast
-                      ? cueResults[cue.id]?.hit
-                        ? "var(--bui-fg-success)"
-                        : "var(--bui-fg-danger)"
-                      : isCurrent
-                        ? "var(--bui-fg-warning)"
-                        : "#555",
+                    background: (() => {
+                      if (isPast) {
+                        return cueResults[cue.id]?.hit
+                          ? "var(--bui-fg-success)"
+                          : "var(--bui-fg-danger)";
+                      }
+                      return isCurrent ? "var(--bui-fg-warning)" : "#555";
+                    })(),
                     border: isCurrent ? "2px solid #fff" : "none",
                     boxShadow: isCurrent
                       ? "0 0 10px var(--bui-fg-warning)"
@@ -207,7 +208,7 @@ export default function CueExecutionStage({
         </div>
       </div>
 
-      <div className="desktop-two-column" role="main">
+      <main className="desktop-two-column">
         <div className="desktop-col-main">
           <HardwarePanel
             className="grandma-panel"
@@ -275,7 +276,7 @@ export default function CueExecutionStage({
             </div>
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

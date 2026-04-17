@@ -10,11 +10,11 @@ export interface DialogueBoxChoice {
 }
 
 interface DialogueBoxProps<T extends DialogueBoxChoice> {
-  speaker: string;
-  text: string;
-  choices: T[];
-  onChoice: (choice: T) => void;
-  icon?: string;
+  readonly speaker: string;
+  readonly text: string;
+  readonly choices: T[];
+  readonly onChoice: (choice: T) => void;
+  readonly icon?: string;
 }
 
 /**

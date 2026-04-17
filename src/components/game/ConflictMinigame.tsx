@@ -7,13 +7,18 @@ import HardwarePanel from "../ui/HardwarePanel";
 import DialogueBox from "./DialogueBox";
 
 interface ConflictMinigameProps {
-  conflict: Conflict;
-  onResolved: (outcome: string) => void;
+  readonly conflict: Conflict;
+  readonly onResolved: (outcome: string) => void;
 }
 
-export default function ConflictMinigame({ conflict, onResolved }: ConflictMinigameProps) {
+export default function ConflictMinigame({
+  conflict,
+  onResolved,
+}: ConflictMinigameProps) {
   const { dispatch } = useGame();
-  const [selectedChoice, setSelectedChoice] = useState<ConflictChoice | null>(null);
+  const [selectedChoice, setSelectedChoice] = useState<ConflictChoice | null>(
+    null,
+  );
 
   const handleChoice = (choice: ConflictChoice) => {
     dispatch({ type: "MARK_CONFLICT_SEEN", conflictId: conflict.id });
@@ -27,23 +32,20 @@ export default function ConflictMinigame({ conflict, onResolved }: ConflictMinig
 
   return (
     <div className="page-container content-reveal">
-      <HardwarePanel style={{ maxWidth: '800px', margin: '0 auto' }}>
-        <h2 style={{ color: 'var(--bui-fg-warning)' }}>⚡ Technical Conflict</h2>
-        
-        {!selectedChoice ? (
-          <DialogueBox
-            speaker={conflict.npc}
-            icon={NPC_ICONS[conflict.npc as keyof typeof NPC_ICONS]}
-            text={conflict.description}
-            choices={conflict.choices}
-            onChoice={handleChoice}
-          />
-        ) : (
+      <HardwarePanel style={{ maxWidth: "800px", margin: "0 auto" }}>
+        <h2 style={{ color: "var(--bui-fg-warning)" }}>
+          ⚡ Technical Conflict
+        </h2>
+
+        {selectedChoice ? (
           <div className="animate-pop">
-            <h3 
-              style={{ 
-                color: selectedChoice.outcome === 'escalated' ? 'var(--bui-fg-danger)' : 'var(--bui-fg-success)',
-                marginBottom: '1rem'
+            <h3
+              style={{
+                color:
+                  selectedChoice.outcome === "escalated"
+                    ? "var(--bui-fg-danger)"
+                    : "var(--bui-fg-success)",
+                marginBottom: "1rem",
               }}
               role="status"
               aria-live="polite"
@@ -51,20 +53,27 @@ export default function ConflictMinigame({ conflict, onResolved }: ConflictMinig
             >
               RESULT: {selectedChoice.outcome.toUpperCase()}
             </h3>
-            <p 
-              style={{ lineHeight: 1.6, marginBottom: '2rem', opacity: 0.9 }}
-              role="article"
+            <article
+              style={{ lineHeight: 1.6, marginBottom: "2rem", opacity: 0.9 }}
             >
               {selectedChoice.aftermathText}
-            </p>
-            <Button 
-              variant="accent" 
+            </article>
+            <Button
+              variant="accent"
               onClick={() => onResolved(selectedChoice.outcome)}
               aria-label="Resume technical operations"
             >
               Resume Technical Operations →
             </Button>
           </div>
+        ) : (
+          <DialogueBox
+            speaker={conflict.npc}
+            icon={NPC_ICONS[conflict.npc as keyof typeof NPC_ICONS]}
+            text={conflict.description}
+            choices={conflict.choices}
+            onChoice={handleChoice}
+          />
         )}
       </HardwarePanel>
     </div>
