@@ -140,7 +140,7 @@ export default function SelectCharacterPage() {
         onClick={startGame}
         style={{ width: "100%", height: "70px", fontSize: "1.4rem" }}
       >
-        Sign Contract & Initialize
+        Sign Contract & Initialise
       </Button>
     </div>
   );

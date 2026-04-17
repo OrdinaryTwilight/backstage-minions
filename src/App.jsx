@@ -9,7 +9,7 @@ import { GameProvider } from "./context/GameContext";
 import "./App.css";
 import HomePage from "./pages/HomePage";
 
-// Lazy load less critical routes for better initial load time
+// Lazy load
 const ProductionsListPage = lazy(() => import("./pages/ProductionsListPage"));
 const ProductionsPage = lazy(() => import("./pages/ProductionsPage"));
 const SelectLevelPage = lazy(() => import("./pages/SelectLevelPage"));
@@ -23,79 +23,99 @@ function App() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    console.log("App mounted");
     setMounted(true);
   }, []);
 
-  if (!mounted) {
-    return <div style={{ color: "white", padding: "20px" }}>Loading...</div>;
-  }
-
-  try {
+  if (!mounted)
     return (
-      <GameProvider>
-        <Router>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route
-              path="/productions/:productionId"
-              element={
-                <Suspense fallback={<Spinner />}>
-                  <ProductionsPage />
-                </Suspense>
-              }
-            />
-
-            <Route
-              path="/productions/:productionId/:difficulty"
-              element={
-                <Suspense fallback={<Spinner />}>
-                  <SelectLevelPage />
-                </Suspense>
-              }
-            />
-
-            <Route
-              path="/productions/:productionId/:difficulty/character"
-              element={
-                <Suspense fallback={<Spinner />}>
-                  <SelectCharacterPage />
-                </Suspense>
-              }
-            />
-
-            <Route
-              path="/game/:productionId/:difficulty/:charId"
-              element={
-                <Suspense fallback={<Spinner />}>
-                  <GameLevelPage />
-                </Suspense>
-              }
-            />
-            <Route
-              path="/stories"
-              element={
-                <Suspense fallback={<Spinner />}>
-                  <StoriesPage />
-                </Suspense>
-              }
-            />
-          </Routes>
-          <Analytics />
-          <SpeedInsights />
-        </Router>
-      </GameProvider>
+      <div style={{ color: "white", padding: "20px" }}>Loading System...</div>
     );
-  } catch (error) {
-    console.error("App error:", error);
-    return (
-      <div style={{ color: "red", padding: "20px", backgroundColor: "black" }}>
-        <h1>Error rendering app</h1>
-        <p>{error?.message}</p>
-        <p>{JSON.stringify(error)}</p>
-      </div>
-    );
-  }
+
+  return (
+    <GameProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+
+          <Route
+            path="/productions"
+            element={
+              <Suspense fallback={<Spinner />}>
+                <ProductionsListPage />
+              </Suspense>
+            }
+          />
+
+          <Route
+            path="/productions/:productionId"
+            element={
+              <Suspense fallback={<Spinner />}>
+                <ProductionsPage />
+              </Suspense>
+            }
+          />
+
+          {/* Matches: /productions/phantom/difficulty/school */}
+          <Route
+            path="/productions/:productionId/difficulty/:difficulty"
+            element={
+              <Suspense fallback={<Spinner />}>
+                <SelectLevelPage />
+              </Suspense>
+            }
+          />
+
+          {/* Matches: /productions/phantom/difficulty/school/character */}
+          <Route
+            path="/productions/:productionId/difficulty/:difficulty/character"
+            element={
+              <Suspense fallback={<Spinner />}>
+                <SelectCharacterPage />
+              </Suspense>
+            }
+          />
+
+          <Route
+            path="/game/:productionId/:difficulty/:charId"
+            element={
+              <Suspense fallback={<Spinner />}>
+                <GameLevelPage />
+              </Suspense>
+            }
+          />
+
+          <Route
+            path="/level-complete/:productionId/:difficulty/:charId"
+            element={
+              <Suspense fallback={<Spinner />}>
+                <LevelCompletePage />
+              </Suspense>
+            }
+          />
+
+          <Route
+            path="/level-failed/:productionId/:difficulty/:charId"
+            element={
+              <Suspense fallback={<Spinner />}>
+                <LevelFailedPage />
+              </Suspense>
+            }
+          />
+
+          <Route
+            path="/stories"
+            element={
+              <Suspense fallback={<Spinner />}>
+                <StoriesPage />
+              </Suspense>
+            }
+          />
+        </Routes>
+        <Analytics />
+        <SpeedInsights />
+      </Router>
+    </GameProvider>
+  );
 }
 
 export default App;

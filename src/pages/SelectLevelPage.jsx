@@ -10,65 +10,83 @@ export default function SelectLevelPage() {
   const { productionId } = useParams();
   const navigate = useNavigate();
   const { state } = useGame();
+
+  // Find the specific production from gameData
   const production = PRODUCTIONS.find((p) => p.id === productionId);
 
-  if (!production)
-    return <div className="page-container">Briefing not found.</div>;
+  // Safety guard for invalid production IDs
+  if (!production) {
+    return (
+      <div className="page-container animate-flicker">
+        <HardwarePanel>Technical Briefing Not Found</HardwarePanel>
+      </div>
+    );
+  }
 
   return (
     <div className="page-container">
+      {/* NavBar is outside the animation wrapper to keep it floating/fixed */}
       <NavBar />
-      <SectionHeader
-        title={`${production.poster} ${production.title}: Contract Tiers`}
-        subtitle="Review venue requirements and select your gig."
-      />
 
-      <div className="bento-container" style={{ gridTemplateColumns: "1fr" }}>
-        {Object.entries(production.levels).map(([diffKey, details]) => {
-          const progress = state?.progress?.[`${productionId}_${diffKey}`];
-          const isUnlocked = details.unlocked || progress?.completed;
+      <div className="animate-blueprint">
+        <SectionHeader
+          title={`${production.poster} ${production.title}: Contract Tiers`}
+          subtitle="Review venue requirements and select your gig."
+        />
 
-          return (
-            <HardwarePanel
-              key={diffKey}
-              variant={isUnlocked ? "clickable" : "locked"}
-              onClick={() =>
-                isUnlocked &&
-                navigate(`/productions/${productionId}/${diffKey}/character`)
-              }
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <h3
-                  className="annotation-text"
-                  style={{ fontSize: "1.5rem", margin: 0 }}
-                >
-                  {diffKey.toUpperCase()} CONTRACT
-                </h3>
-                <p
-                  style={{
-                    opacity: 0.6,
-                    fontSize: "0.85rem",
-                    marginTop: "4px",
-                  }}
-                >
-                  Venue: {details.venueId.replace("_", " ")}
-                </p>
-              </div>
-              <div style={{ minWidth: "140px" }}>
-                <DifficultyPill
-                  label="Status"
-                  stars={progress?.stars || 0}
-                  unlocked={isUnlocked}
-                />
-              </div>
-            </HardwarePanel>
-          );
-        })}
+        <div className="bento-container" style={{ gridTemplateColumns: "1fr" }}>
+          {Object.entries(production.levels).map(([diffKey, details]) => {
+            const progress = state?.progress?.[`${productionId}_${diffKey}`];
+            const isUnlocked = details.unlocked || progress?.completed;
+
+            return (
+              <HardwarePanel
+                key={diffKey}
+                variant={isUnlocked ? "clickable" : "locked"}
+                /* CRITICAL FIX: Navigation path updated to include /difficulty/ 
+                   to match the standardized route in App.jsx */
+                onClick={() =>
+                  isUnlocked &&
+                  navigate(
+                    `/productions/${productionId}/difficulty/${diffKey}/character`,
+                  )
+                }
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div style={{ flex: 1 }}>
+                  <h3
+                    className="annotation-text"
+                    style={{ fontSize: "1.5rem", margin: 0 }}
+                  >
+                    {diffKey.toUpperCase()} CONTRACT
+                  </h3>
+                  <p
+                    style={{
+                      opacity: 0.6,
+                      fontSize: "0.85rem",
+                      marginTop: "4px",
+                    }}
+                  >
+                    Venue: {details.venueId.replace("_", " ")}
+                  </p>
+                </div>
+
+                {/* Visual Status Pill with animated star progress */}
+                <div style={{ minWidth: "140px" }}>
+                  <DifficultyPill
+                    label="Status"
+                    stars={progress?.stars || 0}
+                    unlocked={isUnlocked}
+                  />
+                </div>
+              </HardwarePanel>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
