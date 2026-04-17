@@ -75,14 +75,19 @@ export default function CueExecutionStage({ cueSheet, onComplete }: CueExecution
 
   return (
     <div className="page-container animate-blueprint">
-      <div className={`feedback-overlay ${lastResult ? `flash-${lastResult}` : ""}`} />
+      <div 
+        className={`feedback-overlay ${lastResult ? `flash-${lastResult}` : ""}`}
+        role="status"
+        aria-live="polite"
+        aria-label={lastResult ? `Cue ${lastResult === 'hit' ? 'successful' : 'missed'}` : undefined}
+      />
       <SectionHeader
         title="Booth Operations"
         subtitle="Coordinate the master clock and maintain fader precision."
         helpText="Wait for the SHOW CLOCK to approach the Target Time. Ensure your faders match the Target Intensity, then hit GO!"
       />
 
-      <div className="desktop-two-column">
+      <div className="desktop-two-column" role="main">
         <div className="desktop-col-main">
           <HardwarePanel style={{ borderTop: "4px solid var(--bui-fg-warning)", marginBottom: "1.5rem" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
@@ -94,12 +99,20 @@ export default function CueExecutionStage({ cueSheet, onComplete }: CueExecution
                   CMD: {currentCue?.label?.toUpperCase() || "STANDBY"}
                 </div>
                 
-                {/* NEW: Display the active show clock and target time */}
+                {/* Display the active show clock and target time */}
                 <div style={{ marginTop: "1rem", display: "flex", gap: "2rem", fontWeight: "bold" }}>
-                  <div style={{ color: "var(--bui-fg-info)" }}>
+                  <div 
+                    style={{ color: "var(--bui-fg-info)" }}
+                    role="status"
+                    aria-live="polite"
+                    aria-label={`Show clock: ${(elapsedMs / 1000).toFixed(1)} seconds`}
+                  >
                     ⏱ SHOW CLOCK: {(elapsedMs / 1000).toFixed(1)}s
                   </div>
-                  <div style={{ color: "var(--bui-fg-warning)" }}>
+                  <div 
+                    style={{ color: "var(--bui-fg-warning)" }}
+                    aria-label={`Target time: ${(currentCue?.targetMs / 1000).toFixed(1)} seconds`}
+                  >
                     🎯 TARGET TIME: {(currentCue?.targetMs / 1000).toFixed(1)}s
                   </div>
                 </div>

@@ -40,16 +40,28 @@ export default function ConflictMinigame({ conflict, onResolved }: ConflictMinig
           />
         ) : (
           <div className="animate-pop">
-            <h3 style={{ 
-              color: selectedChoice.outcome === 'escalated' ? 'var(--bui-fg-danger)' : 'var(--bui-fg-success)',
-              marginBottom: '1rem'
-            }}>
+            <h3 
+              style={{ 
+                color: selectedChoice.outcome === 'escalated' ? 'var(--bui-fg-danger)' : 'var(--bui-fg-success)',
+                marginBottom: '1rem'
+              }}
+              role="status"
+              aria-live="polite"
+              aria-label={`Conflict outcome: ${selectedChoice.outcome}`}
+            >
               RESULT: {selectedChoice.outcome.toUpperCase()}
             </h3>
-            <p style={{ lineHeight: 1.6, marginBottom: '2rem', opacity: 0.9 }}>
+            <p 
+              style={{ lineHeight: 1.6, marginBottom: '2rem', opacity: 0.9 }}
+              role="article"
+            >
               {selectedChoice.aftermathText}
             </p>
-            <Button variant="accent" onClick={() => onResolved(selectedChoice.outcome)}>
+            <Button 
+              variant="accent" 
+              onClick={() => onResolved(selectedChoice.outcome)}
+              aria-label="Resume technical operations"
+            >
               Resume Technical Operations →
             </Button>
           </div>

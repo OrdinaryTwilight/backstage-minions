@@ -33,6 +33,7 @@ export default function StoriesPage() {
               onClick={() => setSelected(null)}
               className="action-button"
               style={{ marginBottom: "1.5rem" }}
+              aria-label="Return to story index"
             >
               ← Return to Index
             </button>
@@ -42,15 +43,17 @@ export default function StoriesPage() {
             >
               {selected.title}
             </h2>
-            <div
+            <article
               style={{
                 whiteSpace: "pre-wrap",
                 lineHeight: "1.8",
                 opacity: 0.9,
               }}
+              role="article"
+              aria-label={`Story: ${selected.title}`}
             >
               {selected.content}
-            </div>
+            </article>
           </HardwarePanel>
         ) : (
           <>
@@ -67,6 +70,14 @@ export default function StoriesPage() {
                     key={s.id}
                     variant="clickable"
                     onClick={() => setSelected(s)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        setSelected(s);
+                      }
+                    }}
+                    aria-label={`Read story: ${s.title}. ${s.content.slice(0, 100)}...`}
                   >
                     <h3 style={{ margin: "0 0 0.5rem 0" }}>{s.title}</h3>
                     <p style={{ fontSize: "0.85rem", opacity: 0.7 }}>
@@ -90,6 +101,9 @@ export default function StoriesPage() {
                     key={s.id}
                     variant="locked"
                     style={{ opacity: 0.4 }}
+                    role="status"
+                    aria-disabled="true"
+                    aria-label={`Locked story: ${s.title}. Requires ${s.unlockedBy.difficulty} difficulty with ${s.unlockedBy.minStars} stars to unlock.`}
                   >
                     <h3 style={{ margin: 0 }}>🔒 {s.title}</h3>
                     <p style={{ fontSize: "0.75rem", marginTop: "8px" }}>

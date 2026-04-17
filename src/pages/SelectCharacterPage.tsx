@@ -61,11 +61,15 @@ export default function SelectCharacterPage() {
       <HardwarePanel
         className="animate-pop"
         style={{ textAlign: "center", padding: "2.5rem" }}
+        role="region"
+        aria-live="polite"
+        aria-label="Character profile"
       >
         {/* Character Icon with Flicker Effect */}
         <div
           className="animate-flicker"
           style={{ fontSize: "5.5rem", marginBottom: "1rem" }}
+          aria-hidden="true"
         >
           {char.icon}
         </div>
@@ -114,21 +118,30 @@ export default function SelectCharacterPage() {
           justifyContent: "center",
           margin: "2.5rem 0",
         }}
+        role="group"
+        aria-label="Character carousel navigation"
       >
         <Button
           onClick={() =>
             setIdx((idx - 1 + available.length) % available.length)
           }
           style={{ minWidth: "60px" }}
+          aria-label={`Previous character, currently viewing ${idx + 1} of ${available.length}`}
         >
           ‹
         </Button>
-        <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
+        <div 
+          className="annotation-text" 
+          style={{ fontSize: "1.2rem" }}
+          aria-live="polite"
+          aria-atomic="true"
+        >
           Record {idx + 1} of {available.length}
         </div>
         <Button
           onClick={() => setIdx((idx + 1) % available.length)}
           style={{ minWidth: "60px" }}
+          aria-label={`Next character, currently viewing ${idx + 1} of ${available.length}`}
         >
           ›
         </Button>
@@ -140,6 +153,7 @@ export default function SelectCharacterPage() {
         className="animate-pulse-go"
         onClick={startGame}
         style={{ width: "100%", height: "70px", fontSize: "1.4rem" }}
+        aria-label={`Sign contract and initialize as ${char.name}`}
       >
         Sign Contract & Initialise
       </Button>

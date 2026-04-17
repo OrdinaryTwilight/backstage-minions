@@ -25,9 +25,15 @@ export default function HomePage() {
           >
             Backstage Minions
           </h1>
-          <div style={{ display: "flex", alignItems: "center", opacity: 0.6 }}>
+          <div 
+            style={{ display: "flex", alignItems: "center", opacity: 0.6 }}
+            role="status"
+            aria-live="polite"
+            aria-label={`Current status: ${state?.session ? "On-Call" : "Off-Duty"}`}
+          >
             <span
               className={`status-indicator ${state?.session ? "status-on-call" : "status-off-duty"}`}
+              aria-hidden="true"
             />
             Current Status: {state?.session ? "On-Call" : "Off-Duty"}
           </div>
@@ -85,6 +91,8 @@ export default function HomePage() {
                 flexDirection: "column",
                 gap: "1.5rem",
               }}
+              role="region"
+              aria-label="Available production work orders"
             >
               {PRODUCTIONS.map((p, idx) => (
                 <HardwarePanel
@@ -92,6 +100,14 @@ export default function HomePage() {
                   className="animate-blueprint"
                   style={{ cursor: "pointer", animationDelay: `${0.1 * idx}s` }}
                   onClick={() => navigate(`/productions/${p.id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      navigate(`/productions/${p.id}`);
+                    }
+                  }}
+                  aria-label={`View production: ${p.title}`}
                 >
                   <div
                     style={{
@@ -107,6 +123,7 @@ export default function HomePage() {
                     <span
                       className="problem-highlight"
                       style={{ fontSize: "0.75rem" }}
+                      aria-hidden="true"
                     >
                       DEPLOY ›
                     </span>
@@ -170,10 +187,18 @@ export default function HomePage() {
 
               <HardwarePanel
                 variant="clickable"
-                style={{ marginBottom: "1rem", padding: "1rem" }}
+                style={{ marginBottom: "1rem", padding: "1rem", cursor: "pointer" }}
                 onClick={() => navigate("/stories")}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    navigate("/stories");
+                  }
+                }}
+                aria-label={`View unlocked stories. ${state?.unlockedStories?.length || 0} stories available.`}
               >
-                <div style={{ fontSize: "2rem" }}>📖</div>
+                <div style={{ fontSize: "2rem" }} aria-hidden="true">📖</div>
                 <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
                   {state?.unlockedStories?.length || 0}
                 </div>

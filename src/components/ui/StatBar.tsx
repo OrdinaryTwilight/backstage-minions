@@ -17,11 +17,17 @@ export default function StatBar({ label, value, maxValue = 10 }: StatBarProps) {
         }}
       >
         <span>{label}</span>
-        <span>
+        <span id={`${label}-value`}>
           {value} / {maxValue}
         </span>
       </div>
       <div
+        role="progressbar"
+        aria-label={label}
+        aria-valuenow={value}
+        aria-valuemin={0}
+        aria-valuemax={maxValue}
+        aria-describedby={`${label}-value`}
         style={{
           width: "100%",
           height: "12px",
@@ -39,8 +45,9 @@ export default function StatBar({ label, value, maxValue = 10 }: StatBarProps) {
             background: "var(--color-pencil-light)",
             backgroundImage:
               "repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.2) 2px, rgba(0,0,0,0.2) 4px)",
-            animation: "stat-fill 1s ease-out forwards", // NEW: Animation added
+            animation: "stat-fill 1s ease-out forwards",
           }}
+          aria-hidden="true"
         />
       </div>
     </div>

@@ -41,6 +41,14 @@ export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
             key={pkg.id}
             variant="clickable"
             onClick={() => handleSelect(pkg)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                handleSelect(pkg);
+              }
+            }}
+            aria-label={`Select ${pkg.label}: ${pkg.description}`}
           >
             <h3 className="annotation-text" style={{ fontSize: "1.4rem" }}>{pkg.label}</h3>
             <p style={{ margin: "1rem 0", opacity: 0.8 }}>{pkg.description}</p>

@@ -21,25 +21,28 @@ export default function SoundDesignStage({ onComplete }: SoundDesignStageProps) 
   void char; // Mark as intentionally unused
 
   // Generate random target values for your EQ or Faders at the start of the stage
-  const [targets, setTargets] = useState({
+  const [targets] = useState({
     mic1: Math.floor(Math.random() * 80) + 10,
     mic2: Math.floor(Math.random() * 80) + 10,
     playback: Math.floor(Math.random() * 80) + 10,
   });
+  void targets; // Mark as intentionally unused
 
 // Current player slider states
-const [levels, setLevels] = useState({ mic1: 0, mic2: 0, playback: 0 });
+const [levels] = useState({ mic1: 0, mic2: 0, playback: 0 });
+void levels; // Mark as intentionally unused
 
-function checkWinCondition() {
-  // Check if player's levels are within a margin of error (+/- 5) of the targets
-  const isMic1Good = Math.abs(levels.mic1 - targets.mic1) <= 5;
-  const isMic2Good = Math.abs(levels.mic2 - targets.mic2) <= 5;
-  const isPlaybackGood = Math.abs(levels.playback - targets.playback) <= 5;
-
-  if (isMic1Good && isMic2Good && isPlaybackGood) {
-    onComplete(); // Call the prop function to move to the next stage!
-  }
-}
+  // Win condition check (reserved for future use)
+  // const checkWinCondition = () => {
+  //   // Check if player's levels are within a margin of error (+/- 5) of the targets
+  //   const isMic1Good = Math.abs(levels.mic1 - targets.mic1) <= 5;
+  //   const isMic2Good = Math.abs(levels.mic2 - targets.mic2) <= 5;
+  //   const isPlaybackGood = Math.abs(levels.playback - targets.playback) <= 5;
+  //
+  //   if (isMic1Good && isMic2Good && isPlaybackGood) {
+  //     onComplete(); // Call the prop function to move to the next stage!
+  //   }
+  // };
 
   const { sources, channels: consoleChannels, outputBuses } = SOUND_CONSOLE_CONFIG;
   const deadChannels = useMemo(() => {

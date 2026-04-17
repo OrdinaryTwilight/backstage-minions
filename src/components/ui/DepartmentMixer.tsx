@@ -37,7 +37,14 @@ function FaderTrack({ label, color, onLevelChange, currentLevel }: FaderTrackPro
       border: '1px solid var(--glass-border)'
     }}>
       {/* VU Meter: Indicates signal intensity */}
-      <div style={{ width: '8px', height: '50px', background: '#000', border: '1px solid #333', position: 'relative' }}>
+      <div 
+        style={{ width: '8px', height: '50px', background: '#000', border: '1px solid #333', position: 'relative' }}
+        role="meter"
+        aria-label={`${label} signal level`}
+        aria-valuenow={currentLevel}
+        aria-valuemin={0}
+        aria-valuemax={100}
+      >
         <div style={{ 
           position: 'absolute', 
           bottom: 0, 
@@ -45,7 +52,9 @@ function FaderTrack({ label, color, onLevelChange, currentLevel }: FaderTrackPro
           height: `${Math.min(currentLevel + flicker, 100)}%`, 
           background: currentLevel > 90 ? '#ef4444' : '#22c55e',
           transition: 'height 0.1s ease'
-        }} />
+        }} 
+        aria-hidden="true"
+        />
       </div>
 
       {/* Fader Track: Fixed alignment logic */}
@@ -62,17 +71,22 @@ function FaderTrack({ label, color, onLevelChange, currentLevel }: FaderTrackPro
           min="0" max="100" 
           value={currentLevel} 
           onChange={(e) => onLevelChange(parseInt(e.target.value))}
+          aria-label={`${label} channel level`}
+          aria-valuetext={`${currentLevel}%`}
+          aria-valuenow={currentLevel}
+          aria-valuemin={0}
+          aria-valuemax={100}
           style={{
             position: 'absolute',
             top: '50%',
             left: '50%',
-            width: '220px', // Matches track height
-            transform: 'translate(-50%, -50%) rotate(-90deg)', // Perfect vertical rotation
+            width: '220px',
+            transform: 'translate(-50%, -50%) rotate(-90deg)',
             cursor: 'ns-resize',
             appearance: 'none',
             background: 'transparent',
             zIndex: 10,
-            touchAction: "none", // CRITICAL: Prevents browser scroll during drag
+            touchAction: "none",
             WebkitUserSelect: "none",
             userSelect: "none"
           }}

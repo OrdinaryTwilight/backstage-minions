@@ -32,7 +32,6 @@ export default function GameLevelPage() {
   if (!state.session) return <Navigate to="/" replace />;
 
   const currentStageKey = state.session.stages[state.session.currentStageIndex];
-  const nextStageKey = state.session.stages[state.session.currentStageIndex + 1];
   const ActiveStage = STAGE_COMPONENTS[currentStageKey];
 
   function handleStageAdvance() {

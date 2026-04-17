@@ -2,9 +2,9 @@ import { useMemo, useState } from "react";
 import { useGame } from "../../context/GameContext";
 import { SCORING } from "../../data/constants";
 import {
-  LIGHT_TYPES,
-  PLOT_GRID_COLS,
-  PLOT_GRID_ROWS,
+    LIGHT_TYPES,
+    PLOT_GRID_COLS,
+    PLOT_GRID_ROWS,
 } from "../../data/gameData";
 import Button from "../ui/Button";
 import HardwarePanel from "../ui/HardwarePanel";
@@ -101,11 +101,15 @@ export default function PlanningStage({ onComplete }: PlanningStageProps) {
                 const lt = cell
                   ? LIGHT_TYPES.find((t) => t.id === cell.typeId)
                   : null;
+                const row = Math.floor(i / PLOT_GRID_COLS);
+                const col = i % PLOT_GRID_COLS;
                 return (
                   <button
                     key={i}
                     onClick={() => placeLight(i)}
                     className="plot-cell"
+                    aria-label={`Plot position row ${row + 1} column ${col + 1}${lt ? `: ${lt.label}` : ": empty"}`}
+                    aria-pressed={!!lt}
                     style={{
                       background: lt ? `${lt.color}22` : "rgba(0,0,0,0.1)",
                       borderColor: lt ? lt.color : "var(--glass-border)",
@@ -241,6 +245,8 @@ export default function PlanningStage({ onComplete }: PlanningStageProps) {
               <Button
                 key={l.id}
                 onClick={() => setSelectedType(l.id)}
+                aria-pressed={selectedType === l.id}
+                aria-label={`Select ${l.label} fixture type`}
                 style={{
                   flex: 1,
                   minWidth: "150px",
@@ -275,11 +281,19 @@ export default function PlanningStage({ onComplete }: PlanningStageProps) {
                   ? "var(--bui-fg-danger)"
                   : "var(--bui-fg-success)",
               }}
+              role="status"
+              aria-live="polite"
             >
               {isFail
                 ? "⚠️ INSUFFICIENT COVERAGE"
                 : "✅ TECHNICAL CLEARANCE GRANTED"}
             </h3>
+            <div 
+              style={{ marginTop: "0.5rem", fontSize: "0.9rem" }}
+              aria-label={`Technical score: ${reportScore} points`}
+            >
+              Score: {reportScore} / {Math.max(placedCount * 5, 100)}
+            </div>
             <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
               <Button onClick={() => setSubmitted(false)}>Revise Draft</Button>
               {!isFail && (
