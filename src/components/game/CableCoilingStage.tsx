@@ -4,7 +4,7 @@ import HardwarePanel from "../ui/HardwarePanel";
 import SectionHeader from "../ui/SectionHeader";
 
 interface CableCoilingStageProps {
-  onComplete: () => void;
+  readonly onComplete: () => void;
 }
 
 export default function CableCoilingStage({
@@ -40,8 +40,8 @@ export default function CableCoilingStage({
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    globalThis.addEventListener("keydown", handleKeyDown);
+    return () => globalThis.removeEventListener("keydown", handleKeyDown);
   }, [expectedNext, isComplete]);
 
   const handleAction = (action: "OVER" | "UNDER") => {

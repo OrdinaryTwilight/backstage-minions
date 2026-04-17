@@ -9,9 +9,9 @@ import MasterControl from "../ui/MasterControl";
 import SectionHeader from "../ui/SectionHeader";
 
 interface CueExecutionStageProps {
-  cueSheet: Cue[];
-  onComplete: () => void;
-  onFail?: () => void; // NEW: Triggers level failure
+  readonly cueSheet: Cue[];
+  readonly onComplete: () => void;
+  readonly onFail?: () => void; // NEW: Triggers level failure
 }
 
 export default function CueExecutionStage({
@@ -40,6 +40,22 @@ export default function CueExecutionStage({
   const currentCue = cueSheet[currentIdx];
   const isLastCue = currentIdx >= cueSheet.length;
   const maxShowTime = (cueSheet[cueSheet.length - 1]?.targetMs || 10000) + 3000;
+
+  const getIndicatorColor = (
+    cue: Cue,
+    isPast: boolean,
+    isCurrent: boolean,
+  ): string => {
+    if (isPast) {
+      return cueResults[cue.id]?.hit
+        ? "var(--bui-fg-success)"
+        : "var(--bui-fg-danger)";
+    }
+    if (isCurrent) {
+      return "var(--bui-fg-warning)";
+    }
+    return "#555";
+  };
 
   // Clock only runs if the player has told the SM they are ready
   useEffect(() => {
@@ -241,13 +257,7 @@ export default function CueExecutionStage({
                     width: isCurrent ? "12px" : "8px",
                     height: isCurrent ? "12px" : "8px",
                     borderRadius: "50%",
-                    background: isPast
-                      ? cueResults[cue.id]?.hit
-                        ? "var(--bui-fg-success)"
-                        : "var(--bui-fg-danger)"
-                      : isCurrent
-                        ? "var(--bui-fg-warning)"
-                        : "#555",
+                    background: getIndicatorColor(cue, isPast, isCurrent),
                     border: isCurrent ? "2px solid #fff" : "none",
                     boxShadow: isCurrent
                       ? "0 0 10px var(--bui-fg-warning)"

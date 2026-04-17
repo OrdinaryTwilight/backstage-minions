@@ -43,8 +43,8 @@ export default function DialogueBox<T extends DialogueBoxChoice>({
         onChoice(choices[0]); // Auto-selects the first choice
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.addEventListener("keydown", handleKeyDown);
+    globalThis.addEventListener("keydown", handleKeyDown);
+    return () => globalThis.removeEventListener("keydown", handleKeyDown);
   }, [choices, onChoice, cooldown]);
 
   return (

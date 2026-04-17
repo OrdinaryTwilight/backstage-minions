@@ -4,16 +4,16 @@ import HardwarePanel from "../ui/HardwarePanel";
 import SectionHeader from "../ui/SectionHeader";
 
 interface EquipmentStageProps {
-  onComplete: () => void;
+  readonly onComplete: () => void;
 }
 
 export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
   const { state, dispatch } = useGame();
 
   // Find the active character to display their RPG icon
-  const char = CHARACTERS.find(c => c.id === state.session?.characterId);
+  const char = CHARACTERS.find((c) => c.id === state.session?.characterId);
 
-  function handleSelect(pkg: typeof GEAR_PACKAGES[0]) {
+  function handleSelect(pkg: (typeof GEAR_PACKAGES)[0]) {
     dispatch({ type: "SET_GEAR", gearId: pkg.id });
     onComplete();
   }
@@ -25,13 +25,30 @@ export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
         subtitle="Select a gear package for this production tier."
         helpText="Choose your gear wisely. Higher quality gear provides score bonuses but may reduce your starting 'Lives'."
       />
-      
-      <div className="rpg-scene-header" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem' }}>
+
+      <div
+        className="rpg-scene-header"
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+          marginBottom: "2rem",
+        }}
+      >
         {/* Added safety check for char */}
-        <span className="walking-icon" style={{ fontSize: '2.5rem' }}>{char?.icon || "👤"}</span>
+        <span className="walking-icon" style={{ fontSize: "2.5rem" }}>
+          {char?.icon || "👤"}
+        </span>
         <div>
-          <p className="annotation-text" style={{ margin: 0 }}>OPERATOR: {char?.name?.toUpperCase() || "UNKNOWN"}</p>
-          <p className="annotation-text" style={{ opacity: 0.5, fontSize: '0.7rem' }}>LOCATION: WESTVIEW_LOADING_DOCK</p>
+          <p className="annotation-text" style={{ margin: 0 }}>
+            OPERATOR: {char?.name?.toUpperCase() || "UNKNOWN"}
+          </p>
+          <p
+            className="annotation-text"
+            style={{ opacity: 0.5, fontSize: "0.7rem" }}
+          >
+            LOCATION: WESTVIEW_LOADING_DOCK
+          </p>
         </div>
       </div>
 
@@ -44,15 +61,23 @@ export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
             role="button"
             tabIndex={0}
             onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 handleSelect(pkg);
               }
             }}
             aria-label={`Select ${pkg.label}: ${pkg.description}`}
           >
-            <h3 className="annotation-text" style={{ fontSize: "1.4rem" }}>{pkg.label}</h3>
+            <h3 className="annotation-text" style={{ fontSize: "1.4rem" }}>
+              {pkg.label}
+            </h3>
             <p style={{ margin: "1rem 0", opacity: 0.8 }}>{pkg.description}</p>
-            <div style={{ fontSize: "0.7rem", color: "var(--bui-fg-info)", textTransform: "uppercase" }}>
+            <div
+              style={{
+                fontSize: "0.7rem",
+                color: "var(--bui-fg-info)",
+                textTransform: "uppercase",
+              }}
+            >
               Bonus: {pkg.bonus > 0 ? `+${pkg.bonus}` : pkg.bonus} pts
             </div>
           </HardwarePanel>

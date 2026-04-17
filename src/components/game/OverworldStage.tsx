@@ -212,123 +212,178 @@ export default function OverworldStage({
     return null;
   };
 
+  const calculateMovementDelta = (): { dx: number; dy: number } => {
+    let dx = 0;
+    let dy = 0;
+    if (targetPos) {
+      const dist = Math.hypot(targetPos.x - pos.x, targetPos.y - pos.y);
+      if (dist < speed) setTargetPos(null);
+      else {
+        dx = ((targetPos.x - pos.x) / dist) * speed;
+        dy = ((targetPos.y - pos.y) / dist) * speed;
+      }
+    } else {
+      if (up) dy -= speed;
+      if (down) dy += speed;
+      if (left) dx -= speed;
+      if (right) dx += speed;
+    }
+    return { dx, dy };
+  };
+
+  const applyBoundaries = (x: number, y: number): { x: number; y: number } => {
+    let finalX = x;
+    let finalY = y;
+    finalX = Math.max(0, Math.min(finalX, GAME_WIDTH - PLAYER_SIZE));
+    finalY = Math.max(0, Math.min(finalY, GAME_HEIGHT - PLAYER_SIZE));
+    return { x: finalX, y: finalY };
+  };
+
+  const handleCollisions = (
+    newX: number,
+    newY: number,
+    prevX: number,
+    prevY: number,
+  ): { x: number; y: number } => {
+    let finalX = newX;
+    let finalY = newY;
+    if (checkCollision(finalX, prevY)) {
+      finalX = prevX;
+      setTargetPos(null);
+    }
+    if (checkCollision(prevX, finalY)) {
+      finalY = prevY;
+      setTargetPos(null);
+    }
+    return { x: finalX, y: finalY };
+  };
+
+  const updateSingleNpc = (
+    npc: NPC,
+    playerX: number,
+    playerY: number,
+    playerDx: number,
+    playerDy: number,
+  ): NPC => {
+    if (npc.isHidden) {
+      if (npc.hideTimer <= 0) {
+        return {
+          ...npc,
+          isHidden: false,
+          x: 600,
+          y: 100 + Math.random() * 100,
+          dx: -1,
+          dy: Math.random() - 0.5,
+        };
+      }
+      return { ...npc, hideTimer: npc.hideTimer - 1 };
+    }
+
+    const distToPlayer = Math.hypot(playerX - npc.x, playerY - npc.y);
+    let stepX = npc.dx;
+    let stepY = npc.dy;
+
+    if (distToPlayer < 80 && (playerDx !== 0 || playerDy !== 0)) {
+      stepX *= 0.3;
+      stepY *= 0.3;
+    }
+
+    let nX = npc.x + stepX;
+    let nY = npc.y + stepY;
+
+    if (nX > 650 && Math.random() < 0.01) {
+      return {
+        ...npc,
+        isHidden: true,
+        hideTimer: Math.floor(Math.random() * 180) + 120,
+      };
+    }
+
+    if (
+      nX <= 0 ||
+      nX >= GAME_WIDTH - PLAYER_SIZE ||
+      checkCollision(nX, npc.y)
+    ) {
+      npc.dx *= -1;
+    }
+    if (
+      nY <= 0 ||
+      nY >= GAME_HEIGHT - PLAYER_SIZE ||
+      checkCollision(npc.x, nY)
+    ) {
+      npc.dy *= -1;
+    }
+
+    let nTimer = npc.moveTimer - 1;
+    if (nTimer <= 0) {
+      npc.dx = (Math.random() - 0.5) * 2;
+      npc.dy = (Math.random() - 0.5) * 2;
+      nTimer = Math.floor(Math.random() * 120) + 60;
+    }
+
+    return { ...npc, x: nX, y: nY, moveTimer: nTimer };
+  };
+
+  const checkNpcProximity = (
+    newX: number,
+    newY: number,
+    npcList: NPC[],
+    playerDx: number,
+    playerDy: number,
+  ): void => {
+    const npcDistances = npcList.map((npc) => ({
+      npc,
+      distance: Math.hypot(newX - npc.x, newY - npc.y),
+    }));
+
+    if (npcDistances.length === 0) return;
+
+    const closestNpc = npcDistances.reduce((prev, current) =>
+      current.distance < prev.distance ? current : prev,
+    );
+
+    if (closestNpc.distance < 40) {
+      setActiveZone(closestNpc.npc.id);
+    }
+
+    if (
+      closestNpc.distance < 32 &&
+      (playerDx !== 0 || playerDy !== 0) &&
+      Math.random() < 0.05 &&
+      !bumpMsg
+    ) {
+      setBumpMsg({ id: closestNpc.npc.id, msg: "Watch it!" });
+      setTimeout(() => setBumpMsg(null), 1500);
+    }
+  };
+
   useEffect(() => {
     if (activeDialogue) return;
+
     const interval = setInterval(() => {
-      setPos((prev) => {
-        let dx = 0;
-        let dy = 0;
-        if (targetPos) {
-          const dist = Math.hypot(targetPos.x - prev.x, targetPos.y - prev.y);
-          if (dist < speed) setTargetPos(null);
-          else {
-            dx = ((targetPos.x - prev.x) / dist) * speed;
-            dy = ((targetPos.y - prev.y) / dist) * speed;
-          }
-        } else {
-          if (up) dy -= speed;
-          if (down) dy += speed;
-          if (left) dx -= speed;
-          if (right) dx += speed;
-        }
+      const { dx, dy } = calculateMovementDelta();
+      let newX = pos.x + dx;
+      let newY = pos.y + dy;
 
-        let newX = prev.x + dx;
-        let newY = prev.y + dy;
-        newX = Math.max(0, Math.min(newX, GAME_WIDTH - PLAYER_SIZE));
-        newY = Math.max(0, Math.min(newY, GAME_HEIGHT - PLAYER_SIZE));
+      const bounded = applyBoundaries(newX, newY);
+      const collided = handleCollisions(bounded.x, bounded.y, pos.x, pos.y);
 
-        if (checkCollision(newX, prev.y)) {
-          newX = prev.x;
-          setTargetPos(null);
-        }
-        if (checkCollision(prev.x, newY)) {
-          newY = prev.y;
-          setTargetPos(null);
-        }
+      setNpcs((prevNpcs) =>
+        prevNpcs.map((npc) =>
+          updateSingleNpc(npc, collided.x, collided.y, dx, dy),
+        ),
+      );
 
-        setNpcs((prevNpcs) =>
-          prevNpcs.map((npc) => {
-            if (npc.isHidden) {
-              if (npc.hideTimer <= 0)
-                return {
-                  ...npc,
-                  isHidden: false,
-                  x: 600,
-                  y: 100 + Math.random() * 100,
-                  dx: -1,
-                  dy: Math.random() - 0.5,
-                };
-              return { ...npc, hideTimer: npc.hideTimer - 1 };
-            }
-            const distToPlayer = Math.hypot(newX - npc.x, newY - npc.y);
-            let stepX = npc.dx;
-            let stepY = npc.dy;
-            if (distToPlayer < 80 && (dx !== 0 || dy !== 0)) {
-              stepX *= 0.3;
-              stepY *= 0.3;
-            }
-            let nX = npc.x + stepX;
-            let nY = npc.y + stepY;
-
-            if (nX > 650 && Math.random() < 0.01)
-              return {
-                ...npc,
-                isHidden: true,
-                hideTimer: Math.floor(Math.random() * 180) + 120,
-              };
-            if (
-              nX <= 0 ||
-              nX >= GAME_WIDTH - PLAYER_SIZE ||
-              checkCollision(nX, npc.y)
-            )
-              npc.dx *= -1;
-            if (
-              nY <= 0 ||
-              nY >= GAME_HEIGHT - PLAYER_SIZE ||
-              checkCollision(npc.x, nY)
-            )
-              npc.dy *= -1;
-
-            let nTimer = npc.moveTimer - 1;
-            if (nTimer <= 0) {
-              npc.dx = (Math.random() - 0.5) * 2;
-              npc.dy = (Math.random() - 0.5) * 2;
-              nTimer = Math.floor(Math.random() * 120) + 60;
-            }
-            return { ...npc, x: nX, y: nY, moveTimer: nTimer };
-          }),
-        );
-
-        let currentActive = findActiveStaticZone(newX, newY);
-        if (!currentActive) {
-          const npcDistances = npcs.map((npc) => ({
-            npc,
-            distance: Math.hypot(newX - npc.x, newY - npc.y),
-          }));
-          if (npcDistances.length > 0) {
-            // FIX: Added initial value for reduce
-            const closestNpc = npcDistances.reduce(
-              (prev, current) =>
-                current.distance < prev.distance ? current : prev,
-              npcDistances[0],
-            );
-            if (closestNpc.distance < 40) currentActive = closestNpc.npc.id;
-
-            if (
-              closestNpc.distance < 32 &&
-              (dx !== 0 || dy !== 0) &&
-              Math.random() < 0.05 &&
-              !bumpMsg
-            ) {
-              setBumpMsg({ id: closestNpc.npc.id, msg: "Watch it!" });
-              setTimeout(() => setBumpMsg(null), 1500);
-            }
-          }
-        }
+      const currentActive = findActiveStaticZone(collided.x, collided.y);
+      if (!currentActive) {
+        checkNpcProximity(collided.x, collided.y, npcs, dx, dy);
+      } else {
         setActiveZone(currentActive);
-        return { x: newX, y: newY };
-      });
+      }
+
+      setPos(collided);
     }, 1000 / 60);
+
     return () => clearInterval(interval);
   }, [up, down, left, right, targetPos, activeDialogue, bumpMsg, npcs]);
 
