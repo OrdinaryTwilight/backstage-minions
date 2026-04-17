@@ -87,7 +87,6 @@ export default function ProductionsPage() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column" }}>
-            return (
             <div style={{ display: "flex", flexDirection: "column" }}>
               {Object.entries(production.levels || {}).map(([diff, lvl]) => {
                 const prog = state?.progress?.[`${productionId}_${diff}`];
