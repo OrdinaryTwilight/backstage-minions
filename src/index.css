@@ -1,333 +1,93 @@
-/* --- 1. DESIGN TOKENS --- */
-@import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Inter:wght@400;700&family=JetBrains+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono:wght@400;700&display=swap');
 
 :root {
-  /* Colors */
-  --color-blueprint-bg: #121212;
-  --color-pencil-light: #f1f5f9;
-  --color-architect-blue: #38bdf8;
-  --color-surface-translucent: rgba(30, 30, 30, 0.8);
+  /* Core Theme - Architect Black */
+  --color-bg: #0a0a0c;
+  --color-surface: #121217;
+  --color-surface-translucent: rgba(18, 18, 23, 0.9);
 
-  /* Status Colors */
-  --bui-fg-success: #4ade80;
-  --bui-fg-danger: #f87171;
+  /* Functional UI Colors (Signal Standards) */
   --bui-fg-info: #38bdf8;
-  --bui-fg-warning: #fbbf24;
+  /* Architect Blue */
+  --bui-fg-success: #4ade80;
+  /* Signal Green */
+  --bui-fg-warning: #facc15;
+  /* Warning Amber */
+  --bui-fg-danger: #ef4444;
+  /* Emergency Red */
+
+  /* Drafting Materials */
+  --color-pencil: #94a3b8;
+  --color-pencil-light: #e2e8f0;
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+
+  /* Spacing & Geometry */
+  --radius-sm: 4px;
+  --radius-md: 12px;
+  --radius-pill: 9999px;
 
   /* Typography */
-  --font-main: 'Architects Daughter', cursive;
-  --font-mono: 'JetBrains Mono', monospace;
-  --font-sketch: 'Architects Daughter', cursive;
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 
-  /* Layout & Glassmorphism */
-  --radius-pill: 32px;
-  --radius-md: 8px;
-  --glass-border: rgba(255, 255, 255, 0.15);
-  --shadow-tactile: 0 10px 30px rgba(0, 0, 0, 0.5);
-  --nav-h: 70px;
-
-  /* Spacing System (Centralized for consistency) */
-  --space-xs: 0.5rem;      /* 8px */
-  --space-sm: 1rem;        /* 16px */
-  --space-md: 1.5rem;      /* 24px */
-  --space-lg: 2rem;        /* 32px */
-  --space-xl: 3rem;        /* 48px */
-
-  /* Component Spacing */
-  --panel-padding: var(--space-md);     /* Padding inside panels */
-  --panel-gap: var(--space-md);         /* Gap between panels in grid */
-  --grid-gap: 12px;                     /* Gap in fixture/equipment grids */
-  --section-margin: var(--space-lg);   /* Margin between major sections */
-
-  /* Typography Sizing */
-  --text-xs: 0.65rem;
-  --text-sm: 0.9rem;
-  --text-base: 1rem;
-  --text-lg: 1.4rem;
-  --text-xl: 1.8rem;
-
-  /* Animation Durations */
-  --duration-fast: 200ms;     /* Quick interactions: button press, toggle */
-  --duration-normal: 300ms;   /* Standard transitions: fade, scale */
-  --duration-slow: 400ms;     /* Emphasis animations: feedback overlay */
-  --duration-long: 1s;        /* Stage transitions */
+  /* Effects */
+  --shadow-tactile: 0 8px 32px rgba(0, 0, 0, 0.6);
 }
 
-/* --- 2. GLOBAL RESET & BASE --- */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+* {
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-  margin: 0;
-  background-color: var(--color-blueprint-bg);
+  background-color: var(--color-bg);
   color: var(--color-pencil-light);
   font-family: var(--font-main);
-  font-size: 14px;
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  /* Dark Technical Grid Background */
-  background-image:
-    radial-gradient(var(--color-pencil-light) 0.5px, transparent 0.5px),
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 30px 30px, 100% 40px;
-}
-
-@media (max-width: 640px) {
-  body {
-    font-size: 12px;
-  }
-}
-
-#root {
-  width: 100%;
-  max-width: 960px;
-  margin: 0 auto;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
+  overflow-x: hidden;
+  /* Blueprint Grid Visualization */
+  background-image:
+    radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.03) 0%, transparent 80%),
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 100% 100%, 40px 40px, 40px 40px;
 }
 
-/* --- 3. UTILITY CLASSES --- */
+/* Typography Helpers */
 .annotation-text {
-  font-family: var(--font-sketch);
-  color: var(--color-architect-blue);
-}
-
-.page-container {
-  padding: var(--space-md) var(--space-sm) calc(var(--nav-h) + var(--space-lg));
-  width: 100%;
-  flex: 1;
-}
-
-/* --- 4. NAVIGATION DOCK --- */
-.nav-bar {
-  position: fixed;
-  bottom: 1.5rem;
-  left: 50%;
-  transform: translateX(-50%);
-  height: var(--nav-h);
-  width: 90%;
-  max-width: 500px;
-  background: var(--color-surface-translucent);
-  backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--radius-pill);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  z-index: 1000;
-  box-shadow: var(--shadow-tactile);
-}
-
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: transparent;
-  border: none;
-  color: #888;
-  font-family: var(--font-main);
-  cursor: pointer;
-  padding: 0.5rem;
-  font-size: 0.8rem;
+  font-family: var(--font-mono);
   text-transform: uppercase;
-  transition: color 0.2s ease;
+  letter-spacing: 0.15em;
+  color: var(--bui-fg-info);
 }
 
-.nav-item.active {
+.console-screen {
+  background: #000;
+  border: 1px solid #222;
+  border-radius: var(--radius-sm);
+  padding: 1.25rem;
+  font-family: var(--font-mono);
   color: var(--bui-fg-success);
-  filter: drop-shadow(0 0 8px var(--bui-fg-success));
+  box-shadow: inset 0 0 40px rgba(74, 222, 128, 0.05);
+  position: relative;
 }
 
-/* src/index.css extensions */
-
-@keyframes blueprint-reveal {
-  from {
-    clip-path: inset(0 100% 0 0);
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-
-  to {
-    clip-path: inset(0 0 0 0);
-    opacity: 1;
-    transform: translateX(0);
-  }
+/* Technical Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
 }
 
-@keyframes pulse-glow {
-  0% {
-    box-shadow: 0 0 5px rgba(56, 189, 248, 0.2);
-  }
-
-  50% {
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
-  }
-
-  100% {
-    box-shadow: 0 0 5px rgba(56, 189, 248, 0.2);
-  }
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
 }
 
-@keyframes stat-fill {
-  from {
-    width: 0;
-  }
+::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: var(--radius-pill);
 }
 
-@keyframes technical-flicker {
-  0% {
-    opacity: 0.8;
-  }
-
-  5% {
-    opacity: 0.3;
-  }
-
-  10% {
-    opacity: 0.9;
-  }
-
-  15% {
-    opacity: 0.4;
-  }
-
-  25% {
-    opacity: 1;
-  }
-}
-
-@keyframes slide-up-fade {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes master-go-pulse {
-  0% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.4);
-  }
-
-  70% {
-    transform: scale(1.05);
-    box-shadow: 0 0 0 15px rgba(74, 222, 128, 0);
-  }
-
-  100% {
-    transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
-  }
-}
-
-@keyframes hardware-pop {
-  0% {
-    transform: scale(0.95);
-    opacity: 0;
-  }
-
-  80% {
-    transform: scale(1.02);
-  }
-
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-@keyframes booth-flash-hit {
-  0% {
-    background-color: rgba(74, 222, 128, 0.2);
-  }
-
-  100% {
-    background-color: transparent;
-  }
-}
-
-@keyframes booth-flash-miss {
-  0% {
-    background-color: rgba(248, 113, 113, 0.2);
-  }
-
-  100% {
-    background-color: transparent;
-  }
-}
-
-.feedback-overlay {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 9999;
-}
-
-.flash-hit {
-  animation: booth-flash-hit 0.4s ease-out forwards;
-}
-
-.flash-miss {
-  animation: booth-flash-miss 0.4s ease-out forwards;
-}
-
-/* Global utility classes for easy reuse */
-.animate-blueprint {
-  animation: blueprint-reveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.animate-flicker {
-  animation: technical-flicker 0.4s ease-in-out;
-}
-
-.animate-pop {
-  animation: hardware-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-}
-
-.animate-pulse-go {
-  animation: master-go-pulse 2s infinite;
-}
-
-/* Application classes */
-.animate-reveal {
-  animation: blueprint-reveal 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.status-indicator {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  margin-right: 8px;
-}
-
-.status-on-call {
-  background: var(--bui-fg-success);
-  animation: pulse-glow 2s infinite;
-}
-
-.status-off-duty {
-  background: #666;
-}
-
-:focus-visible {
-  outline: 3px solid var(--bui-fg-info);
-  outline-offset: 4px;
-  border-radius: 4px;
-}
-
-.plot-cell:focus {
-  background: rgba(56, 189, 248, 0.3) !important;
-  box-shadow: 0 0 15px var(--bui-fg-info);
+::-webkit-scrollbar-thumb:hover {
+  background: var(--bui-fg-info);
 }
