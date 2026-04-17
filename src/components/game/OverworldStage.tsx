@@ -284,6 +284,17 @@ export default function OverworldStage({
     return () => clearInterval(interval);
   }, [up, down, left, right, targetPos, activeDialogue, bumpMsg, npcs]);
 
+  const npcChatter = [
+    "Hope you've checked your cables.",
+    "I'm so nervous for this run.",
+    "Did someone steal my gaff tape again?!",
+    "Break a leg out there!",
+    "Don't miss your cues, the SM is in a mood today.",
+    "Is the house open yet?",
+    "I've had three coffees and zero hours of sleep.",
+    "If the lead forgets their lines again, I'm walking out.",
+  ];
+
   const triggerInteraction = () => {
     if (!activeZone || activeDialogue) return;
     setTargetPos(null);
@@ -311,10 +322,12 @@ export default function OverworldStage({
         setActiveDialogue(staticZone.dialogue);
       }
     } else if (activeNpc) {
+      const randomLine =
+        npcChatter[Math.floor(Math.random() * npcChatter.length)];
       setActiveDialogue({
         speaker: activeNpc.name,
         icon: activeNpc.icon,
-        text: `Hey, I'm ${activeNpc.name}. We need to hurry!`,
+        text: `Hey, I'm ${activeNpc.name}. ${randomLine}`,
         choices: [{ id: "ok", text: "Got it.", pointDelta: 0, contact: null }],
       });
     }
