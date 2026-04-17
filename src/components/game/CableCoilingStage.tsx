@@ -23,7 +23,8 @@ export default function CableCoilingStage({
   });
   const [isComplete, setIsComplete] = useState(false);
 
-  const TARGET_COILS = 12;
+  // Reduced target for better pacing
+  const TARGET_COILS = 8;
 
   // Keyboard support for fast coiling
   useEffect(() => {
@@ -41,7 +42,7 @@ export default function CableCoilingStage({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [expectedNext, isComplete]); // Re-bind when expectedNext changes
+  }, [expectedNext, isComplete]);
 
   const handleAction = (action: "OVER" | "UNDER") => {
     if (action === expectedNext) {
@@ -73,7 +74,6 @@ export default function CableCoilingStage({
       });
       dispatch({ type: "ADD_SCORE", delta: -10 }); // Penalty
 
-      // Simulate the time it takes to untangle by disabling input briefly
       setExpectedNext("OVER"); // Reset the pattern logic
     }
   };
@@ -118,7 +118,7 @@ export default function CableCoilingStage({
           {feedback.msg}
         </div>
 
-        {/* Visual Cable Coil (SVG drawing dynamically based on state) */}
+        {/* Visual Cable Coil (Upgraded 3D Ellipse Drawing) */}
         <div style={{ position: "relative", width: "250px", height: "250px" }}>
           {Array.from({ length: coils }).map((_, i) => (
             <svg
@@ -129,32 +129,35 @@ export default function CableCoilingStage({
                 left: 0,
                 width: "100%",
                 height: "100%",
-                transform: `rotate(${i * 15}deg) scale(${1 - i * 0.02})`, // Coils get slightly tighter and rotate
-                opacity: 0.8,
+                // Creates a 3D overlapping pile effect by slightly offsetting and rotating
+                transform: `translate(${(i % 2) * 5}px, ${(i % 3) * 5}px) rotate(${i * 35}deg) scale(${1 - i * 0.03})`,
+                opacity: 0.9,
               }}
             >
-              <circle
+              {/* Thicker shadow/outline for depth */}
+              <ellipse
                 cx="125"
                 cy="125"
-                r="100"
-                fill="none"
-                stroke="#e2e8f0"
-                strokeWidth="8"
-                strokeDasharray="400"
-                strokeDashoffset="100"
-              />
-              <circle
-                cx="125"
-                cy="125"
-                r="100"
+                rx="85"
+                ry="110"
                 fill="none"
                 stroke="#1a202c"
+                strokeWidth="10"
+              />
+              {/* Inner cable core with slight dash to look like twists */}
+              <ellipse
+                cx="125"
+                cy="125"
+                rx="85"
+                ry="110"
+                fill="none"
+                stroke="#e2e8f0"
                 strokeWidth="4"
-                strokeDasharray="400"
-                strokeDashoffset="100"
+                strokeDasharray="30 5"
               />
             </svg>
           ))}
+
           {/* Progress Text in the center */}
           <div
             style={{
@@ -169,9 +172,10 @@ export default function CableCoilingStage({
           >
             <span
               style={{
-                fontSize: "3rem",
+                fontSize: "4rem",
                 fontWeight: "bold",
                 color: "var(--bui-fg-warning)",
+                textShadow: "2px 2px 10px #000",
               }}
             >
               {coils}/{TARGET_COILS}
@@ -180,8 +184,11 @@ export default function CableCoilingStage({
               <span
                 style={{
                   color: "var(--bui-fg-danger)",
-                  fontSize: "0.9rem",
+                  fontSize: "1rem",
                   fontWeight: "bold",
+                  background: "#000",
+                  padding: "2px 8px",
+                  borderRadius: "4px",
                 }}
               >
                 Knots: {knots}

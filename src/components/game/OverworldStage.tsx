@@ -7,6 +7,7 @@ interface NPC {
   id: string;
   name: string;
   icon: string;
+  dept: string;
   x: number;
   y: number;
   dx: number;
@@ -14,7 +15,6 @@ interface NPC {
   moveTimer: number;
   isHidden: boolean;
   hideTimer: number;
-  department: string;
 }
 
 interface DialogueState {
@@ -33,12 +33,14 @@ interface OverworldStageProps {
   readonly onComplete: () => void;
   readonly department?: string;
   readonly charId?: string;
+  readonly nextStageKey?: string; // <-- NEW: Tells the overworld where the player should go
 }
 
 export default function OverworldStage({
   onComplete,
   department,
   charId,
+  nextStageKey,
 }: OverworldStageProps) {
   const GAME_WIDTH = 800;
   const GAME_HEIGHT = 450;
@@ -66,20 +68,47 @@ export default function OverworldStage({
   const interactBtn = useKeyPress(["e", "Enter", " "]);
 
   const speed = 5;
+  const DEPT_COLORS: Record<string, string> = {
+    lighting: "var(--bui-fg-warning)",
+    sound: "var(--bui-fg-info)",
+    "Stage Manager": "var(--bui-fg-danger)",
+    "Costume Designer": "#ec4899",
+    Director: "#a855f7",
+  };
+
+  const playerChar = CHARACTERS.find((c) => c.id === charId);
+
+  // --- DYNAMIC DESTINATION LOGIC ---
+  let targetZoneId = "";
+  let targetLabel = "";
+  let instructionText = "";
+
+  if (nextStageKey === "cable_coiling") {
+    targetZoneId = "wings";
+    targetLabel = "STAGE WINGS";
+    instructionText =
+      "Show's over! Report to the WINGS for Strike and Cable Coiling.";
+  } else if (nextStageKey === "wrapup") {
+    targetZoneId = "stageManager";
+    targetLabel = "SM DESK";
+    instructionText = "Strike is complete. Report to the SM DESK to sign out.";
+  } else {
+    targetZoneId = department === "lighting" ? "lightBooth" : "soundBooth";
+    targetLabel = department === "lighting" ? "LX BOOTH" : "SOUND BOOTH";
+    instructionText = `The house is open. Report to the ${targetLabel} immediately!`;
+  }
 
   useEffect(() => {
     const available = CHARACTERS.filter((c) => c.id !== charId);
     const shuffled = [...available].sort(() => 0.5 - Math.random());
-    const count = Math.floor(Math.random() * 3) + 3; // Spawn 3 to 5 NPCs
+    const count = Math.floor(Math.random() * 3) + 3;
 
     const spawned = shuffled.slice(0, count).map((npc) => {
       let spawnX, spawnY;
-      // FIX: Ensure they don't spawn inside a solid zone!
       do {
         spawnX = Math.random() * (GAME_WIDTH - 200) + 100;
         spawnY = Math.random() * (GAME_HEIGHT - 200) + 100;
       } while (checkCollision(spawnX, spawnY));
-
       return {
         id: npc.id,
         name: npc.name,
@@ -106,15 +135,6 @@ export default function OverworldStage({
     setTargetPos({ x, y });
   };
 
-  // Department colors for NPC names
-  const DEPT_COLORS: Record<string, string> = {
-    lighting: "var(--bui-fg-warning)",
-    sound: "var(--bui-fg-info)",
-    "Stage Manager": "var(--bui-fg-danger)",
-    "Costume Designer": "#ec4899",
-    Director: "#a855f7",
-  };
-
   const checkCollision = (newX: number, newY: number) => {
     for (const zone of Object.values(OVERWORLD_ZONES)) {
       if (zone.isSolid) {
@@ -130,117 +150,44 @@ export default function OverworldStage({
     return false;
   };
 
-  const calculatePlayerMovement = (
-    prev: typeof pos,
-    targetPos: typeof pos | null,
-  ) => {
-    let dx = 0;
-    let dy = 0;
-
-    if (targetPos) {
-      const dist = Math.hypot(targetPos.x - prev.x, targetPos.y - prev.y);
-      if (dist < speed) setTargetPos(null);
-      else {
-        dx = ((targetPos.x - prev.x) / dist) * speed;
-        dy = ((targetPos.y - prev.y) / dist) * speed;
-      }
-    } else {
-      if (up) dy -= speed;
-      if (down) dy += speed;
-      if (left) dx -= speed;
-      if (right) dx += speed;
-    }
-
-    return { dx, dy };
-  };
-
-  const updateNPCPosition = (
-    npc: NPC,
+  const findActiveStaticZone = (
     playerX: number,
     playerY: number,
-  ): NPC => {
-    if (npc.isHidden) {
-      if (npc.hideTimer <= 0) {
-        return {
-          ...npc,
-          isHidden: false,
-          x: 600,
-          y: 100 + Math.random() * 100,
-          dx: -1,
-          dy: Math.random() - 0.5,
-        };
-      }
-      return { ...npc, hideTimer: npc.hideTimer - 1 };
-    }
-
-    const distToPlayer = Math.hypot(playerX - npc.x, playerY - npc.y);
-    let stepX = npc.dx;
-    let stepY = npc.dy;
-
-    if (distToPlayer < 80 && (up || down || left || right)) {
-      stepX *= 0.3;
-      stepY *= 0.3;
-    }
-
-    let nX = npc.x + stepX;
-    let nY = npc.y + stepY;
-
-    if (nX > 650 && Math.random() < 0.01) {
-      return {
-        ...npc,
-        isHidden: true,
-        hideTimer: Math.floor(Math.random() * 180) + 120,
-      };
-    }
-
-    if (
-      nX <= 0 ||
-      nX >= GAME_WIDTH - PLAYER_SIZE ||
-      checkCollision(nX, npc.y)
-    ) {
-      npc.dx *= -1;
-    }
-    if (
-      nY <= 0 ||
-      nY >= GAME_HEIGHT - PLAYER_SIZE ||
-      checkCollision(npc.x, nY)
-    ) {
-      npc.dy *= -1;
-    }
-
-    let nTimer = npc.moveTimer - 1;
-    if (nTimer <= 0) {
-      npc.dx = (Math.random() - 0.5) * 2;
-      npc.dy = (Math.random() - 0.5) * 2;
-      nTimer = Math.floor(Math.random() * 120) + 60;
-    }
-    return { ...npc, x: nX, y: nY, moveTimer: nTimer };
-  };
-
-  const findActiveZone = (playerX: number, playerY: number): string | null => {
+  ): string | null => {
     for (const [key, zone] of Object.entries(OVERWORLD_ZONES)) {
       if (
         playerX < zone.x + zone.w + 20 &&
         playerX + PLAYER_SIZE > zone.x - 20 &&
         playerY < zone.y + zone.h + 20 &&
         playerY + PLAYER_SIZE > zone.y - 20
-      ) {
+      )
         return key;
-      }
     }
     return null;
   };
 
   useEffect(() => {
     if (activeDialogue) return;
-
     const interval = setInterval(() => {
       setPos((prev) => {
-        const { dx, dy } = calculatePlayerMovement(prev, targetPos);
+        let dx = 0;
+        let dy = 0;
+        if (targetPos) {
+          const dist = Math.hypot(targetPos.x - prev.x, targetPos.y - prev.y);
+          if (dist < speed) setTargetPos(null);
+          else {
+            dx = ((targetPos.x - prev.x) / dist) * speed;
+            dy = ((targetPos.y - prev.y) / dist) * speed;
+          }
+        } else {
+          if (up) dy -= speed;
+          if (down) dy += speed;
+          if (left) dx -= speed;
+          if (right) dx += speed;
+        }
 
         let newX = prev.x + dx;
         let newY = prev.y + dy;
-
         newX = Math.max(0, Math.min(newX, GAME_WIDTH - PLAYER_SIZE));
         newY = Math.max(0, Math.min(newY, GAME_HEIGHT - PLAYER_SIZE));
 
@@ -254,47 +201,89 @@ export default function OverworldStage({
         }
 
         setNpcs((prevNpcs) =>
-          prevNpcs.map((npc) => updateNPCPosition(npc, newX, newY)),
+          prevNpcs.map((npc) => {
+            if (npc.isHidden) {
+              if (npc.hideTimer <= 0)
+                return {
+                  ...npc,
+                  isHidden: false,
+                  x: 600,
+                  y: 100 + Math.random() * 100,
+                  dx: -1,
+                  dy: Math.random() - 0.5,
+                };
+              return { ...npc, hideTimer: npc.hideTimer - 1 };
+            }
+            const distToPlayer = Math.hypot(newX - npc.x, newY - npc.y);
+            let stepX = npc.dx;
+            let stepY = npc.dy;
+            if (distToPlayer < 80 && (dx !== 0 || dy !== 0)) {
+              stepX *= 0.3;
+              stepY *= 0.3;
+            }
+            let nX = npc.x + stepX;
+            let nY = npc.y + stepY;
+
+            if (nX > 650 && Math.random() < 0.01)
+              return {
+                ...npc,
+                isHidden: true,
+                hideTimer: Math.floor(Math.random() * 180) + 120,
+              };
+            if (
+              nX <= 0 ||
+              nX >= GAME_WIDTH - PLAYER_SIZE ||
+              checkCollision(nX, npc.y)
+            )
+              npc.dx *= -1;
+            if (
+              nY <= 0 ||
+              nY >= GAME_HEIGHT - PLAYER_SIZE ||
+              checkCollision(npc.x, nY)
+            )
+              npc.dy *= -1;
+
+            let nTimer = npc.moveTimer - 1;
+            if (nTimer <= 0) {
+              npc.dx = (Math.random() - 0.5) * 2;
+              npc.dy = (Math.random() - 0.5) * 2;
+              nTimer = Math.floor(Math.random() * 120) + 60;
+            }
+            return { ...npc, x: nX, y: nY, moveTimer: nTimer };
+          }),
         );
 
-        // Calculate distances for all NPCs
-        const npcDistances = npcs.map((npc) => ({
-          npc,
-          distance: Math.hypot(newX - npc.x, newY - npc.y),
-        }));
+        // FIX: Proximity check correctly prioritizes NPCs or Zones without overwriting each other
+        let currentActive = findActiveStaticZone(newX, newY);
+        if (!currentActive) {
+          const npcDistances = npcs.map((npc) => ({
+            npc,
+            distance: Math.hypot(newX - npc.x, newY - npc.y),
+          }));
+          if (npcDistances.length > 0) {
+            const closestNpc = npcDistances.reduce((prev, current) =>
+              current.distance < prev.distance ? current : prev,
+            );
+            if (closestNpc.distance < 40) currentActive = closestNpc.npc.id;
 
-        if (npcDistances.length > 0) {
-          // Find closest NPC
-          const closestNpc = npcDistances.reduce((prev, current) =>
-            current.distance < prev.distance ? current : prev,
-          );
-
-          if (closestNpc.distance < 40) {
-            setActiveZone(closestNpc.npc.id);
-          }
-
-          // Check for bump collision
-          if (
-            closestNpc.distance < 32 &&
-            (dx !== 0 || dy !== 0) &&
-            Math.random() < 0.05 &&
-            !bumpMsg
-          ) {
-            setBumpMsg({ id: closestNpc.npc.id, msg: "Watch it!" });
-            setTimeout(() => setBumpMsg(null), 1500);
+            if (
+              closestNpc.distance < 32 &&
+              (dx !== 0 || dy !== 0) &&
+              Math.random() < 0.05 &&
+              !bumpMsg
+            ) {
+              setBumpMsg({ id: closestNpc.npc.id, msg: "Watch it!" });
+              setTimeout(() => setBumpMsg(null), 1500);
+            }
           }
         }
-
-        const zone = findActiveZone(newX, newY);
-        setActiveZone(zone);
+        setActiveZone(currentActive);
         return { x: newX, y: newY };
       });
     }, 1000 / 60);
-
     return () => clearInterval(interval);
-  }, [up, down, left, right, targetPos, activeDialogue, bumpMsg]);
+  }, [up, down, left, right, targetPos, activeDialogue, bumpMsg, npcs]);
 
-  // Centralized interaction handler
   const triggerInteraction = () => {
     if (!activeZone || activeDialogue) return;
     setTargetPos(null);
@@ -302,19 +291,22 @@ export default function OverworldStage({
     const activeNpc = npcs.find((n) => n.id === activeZone);
 
     if (staticZone) {
-      if (activeZone === "lightBooth" || activeZone === "soundBooth") {
-        if (staticZone.targetDept === department) onComplete();
-        else {
-          setFeedbackMsg("Wrong booth!");
-          setTimeout(() => setFeedbackMsg(null), 2500);
-        }
+      if (activeZone === targetZoneId) {
+        onComplete(); // Successfully advanced to the right place!
+      } else if (
+        activeZone === "lightBooth" ||
+        activeZone === "soundBooth" ||
+        activeZone === "wings" ||
+        activeZone === "stageManager"
+      ) {
+        setFeedbackMsg(`Not here! Head to the ${targetLabel}!`);
+        setTimeout(() => setFeedbackMsg(null), 2500);
       } else if (staticZone.dialogues) {
-        // Randomly pick a dialogue line
-        const randomDiag =
+        setActiveDialogue(
           staticZone.dialogues[
             Math.floor(Math.random() * staticZone.dialogues.length)
-          ];
-        setActiveDialogue(randomDiag);
+          ],
+        );
       } else if (staticZone.dialogue) {
         setActiveDialogue(staticZone.dialogue);
       }
@@ -322,13 +314,12 @@ export default function OverworldStage({
       setActiveDialogue({
         speaker: activeNpc.name,
         icon: activeNpc.icon,
-        text: `Hey, I'm ${activeNpc.name}. Break a leg out there!`,
-        choices: [{ id: "ok", text: "Thanks!", pointDelta: 0, contact: null }],
+        text: `Hey, I'm ${activeNpc.name}. We need to hurry!`,
+        choices: [{ id: "ok", text: "Got it.", pointDelta: 0, contact: null }],
       });
     }
   };
 
-  // Trigger on Key press
   useEffect(() => {
     if (interactBtn) triggerInteraction();
   }, [interactBtn]);
@@ -351,7 +342,7 @@ export default function OverworldStage({
           background: "var(--color-surface-translucent)",
           padding: "1rem",
           borderRadius: "8px",
-          border: "1px solid var(--bui-fg-warning)",
+          border: `1px solid var(--bui-fg-warning)`,
         }}
       >
         <h2
@@ -361,16 +352,12 @@ export default function OverworldStage({
             fontFamily: "var(--font-mono)",
           }}
         >
-          SYSTEM STANDBY: BACKSTAGE AREA
+          CURRENT OBJECTIVE
         </h2>
         <p
           style={{ margin: "0.5rem 0 0 0", color: "var(--color-pencil-light)" }}
         >
-          The house is open and the audience is seating. Report to the{" "}
-          <strong>
-            {department === "lighting" ? "LIGHTING (LX)" : "SOUND"} BOOTH
-          </strong>{" "}
-          immediately!
+          <strong>{instructionText}</strong>
         </p>
       </div>
 
@@ -404,6 +391,8 @@ export default function OverworldStage({
               border: activeZone === key ? "3px solid #fbbf24" : "none",
               boxSizing: "border-box",
               fontWeight: "bold",
+              fontFamily:
+                "var(--font-sketch)" /* FIX: Architect's Daughter Font */,
             }}
           >
             {zone.label}
@@ -430,10 +419,9 @@ export default function OverworldStage({
                   activeZone === npc.id
                     ? "2px solid #fbbf24"
                     : "1px solid #555",
-                fontSize: "20px", // Adjusted to fit actual emojis
+                fontSize: "20px",
               }}
             >
-              {/* FULL NAME AND COLOR TAG */}
               <div
                 style={{
                   position: "absolute",
@@ -441,7 +429,7 @@ export default function OverworldStage({
                   fontFamily: "var(--font-mono)",
                   fontSize: "12px",
                   fontWeight: "bold",
-                  color: DEPT_COLORS[npc.department] || "#fff",
+                  color: DEPT_COLORS[npc.dept] || "#fff",
                   whiteSpace: "nowrap",
                   textShadow: "1px 1px 2px #000",
                 }}
@@ -471,7 +459,6 @@ export default function OverworldStage({
           </div>
         )}
 
-        {/* Clickable Action Button */}
         {activeZone && !activeDialogue && !feedbackMsg && (
           <div
             style={{
@@ -496,21 +483,7 @@ export default function OverworldStage({
           </div>
         )}
 
-        {targetPos && (
-          <div
-            style={{
-              position: "absolute",
-              left: `${(targetPos.x / GAME_WIDTH) * 100}%`,
-              top: `${(targetPos.y / GAME_HEIGHT) * 100}%`,
-              width: "10px",
-              height: "10px",
-              background: "rgba(255,255,255,0.5)",
-              borderRadius: "50%",
-              transform: "translate(11px, 11px)",
-            }}
-          />
-        )}
-
+        {/* FIX: Player Character is now their specific Emoji / Icon */}
         <div
           style={{
             position: "absolute",
@@ -518,11 +491,32 @@ export default function OverworldStage({
             top: `${(pos.y / GAME_HEIGHT) * 100}%`,
             width: `${(PLAYER_SIZE / GAME_WIDTH) * 100}%`,
             height: `${(PLAYER_SIZE / GAME_HEIGHT) * 100}%`,
-            background: "#06d6a0",
-            borderRadius: "4px",
+            background: "rgba(0,0,0,0.7)",
+            borderRadius: "50%",
+            border: "2px solid #06d6a0",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: "20px",
             zIndex: 100,
           }}
-        />
+        >
+          <div
+            style={{
+              position: "absolute",
+              top: "-22px",
+              fontFamily: "var(--font-mono)",
+              fontSize: "12px",
+              fontWeight: "bold",
+              color: "#06d6a0",
+              whiteSpace: "nowrap",
+              textShadow: "1px 1px 2px #000",
+            }}
+          >
+            YOU
+          </div>
+          {playerChar?.icon || "👤"}
+        </div>
       </button>
 
       <div style={{ minHeight: "150px" }}>

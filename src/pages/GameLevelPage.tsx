@@ -33,15 +33,24 @@ export default function GameLevelPage() {
 
   // Change this state to represent if we are in the Overworld walking around
   const [isInOverworld, setIsInOverworld] = useState(false);
+  // Quit confirmation state
+  const [showQuitConfirm, setShowQuitConfirm] = useState(false);
 
   if (!state.session) return <Navigate to="/" replace />;
 
   const currentStageKey = state.session.stages[state.session.currentStageIndex];
+  const nextStageKey =
+    state.session.stages[state.session.currentStageIndex + 1];
   const ActiveStage = STAGE_COMPONENTS[currentStageKey];
 
   function handleStageAdvance() {
     // Determine if the *current* stage and the *next* stage happen in the same place
-    const noOverworldStages = ["execution", "wrapup"]; // Add any stages that shouldn't trigger an overworld walk
+    const noOverworldStages = ["wrapup"]; // Add any stages that shouldn't trigger an overworld walk
+    if (currentStageKey === "wrapup") {
+      handleComplete();
+    } else {
+      setIsInOverworld(true);
+    }
 
     if (noOverworldStages.includes(currentStageKey)) {
       // Skip overworld, go straight to the next UI
@@ -114,26 +123,100 @@ export default function GameLevelPage() {
     );
   }
 
-  // If we are transitioning, render the RPG Overworld instead of the visual delay
-  if (isInOverworld) {
-    return (
+  return (
+    <div
+      style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+    >
+      <div style={{ flex: 1, paddingBottom: "80px" }}>
+        {isInOverworld ? (
+          <div
+            className="page-container"
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh",
+            }}
+          >
+            <OverworldStage
+              onComplete={handleOverworldComplete}
+              department={char?.department}
+              charId={char?.id}
+              nextStageKey={nextStageKey}
+            />
+          </div>
+        ) : (
+          <ActiveStage
+            cueSheet={departmentCues}
+            onComplete={handleStageAdvance}
+          />
+        )}
+      </div>
+
       <div
-        className="page-container"
         style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: "var(--color-surface-translucent)",
+          borderTop: "1px solid var(--glass-border)",
+          padding: "10px",
           display: "flex",
           justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
+          zIndex: 5000,
+          backdropFilter: "blur(10px)",
         }}
       >
-        <OverworldStage
-          onComplete={handleOverworldComplete}
-          department={char?.department} // <-- ADD THIS LINE
-        />
+        {showQuitConfirm ? (
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+            <span style={{ color: "var(--bui-fg-danger)", fontWeight: "bold" }}>
+              Abandon show? You will fail!
+            </span>
+            <button
+              onClick={() => navigate("/")}
+              style={{
+                background: "var(--bui-fg-danger)",
+                color: "#fff",
+                padding: "5px 15px",
+                border: "none",
+                borderRadius: "4px",
+                fontWeight: "bold",
+                cursor: "pointer",
+              }}
+            >
+              Yes, Quit
+            </button>
+            <button
+              onClick={() => setShowQuitConfirm(false)}
+              style={{
+                background: "#444",
+                color: "#fff",
+                padding: "5px 15px",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowQuitConfirm(true)}
+            style={{
+              background: "transparent",
+              color: "var(--color-pencil-light)",
+              padding: "5px 15px",
+              border: "1px solid var(--glass-border)",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            ⏏ Leave Show (Home)
+          </button>
+        )}
       </div>
-    );
-  }
-  return (
-    <ActiveStage cueSheet={departmentCues} onComplete={handleStageAdvance} />
+    </div>
   );
 }
