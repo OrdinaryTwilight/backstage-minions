@@ -102,12 +102,11 @@ export default function GameLevelPage() {
       <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         <OverworldStage 
           onComplete={handleOverworldComplete} 
-          nextStageName={nextStageKey?.toUpperCase()} 
+          department={char?.department} // <-- ADD THIS LINE
         />
       </div>
     );
   }
-
   return (
     <ActiveStage 
       cueSheet={departmentCues} 
