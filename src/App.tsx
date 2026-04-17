@@ -4,6 +4,7 @@ import { Suspense, lazy } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Spinner } from "./components/ui/Spinner";
 import { GameProvider } from "./context/GameContext";
+import { VisualSettingsProvider } from "./context/VisualSettingsContext";
 
 // Eager load critical routes
 import "./App.css";
@@ -21,10 +22,10 @@ const StoriesPage = lazy(() => import("./pages/StoriesPage"));
 
 function App() {
   return (
-
-    <GameProvider>
-      <Router>
-        <Routes>
+    <VisualSettingsProvider>
+      <GameProvider>
+        <Router>
+          <Routes>
           <Route path="/" element={<HomePage />} />
 
           <Route
@@ -105,6 +106,7 @@ function App() {
         <SpeedInsights />
       </Router>
     </GameProvider>
+    </VisualSettingsProvider>
   );
 }
 

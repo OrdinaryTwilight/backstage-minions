@@ -18,6 +18,7 @@
   --font-main: 'Architects Daughter', cursive;
   --font-mono: 'JetBrains Mono', monospace;
   --font-sketch: 'Architects Daughter', cursive;
+  --user-font-family: var(--font-sketch);
 
   /* Layout & Glassmorphism */
   --radius-pill: 32px;
@@ -51,6 +52,9 @@
   --duration-normal: 300ms;   /* Standard transitions: fade, scale */
   --duration-slow: 400ms;     /* Emphasis animations: feedback overlay */
   --duration-long: 1s;        /* Stage transitions */
+
+  /* Accessibility Settings - Default Values */
+  --font-size-multiplier: 1;
 }
 
 /* --- 2. GLOBAL RESET & BASE --- */
@@ -66,8 +70,8 @@ body {
   margin: 0;
   background-color: var(--color-blueprint-bg);
   color: var(--color-pencil-light);
-  font-family: var(--font-main);
-  font-size: 14px;
+  font-family: var(--user-font-family), var(--font-main);
+  font-size: calc(14px * var(--font-size-multiplier));
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   /* Dark Technical Grid Background */
@@ -79,8 +83,30 @@ body {
 
 @media (max-width: 640px) {
   body {
-    font-size: 12px;
+    font-size: calc(12px * var(--font-size-multiplier));
   }
+}
+
+/* High Contrast Mode */
+.high-contrast-mode {
+  --bui-fg-success: #7fff00;
+  --bui-fg-danger: #ff0000;
+  --bui-fg-info: #00ffff;
+  --bui-fg-warning: #ffff00;
+  --glass-border: rgba(255, 255, 255, 0.5);
+  --color-pencil-light: #ffffff;
+}
+
+.high-contrast-mode body {
+  background-color: #000000;
+}
+
+/* Reduced Motion */
+.prefers-reduced-motion,
+.prefers-reduced-motion * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
 }
 
 #root {
