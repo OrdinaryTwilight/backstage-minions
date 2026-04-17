@@ -194,6 +194,23 @@ function reducer(state: GameState, action: GameAction): GameState {
       };
     }
 
+    case "MARK_CONFLICT_SEEN":
+      return {
+        ...state,
+        session: state.session
+          ? {
+              ...state.session,
+              conflictsSeen: [...state.session.conflictsSeen, action.conflictId],
+            }
+          : null,
+      };
+
+    case "ADD_CONTACT":
+      return {
+        ...state,
+        contacts: [...state.contacts, action.name],
+      };
+
     case "CLEAR_SESSION":
       return { ...state, session: null };
 

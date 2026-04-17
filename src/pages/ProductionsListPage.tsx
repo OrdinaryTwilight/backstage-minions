@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import NavBar from "../components/NavBar";
 import HardwarePanel from "../components/ui/HardwarePanel";
+import NavBar from "../components/ui/NavBar";
 import SectionHeader from "../components/ui/SectionHeader";
 import { PRODUCTIONS } from "../data/gameData";
 

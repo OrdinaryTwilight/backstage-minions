@@ -10,7 +10,7 @@ interface EquipmentStageProps {
 export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
   const { dispatch } = useGame();
 
-  function handleSelect(pkg) {
+  function handleSelect(pkg: typeof GEAR_PACKAGES[0]) {
     // Save selection to state
     dispatch({ type: "SET_GEAR", gearId: pkg.id });
     // Advance to the next stage (Planning)

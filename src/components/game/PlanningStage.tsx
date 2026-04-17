@@ -2,9 +2,9 @@ import { useMemo, useState } from "react";
 import { useGame } from "../../context/GameContext";
 import { SCORING } from "../../data/constants";
 import {
-    LIGHT_TYPES,
-    PLOT_GRID_COLS,
-    PLOT_GRID_ROWS,
+  LIGHT_TYPES,
+  PLOT_GRID_COLS,
+  PLOT_GRID_ROWS,
 } from "../../data/gameData";
 import Button from "../ui/Button";
 import HardwarePanel from "../ui/HardwarePanel";
@@ -35,7 +35,7 @@ export default function PlanningStage({ onComplete }: PlanningStageProps) {
     return { placedCount: count, isFail: fail };
   }, [grid, reportScore]);
 
-  function placeLight(i) {
+  function placeLight(i: number) {
     if (submitted) return;
     setGrid((g) => {
       const copy = [...g];
@@ -154,7 +154,8 @@ export default function PlanningStage({ onComplete }: PlanningStageProps) {
             >
               {grid.map((cell, i) => {
                 if (!cell) return null;
-                const type = LIGHT_TYPES.find((t) => t.id === cell.typeId); // 'type' is defined here
+                const type = LIGHT_TYPES.find((t) => t.id === cell.typeId);
+                if (!type) return null;
                 const col = i % PLOT_GRID_COLS;
                 const isSpot = type.id === "spot";
 
@@ -193,6 +194,7 @@ export default function PlanningStage({ onComplete }: PlanningStageProps) {
                 {grid.map((cell, i) => {
                   if (!cell) return null;
                   const type = LIGHT_TYPES.find((t) => t.id === cell.typeId);
+                  if (!type) return null;
                   const col = i % PLOT_GRID_COLS;
                   return (
                     <div

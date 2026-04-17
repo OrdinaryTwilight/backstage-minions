@@ -38,7 +38,7 @@ export default function LevelCompletePage() {
           >
             📖 New stories unlocked!
           </h2>
-          {newStories.map((id) => {
+          {newStories.map((id: string) => {
             const s = STORIES.find((st) => st.id === id);
             return s ? (
               <div key={id} style={{ marginBottom: "0.5rem" }}>

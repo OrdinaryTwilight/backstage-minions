@@ -178,6 +178,25 @@ export interface GameState {
 
 export type Difficulty = "school" | "community" | "professional";
 
+// ============================================================================
+// STORY & LORE
+// ============================================================================
+
+/**
+ * Story: Represents a story record unlocked through game progression
+ * Stories are unlocked by completing levels with sufficient stars
+ */
+export interface Story {
+  id: string;
+  title: string;
+  content: string;
+  unlockedBy: {
+    productionId: string;
+    difficulty: Difficulty;
+    minStars: number;
+  };
+}
+
 /**
  * GameAction: Discriminated union of all possible reducer actions
  * Each action is strictly typed with its required payload
@@ -186,6 +205,7 @@ export type Difficulty = "school" | "community" | "professional";
  * - Session Lifecycle: START_SESSION, CLEAR_SESSION, NEXT_STAGE
  * - Score & Progress: ADD_SCORE, LOSE_LIFE, CUE_HIT, CUE_MISSED, COMPLETE_LEVEL
  * - Stage State: SET_GEAR, SET_PLOT_LIGHTS
+ * - Conflict & Contacts: MARK_CONFLICT_SEEN, ADD_CONTACT
  * - Persistence: LOAD_SAVE
  */
 export type GameAction =
@@ -203,6 +223,8 @@ export type GameAction =
   | { type: "CUE_HIT" }
   | { type: "CUE_MISSED" }
   | { type: "SET_PLOT_LIGHTS"; lights: LightPlotNode[] }
+  | { type: "MARK_CONFLICT_SEEN"; conflictId: string }
+  | { type: "ADD_CONTACT"; name: string }
   | {
       type: "COMPLETE_LEVEL";
       productionId: string;

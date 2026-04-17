@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
-import NavBar from "../components/NavBar";
 import DifficultyPill from "../components/ui/DifficultyPill";
 import HardwarePanel from "../components/ui/HardwarePanel";
+import NavBar from "../components/ui/NavBar";
 import { useGame } from "../context/GameContext";
 import { PRODUCTIONS } from "../data/gameData";
 
@@ -115,19 +115,19 @@ export default function HomePage() {
                     <DifficultyPill
                       label="School"
                       stars={state?.progress?.[`${p.id}_school`]?.stars || 0}
-                      unlocked={p.levels.school.unlocked}
+                      unlocked={p.levels.school?.unlocked ?? false}
                     />
                     <DifficultyPill
                       label="Comm"
                       stars={state?.progress?.[`${p.id}_community`]?.stars || 0}
-                      unlocked={p.levels.community.unlocked}
+                      unlocked={p.levels.community?.unlocked ?? false}
                     />
                     <DifficultyPill
                       label="Prof"
                       stars={
                         state?.progress?.[`${p.id}_professional`]?.stars || 0
                       }
-                      unlocked={p.levels.professional.unlocked}
+                      unlocked={p.levels.professional?.unlocked ?? false}
                     />
                   </div>
                 </HardwarePanel>

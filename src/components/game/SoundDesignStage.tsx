@@ -12,17 +12,18 @@ interface SoundDesignStageProps {
 
 export default function SoundDesignStage({ onComplete }: SoundDesignStageProps) {
   const { state, dispatch } = useGame();
-  const [patch, setPatch] = useState({ inputs: {}, outputs: {} });
+  const [patch, setPatch] = useState<Record<string, Record<string, number>>>({ inputs: {}, outputs: {} });
   const [submitted, setSubmitted] = useState(false);
 
   // Character data available but not used in current implementation
-  void CHARACTERS.find((c) => c.id === state.session.characterId);
+  const char = state.session ? CHARACTERS.find((c) => c.id === state.session?.characterId) : null;
+  void char; // Mark as intentionally unused
 
   const sources = ["Vocals 1", "Vocals 2", "Pit Orchestra", "SFX Playback"];
   const consoleChannels = [1, 2, 3, 4];
   const outputBuses = ["Main L/R", "Foldback (Stage)", "Subwoofers"];
 
-  const handlePatch = (type, source, target) => {
+  const handlePatch = (type: string, source: string, target: number) => {
     setPatch((prev) => ({
       ...prev,
       [type]: { ...prev[type], [source]: target },
@@ -74,13 +75,13 @@ export default function SoundDesignStage({ onComplete }: SoundDesignStageProps) 
                     <button
                       key={ch}
                       onClick={() => handlePatch("inputs", src, ch)}
-                      className={`plot-cell ${patch.inputs[src] === ch ? "active" : ""}`}
+                      className={`plot-cell ${(patch.inputs as Record<string, number>)[src] === ch ? "active" : ""}`}
                       style={{
                         width: "30px",
                         height: "30px",
                         borderRadius: "50%",
                         background:
-                          patch.inputs[src] === ch
+                          (patch.inputs as Record<string, number>)[src] === ch
                             ? "var(--bui-fg-info)"
                             : "rgba(255,255,255,0.05)",
                       }}
@@ -121,7 +122,7 @@ export default function SoundDesignStage({ onComplete }: SoundDesignStageProps) 
                         flex: 1,
                         fontSize: "0.7rem",
                         background:
-                          patch.outputs[bus] === ch
+                          (patch.outputs as Record<string, number>)[bus] === ch
                             ? "var(--bui-fg-success)"
                             : "",
                       }}

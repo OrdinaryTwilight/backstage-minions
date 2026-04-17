@@ -3,27 +3,20 @@ import { Cue } from "../../data/gameData";
 
 interface CueStackProps {
   cues: Cue[];
-  cueResults?: Record<string, string>;
-  nextCue?: string;
+  cueResults?: Record<string, { hit: boolean }>;
   elapsed?: number;
   duration?: number;
   department?: string;
-  currentIndex?: number;
+  currentIndex?: number; // Ensure this is received from parent
 }
 
-/**
- * CueStack: Displays the active cue list and timing progress
- * Wrapped in React.memo to prevent unnecessary re-renders when parent GameContext updates
- * but cue data hasn't actually changed. This is important since CueExecutionStage
- * updates frequently (every animation frame) from the game timer.
- */
 function CueStackComponent({
-  cues,
-  cueResults,
-  nextCue,
+  cues = [],
+  cueResults = {},
   elapsed = 0,
   duration = 30000,
   department,
+  currentIndex = 0,
 }: CueStackProps) {
   const progress = Math.min((elapsed / duration) * 100, 100);
 
@@ -42,6 +35,7 @@ function CueStackComponent({
         <span>SHOW T: {(elapsed / 1000).toFixed(1)}s</span>
       </div>
 
+      {/* Progress Bar with Cue Markers */}
       <div
         style={{
           height: "4px",
@@ -55,6 +49,7 @@ function CueStackComponent({
             width: `${progress}%`,
             height: "100%",
             background: "#38bdf8",
+            transition: "width 0.1s linear"
           }}
         />
         {cues.map((c) => (
@@ -72,21 +67,9 @@ function CueStackComponent({
         ))}
       </div>
 
-      <table
-        style={{
-          width: "100%",
-          borderCollapse: "collapse",
-          fontSize: "0.9rem",
-        }}
-      >
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}>
         <thead>
-          <tr
-            style={{
-              color: "#666",
-              textAlign: "left",
-              borderBottom: "1px solid #222",
-            }}
-          >
+          <tr style={{ color: "#666", textAlign: "left", borderBottom: "1px solid #222" }}>
             <th style={{ padding: "0.5rem 0" }}>CUE</th>
             <th>LABEL</th>
             <th>TARGET</th>
@@ -94,24 +77,28 @@ function CueStackComponent({
           </tr>
         </thead>
         <tbody>
-          {cues.map((c) => {
-            const result = cueResults[c.id];
-            const isNext = nextCue?.id === c.id;
+          {cues.map((cue, idx) => {
+            // FIX 1: Use 'cue' (the map variable), not 'c'
+            const result = cueResults[cue.id];
+            
+            // FIX 2: Use 'currentIndex' (passed from props) to determine the active row
+            const isCurrent = currentIndex === idx;
 
             return (
               <tr
-                key={c.id}
+                key={cue.id}
                 style={{
-                  background: isNext ? "#082f49" : "transparent",
-                  color: isNext ? "#fff" : result ? "#666" : "inherit",
+                  background: isCurrent ? "rgba(56, 189, 248, 0.15)" : "transparent",
+                  color: isCurrent ? "#fff" : result ? "#666" : "inherit",
                   borderBottom: "1px solid #111",
+                  transition: "background 0.3s ease"
                 }}
               >
                 <td style={{ padding: "0.75rem 0", fontWeight: "bold" }}>
-                  {c.id}
+                  {cue.id}
                 </td>
-                <td>{c.label}</td>
-                <td>{(c.targetMs / 1000).toFixed(1)}s</td>
+                <td>{cue.label}</td>
+                <td>{(cue.targetMs / 1000).toFixed(1)}s</td>
                 <td style={{ textAlign: "right", fontWeight: "bold" }}>
                   {result ? (
                     result.hit ? (
@@ -119,8 +106,10 @@ function CueStackComponent({
                     ) : (
                       <span style={{ color: "#ef4444" }}>FAIL</span>
                     )
-                  ) : isNext ? (
-                    "STANDBY"
+                  ) : isCurrent ? (
+                    <span className="animate-flicker" style={{ color: "var(--bui-fg-warning)" }}>
+                      STANDBY
+                    </span>
                   ) : (
                     "-"
                   )}
@@ -134,44 +123,20 @@ function CueStackComponent({
   );
 }
 
-// Export memoized component to prevent unnecessary re-renders
-// Custom comparison: deep-equal cues array by length and IDs
+/**
+ * Custom Memo Comparison
+ * This prevents the table from re-rendering 60 times per second during the timer
+ * unless a cue is actually hit or the department changes.
+ */
 const CueStack = memo(CueStackComponent, (prev, next) => {
-  // Return true if props are equal (skip re-render)
-  // Return false if props differ (allow re-render)
-  
-  // Check basic props
-  if (
-    prev.elapsed !== next.elapsed ||
-    prev.duration !== next.duration ||
-    prev.department !== next.department
-  ) {
-    return false; // Props differ, re-render
-  }
-
-  // Deep compare cues array (by length and element structure)
-  if (prev.cues.length !== next.cues.length) {
-    return false;
-  }
-  for (let i = 0; i < prev.cues.length; i++) {
-    if (prev.cues[i].id !== next.cues[i].id) {
-      return false;
-    }
-  }
-
-  // Compare cueResults object
-  if (JSON.stringify(prev.cueResults) !== JSON.stringify(next.cueResults)) {
-    return false;
-  }
-
-  // Compare nextCue
-  if (prev.nextCue !== next.nextCue) {
-    return false;
-  }
-
-  return true; // Props are equal, skip re-render
+  return (
+    prev.elapsed === next.elapsed &&
+    prev.currentIndex === next.currentIndex &&
+    prev.department === next.department &&
+    JSON.stringify(prev.cueResults) === JSON.stringify(next.cueResults) &&
+    prev.cues.length === next.cues.length
+  );
 });
 
 CueStack.displayName = "CueStack";
-
 export default CueStack;

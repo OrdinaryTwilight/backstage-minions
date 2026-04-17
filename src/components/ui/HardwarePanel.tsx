@@ -1,10 +1,11 @@
-import { CSSProperties, ReactNode } from "react";
+import React, { CSSProperties, ReactNode } from "react";
 
 interface HardwarePanelProps {
   children: ReactNode;
   variant?: string;
   className?: string;
   style?: CSSProperties;
+  // This already allows KeyboardEvent, so the call inside handleKeyDown is safe
   onClick?: (e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>) => void;
   [key: string]: unknown;
 }
@@ -19,7 +20,7 @@ export default function HardwarePanel({
 }: HardwarePanelProps) {
   const isClickable = variant === "clickable" || !!onClick;
 
-  const handleKeyDown = (e) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     if (onClick && (e.key === "Enter" || e.key === " ")) {
       e.preventDefault();
       onClick(e);

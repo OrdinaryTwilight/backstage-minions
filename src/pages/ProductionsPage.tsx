@@ -1,9 +1,9 @@
 // src/pages/ProductionsPage.jsx
 import { useNavigate, useParams } from "react-router-dom";
-import NavBar from "../components/NavBar";
 import Button from "../components/ui/Button";
 import DifficultyPill from "../components/ui/DifficultyPill";
 import HardwarePanel from "../components/ui/HardwarePanel";
+import NavBar from "../components/ui/NavBar";
 import SectionHeader from "../components/ui/SectionHeader";
 import { useGame } from "../context/GameContext";
 import { PRODUCTIONS, VENUES } from "../data/gameData";

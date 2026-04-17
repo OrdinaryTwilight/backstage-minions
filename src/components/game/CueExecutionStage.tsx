@@ -17,10 +17,10 @@ export default function CueExecutionStage({ cueSheet, onComplete }: CueExecution
   const [currentIdx, setCurrentIdx] = useState(0);
   const [faderLevels, setFaderLevels] = useState([80, 80, 80, 80, 100]);
   const [lastResult, setLastResult] = useState<"hit" | "miss" | null>(null);
-  const char = CHARACTERS.find((c) => c.id === state.session.characterId);
+  const char = state.session ? CHARACTERS.find((c) => c.id === state.session?.characterId) : null;
   const currentCue = cueSheet[currentIdx];
   const isLastCue = currentIdx === cueSheet.length - 1;
-
+  const [cueResults, setCueResults] = useState<Record<string, { hit: boolean }>>({});
   /**
    * checkFaderAlignment: Core scoring logic for booth execution
    *
@@ -158,8 +158,11 @@ export default function CueExecutionStage({ cueSheet, onComplete }: CueExecution
               </div>
             </div>
           </HardwarePanel>
-
-          <CueStack cues={cueSheet} currentIndex={currentIdx} />
+          <CueStack
+            cues={cueSheet}
+            currentIndex={currentIdx}
+            cueResults={cueResults || {}}
+          />
         </div>
 
         <div className="desktop-col-side">

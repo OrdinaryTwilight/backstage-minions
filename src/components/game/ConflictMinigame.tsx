@@ -1,20 +1,19 @@
 import { useState } from "react";
 import { useGame } from "../../context/GameContext";
-import { Conflict } from "../../data/gameData";
+import { Conflict, ConflictChoice, NPC_ICONS } from "../../data/gameData";
 import DialogueBox from "./DialogueBox";
 
 interface ConflictMinigameProps {
   conflict: Conflict;
-  onResolved: () => void;
+  onResolved: (outcome: string) => void;
 }
 
 export default function ConflictMinigame({ conflict, onResolved }: ConflictMinigameProps) {
   const { dispatch } = useGame();
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<ConflictChoice | null>(null);
 
-  function handleChoice(choice) {
+  function handleChoice(choice: ConflictChoice) {
     dispatch({ type: "MARK_CONFLICT_SEEN", conflictId: conflict.id });
-    // Safety check for pointDelta to prevent NaN score bugs
     dispatch({ type: "ADD_SCORE", delta: Number(choice.pointDelta) || 0 });
 
     if (choice.sideEffect === "ally_gained") {
@@ -27,22 +26,12 @@ export default function ConflictMinigame({ conflict, onResolved }: ConflictMinig
   if (result) {
     const isEscalated = result.outcome === "escalated";
     return (
-      <div className="hardware-panel">
-        <h2
-          style={{
-            color: isEscalated ? "var(--bui-fg-danger)" : "var(--bui-fg-info)",
-          }}
-        >
+      <div className="hardware-panel animate-pop">
+        <h2 style={{ color: isEscalated ? "var(--bui-fg-danger)" : "var(--bui-fg-info)" }}>
           ⚡ CONFLICT {isEscalated ? "ESCALATED" : "RESOLVED"}
         </h2>
         <div className="pxbox">
-          <h3
-            style={{
-              color: isEscalated
-                ? "var(--bui-fg-danger)"
-                : "var(--bui-fg-success)",
-            }}
-          >
+          <h3 style={{ color: isEscalated ? "var(--bui-fg-danger)" : "var(--bui-fg-success)" }}>
             {result.outcome.toUpperCase()}
           </h3>
           <p style={{ margin: "1rem 0" }}>{result.aftermathText}</p>
@@ -60,9 +49,12 @@ export default function ConflictMinigame({ conflict, onResolved }: ConflictMinig
   return (
     <div>
       <h2 style={{ color: "var(--bui-fg-danger)" }}>⚡ CONFLICT</h2>
+      {/* FIX 1: Cast conflict.npc to 'keyof typeof NPC_ICONS' to resolve TS7053 indexing error.
+         FIX 2: Passing ConflictChoice[] works because it satisfies 'DialogueBoxChoice' constraint.
+      */}
       <DialogueBox
         speaker={conflict.npc}
-        icon={NPC_ICONS[conflict.npc]} // Look up NPC icon
+        icon={NPC_ICONS[conflict.npc as keyof typeof NPC_ICONS]} 
         text={conflict.description}
         choices={conflict.choices}
         onChoice={handleChoice}

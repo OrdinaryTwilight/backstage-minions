@@ -1,14 +1,15 @@
 // src/pages/StoriesPage.jsx
 import { useState } from "react";
-import NavBar from "../components/NavBar";
-import HardwarePanel from "../components/ui/HardwarePanel"; // FIX: Missing import
-import SectionHeader from "../components/ui/SectionHeader"; // FIX: Missing import
+import HardwarePanel from "../components/ui/HardwarePanel";
+import NavBar from "../components/ui/NavBar";
+import SectionHeader from "../components/ui/SectionHeader";
 import { useGame } from "../context/GameContext";
 import { STORIES } from "../data/gameData";
+import type { Story } from "../types/game";
 
 export default function StoriesPage() {
   const { state } = useGame();
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState<Story | null>(null);
 
   const unlocked = STORIES.filter((s) =>
     state?.unlockedStories?.includes(s.id),

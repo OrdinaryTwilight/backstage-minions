@@ -33,7 +33,7 @@ export default function GameLevelPage() {
   // Determine current component
   const currentStageKey =
     state.session.stages?.[state.session.currentStageIndex];
-  const ActiveStage = STAGE_COMPONENTS[currentStageKey];
+  const ActiveStage = currentStageKey ? STAGE_COMPONENTS[currentStageKey as keyof typeof STAGE_COMPONENTS] : undefined;
 
   // Unified data check
   if (!production || !char || !ActiveStage) {
@@ -48,7 +48,7 @@ export default function GameLevelPage() {
   }
 
   function nextStage() {
-    if (state.session.currentStageIndex < state.session.stages.length - 1) {
+    if (state.session && state.session.currentStageIndex < state.session.stages.length - 1) {
       dispatch({ type: "NEXT_STAGE" });
     } else {
       handleComplete();
@@ -57,16 +57,16 @@ export default function GameLevelPage() {
 
   function handleComplete() {
     const totalCues = departmentCues.length * 2;
-    const hitRate = totalCues > 0 ? state.session.cuesHit / totalCues : 0;
+    const hitRate = totalCues > 0 && state.session ? state.session.cuesHit / totalCues : 0;
     const stars = hitRate >= 0.9 ? 3 : hitRate >= 0.65 ? 2 : 1;
 
-    navigate(`/level-complete/${production.id}/${difficulty}/${char.id}`, {
+    navigate(`/level-complete/${production!.id}/${difficulty}/${char!.id}`, {
       state: { stars },
     });
 
     dispatch({
       type: "COMPLETE_LEVEL",
-      productionId: production.id,
+      productionId: production!.id,
       difficulty: difficulty as "school" | "community" | "professional",
       stars,
       unlockedStories: [], // Add story unlocking logic here if needed

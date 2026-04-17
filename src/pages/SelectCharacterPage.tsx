@@ -1,31 +1,32 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import NavBar from "../components/NavBar";
 import Button from "../components/ui/Button";
 import DepartmentBadge from "../components/ui/DepartmentBadge";
 import HardwarePanel from "../components/ui/HardwarePanel";
+import NavBar from "../components/ui/NavBar";
 import SectionHeader from "../components/ui/SectionHeader";
 import StatBar from "../components/ui/StatBar";
 import { useGame } from "../context/GameContext";
 import { CHARACTERS, CUE_SHEETS } from "../data/gameData";
 
 export default function SelectCharacterPage() {
-  const { productionId, difficulty } = useParams();
+  const { productionId, difficulty } = useParams<{ productionId: string; difficulty: string }>();
   const navigate = useNavigate();
   const { dispatch } = useGame();
   const [idx, setIdx] = useState(0);
 
   // Data Safety: Ensure we have characters for the selected production
   const available = CHARACTERS.filter(
-    (c) => CUE_SHEETS[productionId]?.[c.department],
+    (c) => productionId && CUE_SHEETS[productionId]?.[c.department],
   );
   const char = available[idx];
 
   function startGame() {
+    if (!productionId || !difficulty || !char) return;
     dispatch({
       type: "START_SESSION",
       productionId,
-      difficulty,
+      difficulty: difficulty as "school" | "community" | "professional",
       characterId: char.id,
     });
     navigate(`/game/${productionId}/${difficulty}/${char.id}`);

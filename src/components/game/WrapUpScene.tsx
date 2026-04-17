@@ -2,6 +2,13 @@ import { useState } from "react";
 import { useGame } from "../../context/GameContext";
 import DialogueBox from "./DialogueBox";
 
+interface WrapUpChoice {
+  id: string;
+  text: string;
+  pointDelta: number;
+  contact: string | null;
+}
+
 const WRAPUP_DIALOGUES = [
   {
     id: "sm_network",
@@ -31,11 +38,11 @@ interface WrapUpSceneProps {
 export default function WrapUpScene({ onComplete }: WrapUpSceneProps) {
   const { dispatch } = useGame();
   const [step, setStep] = useState(0);
-  const [feedback, setFeedback] = useState(null);
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   const dialogue = WRAPUP_DIALOGUES[step];
 
-  function handleChoice(choice) {
+  function handleChoice(choice: typeof WRAPUP_DIALOGUES[0]["choices"][0]) {
     dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
     if (choice.contact) dispatch({ type: "ADD_CONTACT", name: choice.contact });
 

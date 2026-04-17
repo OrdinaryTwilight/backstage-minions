@@ -1,3 +1,5 @@
+import { Story } from "../types/game";
+
 /**
  * StatBlock - Represents character statistics
  */
@@ -347,7 +349,7 @@ export const CONFLICTS: Conflict[] = [
 ];
 
 // --- STORIES ---
-export const STORIES = [
+export const STORIES: Story[] = [
   {
     id: "story_1",
     title: "The All-Black Uniform",
