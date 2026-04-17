@@ -6,7 +6,7 @@ import DialogueBox from "./DialogueBox";
 interface OverworldStageProps {
   onComplete: () => void;
   department?: string;
-  charId?: string; // Pass the player's charId so we don't spawn them as an NPC
+  charId?: string;
 }
 
 export default function OverworldStage({
@@ -21,7 +21,7 @@ export default function OverworldStage({
   const [pos, setPos] = useState({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
   const [targetPos, setTargetPos] = useState<{ x: number; y: number } | null>(
     null,
-  ); // Click-to-move state
+  );
   const [npcs, setNpcs] = useState<any[]>([]);
 
   const [activeZone, setActiveZone] = useState<string | null>(null);
@@ -31,22 +31,18 @@ export default function OverworldStage({
     null,
   );
 
-  // Bind both WASD and Arrows
   const up = useKeyPress(["w", "ArrowUp"]);
   const down = useKeyPress(["s", "ArrowDown"]);
   const left = useKeyPress(["a", "ArrowLeft"]);
   const right = useKeyPress(["d", "ArrowRight"]);
-  const interact = useKeyPress(["e", "Enter", " "]);
+  const interactBtn = useKeyPress(["e", "Enter", " "]);
 
   const speed = 5;
 
-  // INITIALIZE NPCs
   useEffect(() => {
-    // Get all characters EXCEPT the player
     const available = CHARACTERS.filter((c) => c.id !== charId);
-    // Shuffle and pick at least 2, up to 4
     const shuffled = available.sort(() => 0.5 - Math.random());
-    const count = Math.floor(Math.random() * 3) + 2;
+    const count = Math.floor(Math.random() * 3) + 3; // Spawn 3 to 5 NPCs
 
     const spawned = shuffled.slice(0, count).map((npc) => ({
       ...npc,
@@ -55,11 +51,12 @@ export default function OverworldStage({
       dx: (Math.random() - 0.5) * 2,
       dy: (Math.random() - 0.5) * 2,
       moveTimer: Math.floor(Math.random() * 100) + 50,
+      isHidden: false,
+      hideTimer: 0,
     }));
     setNpcs(spawned);
   }, [charId]);
 
-  // Handle Click to Move
   const handleStageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const x =
@@ -84,16 +81,14 @@ export default function OverworldStage({
     return false;
   };
 
-  // Main Game Loop
   useEffect(() => {
-    if (activeDialogue) return; // Pause while talking
+    if (activeDialogue) return;
 
     const interval = setInterval(() => {
       setPos((prev) => {
         let dx = 0;
         let dy = 0;
 
-        // Click-to-move logic
         if (targetPos) {
           const dist = Math.hypot(targetPos.x - prev.x, targetPos.y - prev.y);
           if (dist < speed) setTargetPos(null);
@@ -102,7 +97,6 @@ export default function OverworldStage({
             dy = ((targetPos.y - prev.y) / dist) * speed;
           }
         } else {
-          // Keyboard logic
           if (up) dy -= speed;
           if (down) dy += speed;
           if (left) dx -= speed;
@@ -111,8 +105,8 @@ export default function OverworldStage({
 
         let newX = prev.x + dx;
         let newY = prev.y + dy;
+        const isPlayerMoving = dx !== 0 || dy !== 0;
 
-        // Boundaries and Collisions
         newX = Math.max(0, Math.min(newX, GAME_WIDTH - PLAYER_SIZE));
         newY = Math.max(0, Math.min(newY, GAME_HEIGHT - PLAYER_SIZE));
         if (checkCollision(newX, prev.y)) {
@@ -124,7 +118,6 @@ export default function OverworldStage({
           setTargetPos(null);
         }
 
-        // Interactions and NPC Proximity
         let currentZone = null;
         for (const [key, zone] of Object.entries(OVERWORLD_ZONES)) {
           if (
@@ -136,45 +129,78 @@ export default function OverworldStage({
             currentZone = key;
         }
 
-        // NPC Logic (Stop when near player, trigger bump dialog)
         setNpcs((prevNpcs) =>
           prevNpcs.map((npc) => {
-            const distToPlayer = Math.hypot(newX - npc.x, newY - npc.y);
-
-            if (distToPlayer < 40) currentZone = npc.id; // Near enough to talk
-
-            if (distToPlayer < 32 && (dx !== 0 || dy !== 0)) {
-              // Bump collision!
-              setBumpMsg({ id: npc.id, msg: "Watch it!" });
-              setTimeout(() => setBumpMsg(null), 1000);
-            }
-
-            // Move NPC if player is far away
-            if (distToPlayer > 80) {
-              let nX = npc.x + npc.dx;
-              let nY = npc.y + npc.dy;
-              if (
-                nX <= 0 ||
-                nX >= GAME_WIDTH - PLAYER_SIZE ||
-                checkCollision(nX, npc.y)
-              )
-                npc.dx *= -1;
-              if (
-                nY <= 0 ||
-                nY >= GAME_HEIGHT - PLAYER_SIZE ||
-                checkCollision(npc.x, nY)
-              )
-                npc.dy *= -1;
-
-              let nTimer = npc.moveTimer - 1;
-              if (nTimer <= 0) {
-                npc.dx = (Math.random() - 0.5) * 2;
-                npc.dy = (Math.random() - 0.5) * 2;
-                nTimer = Math.floor(Math.random() * 120) + 60;
+            if (npc.isHidden) {
+              if (npc.hideTimer <= 0) {
+                // Re-emerge from the booths
+                return {
+                  ...npc,
+                  isHidden: false,
+                  x: 600,
+                  y: 100 + Math.random() * 100,
+                  dx: -1,
+                  dy: Math.random() - 0.5,
+                };
               }
-              return { ...npc, x: nX, y: nY, moveTimer: nTimer };
+              return { ...npc, hideTimer: npc.hideTimer - 1 };
             }
-            return npc; // Stand still
+
+            const distToPlayer = Math.hypot(newX - npc.x, newY - npc.y);
+            if (distToPlayer < 40) currentZone = npc.id;
+
+            // Only occasionally trigger bump when colliding, and ensure player is moving
+            if (
+              distToPlayer < 32 &&
+              isPlayerMoving &&
+              Math.random() < 0.05 &&
+              !bumpMsg
+            ) {
+              setBumpMsg({ id: npc.id, msg: "Watch it!" });
+              setTimeout(() => setBumpMsg(null), 1500);
+            }
+
+            let stepX = npc.dx;
+            let stepY = npc.dy;
+
+            // Only slow down if player is actively approaching them
+            if (distToPlayer < 80 && isPlayerMoving) {
+              stepX *= 0.3;
+              stepY *= 0.3;
+            }
+
+            let nX = npc.x + stepX;
+            let nY = npc.y + stepY;
+
+            // Chance to enter booths and disappear
+            if (nX > 650 && Math.random() < 0.01) {
+              return {
+                ...npc,
+                isHidden: true,
+                hideTimer: Math.floor(Math.random() * 180) + 120,
+              };
+            }
+
+            if (
+              nX <= 0 ||
+              nX >= GAME_WIDTH - PLAYER_SIZE ||
+              checkCollision(nX, npc.y)
+            )
+              npc.dx *= -1;
+            if (
+              nY <= 0 ||
+              nY >= GAME_HEIGHT - PLAYER_SIZE ||
+              checkCollision(npc.x, nY)
+            )
+              npc.dy *= -1;
+
+            let nTimer = npc.moveTimer - 1;
+            if (nTimer <= 0) {
+              npc.dx = (Math.random() - 0.5) * 2;
+              npc.dy = (Math.random() - 0.5) * 2;
+              nTimer = Math.floor(Math.random() * 120) + 60;
+            }
+            return { ...npc, x: nX, y: nY, moveTimer: nTimer };
           }),
         );
 
@@ -184,34 +210,45 @@ export default function OverworldStage({
     }, 1000 / 60);
 
     return () => clearInterval(interval);
-  }, [up, down, left, right, targetPos, activeDialogue]);
+  }, [up, down, left, right, targetPos, activeDialogue, bumpMsg]);
 
-  // Interaction key processing...
-  useEffect(() => {
-    if (interact && activeZone && !activeDialogue) {
-      const staticZone = OVERWORLD_ZONES[activeZone];
-      const activeNpc = npcs.find((n) => n.id === activeZone);
-      setTargetPos(null); // Stop moving if talking
+  // Centralized interaction handler
+  const triggerInteraction = () => {
+    if (!activeZone || activeDialogue) return;
+    setTargetPos(null);
+    const staticZone = OVERWORLD_ZONES[activeZone];
+    const activeNpc = npcs.find((n) => n.id === activeZone);
 
-      if (staticZone) {
-        if (activeZone === "lightBooth" || activeZone === "soundBooth") {
-          if (staticZone.targetDept === department) onComplete();
-          else {
-            setFeedbackMsg("Wrong booth!");
-            setTimeout(() => setFeedbackMsg(null), 2500);
-          }
-        } else if (staticZone.dialogue) setActiveDialogue(staticZone.dialogue);
-      } else if (activeNpc) {
-        setActiveDialogue({
-          speaker: activeNpc.name,
-          text: `Hey, I'm ${activeNpc.name}. Break a leg out there!`,
-          choices: [
-            { id: "ok", text: "Thanks!", pointDelta: 0, contact: null },
-          ],
-        });
+    if (staticZone) {
+      if (activeZone === "lightBooth" || activeZone === "soundBooth") {
+        if (staticZone.targetDept === department) onComplete();
+        else {
+          setFeedbackMsg("Wrong booth!");
+          setTimeout(() => setFeedbackMsg(null), 2500);
+        }
+      } else if (staticZone.dialogues) {
+        // Randomly pick a dialogue line
+        const randomDiag =
+          staticZone.dialogues[
+            Math.floor(Math.random() * staticZone.dialogues.length)
+          ];
+        setActiveDialogue(randomDiag);
+      } else if (staticZone.dialogue) {
+        setActiveDialogue(staticZone.dialogue);
       }
+    } else if (activeNpc) {
+      setActiveDialogue({
+        speaker: activeNpc.name,
+        text: `Hey, I'm ${activeNpc.name}. Break a leg out there!`,
+        choices: [{ id: "ok", text: "Thanks!", pointDelta: 0, contact: null }],
+      });
     }
-  }, [interact, activeZone, activeDialogue, onComplete, department, npcs]);
+  };
+
+  // Trigger on Key press
+  useEffect(() => {
+    if (interactBtn) triggerInteraction();
+  }, [interactBtn]);
 
   return (
     <div
@@ -225,7 +262,6 @@ export default function OverworldStage({
         gap: "1rem",
       }}
     >
-      {/* Header Info */}
       <div
         style={{
           textAlign: "center",
@@ -247,11 +283,11 @@ export default function OverworldStage({
         <p
           style={{ margin: "0.5rem 0 0 0", color: "var(--color-pencil-light)" }}
         >
-          Report to your designated console immediately. Hurry!
+          Report to your designated console immediately. Hurry! The show is
+          about to begin.
         </p>
       </div>
 
-      {/* The Stage */}
       <div
         onClick={handleStageClick}
         style={{
@@ -264,7 +300,6 @@ export default function OverworldStage({
           cursor: "crosshair",
         }}
       >
-        {/* Render Zones */}
         {Object.entries(OVERWORLD_ZONES).map(([key, zone]) => (
           <div
             key={key}
@@ -288,47 +323,47 @@ export default function OverworldStage({
           </div>
         ))}
 
-        {/* Render NPCs */}
-        {npcs.map((npc) => (
-          <div
-            key={npc.id}
-            style={{
-              position: "absolute",
-              left: `${(npc.x / GAME_WIDTH) * 100}%`,
-              top: `${(npc.y / GAME_HEIGHT) * 100}%`,
-              width: `${(PLAYER_SIZE / GAME_WIDTH) * 100}%`,
-              height: `${(PLAYER_SIZE / GAME_HEIGHT) * 100}%`,
-              background: "var(--color-architect-blue)",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              fontSize: "12px",
-              border: activeZone === npc.id ? "2px solid #fbbf24" : "none",
-            }}
-          >
-            {npc.name[0]}
-            {bumpMsg?.id === npc.id && (
-              <span
-                style={{
-                  position: "absolute",
-                  top: "-25px",
-                  background: "white",
-                  color: "black",
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                  fontSize: "10px",
-                  whiteSpace: "nowrap",
-                }}
-              >
-                {bumpMsg?.msg}
-              </span>
-            )}
-          </div>
-        ))}
+        {npcs
+          .filter((n) => !n.isHidden)
+          .map((npc) => (
+            <div
+              key={npc.id}
+              style={{
+                position: "absolute",
+                left: `${(npc.x / GAME_WIDTH) * 100}%`,
+                top: `${(npc.y / GAME_HEIGHT) * 100}%`,
+                width: `${(PLAYER_SIZE / GAME_WIDTH) * 100}%`,
+                height: `${(PLAYER_SIZE / GAME_HEIGHT) * 100}%`,
+                background: "var(--color-architect-blue)",
+                borderRadius: "50%",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "white",
+                fontSize: "12px",
+                border: activeZone === npc.id ? "2px solid #fbbf24" : "none",
+              }}
+            >
+              {npc.name[0]}
+              {bumpMsg?.id === npc.id && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: "-25px",
+                    background: "white",
+                    color: "black",
+                    padding: "2px 6px",
+                    borderRadius: "4px",
+                    fontSize: "10px",
+                    whiteSpace: "nowrap",
+                  }}
+                >
+                  {bumpMsg?.msg}
+                </span>
+              )}
+            </div>
+          ))}
 
-        {/* Interaction Prompts */}
         {feedbackMsg && (
           <div
             style={{
@@ -347,8 +382,14 @@ export default function OverworldStage({
             {feedbackMsg}
           </div>
         )}
+
+        {/* Clickable Action Button */}
         {activeZone && !activeDialogue && !feedbackMsg && (
           <div
+            onClick={(e) => {
+              e.stopPropagation();
+              triggerInteraction();
+            }}
             style={{
               position: "absolute",
               bottom: "10%",
@@ -361,11 +402,14 @@ export default function OverworldStage({
               background: "rgba(0,0,0,0.8)",
               padding: "8px 16px",
               borderRadius: "4px",
+              cursor: "pointer",
+              border: "1px solid #fbbf24",
             }}
           >
             [E] or Click to Interact
           </div>
         )}
+
         {targetPos && (
           <div
             style={{
@@ -381,7 +425,6 @@ export default function OverworldStage({
           />
         )}
 
-        {/* Player */}
         <div
           style={{
             position: "absolute",
@@ -396,7 +439,6 @@ export default function OverworldStage({
         />
       </div>
 
-      {/* Dialogue Box NOW BELOW THE STAGE */}
       <div style={{ minHeight: "150px" }}>
         {activeDialogue && (
           <DialogueBox

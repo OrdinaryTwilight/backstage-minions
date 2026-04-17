@@ -79,7 +79,9 @@ export interface Production {
   poster: string;
   description: string;
   learnMoreUrl: string;
-  levels: Partial<Record<"school" | "community" | "professional", LevelDetails>>;
+  levels: Partial<
+    Record<"school" | "community" | "professional", LevelDetails>
+  >;
 }
 
 export interface ZoneConfig {
@@ -92,4 +94,5 @@ export interface ZoneConfig {
   isSolid: boolean;
   targetDept?: string;
   dialogue?: any;
+  dialogues?: any[];
 }
