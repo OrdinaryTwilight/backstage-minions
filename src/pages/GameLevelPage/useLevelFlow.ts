@@ -33,10 +33,6 @@ export function useLevelFlow(
 
     const stars = calculateStars(totalCues, cuesHit, currentScore);
 
-    navigate(`/level-complete/${productionId}/${difficulty}/${charId}`, {
-      state: { stars },
-    });
-
     dispatch({
       type: "COMPLETE_LEVEL",
       productionId: productionId || "",
@@ -44,6 +40,8 @@ export function useLevelFlow(
       stars,
       unlockedStories: [],
     });
+
+    navigate("/productions");
   }
 
   function handleStageAdvance() {

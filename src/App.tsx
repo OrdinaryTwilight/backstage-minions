@@ -17,7 +17,6 @@ const ProductionsPage = lazy(() => import("./pages/ProductionsPage"));
 const SelectLevelPage = lazy(() => import("./pages/SelectLevelPage"));
 const SelectCharacterPage = lazy(() => import("./pages/SelectCharacterPage"));
 const GameLevelPage = lazy(() => import("./pages/GameLevelPage"));
-const LevelCompletePage = lazy(() => import("./pages/LevelCompletePage"));
 const LevelFailedPage = lazy(() => import("./pages/LevelFailedPage"));
 const StoriesPage = lazy(() => import("./pages/StoriesPage"));
 
@@ -72,15 +71,6 @@ function App() {
               element={
                 <Suspense fallback={<Spinner />}>
                   <GameLevelPage />
-                </Suspense>
-              }
-            />
-
-            <Route
-              path="/level-complete/:productionId/:difficulty/:charId"
-              element={
-                <Suspense fallback={<Spinner />}>
-                  <LevelCompletePage />
                 </Suspense>
               }
             />

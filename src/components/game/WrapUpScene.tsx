@@ -1,157 +1,207 @@
-// src/components/game/WrapUpScene.tsx
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useGame } from "../../context/GameContext";
-import DialogueBox from "./DialogueBox";
+import { CHARACTERS, Cue } from "../../data/gameData";
+import { calculateStars } from "../../utils/scoringEngine";
+import Button from "../ui/Button";
+import HardwarePanel from "../ui/HardwarePanel";
+import SectionHeader from "../ui/SectionHeader";
+
+interface WrapUpSceneProps {
+  onComplete: () => void;
+  cueSheet?: Cue[];
+}
 
 export default function WrapUpScene({
   onComplete,
-}: {
-  onComplete: () => void;
-}) {
-  const { state, dispatch } = useGame();
-  const [step, setStep] = useState(0);
-  const [feedback, setFeedback] = useState<string | null>(null);
+  cueSheet = [],
+}: WrapUpSceneProps) {
+  const { state } = useGame();
+  const [phase, setPhase] = useState<"dialogue" | "report">("dialogue");
 
-  // Calculate performance tier
+  const char = CHARACTERS.find((c) => c.id === state.session?.characterId);
   const score = state.session?.score || 0;
-  const isHighScorer = score >= 100;
-  const isLowScorer = score < 50;
+  const cuesHit = state.session?.cuesHit || 0;
+  const cuesMissed = state.session?.cuesMissed || 0;
+  const totalCues = cueSheet.length;
 
-  // Dynamic dialogue based on performance
-  const dialogues = useMemo(() => {
-    const speaker = "Stage Manager";
+  // Calculate final stars right here in the component
+  const stars = calculateStars(totalCues, cuesHit, score);
 
-    if (isLowScorer) {
-      return [
-        {
-          id: "sm_disappointed",
-          speaker,
-          text: "Well... the curtain stayed up, I guess. But we've got a lot of notes for tomorrow. Try to keep your head in the game.",
-          choices: [
-            {
-              id: "sorry",
-              text: '"My bad. I\'ll do better next time."',
-              pointDelta: 0,
-              contact: null,
-            },
-            {
-              id: "defend",
-              text: '"It was a tough rig, okay?"',
-              pointDelta: -5,
-              contact: null,
-            },
-          ],
-        },
-      ];
-    }
+  if (phase === "report") {
+    return (
+      <div className="page-container animate-pop">
+        <SectionHeader
+          title="Post-Mortem Report"
+          subtitle="Strike is complete. How did the show go?"
+        />
 
-    if (isHighScorer) {
-      return [
-        {
-          id: "sm_impressed",
-          speaker,
-          text: "Absolutely flawless execution! I haven't seen a board op hit those timings that cleanly in years. You're going places.",
-          choices: [
-            {
-              id: "yes",
-              text: '"Thanks! I\'d love to stay in the loop."',
-              pointDelta: 30,
-              contact: "npc_stage_manager", // Updated to use a proper ID
-            },
-            {
-              id: "humble",
-              text: '"Just doing my job."',
-              pointDelta: 10,
-              contact: "npc_stage_manager",
-            },
-          ],
-        },
-      ];
-    }
+        <HardwarePanel
+          style={{
+            textAlign: "center",
+            padding: "3rem 2rem",
+            maxWidth: "600px",
+            margin: "0 auto",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "5rem",
+              marginBottom: "1rem",
+              letterSpacing: "10px",
+            }}
+          >
+            {Array.from({ length: 3 }).map((_, i) => (
+              <span
+                key={i}
+                style={{
+                  color: i < stars ? "var(--bui-fg-warning)" : "#333",
+                  textShadow:
+                    i < stars ? "0 0 20px var(--bui-fg-warning)" : "none",
+                }}
+              >
+                ★
+              </span>
+            ))}
+          </div>
 
-    // Default Neutral Dialogue
-    return [
-      {
-        id: "sm_neutral",
-        speaker,
-        text: "Good hustle out there. A few missed cues, but you kept your cool. Want to trade info for future gigs?",
-        choices: [
-          {
-            id: "yes",
-            text: '"Sure thing!"',
-            pointDelta: 20,
-            contact: "npc_stage_manager",
-          },
-          {
-            id: "no",
-            text: '"I\'ll catch you later."',
-            pointDelta: 0,
-            contact: null,
-          },
-        ],
-      },
-    ];
-  }, [isHighScorer, isLowScorer]);
+          <h2
+            style={{
+              fontSize: "2rem",
+              marginBottom: "2rem",
+              fontFamily: "var(--font-mono)",
+              color:
+                stars === 3
+                  ? "var(--bui-fg-success)"
+                  : stars === 2
+                    ? "var(--bui-fg-warning)"
+                    : "var(--bui-fg-danger)",
+            }}
+          >
+            {stars === 3
+              ? "FLAWLESS EXECUTION!"
+              : stars === 2
+                ? "SOLID RUN!"
+                : "ABSOLUTE TRAINWRECK..."}
+          </h2>
 
-  const currentDialogue = dialogues[step];
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              gap: "3rem",
+              marginBottom: "3rem",
+            }}
+          >
+            <div>
+              <div
+                style={{
+                  fontSize: "2.5rem",
+                  fontWeight: "bold",
+                  color: "var(--bui-fg-success)",
+                }}
+              >
+                {score}
+              </div>
+              <div className="annotation-text" style={{ opacity: 0.7 }}>
+                Total Score
+              </div>
+            </div>
+            {totalCues > 0 && (
+              <div>
+                <div
+                  style={{
+                    fontSize: "2.5rem",
+                    fontWeight: "bold",
+                    color:
+                      cuesMissed > 0
+                        ? "var(--bui-fg-danger)"
+                        : "var(--bui-fg-info)",
+                  }}
+                >
+                  {cuesHit}{" "}
+                  <span style={{ fontSize: "1.5rem", opacity: 0.5 }}>
+                    / {totalCues}
+                  </span>
+                </div>
+                <div className="annotation-text" style={{ opacity: 0.7 }}>
+                  Cues Hit
+                </div>
+              </div>
+            )}
+          </div>
 
-  function handleChoice(choice: any) {
-    dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
-
-    // Fix: Using contactId to match the updated GameAction type
-    if (choice.contact) {
-      dispatch({ type: "ADD_CONTACT", contactId: choice.contact });
-    }
-
-    setFeedback(
-      choice.contact
-        ? `📇 ${choice.id === "humble" ? "Respected" : "Connected"}! +${choice.pointDelta} pts`
-        : choice.pointDelta < 0
-          ? "📉 Ouch... Rough strike."
-          : null,
+          <Button
+            onClick={onComplete}
+            className="btn-xl"
+            style={{
+              width: "100%",
+              background: "var(--bui-fg-info)",
+              color: "#000",
+            }}
+          >
+            Sign Out & Return to Dashboard
+          </Button>
+        </HardwarePanel>
+      </div>
     );
-
-    if (step + 1 < dialogues.length) {
-      setTimeout(() => {
-        setFeedback(null);
-        setStep((s) => s + 1);
-      }, 1200);
-    } else {
-      setTimeout(() => onComplete(), 1400);
-    }
   }
 
+  // DIALOGUE PHASE
   return (
-    <div className="stage-container animate-reveal">
-      <div className="surface-panel header-panel">
-        <h2>
-          🥂 Wrap-up:{" "}
-          {isHighScorer
-            ? "Standing Ovation"
-            : isLowScorer
-              ? "Ghost Light"
-              : "Intermission"}
-        </h2>
-        <p className="annotation-text">FINAL SCORE: {score}</p>
-      </div>
-
-      {feedback && (
+    <div
+      className="page-container animate-blueprint"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        minHeight: "60vh",
+      }}
+    >
+      <div style={{ textAlign: "center", maxWidth: "600px" }}>
         <div
-          className="surface-panel feedback-toast"
-          style={{ marginBottom: "1rem" }}
+          style={{
+            fontSize: "6rem",
+            filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.5))",
+          }}
         >
-          {feedback}
+          {char?.icon || "👤"}
         </div>
-      )}
-
-      {currentDialogue && (
-        <DialogueBox
-          speaker={currentDialogue.speaker}
-          text={currentDialogue.text}
-          choices={currentDialogue.choices}
-          onChoice={handleChoice}
-        />
-      )}
+        <HardwarePanel
+          style={{
+            marginTop: "2rem",
+            padding: "2rem",
+            background: "rgba(15, 23, 42, 0.9)",
+          }}
+        >
+          <h2
+            className="annotation-text"
+            style={{ color: "var(--bui-fg-warning)", marginBottom: "1rem" }}
+          >
+            Senior Technician
+          </h2>
+          <p
+            style={{
+              fontSize: "1.2rem",
+              lineHeight: "1.6",
+              color: "var(--color-pencil-light)",
+            }}
+          >
+            "Alright, cables are coiled, board is covered, and the ghost light
+            is on. Good hustle out there tonight. Let's go look at the SM's
+            post-show report and head home."
+          </p>
+          <div style={{ marginTop: "2rem" }}>
+            {/* Transition to Report Phase instead of instantly finishing! */}
+            <Button
+              onClick={() => setPhase("report")}
+              style={{ width: "100%" }}
+            >
+              Review Post-Mortem Report →
+            </Button>
+          </div>
+        </HardwarePanel>
+      </div>
     </div>
   );
 }
