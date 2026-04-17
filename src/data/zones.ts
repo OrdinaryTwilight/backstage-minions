@@ -41,6 +41,11 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
           text: "Standby all departments... I need eyes on the main curtain.",
           choices: [{ id: "ok", text: "Standing by." }],
         },
+        {
+          speaker: "Stage Manager",
+          text: "Where is the spotlight operator? We are going to miss the opening cue!",
+          choices: [{ id: "ok", text: "I'll page them." }],
+        },
       ],
     },
     propsTable: {
@@ -57,6 +62,16 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
           text: "Hey! Don't touch the prop swords. I just repainted the fake blood.",
           choices: [{ id: "ok", text: "Backing away slowly..." }],
         },
+        {
+          speaker: "Props Master",
+          text: "Have you seen a rubber chicken? I swear I left it right here.",
+          choices: [{ id: "ok", text: "I'll keep an eye out." }],
+        },
+        {
+          speaker: "Props Master",
+          text: "Careful around the table, the glass props are highly fragile!",
+          choices: [{ id: "ok", text: "Understood." }],
+        },
       ],
     },
     wings: {
@@ -69,13 +84,22 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       isSolid: false,
       dialogues: [
         {
+          speaker: "Nervous Actor",
+          text: "Psst! Did I miss my entrance? Oh wait... I'm not even in this scene.",
+          choices: [{ id: "ok", text: "Shh! Quiet in the wings!" }],
+        },
+        {
           speaker: "Stage Hand",
           text: "Clear the wings! We have a massive set piece coming through in 2 minutes.",
           choices: [{ id: "ok", text: "Moving out of the way." }],
         },
+        {
+          speaker: "Lead Actor",
+          text: "My throat is so dry... where is my water bottle?",
+          choices: [{ id: "ok", text: "Check the green room." }],
+        },
       ],
     },
-    // THE DOOR TO THE GREEN ROOM
     doorGreenRoom: {
       x: 350,
       y: 0,
@@ -88,13 +112,13 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
     },
   },
   greenRoom: {
-    // THE DOOR BACK TO THE STAGE
     doorStage: {
+      // FIX: Changed label to "BACKSTAGE"
       x: 350,
       y: 410,
       w: 100,
       h: 40,
-      label: "⬇ BACK TO STAGE",
+      label: "⬇ BACK TO BACKSTAGE",
       color: "#2f3e46",
       isSolid: false,
       isDoor: "stage",

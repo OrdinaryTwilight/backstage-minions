@@ -7,13 +7,9 @@ import { DialogueState, OverworldStageProps } from "./types";
 import { useComms } from "./useComms";
 import { useGameLoop } from "./useGameLoop";
 
-const DEPT_COLORS: Record<string, string> = {
-  lighting: "var(--bui-fg-warning)",
-  sound: "var(--bui-fg-info)",
-  "Stage Manager": "var(--bui-fg-danger)",
-  "Costume Designer": "#ec4899",
-  Director: "#a855f7",
-};
+// Import our newly extracted sub-components
+import HeadsetHUD from "./HeadsetHUD";
+import MapViewport from "./MapViewport";
 
 export default function OverworldStage({
   onComplete,
@@ -32,11 +28,11 @@ export default function OverworldStage({
   );
   const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
 
+  const interactBtn = useKeyPress(["e", "Enter", " "]);
   const up = useKeyPress(["w", "ArrowUp"]);
   const down = useKeyPress(["s", "ArrowDown"]);
   const left = useKeyPress(["a", "ArrowLeft"]);
   const right = useKeyPress(["d", "ArrowRight"]);
-  const interactBtn = useKeyPress(["e", "Enter", " "]);
 
   const { headsetOn, setHeadsetOn, commsLog } = useComms();
   const { pos, setPos, npcs, activeZone, bumpMsg } = useGameLoop(
@@ -61,8 +57,7 @@ export default function OverworldStage({
   if (nextStageKey === "cable_coiling") {
     targetZoneId = "wings";
     targetLabel = "STAGE WINGS";
-    instructionText =
-      "Show's over! Report to the WINGS for Strike and Cable Coiling.";
+    instructionText = "Show's over! Report to the WINGS for Strike.";
   } else if (nextStageKey === "wrapup") {
     targetZoneId = "stageManager";
     targetLabel = "SM DESK";
@@ -70,23 +65,15 @@ export default function OverworldStage({
   } else {
     targetZoneId = department === "lighting" ? "lightBooth" : "soundBooth";
     targetLabel = department === "lighting" ? "LX BOOTH" : "SOUND BOOTH";
-    instructionText = `The house is open. Report to the ${targetLabel} immediately!`;
+    instructionText = `Report to the ${targetLabel} immediately!`;
   }
 
   const handleStageClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    const x =
-      ((e.clientX - rect.left) / rect.width) * GAME_WIDTH - PLAYER_SIZE / 2;
-    const y =
-      ((e.clientY - rect.top) / rect.height) * GAME_HEIGHT - PLAYER_SIZE / 2;
-    setTargetPos({ x, y });
-  };
-
-  const handleDoorInteraction = (isDoor: string) => {
-    setCurrentRoom(isDoor);
-    setPos({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
-    setFeedbackMsg(`Entering ${isDoor}...`);
-    setTimeout(() => setFeedbackMsg(null), 1000);
+    setTargetPos({
+      x: ((e.clientX - rect.left) / rect.width) * GAME_WIDTH - PLAYER_SIZE / 2,
+      y: ((e.clientY - rect.top) / rect.height) * GAME_HEIGHT - PLAYER_SIZE / 2,
+    });
   };
 
   const triggerInteraction = () => {
@@ -98,13 +85,15 @@ export default function OverworldStage({
 
     if (staticZone) {
       if (staticZone.isDoor) {
-        handleDoorInteraction(staticZone.isDoor);
+        setCurrentRoom(staticZone.isDoor);
+        setPos({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
+        setFeedbackMsg(`Entering ${staticZone.isDoor}...`);
+        setTimeout(() => setFeedbackMsg(null), 1000);
       } else if (activeZone === targetZoneId && currentRoom === "stage") {
         onComplete();
       } else if (
-        ["lightBooth", "soundBooth", "wings", "stageManager"].includes(
-          activeZone,
-        )
+        (activeZone === "lightBooth" && targetZoneId !== "lightBooth") ||
+        (activeZone === "soundBooth" && targetZoneId !== "soundBooth")
       ) {
         setFeedbackMsg(`Not here! Head to the ${targetLabel}!`);
         setTimeout(() => setFeedbackMsg(null), 2500);
@@ -118,7 +107,6 @@ export default function OverworldStage({
         setActiveDialogue(staticZone.dialogue);
       }
     } else if (activeNpc) {
-      // FIX: Used the variable properly here
       const npcChatter = [
         "Hope you've checked your cables.",
         "I'm so nervous for this run.",
@@ -144,7 +132,7 @@ export default function OverworldStage({
     <div
       style={{
         width: "100%",
-        maxWidth: "900px",
+        maxWidth: "1100px",
         margin: "0 auto",
         padding: "1rem",
         display: "flex",
@@ -152,65 +140,6 @@ export default function OverworldStage({
         gap: "1rem",
       }}
     >
-      {/* Headset HUD */}
-      <div
-        style={{
-          position: "absolute",
-          top: "100px",
-          left: "20px",
-          zIndex: 1000,
-          pointerEvents: "none",
-        }}
-      >
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setHeadsetOn(!headsetOn);
-          }}
-          style={{
-            pointerEvents: "auto",
-            background: headsetOn ? "var(--bui-fg-success)" : "#555",
-            color: "#000",
-            border: "2px solid #fff",
-            borderRadius: "50%",
-            width: "40px",
-            height: "40px",
-            cursor: "pointer",
-          }}
-        >
-          🎧
-        </button>
-        {headsetOn && (
-          <div
-            style={{
-              marginTop: "10px",
-              display: "flex",
-              flexDirection: "column",
-              gap: "5px",
-              width: "200px",
-            }}
-          >
-            {commsLog.map((log) => (
-              <div
-                key={log.id}
-                style={{
-                  background: "rgba(0,0,0,0.7)",
-                  borderLeft: "3px solid var(--bui-fg-info)",
-                  padding: "5px",
-                  color: "#fff",
-                  fontSize: "0.8rem",
-                }}
-              >
-                <strong style={{ color: "var(--bui-fg-info)" }}>
-                  [{log.speaker}]:
-                </strong>{" "}
-                {log.text}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
       <div
         style={{
           textAlign: "center",
@@ -227,7 +156,7 @@ export default function OverworldStage({
             fontFamily: "var(--font-mono)",
           }}
         >
-          CURRENT LOCATION: {currentRoom.toUpperCase()}
+          CURRENT LOCATION: {currentRoom.toUpperCase().replace("ROOM", " ROOM")}
         </h2>
         <p
           style={{ margin: "0.5rem 0 0 0", color: "var(--color-pencil-light)" }}
@@ -236,131 +165,34 @@ export default function OverworldStage({
         </p>
       </div>
 
-      <button
-        onClick={handleStageClick}
+      {/* FIX: Layout splits the HUD and the Map so they never overlap! */}
+      <div
         style={{
+          display: "flex",
+          gap: "1rem",
+          alignItems: "flex-start",
           position: "relative",
-          width: "100%",
-          aspectRatio: "16/9",
-          background: "#1a1a2e",
-          border: "4px solid #fff",
-          overflow: "hidden",
-          cursor: "crosshair",
-          padding: 0,
         }}
       >
-        {/* Render Zones */}
-        {Object.entries(currentZones).map(([key, zone]) => (
-          <div
-            key={key}
-            style={{
-              position: "absolute",
-              left: `${(zone.x / GAME_WIDTH) * 100}%`,
-              top: `${(zone.y / GAME_HEIGHT) * 100}%`,
-              width: `${(zone.w / GAME_WIDTH) * 100}%`,
-              height: `${(zone.h / GAME_HEIGHT) * 100}%`,
-              background: zone.color,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "white",
-              border: activeZone === key ? "3px solid #fbbf24" : "none",
-              fontWeight: "bold",
-              fontFamily: "var(--font-sketch)",
-            }}
-          >
-            {zone.label}
-          </div>
-        ))}
+        <HeadsetHUD
+          headsetOn={headsetOn}
+          setHeadsetOn={setHeadsetOn}
+          commsLog={commsLog}
+        />
 
-        {/* Render NPCs */}
-        {npcs
-          .filter((n) => !n.isHidden)
-          .map((npc) => (
-            <div
-              key={npc.id}
-              style={{
-                position: "absolute",
-                left: `${(npc.x / GAME_WIDTH) * 100}%`,
-                top: `${(npc.y / GAME_HEIGHT) * 100}%`,
-                width: `${(PLAYER_SIZE / GAME_WIDTH) * 100}%`,
-                height: `${(PLAYER_SIZE / GAME_HEIGHT) * 100}%`,
-                background: "rgba(0,0,0,0.5)",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border:
-                  activeZone === npc.id
-                    ? "2px solid #fbbf24"
-                    : "1px solid #555",
-                fontSize: "20px",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  top: "-22px",
-                  fontSize: "12px",
-                  fontWeight: "bold",
-                  color: DEPT_COLORS[npc.dept] || "#fff",
-                }}
-              >
-                {npc.name}
-              </div>
-              {npc.icon}
-              {bumpMsg?.id === npc.id && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "-40px",
-                    background: "white",
-                    color: "black",
-                    padding: "2px 6px",
-                    borderRadius: "4px",
-                    fontSize: "10px",
-                    whiteSpace: "nowrap",
-                    zIndex: 200,
-                  }}
-                >
-                  {bumpMsg.msg}
-                </span>
-              )}
-            </div>
-          ))}
-
-        {/* Render Player */}
-        <div
-          style={{
-            position: "absolute",
-            left: `${(pos.x / GAME_WIDTH) * 100}%`,
-            top: `${(pos.y / GAME_HEIGHT) * 100}%`,
-            width: `${(PLAYER_SIZE / GAME_WIDTH) * 100}%`,
-            height: `${(PLAYER_SIZE / GAME_HEIGHT) * 100}%`,
-            background: "rgba(0,0,0,0.7)",
-            borderRadius: "50%",
-            border: "2px solid #06d6a0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "20px",
-            zIndex: 100,
-          }}
-        >
-          <div
-            style={{
-              position: "absolute",
-              top: "-22px",
-              fontSize: "12px",
-              fontWeight: "bold",
-              color: "#06d6a0",
-            }}
-          >
-            YOU
-          </div>
-          {playerChar?.icon || "👤"}
-        </div>
-      </button>
+        <MapViewport
+          currentRoom={currentRoom}
+          currentZones={currentZones}
+          npcs={npcs}
+          pos={pos}
+          playerChar={playerChar}
+          activeZone={activeZone}
+          activeDialogue={activeDialogue}
+          feedbackMsg={feedbackMsg}
+          bumpMsg={bumpMsg}
+          handleStageClick={handleStageClick}
+        />
+      </div>
 
       <div style={{ minHeight: "150px" }}>
         {activeDialogue && (

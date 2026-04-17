@@ -25,7 +25,7 @@ export default function ConflictMinigame({
     dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
 
     if (choice.sideEffect === "ally_gained") {
-      dispatch({ type: "ADD_CONTACT", name: conflict.npc });
+      dispatch({ type: "ADD_CONTACT", contactId: conflict.npc });
     }
     setSelectedChoice(choice);
   };

@@ -36,12 +36,33 @@ export function useGameLoop(
 
   useEffect(() => {
     const available = CHARACTERS.filter((c) => c.id !== charId);
-    const count = Math.floor(Math.random() * 3) + 2;
-    const shuffled = [...available]
-      .sort(() => 0.5 - Math.random())
-      .slice(0, count);
+    let shuffled = [...available].sort(() => 0.5 - Math.random());
+    let count = Math.floor(Math.random() * 3) + 2;
 
-    const spawned = shuffled.map((npc) => {
+    // FIX: Add extra Actor NPCs if we are in the Green Room
+    if (currentRoom === "greenRoom") {
+      const extraActors = [
+        {
+          id: "actor_lead",
+          name: "Lead Actor",
+          icon: "🎭",
+          department: "Actor",
+        },
+        { id: "actor_chorus", name: "Chorus", icon: "👯", department: "Actor" },
+        {
+          id: "actor_under",
+          name: "Understudy",
+          icon: "🤺",
+          department: "Actor",
+        },
+      ];
+      shuffled = [...extraActors, ...shuffled].sort(
+        () => 0.5 - Math.random(),
+      ) as any;
+      count += 2;
+    }
+
+    const spawned = shuffled.slice(0, count).map((npc) => {
       let spawnX, spawnY;
       do {
         spawnX = Math.random() * (GAME_WIDTH - 200) + 100;
@@ -52,7 +73,7 @@ export function useGameLoop(
         id: npc.id,
         name: npc.name,
         icon: npc.icon,
-        dept: npc.department || npc.role,
+        dept: npc.department || (npc as any).role,
         x: spawnX,
         y: spawnY,
         dx: (Math.random() - 0.5) * 2,
@@ -96,7 +117,6 @@ export function useGameLoop(
 
         const isPlayerMoving = dx !== 0 || dy !== 0;
 
-        // Process NPCs
         let currentNpcs: NPC[] = [];
         setNpcs((prevNpcs) => {
           currentNpcs = prevNpcs.map((npc) =>
@@ -111,34 +131,46 @@ export function useGameLoop(
           currentZones,
         );
 
-        // FIX: Removed negated condition and handled initial reduce value
-        if (currentActiveStatic) {
-          setActiveZone(currentActiveStatic);
-        } else {
-          let closestNpcId: string | null = null;
-          if (currentNpcs.length > 0) {
-            const distances = currentNpcs.map((npc) => ({
-              npc,
-              dist: Math.hypot(newX - npc.x, newY - npc.y),
-            }));
-            const closest = distances.reduce(
-              (prev, curr) => (curr.dist < prev.dist ? curr : prev),
-              distances[0],
-            );
+        // FIX: Calculate closest NPC distance to override static zones if standing right next to them
+        let closestNpcId: string | null = null;
+        let closestDist = Infinity;
 
-            if (closest.dist < 40) closestNpcId = closest.npc.id;
-            if (
-              closest.dist < 32 &&
-              isPlayerMoving &&
-              Math.random() < 0.05 &&
-              !bumpMsg
-            ) {
-              setBumpMsg({ id: closest.npc.id, msg: "Watch it!" });
-              setTimeout(() => setBumpMsg(null), 1500);
-            }
+        if (currentNpcs.length > 0) {
+          const distances = currentNpcs.map((npc) => ({
+            npc,
+            dist: Math.hypot(newX - npc.x, newY - npc.y),
+          }));
+          const closest = distances.reduce(
+            (prev, curr) => (curr.dist < prev.dist ? curr : prev),
+            distances[0],
+          );
+
+          if (closest.dist < 40) {
+            closestNpcId = closest.npc.id;
+            closestDist = closest.dist;
           }
-          setActiveZone(closestNpcId);
+          if (
+            closest.dist < 32 &&
+            isPlayerMoving &&
+            Math.random() < 0.05 &&
+            !bumpMsg
+          ) {
+            setBumpMsg({ id: closest.npc.id, msg: "Watch it!" });
+            setTimeout(() => setBumpMsg(null), 1500);
+          }
         }
+
+        // Priority Logic: Close NPC > Static Zone > Farther NPC
+        if (closestNpcId && closestDist < 30) {
+          setActiveZone(closestNpcId);
+        } else if (currentActiveStatic) {
+          setActiveZone(currentActiveStatic);
+        } else if (closestNpcId) {
+          setActiveZone(closestNpcId);
+        } else {
+          setActiveZone(null);
+        }
+
         return { x: newX, y: newY };
       });
     }, 1000 / GAME_LOOP_FPS);

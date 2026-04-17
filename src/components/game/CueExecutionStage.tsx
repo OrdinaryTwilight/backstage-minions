@@ -11,7 +11,7 @@ import SectionHeader from "../ui/SectionHeader";
 interface CueExecutionStageProps {
   readonly cueSheet: Cue[];
   readonly onComplete: () => void;
-  readonly onFail?: () => void; // NEW: Triggers level failure
+  readonly onFail?: () => void;
 }
 
 export default function CueExecutionStage({
@@ -28,7 +28,6 @@ export default function CueExecutionStage({
     Record<string, { hit: boolean }>
   >({});
 
-  // NEW: Ready State and SM Comms
   const [isReady, setIsReady] = useState(false);
   const [smMessage, setSmMessage] = useState(
     "Standby. Lock in your faders and tell me when you are ready.",
@@ -67,7 +66,7 @@ export default function CueExecutionStage({
     return () => clearInterval(interval);
   }, [isLastCue, isReady]);
 
-  // Auto-fail logic
+  // Auto-miss if elapsed time passes the target window
   useEffect(() => {
     if (!currentCue || isLastCue || !isReady) return;
     const expirationTime =
@@ -89,12 +88,16 @@ export default function CueExecutionStage({
 
   function handleGo(forceMiss = false) {
     if (isLastCue || !isReady) return;
-
+    const targetLevel = currentCue?.targetLevel || 80;
+    const margin = 10;
     const targetMs = currentCue?.targetMs || 0;
     const windowMs = currentCue?.windowMs || 1000;
     const isTimedWell = Math.abs(elapsedMs - targetMs) <= windowMs;
     const isAligned = checkFaderAlignment();
     const isHit = !forceMiss && isAligned && isTimedWell;
+    const tooHigh = faderLevels
+      .slice(0, 4)
+      .some((l) => l > targetLevel + margin);
 
     setCueResults((prev) => ({ ...prev, [currentCue.id]: { hit: isHit } }));
 
@@ -111,14 +114,29 @@ export default function CueExecutionStage({
         setCurrentIdx((prev) => prev + 1);
       }
     } else {
-      // NEW: Failing a cue kicks you out!
-      setSmMessage(`WHAT ARE YOU DOING?! You missed the cue! Trainwreck!`);
       dispatch({ type: "CUE_MISSED" });
+      dispatch({ type: "ADD_SCORE", delta: -10 });
 
-      // Delay slightly so the player can read the angry SM message before failing
-      setTimeout(() => {
-        if (onFail) onFail();
-      }, 2000);
+      if (forceMiss) {
+        setSmMessage(`You completely missed the cue! Wake up! (-10 pts)`);
+      } else if (!isTimedWell) {
+        setSmMessage(`Timing is way off! Watch the playhead! (-10 pts)`);
+      } else if (tooHigh) {
+        setSmMessage(`Whoa, levels are way too high! Bring it down! (-10 pts)`);
+      } else {
+        setSmMessage(`Levels are too low! Push those faders up! (-10 pts)`);
+      }
+    }
+
+    if (currentIdx === cueSheet.length - 1) {
+      setTimeout(
+        () => setSmMessage("And we are clear. Good show, everyone."),
+        1000,
+      );
+      setTimeout(onComplete, 2500);
+      setCurrentIdx((prev) => prev + 1);
+    } else {
+      setCurrentIdx((prev) => prev + 1);
     }
   }
 
