@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import CueExecutionStage from "../components/game/CueExecutionStage";
 import EquipmentStage from "../components/game/EquipmentStage";
@@ -20,6 +21,7 @@ export default function GameLevelPage() {
   const { productionId, difficulty, charId } = useParams();
   const { state, dispatch } = useGame();
   const navigate = useNavigate();
+  const [isTransiting, setIsTransiting] = useState(false);
 
   // Use custom hooks for data fetching with case-insensitive lookup
   // NOTE: Must be called at top level, before refresh guard check
