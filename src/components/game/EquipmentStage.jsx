@@ -1,46 +1,47 @@
-// src/components/game/EquipmentStage.jsx
+import { useGame } from "../../context/GameContext";
 import { GEAR_PACKAGES } from "../../data/gameData";
+import HardwarePanel from "../ui/HardwarePanel";
+import SectionHeader from "../ui/SectionHeader";
 
-export default function EquipmentStage({ onSelect }) {
+export default function EquipmentStage({ onComplete }) {
+  const { dispatch } = useGame();
+
+  function handleSelect(pkg) {
+    // Save selection to state
+    dispatch({ type: "SET_GEAR", gearId: pkg.id });
+    // Advance to the next stage (Planning)
+    onComplete();
+  }
+
   return (
-    <div className="hardware-panel">
-      <h2 style={{ color: "var(--bui-fg-info)" }}>
-        🚚 Load-In: Gear Selection
-      </h2>
-      <p style={{ marginBottom: "1.5rem" }}>
-        Choose your equipment package for this production.
-      </p>
+    <div className="page-container animate-blueprint">
+      <SectionHeader
+        title="Inventory Logistics"
+        subtitle="Select a gear package for this production tier."
+      />
 
       <div className="bento-container">
         {GEAR_PACKAGES.map((pkg) => (
-          <div
+          <HardwarePanel
             key={pkg.id}
-            className="surface-panel"
-            style={{ textAlign: "center" }}
+            variant="clickable"
+            /* FIX: Pass a function reference, do not call it immediately */
+            onClick={() => handleSelect(pkg)}
           >
-            <h3 style={{ color: "var(--bui-fg-success)" }}>{pkg.label}</h3>
-            <p style={{ fontSize: "0.85rem", minHeight: "3rem" }}>
-              {pkg.description}
-            </p>
+            <h3 className="annotation-text" style={{ fontSize: "1.4rem" }}>
+              {pkg.label}
+            </h3>
+            <p style={{ margin: "1rem 0", opacity: 0.8 }}>{pkg.description}</p>
             <div
               style={{
-                margin: "1rem 0",
-                fontSize: "0.8rem",
-                color: "var(--color-architect-blue)",
+                fontSize: "0.7rem",
+                color: "var(--bui-fg-info)",
+                textTransform: "uppercase",
               }}
             >
-              {pkg.bonus > 0
-                ? `+${pkg.bonus} Difficulty Bonus`
-                : `${pkg.bonus} Point Cost`}
+              Bonus: {pkg.bonus > 0 ? `+${pkg.bonus}` : pkg.bonus} pts
             </div>
-            <button
-              className="action-button"
-              style={{ width: "100%" }}
-              onClick={() => onSelect(pkg)}
-            >
-              Select Gear
-            </button>
-          </div>
+          </HardwarePanel>
         ))}
       </div>
     </div>

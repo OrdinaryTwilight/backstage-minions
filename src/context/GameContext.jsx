@@ -22,9 +22,9 @@ function reducer(state, action) {
           productionId: action.productionId,
           difficulty: action.difficulty,
           characterId: action.characterId,
-          // FIX: Initialize the stages array and the starting index
           stages: PRODUCTION_STAGES,
           currentStageIndex: 0,
+          gearId: null, // Initialized
           score: 0,
           lives:
             action.difficulty === "professional"
@@ -36,6 +36,16 @@ function reducer(state, action) {
           cuesMissed: 0,
           plotLights: [],
           conflictsSeen: [],
+        },
+      };
+
+    // NEW ACTION: Save selected gear
+    case "SET_GEAR":
+      return {
+        ...state,
+        session: {
+          ...state.session,
+          gearId: action.gearId,
         },
       };
 
