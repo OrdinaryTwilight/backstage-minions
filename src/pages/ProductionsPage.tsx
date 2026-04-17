@@ -5,6 +5,16 @@ import NavBar from "../components/ui/NavBar";
 import { useGame } from "../context/GameContext";
 import { PRODUCTIONS, VENUES } from "../data/gameData";
 
+// Helper array to easily check the preceding difficulty tier
+const DIFFICULTY_ORDER = ["school", "community", "professional"];
+
+// FIX: Extracted map to resolve the nested ternary linting error
+const ACT_MAP: Record<string, string> = {
+  school: "I",
+  community: "II",
+  professional: "III",
+};
+
 export default function ProductionsPage() {
   const { productionId } = useParams();
   const navigate = useNavigate();
@@ -91,7 +101,22 @@ export default function ProductionsPage() {
               {Object.entries(production.levels || {}).map(([diff, lvl]) => {
                 const prog = state?.progress?.[`${productionId}_${diff}`];
                 const venue = VENUES[lvl.venueId];
-                const isUnlocked = lvl.unlocked || prog?.completed;
+
+                // --- NEW DYNAMIC UNLOCK LOGIC ---
+                const diffIndex = DIFFICULTY_ORDER.indexOf(diff);
+                const prevDiff =
+                  diffIndex > 0 ? DIFFICULTY_ORDER[diffIndex - 1] : null;
+                const prevProg = prevDiff
+                  ? state?.progress?.[`${productionId}_${prevDiff}`]
+                  : null;
+
+                // FIX: Explicitly cast to boolean to fix the TS 'boolean | undefined' error
+                const isUnlocked = Boolean(
+                  lvl.unlocked || prog?.completed || prevProg?.completed,
+                );
+
+                // Fetch the mapped Act number
+                const actNumber = ACT_MAP[diff] || "I";
 
                 return (
                   <div
@@ -100,13 +125,28 @@ export default function ProductionsPage() {
                     style={{
                       opacity: isUnlocked ? 1 : 0.5,
                       cursor: isUnlocked ? "pointer" : "not-allowed",
+                      padding: "1.5rem",
+                      borderBottom: "1px solid #eaeaea",
                     }}
-                    onClick={() =>
-                      isUnlocked &&
-                      navigate(
-                        `/productions/${productionId}/difficulty/${diff}`,
-                      )
-                    }
+                    // FIX: Added A11y roles and keyboard support for clickable divs
+                    role="button"
+                    tabIndex={isUnlocked ? 0 : -1}
+                    aria-disabled={!isUnlocked}
+                    onClick={() => {
+                      if (isUnlocked) {
+                        navigate(
+                          `/productions/${productionId}/difficulty/${diff}`,
+                        );
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (isUnlocked && (e.key === "Enter" || e.key === " ")) {
+                        e.preventDefault();
+                        navigate(
+                          `/productions/${productionId}/difficulty/${diff}`,
+                        );
+                      }
+                    }}
                   >
                     <div>
                       <h3
@@ -116,13 +156,7 @@ export default function ProductionsPage() {
                           textTransform: "uppercase",
                         }}
                       >
-                        ACT{" "}
-                        {diff === "school"
-                          ? "I"
-                          : diff === "community"
-                            ? "II"
-                            : "III"}
-                        : {diff}
+                        ACT {actNumber}: {diff}
                       </h3>
                       <p
                         style={{
@@ -134,19 +168,33 @@ export default function ProductionsPage() {
                       >
                         📍 {venue?.name || "Unknown Venue"}
                       </p>
-                      {/* NEW: Display Venue Description */}
-                      <p
-                        style={{
-                          fontSize: "0.9rem",
-                          color: "#666",
-                          marginTop: "4px",
-                          fontStyle: "italic",
-                        }}
-                      >
-                        {venue?.description}
-                      </p>
+
+                      {isUnlocked ? (
+                        <p
+                          style={{
+                            fontSize: "0.9rem",
+                            color: "#666",
+                            marginTop: "4px",
+                            fontStyle: "italic",
+                          }}
+                        >
+                          {venue?.description}
+                        </p>
+                      ) : (
+                        <p
+                          style={{
+                            fontSize: "0.9rem",
+                            color: "var(--bui-fg-danger)",
+                            marginTop: "4px",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          🔒 Clear Act {diffIndex} ({prevDiff}) to unlock.
+                        </p>
+                      )}
                     </div>
-                    <div>
+
+                    <div style={{ alignSelf: "center" }}>
                       <DifficultyPill
                         label={isUnlocked ? "Ready" : "Locked"}
                         stars={prog?.stars || 0}
@@ -157,7 +205,6 @@ export default function ProductionsPage() {
                 );
               })}
             </div>
-            );
           </div>
         </div>
       </div>

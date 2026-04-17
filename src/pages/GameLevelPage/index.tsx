@@ -125,6 +125,7 @@ export default function GameLevelPage() {
           <ActiveStage
             cueSheet={departmentCues}
             onComplete={handleStageAdvance}
+            difficulty={difficulty}
           />
         )}
       </div>

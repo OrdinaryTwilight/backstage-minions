@@ -8,7 +8,11 @@ interface DifficultyPillProps {
   unlocked: boolean;
 }
 
-export default function DifficultyPill({ label, stars, unlocked }: DifficultyPillProps) {
+export default function DifficultyPill({
+  label,
+  stars,
+  unlocked,
+}: DifficultyPillProps) {
   return (
     <div
       style={{

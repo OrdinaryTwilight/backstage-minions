@@ -15,7 +15,7 @@ export function useQuests() {
     activeZone: string,
     activeNpc?: any,
   ): DialogueState | null => {
-    // QUEST 1: The Parched Actor
+    // --- QUEST 1: THE PARCHED ACTOR ---
     if (
       activeZone === "snackTable" &&
       !inventory.includes("Water Bottle") &&
@@ -28,9 +28,10 @@ export function useQuests() {
         choices: [{ id: "take_water", text: "Take Water Bottle" }],
       };
     }
-
-    if (activeNpc?.id === "actor_lead") {
-      if (completedQuests.includes("actor_water")) return null; // Fallback to normal chat if already done
+    if (
+      activeNpc?.id === "actor_lead" &&
+      !completedQuests.includes("actor_water")
+    ) {
       if (inventory.includes("Water Bottle")) {
         return {
           speaker: activeNpc.name,
@@ -48,7 +49,7 @@ export function useQuests() {
       }
     }
 
-    // QUEST 2: The Missing Tape
+    // --- QUEST 2: THE MISSING TAPE ---
     if (
       activeZone === "propsTable" &&
       !inventory.includes("Gaff Tape") &&
@@ -57,11 +58,10 @@ export function useQuests() {
       return {
         speaker: "Props Master",
         icon: "🛠️",
-        text: "Oh, you're heading to the booth? Can you bring this Gaff Tape to the Lighting Designer?",
+        text: "Hey, since you're walking around... Can you bring this Gaff Tape to the LX Booth?",
         choices: [{ id: "take_tape", text: "Take Gaff Tape" }],
       };
     }
-
     if (activeZone === "lightBooth" && inventory.includes("Gaff Tape")) {
       return {
         speaker: "LX Operator",
@@ -71,17 +71,65 @@ export function useQuests() {
       };
     }
 
-    return null; // No quest active here, proceed with normal dialogue
+    // --- QUEST 3: THE DIRECTOR'S SCRIPT ---
+    if (
+      activeZone === "stageManager" &&
+      !inventory.includes("Director's Script") &&
+      !completedQuests.includes("director_script")
+    ) {
+      return {
+        speaker: "Stage Manager",
+        icon: "📋",
+        text: "The Director left their script on my desk again. Can you run this to the Green Room before house opens?",
+        choices: [
+          { id: "take_script", text: "Take Director's Script" },
+          { id: "ok", text: "Maybe later." },
+        ],
+      };
+    }
+    // Note: To make this work, add a "Director" NPC to your Green Room spawner in useGameLoop!
+    if (
+      activeNpc?.dept === "Director" &&
+      !completedQuests.includes("director_script")
+    ) {
+      if (inventory.includes("Director's Script")) {
+        return {
+          speaker: activeNpc.name,
+          icon: activeNpc.icon,
+          text: "Ah, my script! The SM found it? Excellent work, let's get ready for places.",
+          choices: [{ id: "give_script", text: "Give Script (+20 pts)" }],
+        };
+      } else {
+        return {
+          speaker: activeNpc.name,
+          icon: activeNpc.icon,
+          text: "I've completely lost my blocking notes... Have you seen my script?",
+          choices: [{ id: "ok", text: "I'll ask the SM." }],
+        };
+      }
+    }
+
+    return null; // No quest active, proceed with normal dialogue
   };
 
   const handleQuestChoice = (choiceId: string, clearDialogue: () => void) => {
+    // Pickups
     if (choiceId === "take_tape") {
       setInventory((prev) => [...prev, "Gaff Tape"]);
       setQuestFeedback({ text: "Acquired: Gaff Tape!", isError: false });
     } else if (choiceId === "take_water") {
       setInventory((prev) => [...prev, "Water Bottle"]);
       setQuestFeedback({ text: "Acquired: Water Bottle!", isError: false });
-    } else if (choiceId === "give_water") {
+    } else if (choiceId === "take_script") {
+      setInventory((prev) => [...prev, "Director's Script"]);
+      setQuestFeedback({
+        text: "Acquired: Director's Script!",
+        isError: false,
+      });
+    }
+
+    // Dropoffs
+    else if (choiceId === "give_water") {
       setInventory((prev) => prev.filter((i) => i !== "Water Bottle"));
       setCompletedQuests((prev) => [...prev, "actor_water"]);
       dispatch({ type: "ADD_SCORE", delta: 20 });
@@ -91,13 +139,18 @@ export function useQuests() {
       setCompletedQuests((prev) => [...prev, "lx_tape"]);
       dispatch({ type: "ADD_SCORE", delta: 20 });
       setQuestFeedback({ text: "Quest Complete! +20 Pts", isError: false });
+    } else if (choiceId === "give_script") {
+      setInventory((prev) => prev.filter((i) => i !== "Director's Script"));
+      setCompletedQuests((prev) => [...prev, "director_script"]);
+      dispatch({ type: "ADD_SCORE", delta: 20 });
+      setQuestFeedback({ text: "Quest Complete! +20 Pts", isError: false });
     } else {
       return false; // Not a quest choice
     }
 
     clearDialogue();
     setTimeout(() => setQuestFeedback(null), 2500);
-    return true; // Was a quest choice
+    return true;
   };
 
   return { inventory, checkQuestIntercept, handleQuestChoice, questFeedback };

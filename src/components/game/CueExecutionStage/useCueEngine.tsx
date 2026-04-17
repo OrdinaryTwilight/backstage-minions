@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { Cue } from "../../../data/types";
 
-export function useCueEngine(cueSheet: Cue[], onComplete: () => void) {
+export function useCueEngine(
+  cueSheet: Cue[],
+  onComplete: () => void,
+  difficulty: string = "school",
+) {
   const { dispatch } = useGame();
   const [currentIdx, setCurrentIdx] = useState(0);
   const [faderLevels, setFaderLevels] = useState([80, 80, 80, 80, 100]);
@@ -42,7 +46,11 @@ export function useCueEngine(cueSheet: Cue[], onComplete: () => void) {
     if (isLastCue || !isReady) return;
 
     const targetMs = currentCue?.targetMs || 0;
-    const windowMs = currentCue?.windowMs || 1000;
+    let difficultyMultiplier = 1;
+    if (difficulty === "community") difficultyMultiplier = 0.75; // 25% tighter window
+    if (difficulty === "professional") difficultyMultiplier = 0.5; // 50% tighter window
+    const windowMs = (currentCue?.windowMs || 1000) * difficultyMultiplier;
+
     const isTimedWell = Math.abs(elapsedMs - targetMs) <= windowMs;
     const targetLevel = currentCue?.targetLevel || 80;
     const margin = 10;

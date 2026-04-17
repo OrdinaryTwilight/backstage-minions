@@ -12,11 +12,13 @@ import { useCueEngine } from "./useCueEngine";
 interface CueExecutionStageProps {
   cueSheet: Cue[];
   onComplete: () => void;
+  difficulty?: string;
 }
 
 export default function CueExecutionStage({
   cueSheet,
   onComplete,
+  difficulty = "school",
 }: CueExecutionStageProps) {
   const { state } = useGame();
   const char = state.session
@@ -36,7 +38,7 @@ export default function CueExecutionStage({
     maxShowTime,
     handleGo,
     handleReady,
-  } = useCueEngine(cueSheet, onComplete);
+  } = useCueEngine(cueSheet, onComplete, difficulty);
 
   return (
     <div className="page-container animate-blueprint">

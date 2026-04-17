@@ -8,8 +8,10 @@ import SoundConsole from "./SoundConsole";
 
 export default function SoundDesignStage({
   onComplete,
+  difficulty = "school",
 }: {
   onComplete: () => void;
+  difficulty?: string;
 }) {
   const { dispatch } = useGame();
   const [patch, setPatch] = useState<Record<string, Record<string, number>>>({
@@ -31,10 +33,13 @@ export default function SoundDesignStage({
     outputBuses,
   } = SOUND_CONSOLE_CONFIG;
 
-  const deadChannels = useMemo(
-    () => [...consoleChannels].sort(() => 0.5 - Math.random()).slice(0, 1),
-    [consoleChannels],
-  );
+  const deadChannels = useMemo(() => {
+    const deadCount =
+      difficulty === "professional" ? 2 : difficulty === "community" ? 1 : 0;
+    return [...consoleChannels]
+      .sort(() => 0.5 - Math.random())
+      .slice(0, deadCount);
+  }, [consoleChannels, difficulty]);
 
   const handlePatch = (type: string, source: string, target: number) => {
     setPatch((prev) => ({

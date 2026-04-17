@@ -3,13 +3,13 @@ import { useGame } from "../../context/GameContext";
 import HardwarePanel from "../ui/HardwarePanel";
 import SectionHeader from "../ui/SectionHeader";
 
-interface CableCoilingStageProps {
-  readonly onComplete: () => void;
-}
-
 export default function CableCoilingStage({
   onComplete,
-}: CableCoilingStageProps) {
+  difficulty = "school",
+}: {
+  onComplete: () => void;
+  difficulty?: string;
+}) {
   const { dispatch } = useGame();
   const [coils, setCoils] = useState(0);
   const [knots, setKnots] = useState(0);
@@ -23,8 +23,9 @@ export default function CableCoilingStage({
   });
   const [isComplete, setIsComplete] = useState(false);
 
-  // Reduced target for better pacing
-  const TARGET_COILS = 8;
+  // Scale target for coiling based on difficulty
+  const TARGET_COILS =
+    difficulty === "professional" ? 12 : difficulty === "community" ? 8 : 6;
 
   // Keyboard support for fast coiling
   useEffect(() => {
