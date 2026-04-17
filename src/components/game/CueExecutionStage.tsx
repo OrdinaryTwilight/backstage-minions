@@ -20,7 +20,7 @@ export default function CueExecutionStage({ cueSheet, onComplete }: CueExecution
   const char = state.session ? CHARACTERS.find((c) => c.id === state.session?.characterId) : null;
   const currentCue = cueSheet[currentIdx];
   const isLastCue = currentIdx === cueSheet.length - 1;
-  const [cueResults, setCueResults] = useState<Record<string, { hit: boolean }>>({});
+  const [cueResults] = useState<Record<string, { hit: boolean }>>({});
   /**
    * checkFaderAlignment: Core scoring logic for booth execution
    *

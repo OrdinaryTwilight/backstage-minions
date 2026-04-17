@@ -8,7 +8,7 @@ interface CueStackProps {
   department?: string;
 }
 
-function CueStackComponent({ cues = [], currentIndex, cueResults = {}, department }: CueStackProps) {
+function CueStackComponent({ cues = [], currentIndex, cueResults = {} }: CueStackProps) {
   return (
     <div className="console-screen">
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>

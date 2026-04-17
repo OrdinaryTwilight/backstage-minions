@@ -1,4 +1,3 @@
-import { ConflictChoice } from "../../types/game";
 import Button from "../ui/Button";
 
 /**
@@ -10,11 +9,11 @@ export interface DialogueBoxChoice {
   text: string;
 }
 
-interface DialogueBoxProps {
+interface DialogueBoxProps<T extends DialogueBoxChoice> {
   speaker: string;
   text: string;
-  choices: ConflictChoice[];
-  onChoice: (choice: ConflictChoice) => void;
+  choices: T[];
+  onChoice: (choice: T) => void;
   icon?: string;
 }
 
@@ -22,23 +21,52 @@ interface DialogueBoxProps {
  * DialogueBox: A generic technical terminal for NPC interactions.
  * Uses <T> to allow specialized choice objects to pass through.
  */
-export default function DialogueBox({ speaker, text, choices, onChoice, icon }: DialogueBoxProps) {
+export default function DialogueBox<T extends DialogueBoxChoice>({
+  speaker,
+  text,
+  choices,
+  onChoice,
+  icon,
+}: DialogueBoxProps<T>) {
   return (
-    <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start' }}>
-      <div style={{ fontSize: '4rem', background: 'var(--glass-bg)', padding: '1.5rem', borderRadius: '12px' }}>
+    <div style={{ display: "flex", gap: "2rem", alignItems: "flex-start" }}>
+      <div
+        style={{
+          fontSize: "4rem",
+          background: "var(--glass-bg)",
+          padding: "1.5rem",
+          borderRadius: "12px",
+        }}
+      >
         {icon || "👤"}
       </div>
-      
+
       <div style={{ flex: 1 }}>
-        <h3 style={{ color: 'var(--bui-fg-info)', marginBottom: '0.5rem' }}>{speaker}</h3>
-        <p style={{ fontSize: '1.1rem', marginBottom: '2rem', fontStyle: 'italic' }}>"{text}"</p>
-        
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <h3 style={{ color: "var(--bui-fg-info)", marginBottom: "0.5rem" }}>
+          {speaker}
+        </h3>
+        <p
+          style={{
+            fontSize: "1.1rem",
+            marginBottom: "2rem",
+            fontStyle: "italic",
+          }}
+        >
+          "{text}"
+        </p>
+
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+          }}
+        >
           {choices.map((choice) => (
-            <Button 
-              key={choice.id} 
+            <Button
+              key={choice.id}
               onClick={() => onChoice(choice)}
-              style={{ textAlign: 'left', justifyContent: 'flex-start' }}
+              style={{ textAlign: "left", justifyContent: "flex-start" }}
             >
               {choice.text}
             </Button>

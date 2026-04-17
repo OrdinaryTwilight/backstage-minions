@@ -9,7 +9,14 @@ interface WrapUpChoice {
   contact: string | null;
 }
 
-const WRAPUP_DIALOGUES = [
+interface WrapUpDialogue {
+  id: string;
+  speaker: string;
+  text: string;
+  choices: WrapUpChoice[];
+}
+
+const WRAPUP_DIALOGUES: WrapUpDialogue[] = [
   {
     id: "sm_network",
     speaker: "Stage Manager",
@@ -42,7 +49,7 @@ export default function WrapUpScene({ onComplete }: WrapUpSceneProps) {
 
   const dialogue = WRAPUP_DIALOGUES[step];
 
-  function handleChoice(choice: typeof WRAPUP_DIALOGUES[0]["choices"][0]) {
+  function handleChoice(choice: WrapUpChoice) {
     dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
     if (choice.contact) dispatch({ type: "ADD_CONTACT", name: choice.contact });
 
