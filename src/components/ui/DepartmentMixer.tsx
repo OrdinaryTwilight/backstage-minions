@@ -71,8 +71,12 @@ function FaderTrack({ label, color, onLevelChange, currentLevel }: FaderTrackPro
             cursor: 'ns-resize',
             appearance: 'none',
             background: 'transparent',
-            zIndex: 10
+            zIndex: 10,
+            touchAction: "none", // CRITICAL: Prevents browser scroll during drag
+            WebkitUserSelect: "none",
+            userSelect: "none"
           }}
+          onTouchStart={(e) => e.stopPropagation()}
         />
         {/* Visual Fader Cap Overlay */}
         <div style={{

@@ -1,8 +1,8 @@
 import { createContext, ReactNode, useContext, useEffect, useReducer } from "react";
-import { PRODUCTION_STAGES } from "../data/gameData";
+import { CONFLICTS, PRODUCTION_STAGES } from "../data/gameData";
 import {
-    GameAction,
-    GameState
+  GameAction,
+  GameState
 } from "../types/game";
 
 /**
@@ -99,16 +99,16 @@ function reducer(state: GameState, action: GameAction): GameState {
           currentStageIndex: 0,
           gearId: null,
           score: 0,
-          lives:
-            action.difficulty === "professional"
-              ? 2
-              : action.difficulty === "community"
-                ? 3
-                : 4,
+          lives: action.difficulty === "professional"
+            ? 2
+            : action.difficulty === "community"
+              ? 3
+              : 4,
           cuesHit: 0,
           cuesMissed: 0,
           plotLights: [],
           conflictsSeen: [],
+          activeConflict: null
         },
       };
 
@@ -123,16 +123,25 @@ function reducer(state: GameState, action: GameAction): GameState {
           : null,
       };
 
-    case "NEXT_STAGE":
+    case "NEXT_STAGE": {
+      if (!state.session) return state;
+      const nextIdx = state.session.currentStageIndex + 1;
+      const nextStageKey = state.session.stages[nextIdx];
+      // Check for a conflict triggered by the upcoming stage
+      const triggerConflict = CONFLICTS.find(c =>
+        c.trigger === nextStageKey &&
+        !state.session?.conflictsSeen.includes(c.id)
+      );
+
       return {
         ...state,
-        session: state.session
-          ? {
-              ...state.session,
-              currentStageIndex: state.session.currentStageIndex + 1,
-            }
-          : null,
+        session: {
+          ...state.session,
+          currentStageIndex: nextIdx,
+          activeConflict: triggerConflict || null // Sets the conflict for GameLevelPage to catch
+        }
       };
+    }
 
     case "ADD_SCORE":
       return {
@@ -204,6 +213,16 @@ function reducer(state: GameState, action: GameAction): GameState {
             }
           : null,
       };
+    
+    case "RESOLVE_CONFLICT":
+  return {
+    ...state,
+    session: state.session ? {
+      ...state.session,
+      activeConflict: null,
+      conflictsSeen: [...state.session.conflictsSeen, action.conflictId]
+    } : null
+  };
 
     case "ADD_CONTACT":
       return {

@@ -150,6 +150,7 @@ export interface GameSession {
   cuesMissed: number;
   plotLights: LightPlotNode[];
   conflictsSeen: string[];
+  activeConflict: Conflict | null;
 }
 
 /**
@@ -224,6 +225,7 @@ export type GameAction =
   | { type: "CUE_MISSED" }
   | { type: "SET_PLOT_LIGHTS"; lights: LightPlotNode[] }
   | { type: "MARK_CONFLICT_SEEN"; conflictId: string }
+  | { type: "RESOLVE_CONFLICT"; conflictId: string }
   | { type: "ADD_CONTACT"; name: string }
   | {
       type: "COMPLETE_LEVEL";
