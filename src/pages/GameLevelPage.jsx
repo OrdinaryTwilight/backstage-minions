@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import ConflictMinigame from "../components/game/ConflictMinigame";
 import CueExecutionStage from "../components/game/CueExecutionStage";
 import EquipmentStage from "../components/game/EquipmentStage";
@@ -7,146 +6,86 @@ import PlanningStage from "../components/game/PlanningStage";
 import SoundDesignStage from "../components/game/SoundDesignStage";
 import WrapUpScene from "../components/game/WrapUpScene";
 import { useGame } from "../context/GameContext";
-import { STAGE_ORDER } from "../data/constants";
-import { CHARACTERS, CONFLICTS, CUE_SHEETS, STORIES } from "../data/gameData";
+import { CHARACTERS, CUE_SHEETS, PRODUCTIONS } from "../data/gameData";
+
+// Defensive Stage Mapping
+const STAGE_COMPONENTS = {
+  equipment: EquipmentStage,
+  planning: PlanningStage,
+  sound_design: SoundDesignStage,
+  execution: CueExecutionStage,
+  wrapup: WrapUpScene,
+};
 
 export default function GameLevelPage() {
   const { productionId, difficulty, charId } = useParams();
   const { state, dispatch } = useGame();
   const navigate = useNavigate();
 
-  const [stage, setStage] = useState("equipment");
-  const [conflict, setConflict] = useState(null);
-  const [gearMultiplier, setGearMultiplier] = useState(1);
-  const [penaltyMultiplier, setPenaltyMultiplier] = useState(1);
+  // 1. Session Persistence Guard: Redirect if session is missing (e.g. on refresh)
+  if (!state.session) {
+    return <Navigate to="/" replace />;
+  }
 
   const char = CHARACTERS.find((c) => c.id === charId);
-  const isLighting = char?.department === "lighting";
-  const isSound = char?.department === "sound";
-  const cueSheet = CUE_SHEETS[productionId]?.[char?.department] ?? [];
+  const production = PRODUCTIONS.find((p) => p.id === productionId);
 
-  useEffect(() => {
-    if (!state?.session) navigate("/");
-  }, [state?.session, navigate]);
-
-  if (!state?.session) return null;
-
-  function advanceTo(nextStage) {
-    const eligible = CONFLICTS.filter(
-      (c) =>
-        c.trigger === nextStage && !state.session.conflictsSeen.includes(c.id),
+  // 2. Data Integrity Guard: Ensure production and character exist
+  if (!production || !char) {
+    return (
+      <div className="page-container animate-flicker">
+        Critical Error: System Data Missing
+      </div>
     );
-    if (eligible.length && Math.random() > 0.6) {
-      setConflict(eligible[Math.floor(Math.random() * eligible.length)]);
-      return;
-    }
+  }
 
-    // Role-based logic: Skip irrelevant stages
-    if (nextStage === "planning" && !isLighting) {
-      advanceTo("sound_design");
-      return;
-    }
-    if (nextStage === "sound_design" && !isSound) {
-      advanceTo("rehearsal");
-      return;
-    }
+  // 3. Stage Logic: Determine which component to show
+  const currentStageKey = state.session.stages[state.session.currentStageIndex];
+  const CurrentStageComponent = STAGE_COMPONENTS[currentStageKey];
 
-    setStage(nextStage);
-    dispatch({ type: "ADVANCE_STAGE" });
+  // 4. Cue Sheet Guard: Fixes the potential "reading '0'" error
+  const departmentCues = CUE_SHEETS[productionId]?.[char.department] || [];
+
+  function nextStage() {
+    if (state.session.currentStageIndex < state.session.stages.length - 1) {
+      dispatch({ type: "NEXT_STAGE" });
+    } else {
+      handleComplete();
+    }
   }
 
   function handleComplete() {
-    const totalCues = cueSheet.length * 2;
+    const totalCues = departmentCues.length * 2;
     const hitRate = totalCues > 0 ? state.session.cuesHit / totalCues : 0;
     const stars = hitRate >= 0.9 ? 3 : hitRate >= 0.65 ? 2 : 1;
 
-    const newStories = STORIES.filter(
-      (s) =>
-        s.unlockedBy.productionId === productionId &&
-        stars >= s.unlockedBy.minStars,
-    ).map((s) => s.id);
-
-    // 1. Navigate FIRST while session still exists
+    // Navigate to results BEFORE clearing data
     navigate(`/level-complete/${productionId}/${difficulty}/${charId}`, {
-      state: { stars, newStories },
+      state: { stars },
     });
 
-    // 2. Record the completion
     dispatch({
       type: "COMPLETE_LEVEL",
       productionId,
       difficulty,
       stars,
-      unlockedStories: newStories,
     });
+  }
 
-    // Clear the session only when the player chooses to exit the results screen.
+  // Conflict Interruption Logic
+  if (state.session.activeConflict) {
+    return <ConflictMinigame conflict={state.session.activeConflict} />;
+  }
+
+  if (!CurrentStageComponent) {
+    return (
+      <div className="page-container">
+        Error: Component {currentStageKey} not found.
+      </div>
+    );
   }
 
   return (
-    <div className="page-container">
-      {/* HUD and Progress UI */}
-      <div
-        className="surface-panel"
-        style={{
-          textAlign: "center",
-          borderBottom: "2px solid var(--glass-border)",
-        }}
-      >
-        <h3 style={{ color: "var(--bui-fg-info)" }}>
-          SCORE: {state.session.score}
-        </h3>
-      </div>
-
-      {conflict ? (
-        <ConflictMinigame
-          conflict={conflict}
-          onResolved={(outcome) => {
-            setConflict(null);
-            if (outcome === "escalated") setPenaltyMultiplier(0.7);
-            const next =
-              STAGE_ORDER[STAGE_ORDER.indexOf(stage) + 1] ?? "wrapup";
-            advanceTo(next);
-          }}
-        />
-      ) : (
-        <>
-          {stage === "equipment" && (
-            <EquipmentStage
-              onSelect={(pkg) => {
-                setGearMultiplier(pkg.multiplier);
-                dispatch({ type: "ADD_SCORE", delta: pkg.bonus });
-                advanceTo("planning");
-              }}
-            />
-          )}
-          {stage === "planning" && isLighting && (
-            <PlanningStage onComplete={() => advanceTo("rehearsal")} />
-          )}
-          {stage === "sound_design" && isSound && (
-            <SoundDesignStage onComplete={() => advanceTo("rehearsal")} />
-          )}
-          {stage === "rehearsal" && (
-            <CueExecutionStage
-              stageType="rehearsal"
-              cues={cueSheet}
-              penaltyMultiplier={penaltyMultiplier * gearMultiplier}
-              onComplete={() => advanceTo("liveshow")}
-              onFail={() => navigate("/level-failed")}
-            />
-          )}
-          {stage === "liveshow" && (
-            <CueExecutionStage
-              stageType="live"
-              cues={cueSheet}
-              penaltyMultiplier={penaltyMultiplier * gearMultiplier}
-              onComplete={() => advanceTo("wrapup")}
-              onFail={() => navigate("/level-failed")}
-            />
-          )}
-          {stage === "wrapup" && <WrapUpScene onComplete={handleComplete} />}
-        </>
-      )}
-    </div>
+    <CurrentStageComponent cueSheet={departmentCues} onComplete={nextStage} />
   );
 }

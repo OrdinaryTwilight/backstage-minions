@@ -113,6 +113,14 @@ export const PRODUCTIONS = [
   }
 ];
 
+export const PRODUCTION_STAGES = [
+  "equipment", 
+  "planning", 
+  "sound_design", 
+  "execution", 
+  "wrapup"
+];
+
 // --- CHARACTERS ---
 /** @type {Character[]} */
 export const CHARACTERS = [
