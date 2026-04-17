@@ -10,17 +10,17 @@ import SectionHeader from "../ui/SectionHeader";
 export default function CueExecutionStage({ cueSheet, onComplete }) {
   const { state, dispatch } = useGame();
   const [currentIdx, setCurrentIdx] = useState(0);
-  const [faderLevels, setFaderLevels] = useState([80, 80, 80, 80, 100]); // 4 channels + Master
+  const [faderLevels, setFaderLevels] = useState([80, 80, 80, 80, 100]);
 
   const char = CHARACTERS.find((c) => c.id === state.session.characterId);
   const currentCue = cueSheet[currentIdx];
   const isLastCue = currentIdx === cueSheet.length - 1;
 
-  // Hybrid Logic: Checks if faders are in the 'Safe Zone' for the current cue
+  // Hybrid Logic Fix: Handle missing targetLevel from gameData
   const checkFaderAlignment = () => {
+    // Falls back to 80 if targetLevel is missing in gameData.js
     const target = currentCue?.targetLevel || 80;
     const margin = 10;
-    // Check if Master and at least 2 channels are in range
     const masterOk = Math.abs(faderLevels[4] - 100) < margin;
     const channelsOk =
       faderLevels.slice(0, 4).filter((l) => Math.abs(l - target) < margin)
@@ -29,13 +29,11 @@ export default function CueExecutionStage({ cueSheet, onComplete }) {
   };
 
   function handleGo() {
-    const isAligned = checkFaderAlignment();
-
-    if (isAligned) {
-      dispatch({ type: "HIT_CUE" });
+    if (checkFaderAlignment()) {
+      dispatch({ type: "CUE_HIT" }); // Matches reducer: CUE_HIT
       dispatch({ type: "ADD_SCORE", delta: 10 });
     } else {
-      dispatch({ type: "MISS_CUE" });
+      dispatch({ type: "CUE_MISSED" }); // Matches reducer: CUE_MISSED
     }
 
     if (isLastCue) {
@@ -48,12 +46,11 @@ export default function CueExecutionStage({ cueSheet, onComplete }) {
   return (
     <div className="page-container animate-blueprint">
       <SectionHeader
-        title={`${char?.icon} Tech Booth: Session #${state.session.productionId.toUpperCase()}`}
+        title={`${char?.icon} Tech Booth: Session #${state.session.productionId?.toUpperCase()}`}
         subtitle="Coordinate the master clock and maintain fader precision."
       />
 
       <div className="desktop-two-column">
-        {/* Left: Console HUD */}
         <div className="desktop-col-main">
           <HardwarePanel
             style={{
@@ -80,7 +77,8 @@ export default function CueExecutionStage({ cueSheet, onComplete }) {
                     padding: 0,
                   }}
                 >
-                  CMD: {currentCue?.action.toUpperCase()}
+                  {/* FIX: Changed .action to .label to match gameData.js */}
+                  CMD: {currentCue?.label?.toUpperCase() || "STANDBY"}
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
@@ -102,7 +100,6 @@ export default function CueExecutionStage({ cueSheet, onComplete }) {
           <CueStack cues={cueSheet} currentIndex={currentIdx} />
         </div>
 
-        {/* Right: Tactical Controls */}
         <div className="desktop-col-side">
           <div className="animate-pop">
             <DepartmentMixer
