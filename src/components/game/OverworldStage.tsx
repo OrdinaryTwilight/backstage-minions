@@ -37,8 +37,22 @@ const ZONES: Record<string, ZoneConfig> = {
       choices: [{ id: "ok", text: "On my way!", pointDelta: 0, contact: null }]
     }
   },
-  propsTable: { x: 400, y: 350, w: 120, h: 60, label: "PROPS", color: "#5f0f40", isSolid: true },
-  wings: { x: 0, y: 0, w: 80, h: 450, label: "WINGS", color: "rgba(0,0,0,0.3)", isSolid: false }
+  propsTable: { 
+    x: 400, y: 350, w: 120, h: 60, label: "PROPS", color: "#5f0f40", isSolid: true,
+    dialogue: {
+      speaker: "Props Master",
+      text: "Hey! Don't touch the prop swords. I just finished repainting the fake blood. Hands to yourself!",
+      choices: [{ id: "ok", text: "Backing away slowly...", pointDelta: 0, contact: null }]
+    }
+  },
+  wings: { 
+    x: 0, y: 0, w: 80, h: 450, label: "WINGS", color: "rgba(0,0,0,0.3)", isSolid: false,
+    dialogue: {
+      speaker: "Nervous Actor",
+      text: "Psst! Did I miss my entrance? I can't hear the stage monitor! Oh wait... I'm not even in this scene.",
+      choices: [{ id: "ok", text: "Shh! Quiet in the wings!", pointDelta: 0, contact: null }]
+    }
+  }
 };
 
 export default function OverworldStage({ onComplete, department }: OverworldStageProps) {
@@ -155,21 +169,21 @@ export default function OverworldStage({ onComplete, department }: OverworldStag
   // Interaction Loop
   useEffect(() => {
     if (interact && activeZone) {
-      const zone = ZONES[activeZone]; // TS is happy now!
+      const zone = ZONES[activeZone];
 
       if (activeZone === "lightBooth" || activeZone === "soundBooth") {
         if (zone.targetDept === department) {
           onComplete();
         } else {
           const msg = zone.targetDept === "lighting" 
-            ? "Wrong booth! The LX crew is glaring at you." 
+            ? "Wrong booth! The LX crew is mildly judging you." 
             : "This is Sound! Don't touch those faders!";
           setFeedbackMsg(msg);
           setTimeout(() => setFeedbackMsg(null), 2500);
         }
-      } else if (activeZone === "stageManager" && !activeDialogue) {
-        // TS knows dialogue exists but might be undefined, so we pass it safely
-        if (zone.dialogue) setActiveDialogue(zone.dialogue);
+      } else if (zone.dialogue && !activeDialogue) {
+        // Now works for SM Desk, Props Table, AND Wings!
+        setActiveDialogue(zone.dialogue);
       }
     }
   }, [interact, activeZone, activeDialogue, onComplete, department]);

@@ -127,18 +127,27 @@ function reducer(state: GameState, action: GameAction): GameState {
       if (!state.session) return state;
       const nextIdx = state.session.currentStageIndex + 1;
       const nextStageKey = state.session.stages[nextIdx];
-      // Check for a conflict triggered by the upcoming stage
-      const triggerConflict = CONFLICTS.find(c =>
+      
+      // Find ALL conflicts matching the upcoming stage that haven't been seen yet
+      const availableConflicts = CONFLICTS.filter(c =>
         c.trigger === nextStageKey &&
         !state.session?.conflictsSeen.includes(c.id)
       );
+
+      // RANDOMNESS: 50% chance to trigger a conflict if one is available for this stage
+      let triggerConflict = null;
+      if (availableConflicts.length > 0 && Math.random() > 0.5) {
+        // Pick a random conflict from the available pool
+        const randIndex = Math.floor(Math.random() * availableConflicts.length);
+        triggerConflict = availableConflicts[randIndex];
+      }
 
       return {
         ...state,
         session: {
           ...state.session,
           currentStageIndex: nextIdx,
-          activeConflict: triggerConflict || null // Sets the conflict for GameLevelPage to catch
+          activeConflict: triggerConflict // Might be null, might be a conflict!
         }
       };
     }

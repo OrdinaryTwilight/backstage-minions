@@ -289,7 +289,7 @@ export const CONFLICTS: Conflict[] = [
   },
   {
     id: "late_cue",
-    trigger: "rehearsal",
+    trigger: "execution",
     npc: "Stage Manager",
     description: 'The headset crackles: "LX2 was four bars late again. The cast is losing confidence. What is happening at the board, people?"',
     choices: [
