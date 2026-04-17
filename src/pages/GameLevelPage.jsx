@@ -26,10 +26,10 @@ export default function GameLevelPage() {
   if (!state.session) return <Navigate to="/" replace />;
 
   const production = PRODUCTIONS.find(
-    (p) => p.id.toLowerCase() === productionId.toLowerCase(),
+    (p) => p.id.toLowerCase() === productionId?.toLowerCase(),
   );
   const char = CHARACTERS.find(
-    (c) => c.id.toLowerCase() === charId.toLowerCase(),
+    (c) => c.id.toLowerCase() === charId?.toLowerCase(),
   );
 
   // Determine current component

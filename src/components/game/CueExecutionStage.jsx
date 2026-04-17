@@ -11,7 +11,7 @@ export default function CueExecutionStage({ cueSheet, onComplete }) {
   const { state, dispatch } = useGame();
   const [currentIdx, setCurrentIdx] = useState(0);
   const [faderLevels, setFaderLevels] = useState([80, 80, 80, 80, 100]);
-
+  const [lastResult, setLastResult] = useState(null); // 'hit' | 'miss' | null
   const char = CHARACTERS.find((c) => c.id === state.session.characterId);
   const currentCue = cueSheet[currentIdx];
   const isLastCue = currentIdx === cueSheet.length - 1;
@@ -29,6 +29,34 @@ export default function CueExecutionStage({ cueSheet, onComplete }) {
   };
 
   function handleGo() {
+    const currentCue = cueSheet[currentIdx];
+    const target = currentCue?.targetLevel ?? 80; // Fallback for legacy data
+    const margin = 12; // Technical tolerance
+    const isAligned = checkFaderAlignment(); // Logic from Phase 3 stability
+    const result = isAligned ? "hit" : "miss";
+
+    // Check if enough faders are in the 'Correct' zone
+    const masterOk = Math.abs(faderLevels[4] - 100) < 5;
+    const channelsOk =
+      faderLevels.slice(0, 4).filter((l) => Math.abs(l - target) < margin)
+        .length >= 2;
+
+    // Trigger visual flash
+    setLastResult(result);
+    setTimeout(() => setLastResult(null), 400);
+
+    if (isAligned) {
+      dispatch({ type: "CUE_HIT" });
+      dispatch({ type: "ADD_SCORE", delta: 10 });
+    } else {
+      dispatch({ type: "CUE_MISSED" });
+    }
+
+    if (masterOk && channelsOk) {
+      dispatch({ type: "CUE_HIT" });
+    } else {
+      dispatch({ type: "CUE_MISSED" });
+    }
     if (checkFaderAlignment()) {
       dispatch({ type: "CUE_HIT" }); // Matches reducer: CUE_HIT
       dispatch({ type: "ADD_SCORE", delta: 10 });
@@ -45,6 +73,9 @@ export default function CueExecutionStage({ cueSheet, onComplete }) {
 
   return (
     <div className="page-container animate-blueprint">
+      <div
+        className={`feedback-overlay ${lastResult ? `flash-${lastResult}` : ""}`}
+      />
       <SectionHeader
         title="Booth Operations"
         subtitle="Coordinate the master clock and maintain fader precision."

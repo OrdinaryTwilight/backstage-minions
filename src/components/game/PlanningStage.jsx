@@ -143,10 +143,9 @@ export default function PlanningStage({ onComplete }) {
                 borderRadius: "4px",
               }}
             >
-              {/* Volumetric Beams */}
               {grid.map((cell, i) => {
                 if (!cell) return null;
-                const type = LIGHT_TYPES.find((t) => t.id === cell.typeId);
+                const type = LIGHT_TYPES.find((t) => t.id === cell.typeId); // 'type' is defined here
                 const col = i % PLOT_GRID_COLS;
                 const isSpot = type.id === "spot";
 
@@ -157,7 +156,8 @@ export default function PlanningStage({ onComplete }) {
                       position: "absolute",
                       left: `${(col / (PLOT_GRID_COLS - 1)) * 100}%`,
                       top: "0",
-                      width: isSpot ? "25%" : "50%",
+                      bottom: "25%",
+                      width: type.id === "spot" ? "12px" : "45px",
                       height: "100%",
                       background: `linear-gradient(to bottom, ${type.color}66, transparent)`,
                       clipPath: "polygon(50% 0%, 0% 100%, 100% 100%)",

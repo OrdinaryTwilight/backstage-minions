@@ -220,6 +220,41 @@ body {
   }
 }
 
+@keyframes booth-flash-hit {
+  0% {
+    background-color: rgba(74, 222, 128, 0.2);
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes booth-flash-miss {
+  0% {
+    background-color: rgba(248, 113, 113, 0.2);
+  }
+
+  100% {
+    background-color: transparent;
+  }
+}
+
+.feedback-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+.flash-hit {
+  animation: booth-flash-hit 0.4s ease-out forwards;
+}
+
+.flash-miss {
+  animation: booth-flash-miss 0.4s ease-out forwards;
+}
+
 /* Global utility classes for easy reuse */
 .animate-blueprint {
   animation: blueprint-reveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
@@ -257,4 +292,15 @@ body {
 
 .status-off-duty {
   background: #666;
+}
+
+:focus-visible {
+  outline: 3px solid var(--bui-fg-info);
+  outline-offset: 4px;
+  border-radius: 4px;
+}
+
+.plot-cell:focus {
+  background: rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 0 15px var(--bui-fg-info);
 }
