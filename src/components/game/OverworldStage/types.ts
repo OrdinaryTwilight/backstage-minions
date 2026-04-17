@@ -1,6 +1,8 @@
 export interface NPC {
   id: string;
   name: string;
+  icon: string;
+  dept: string;
   x: number;
   y: number;
   dx: number;
@@ -13,6 +15,7 @@ export interface NPC {
 export interface DialogueState {
   speaker: string;
   text: string;
+  icon?: string;
   choices: {
     id: string;
     text: string;
@@ -21,18 +24,9 @@ export interface DialogueState {
   }[];
 }
 
-export interface GamePhysicsState {
-  playerPos: { x: number; y: number };
-  targetPos: { x: number; y: number } | null;
-  npcs: NPC[];
-  activeZone: string | null;
-  activeDialogue: DialogueState | null;
-  feedbackMsg: string | null;
-  bumpMsg: { id: string; msg: string } | null;
-}
-
 export interface OverworldStageProps {
   readonly onComplete: () => void;
   readonly department?: string;
   readonly charId?: string;
+  readonly nextStageKey?: string;
 }

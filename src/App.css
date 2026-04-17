@@ -382,20 +382,3 @@
 .row-flash-miss {
   animation: row-miss 0.8s ease-out forwards;
 }
-
-/* Technical Glow / Scanline Filter */
-.tech-glow {
-  position: relative;
-  overflow: hidden;
-}
-
-.tech-glow::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
-    linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 255, 0, 0.03));
-  background-size: 100% 3px, 3px 100%;
-  z-index: 10;
-}

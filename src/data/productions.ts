@@ -74,9 +74,9 @@ export const PRODUCTIONS: Production[] = [
       "A cursed production. Everything that can go wrong, will go wrong. Hope you brought gaffer tape.",
     learnMoreUrl: "https://en.wikipedia.org/wiki/Macbeth",
     levels: {
-      school: { venueId: "venue_highschool", unlocked: true },
-      community: { venueId: "venue_community", unlocked: false },
-      professional: { venueId: "venue_regional", unlocked: false },
+      school: { venueId: "high_school", unlocked: true },
+      community: { venueId: "regional", unlocked: false },
+      professional: { venueId: "regional", unlocked: false },
     },
   },
 ];

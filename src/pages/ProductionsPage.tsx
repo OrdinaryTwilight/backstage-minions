@@ -87,86 +87,78 @@ export default function ProductionsPage() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {Object.entries(production.levels).map(([diff, lvl]) => {
-              const prog = state?.progress?.[`${productionId}_${diff}`];
-              const venue = VENUES[lvl.venueId];
-              const isUnlocked = lvl.unlocked || prog?.completed;
+            return (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {Object.entries(production.levels || {}).map(([diff, lvl]) => {
+                const prog = state?.progress?.[`${productionId}_${diff}`];
+                const venue = VENUES[lvl.venueId];
+                const isUnlocked = lvl.unlocked || prog?.completed;
 
-              return (
-                <div style={{ display: "flex", flexDirection: "column" }}>
-                  {Object.entries(production.levels || {}).map(
-                    ([diff, lvl]) => {
-                      const prog = state?.progress?.[`${productionId}_${diff}`];
-                      const venue = VENUES[lvl.venueId];
-                      const isUnlocked = lvl.unlocked || prog?.completed;
-
-                      return (
-                        <div
-                          key={diff}
-                          className="playbill-act-item"
-                          style={{
-                            opacity: isUnlocked ? 1 : 0.5,
-                            cursor: isUnlocked ? "pointer" : "not-allowed",
-                          }}
-                          onClick={() =>
-                            isUnlocked &&
-                            navigate(
-                              `/productions/${productionId}/difficulty/${diff}`,
-                            )
-                          }
-                        >
-                          <div>
-                            <h3
-                              style={{
-                                fontSize: "1.4rem",
-                                fontWeight: "bold",
-                                textTransform: "uppercase",
-                              }}
-                            >
-                              ACT{" "}
-                              {diff === "school"
-                                ? "I"
-                                : diff === "community"
-                                  ? "II"
-                                  : "III"}
-                              : {diff}
-                            </h3>
-                            <p
-                              style={{
-                                fontSize: "1.1rem",
-                                color: "#222",
-                                marginTop: "4px",
-                                fontWeight: "bold",
-                              }}
-                            >
-                              📍 {venue?.name || "Unknown Venue"}
-                            </p>
-                            {/* NEW: Display Venue Description */}
-                            <p
-                              style={{
-                                fontSize: "0.9rem",
-                                color: "#666",
-                                marginTop: "4px",
-                                fontStyle: "italic",
-                              }}
-                            >
-                              {venue?.description}
-                            </p>
-                          </div>
-                          <div>
-                            <DifficultyPill
-                              label={isUnlocked ? "Ready" : "Locked"}
-                              stars={prog?.stars || 0}
-                              unlocked={isUnlocked}
-                            />
-                          </div>
-                        </div>
-                      );
-                    },
-                  )}
-                </div>
-              );
-            })}
+                return (
+                  <div
+                    key={diff}
+                    className="playbill-act-item"
+                    style={{
+                      opacity: isUnlocked ? 1 : 0.5,
+                      cursor: isUnlocked ? "pointer" : "not-allowed",
+                    }}
+                    onClick={() =>
+                      isUnlocked &&
+                      navigate(
+                        `/productions/${productionId}/difficulty/${diff}`,
+                      )
+                    }
+                  >
+                    <div>
+                      <h3
+                        style={{
+                          fontSize: "1.4rem",
+                          fontWeight: "bold",
+                          textTransform: "uppercase",
+                        }}
+                      >
+                        ACT{" "}
+                        {diff === "school"
+                          ? "I"
+                          : diff === "community"
+                            ? "II"
+                            : "III"}
+                        : {diff}
+                      </h3>
+                      <p
+                        style={{
+                          fontSize: "1.1rem",
+                          color: "#222",
+                          marginTop: "4px",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        📍 {venue?.name || "Unknown Venue"}
+                      </p>
+                      {/* NEW: Display Venue Description */}
+                      <p
+                        style={{
+                          fontSize: "0.9rem",
+                          color: "#666",
+                          marginTop: "4px",
+                          fontStyle: "italic",
+                        }}
+                      >
+                        {venue?.description}
+                      </p>
+                    </div>
+                    <div>
+                      <DifficultyPill
+                        label={isUnlocked ? "Ready" : "Locked"}
+                        stars={prog?.stars || 0}
+                        unlocked={isUnlocked}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            );
           </div>
         </div>
       </div>

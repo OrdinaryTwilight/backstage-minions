@@ -1,6 +1,6 @@
 /**
  * Centralized Game Type Definitions
- * 
+ *
  * This file serves as the single source of truth for all game-related TypeScript interfaces.
  * Import from this file instead of scattered definitions across data/gameData.ts
  */
@@ -27,7 +27,14 @@ export interface Character {
   id: string;
   name: string;
   role: string;
-  department: "lighting" | "sound";
+  department:
+    | "lighting"
+    | "sound"
+    | "stage management"
+    | "carpentry"
+    | "wardrobe"
+    | "props"
+    | "video";
   bio: string;
   icon: string;
   stats: StatBlock;
@@ -40,7 +47,7 @@ export interface Character {
 /**
  * Cue: Represents a technical cue (lighting or sound)
  * Each cue has a target time, a tolerance window, and an optional intensity target
- * 
+ *
  * @example
  * { id: "LQ 1", label: "House to Half", targetMs: 2000, windowMs: 1500, targetLevel: 50 }
  */
@@ -113,7 +120,9 @@ export interface Production {
   poster: string; // Emoji or image URL
   description: string;
   learnMoreUrl: string;
-  levels: Partial<Record<"school" | "community" | "professional", LevelDetails>>;
+  levels: Partial<
+    Record<"school" | "community" | "professional", LevelDetails>
+  >;
 }
 
 // ============================================================================
@@ -201,7 +210,7 @@ export interface Story {
 /**
  * GameAction: Discriminated union of all possible reducer actions
  * Each action is strictly typed with its required payload
- * 
+ *
  * Action Categories:
  * - Session Lifecycle: START_SESSION, CLEAR_SESSION, NEXT_STAGE
  * - Score & Progress: ADD_SCORE, LOSE_LIFE, CUE_HIT, CUE_MISSED, COMPLETE_LEVEL
