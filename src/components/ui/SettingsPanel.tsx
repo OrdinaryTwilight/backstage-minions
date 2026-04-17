@@ -40,7 +40,7 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
           className="annotation-text"
           style={{ fontSize: "1.8rem", margin: 0 }}
         >
-          ⚙️ Visual Settings
+          ⚙️ Settings
         </h2>
         {onClose && (
           <button
