@@ -79,12 +79,9 @@ function applySettingsToDOM(settings: VisualSettings) {
   // Color blind simulation filter
   const filterMap: Record<VisualSettings["colorBlindMode"], string> = {
     none: "none",
-    protanopia:
-      "url('#protanopia-filter') url(data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='protanopia'><feColorMatrix type='matrix' values='0.567 0.433 0 0.567 0.433 0 0.433 0.567 0 0.433 0.567'/></filter></svg>#protanopia-filter)",
-    deuteranopia:
-      "url('#deuteranopia-filter') url(data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='deuteranopia'><feColorMatrix type='matrix' values='0.625 0.375 0 0.625 0.375 0 0.375 0.625 0 0.375 0.625'/></filter></svg>#deuteranopia-filter)",
-    tritanopia:
-      "url('#tritanopia-filter') url(data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'><filter id='tritanopia'><feColorMatrix type='matrix' values='0.95 0.05 0 0.95 0.05 0 0.05 0.95 0 0.05 0.95'/></filter></svg>#tritanopia-filter)",
+    protanopia: "url('#protanopia')",
+    deuteranopia: "url('#deuteranopia')",
+    tritanopia: "url('#tritanopia')",
   };
   root.style.filter = filterMap[settings.colorBlindMode];
 
@@ -146,6 +143,32 @@ export function VisualSettingsProvider({ children }: { children: ReactNode }) {
     <VisualSettingsContext.Provider
       value={{ settings, updateSetting, resetToDefaults }}
     >
+      {/* INJECT SVG FILTERS INTO THE DOM */}
+      <svg
+        style={{ position: "absolute", width: 0, height: 0 }}
+        aria-hidden="true"
+      >
+        <defs>
+          <filter id="protanopia">
+            <feColorMatrix
+              type="matrix"
+              values="0.567 0.433 0 0 0  0.567 0.433 0 0 0  0 0.241 0.759 0 0  0 0 0 1 0"
+            />
+          </filter>
+          <filter id="deuteranopia">
+            <feColorMatrix
+              type="matrix"
+              values="0.625 0.375 0 0 0  0.7 0.3 0 0 0  0 0.3 0.7 0 0  0 0 0 1 0"
+            />
+          </filter>
+          <filter id="tritanopia">
+            <feColorMatrix
+              type="matrix"
+              values="0.95 0.05 0 0 0  0 0.433 0.567 0 0  0 0.475 0.525 0 0  0 0 0 1 0"
+            />
+          </filter>
+        </defs>
+      </svg>
       {children}
     </VisualSettingsContext.Provider>
   );

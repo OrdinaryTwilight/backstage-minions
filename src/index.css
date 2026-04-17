@@ -412,3 +412,44 @@ body {
   color: var(--color-pencil-light);
   font-family: var(--font-mono);
 }
+
+/* --- GRAND MA STYLE TOUCH GRIDS --- */
+.grandma-panel {
+  background: #0d0d0d;
+  border: 2px solid #333;
+  color: #fbbf24; /* GrandMA Yellow */
+  font-family: var(--font-mono);
+  padding: var(--panel-padding);
+}
+
+.grandma-btn {
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-top: 2px solid #555;
+  color: #d1d5db;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+}
+.grandma-btn:hover { background: #222; }
+.grandma-btn.active {
+  background: #fbbf24;
+  color: #000;
+  border-color: #f59e0b;
+}
+
+/* Fix width distinction for lights in Planning Stage */
+.light-beam-spot {
+  /* Narrow and intense */
+  clip-path: polygon(40% 0, 60% 0, 100% 100%, 0% 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.1) 100%);
+  width: 40px !important; 
+}
+
+.light-beam-wash {
+  /* Wide and soft */
+  clip-path: polygon(20% 0, 80% 0, 100% 100%, 0% 100%);
+  background: linear-gradient(180deg, rgba(56,189,248,0.5) 0%, rgba(56,189,248,0.05) 100%);
+  width: 100px !important;
+}

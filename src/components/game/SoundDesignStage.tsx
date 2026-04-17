@@ -10,14 +10,20 @@ interface SoundDesignStageProps {
   onComplete: () => void;
 }
 
-export default function SoundDesignStage({ onComplete }: SoundDesignStageProps) {
+export default function SoundDesignStage({
+  onComplete,
+}: SoundDesignStageProps) {
   const { state, dispatch } = useGame();
-  const [patch, setPatch] = useState<Record<string, Record<string, number>>>({ inputs: {}, outputs: {} });
+  const [patch, setPatch] = useState<Record<string, Record<string, number>>>({
+    inputs: {},
+    outputs: {},
+  });
   const [submitted, setSubmitted] = useState(false);
-  
 
   // Character data available but not used in current implementation
-  const char = state.session ? CHARACTERS.find((c) => c.id === state.session?.characterId) : null;
+  const char = state.session
+    ? CHARACTERS.find((c) => c.id === state.session?.characterId)
+    : null;
   void char; // Mark as intentionally unused
 
   // Generate random target values for your EQ or Faders at the start of the stage
@@ -28,9 +34,9 @@ export default function SoundDesignStage({ onComplete }: SoundDesignStageProps) 
   });
   void targets; // Mark as intentionally unused
 
-// Current player slider states
-const [levels] = useState({ mic1: 0, mic2: 0, playback: 0 });
-void levels; // Mark as intentionally unused
+  // Current player slider states
+  const [levels] = useState({ mic1: 0, mic2: 0, playback: 0 });
+  void levels; // Mark as intentionally unused
 
   // Win condition check (reserved for future use)
   // const checkWinCondition = () => {
@@ -44,7 +50,11 @@ void levels; // Mark as intentionally unused
   //   }
   // };
 
-  const { sources, channels: consoleChannels, outputBuses } = SOUND_CONSOLE_CONFIG;
+  const {
+    sources,
+    channels: consoleChannels,
+    outputBuses,
+  } = SOUND_CONSOLE_CONFIG;
   const deadChannels = useMemo(() => {
     const shuffled = [...consoleChannels].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 1); // 1 random channel is broken
@@ -58,10 +68,10 @@ void levels; // Mark as intentionally unused
   };
 
   // Puzzle Logic: A path is only complete if an Input matches an Output AND the channel isn't dead
-  const validPaths = outputBuses.map(bus => {
+  const validPaths = outputBuses.map((bus) => {
     const outChannel = (patch.outputs as Record<string, number>)[bus];
     if (!outChannel || deadChannels.includes(outChannel)) return false;
-    
+
     // Check if any input is routed to this same channel
     const hasInput = Object.values(patch.inputs).includes(outChannel);
     return hasInput;
@@ -76,7 +86,7 @@ void levels; // Mark as intentionally unused
 
   return (
     <div className="page-container animate-blueprint">
-     <SectionHeader
+      <SectionHeader
         title="Signal Flow Patching"
         subtitle="Route inputs through the console to output buses."
         helpText="Careful! Backstage rumor says a channel strip on this board is blown out. If an output isn't receiving signal, try patching around it."
@@ -132,45 +142,161 @@ void levels; // Mark as intentionally unused
 
         {/* Console to Output Patching */}
         <div className="desktop-col-side">
-          <HardwarePanel style={{ height: "100%" }}>
-            <h3 className="annotation-text" style={{ marginBottom: "1rem" }}>
-              🔊 Output Routing
+          <HardwarePanel
+            style={{
+              height: "100%",
+              background: "#1a1c23",
+              border: "2px solid #333",
+              borderRadius: "8px",
+            }}
+          >
+            <h3
+              className="annotation-text"
+              style={{ marginBottom: "1rem", color: "#e2e8f0" }}
+            >
+              🎛️ Output Routing
             </h3>
-            {outputBuses.map((bus, index) => {
-              const currentOutChannel = (patch.outputs as Record<string, number>)[bus];
-              const isPatchedToDead = deadChannels.includes(currentOutChannel);
-              const isPathValid = validPaths[index];
 
-              return (
-                <div key={bus} style={{ marginBottom: "1.5rem" }}>
-                  <div className="annotation-text" style={{ fontSize: "0.8rem", opacity: 0.6, marginBottom: "5px", display: "flex", justifyContent: "space-between" }}>
-                    <span>{bus}</span>
-                    {/* ENHANCEMENT: Signal Status Indicator */}
-                    <span style={{ 
-                      color: isPathValid ? "var(--bui-fg-success)" : isPatchedToDead ? "var(--bui-fg-danger)" : "var(--bui-fg-warning)" 
-                    }}>
-                      {isPathValid ? "SIGNAL OK" : isPatchedToDead ? "DEAD CHANNEL" : "NO SIGNAL"}
-                    </span>
+            {/* Flex row for vertical channel strips */}
+            <div
+              style={{
+                display: "flex",
+                gap: "10px",
+                justifyContent: "space-between",
+                height: "100%",
+              }}
+            >
+              {consoleChannels.map((ch) => (
+                <div
+                  key={ch}
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    width: "45px",
+                    background: "#2d3748",
+                    padding: "10px 5px",
+                    borderRadius: "4px",
+                    border: "1px solid #4a5568",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "0.7rem",
+                      fontWeight: "bold",
+                      marginBottom: "10px",
+                      color: "#fff",
+                    }}
+                  >
+                    CH {ch}
                   </div>
-                  
-                  <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                    {consoleChannels.map((ch) => (
-                      <Button
-                        key={ch}
-                        onClick={() => handlePatch("outputs", bus, ch)}
-                        style={{
-                          flex: "1 0 20%",
-                          fontSize: "0.7rem",
-                          background: (patch.outputs as Record<string, number>)[bus] === ch ? "var(--bui-fg-info)" : "",
-                        }}
-                      >
-                        CH {ch}
-                      </Button>
-                    ))}
+
+                  {/* Vertical Bus Buttons for this channel */}
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "8px",
+                      flex: 1,
+                      justifyContent: "center",
+                    }}
+                  >
+                    {outputBuses.map((bus, index) => {
+                      const isActive =
+                        (patch.outputs as Record<string, number>)[bus] === ch;
+                      return (
+                        <button
+                          key={bus}
+                          onClick={() => handlePatch("outputs", bus, ch)}
+                          title={`Route to ${bus}`}
+                          style={{
+                            width: "30px",
+                            height: "20px",
+                            borderRadius: "2px",
+                            border: "none",
+                            cursor: "pointer",
+                            // Style mimics small tactile analog push buttons
+                            background: isActive
+                              ? index === 0
+                                ? "#e53e3e"
+                                : "#d69e2e"
+                              : "#718096",
+                            boxShadow: isActive
+                              ? "inset 0 2px 4px rgba(0,0,0,0.6)"
+                              : "0 2px 4px rgba(0,0,0,0.4)",
+                            borderBottom: isActive
+                              ? "none"
+                              : "2px solid #4a5568",
+                          }}
+                        />
+                      );
+                    })}
+                  </div>
+
+                  {/* Fake Volume Fader Slider UI */}
+                  <div
+                    style={{
+                      width: "8px",
+                      height: "60px",
+                      background: "#1a202c",
+                      marginTop: "15px",
+                      position: "relative",
+                      borderRadius: "4px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: "10px",
+                        left: "-5px",
+                        width: "18px",
+                        height: "12px",
+                        background: "#cbd5e0",
+                        borderRadius: "2px",
+                        borderBottom: "2px solid #718096",
+                      }}
+                    ></div>
                   </div>
                 </div>
-              );
-            })}
+              ))}
+            </div>
+
+            {/* Bus Legends */}
+            <div
+              style={{
+                display: "flex",
+                gap: "1rem",
+                marginTop: "1rem",
+                fontSize: "0.7rem",
+                color: "#a0aec0",
+                flexWrap: "wrap",
+              }}
+            >
+              <span
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
+                <div
+                  style={{
+                    width: "10px",
+                    height: "10px",
+                    background: "#e53e3e",
+                  }}
+                ></div>{" "}
+                Main L/R
+              </span>
+              <span
+                style={{ display: "flex", alignItems: "center", gap: "4px" }}
+              >
+                <div
+                  style={{
+                    width: "10px",
+                    height: "10px",
+                    background: "#d69e2e",
+                  }}
+                ></div>{" "}
+                Foldback
+              </span>
+            </div>
           </HardwarePanel>
         </div>
       </div>
