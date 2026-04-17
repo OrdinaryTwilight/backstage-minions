@@ -14,6 +14,7 @@ interface NPC {
   moveTimer: number;
   isHidden: boolean;
   hideTimer: number;
+  department: string;
 }
 
 interface DialogueState {
@@ -71,21 +72,29 @@ export default function OverworldStage({
     const shuffled = [...available].sort(() => 0.5 - Math.random());
     const count = Math.floor(Math.random() * 3) + 3; // Spawn 3 to 5 NPCs
 
-    const spawned = shuffled.slice(0, count).map(
-      (npc): NPC => ({
+    const spawned = shuffled.slice(0, count).map((npc) => {
+      let spawnX, spawnY;
+      // FIX: Ensure they don't spawn inside a solid zone!
+      do {
+        spawnX = Math.random() * (GAME_WIDTH - 200) + 100;
+        spawnY = Math.random() * (GAME_HEIGHT - 200) + 100;
+      } while (checkCollision(spawnX, spawnY));
+
+      return {
         id: npc.id,
         name: npc.name,
         icon: npc.icon,
-        x: Math.random() * (GAME_WIDTH - 200) + 100,
-        y: Math.random() * (GAME_HEIGHT - 200) + 100,
+        dept: npc.department || npc.role,
+        x: spawnX,
+        y: spawnY,
         dx: (Math.random() - 0.5) * 2,
         dy: (Math.random() - 0.5) * 2,
         moveTimer: Math.floor(Math.random() * 100) + 50,
         isHidden: false,
         hideTimer: 0,
-      }),
-    );
-    setNpcs(spawned);
+      };
+    });
+    setNpcs(spawned as any);
   }, [charId]);
 
   const handleStageClick = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -95,6 +104,15 @@ export default function OverworldStage({
     const y =
       ((e.clientY - rect.top) / rect.height) * GAME_HEIGHT - PLAYER_SIZE / 2;
     setTargetPos({ x, y });
+  };
+
+  // Department colors for NPC names
+  const DEPT_COLORS: Record<string, string> = {
+    lighting: "var(--bui-fg-warning)",
+    sound: "var(--bui-fg-info)",
+    "Stage Manager": "var(--bui-fg-danger)",
+    "Costume Designer": "#ec4899",
+    Director: "#a855f7",
   };
 
   const checkCollision = (newX: number, newY: number) => {
@@ -348,8 +366,11 @@ export default function OverworldStage({
         <p
           style={{ margin: "0.5rem 0 0 0", color: "var(--color-pencil-light)" }}
         >
-          Report to your designated console immediately. Hurry! The show is
-          about to begin.
+          The house is open and the audience is seating. Report to the{" "}
+          <strong>
+            {department === "lighting" ? "LIGHTING (LX)" : "SOUND"} BOOTH
+          </strong>{" "}
+          immediately!
         </p>
       </div>
 
@@ -400,33 +421,34 @@ export default function OverworldStage({
                 top: `${(npc.y / GAME_HEIGHT) * 100}%`,
                 width: `${(PLAYER_SIZE / GAME_WIDTH) * 100}%`,
                 height: `${(PLAYER_SIZE / GAME_HEIGHT) * 100}%`,
-                background: "var(--color-architect-blue)",
+                background: "rgba(0,0,0,0.5)",
                 borderRadius: "50%",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "white",
-                fontSize: "12px",
-                border: activeZone === npc.id ? "2px solid #fbbf24" : "none",
+                border:
+                  activeZone === npc.id
+                    ? "2px solid #fbbf24"
+                    : "1px solid #555",
+                fontSize: "20px", // Adjusted to fit actual emojis
               }}
             >
-              {npc.name[0]}
-              {bumpMsg?.id === npc.id && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "-25px",
-                    background: "white",
-                    color: "black",
-                    padding: "2px 6px",
-                    borderRadius: "4px",
-                    fontSize: "10px",
-                    whiteSpace: "nowrap",
-                  }}
-                >
-                  {bumpMsg?.msg}
-                </span>
-              )}
+              {/* FULL NAME AND COLOR TAG */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: "-22px",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "12px",
+                  fontWeight: "bold",
+                  color: DEPT_COLORS[npc.department] || "#fff",
+                  whiteSpace: "nowrap",
+                  textShadow: "1px 1px 2px #000",
+                }}
+              >
+                {npc.name}
+              </div>
+              {npc.icon}
             </div>
           ))}
 
@@ -451,29 +473,27 @@ export default function OverworldStage({
 
         {/* Clickable Action Button */}
         {activeZone && !activeDialogue && !feedbackMsg && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              triggerInteraction();
-            }}
+          <div
             style={{
               position: "absolute",
               bottom: "10%",
               left: "50%",
               transform: "translateX(-50%)",
-              color: "#fbbf24",
+              color: "#000",
               fontWeight: "bold",
               fontSize: "1.2rem",
               zIndex: 50,
-              background: "rgba(0,0,0,0.8)",
+              background: "#fbbf24",
               padding: "8px 16px",
               borderRadius: "4px",
-              cursor: "pointer",
-              border: "1px solid #fbbf24",
+              border: "2px solid #fff",
+              fontFamily: "var(--font-mono)",
+              boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
+              pointerEvents: "none",
             }}
           >
-            [E] or Click to Interact
-          </button>
+            [PRESS E] TO INTERACT
+          </div>
         )}
 
         {targetPos && (

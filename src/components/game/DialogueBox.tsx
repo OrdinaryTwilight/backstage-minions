@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import Button from "../ui/Button";
 
 export interface DialogueBoxChoice {
@@ -22,6 +23,30 @@ export default function DialogueBox<T extends DialogueBoxChoice>({
   icon,
   portraitUrl,
 }: DialogueBoxProps<T>) {
+  const [cooldown, setCooldown] = useState(true);
+
+  // Add a slight cooldown so holding Enter doesn't skip 5 boxes instantly
+  useEffect(() => {
+    const timer = setTimeout(() => setCooldown(false), 300);
+    return () => clearTimeout(timer);
+  }, [text]);
+
+  // Press Enter/Space to advance
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (
+        (e.key === "Enter" || e.key === " ") &&
+        !cooldown &&
+        choices.length > 0
+      ) {
+        e.preventDefault();
+        onChoice(choices[0]); // Auto-selects the first choice
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.addEventListener("keydown", handleKeyDown);
+  }, [choices, onChoice, cooldown]);
+
   return (
     <div className="vn-dialogue-container" style={{ marginTop: "120px" }}>
       {/* --- CHARACTER PORTRAIT LAYER --- */}
@@ -62,6 +87,19 @@ export default function DialogueBox<T extends DialogueBoxChoice>({
             {icon || "👤"}
           </div>
         )}
+        <div
+          style={{
+            position: "absolute",
+            bottom: "10px",
+            right: "15px",
+            fontSize: "0.8rem",
+            color: "var(--color-pencil-light)",
+            opacity: 0.5,
+            fontFamily: "var(--font-mono)",
+          }}
+        >
+          [Press Enter to continue]
+        </div>
       </div>
 
       {/* --- VN SPEAKER TAG --- */}

@@ -38,17 +38,25 @@ export default function SoundDesignStage({
   const [levels] = useState({ mic1: 0, mic2: 0, playback: 0 });
   void levels; // Mark as intentionally unused
 
+  const [channelLevels, setChannelLevels] = useState<Record<number, number>>({
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+  });
+
   // Win condition check (reserved for future use)
-  // const checkWinCondition = () => {
-  //   // Check if player's levels are within a margin of error (+/- 5) of the targets
-  //   const isMic1Good = Math.abs(levels.mic1 - targets.mic1) <= 5;
-  //   const isMic2Good = Math.abs(levels.mic2 - targets.mic2) <= 5;
-  //   const isPlaybackGood = Math.abs(levels.playback - targets.playback) <= 5;
-  //
-  //   if (isMic1Good && isMic2Good && isPlaybackGood) {
-  //     onComplete(); // Call the prop function to move to the next stage!
-  //   }
-  // };
+  const checkWinCondition = () => {
+    // Check if player's levels are within a margin of error (+/- 5) of the targets
+    const isMic1Good = Math.abs(levels.mic1 - targets.mic1) <= 5;
+    const isMic2Good = Math.abs(levels.mic2 - targets.mic2) <= 5;
+    const isPlaybackGood = Math.abs(levels.playback - targets.playback) <= 5;
+
+    if (isMic1Good && isMic2Good && isPlaybackGood) {
+      onComplete(); // Call the prop function to move to the next stage!
+    }
+  };
 
   const {
     sources,
@@ -152,17 +160,29 @@ export default function SoundDesignStage({
           >
             <h3
               className="annotation-text"
-              style={{ marginBottom: "1rem", color: "#e2e8f0" }}
+              style={{ marginBottom: "0.5rem", color: "#e2e8f0" }}
             >
               🎛️ Output Routing
             </h3>
+            {/* NEW: UX Help text to explain puzzle */}
+            <p
+              style={{
+                fontSize: "0.8rem",
+                color: "var(--bui-fg-warning)",
+                marginBottom: "1rem",
+                fontFamily: "var(--font-mono)",
+              }}
+            >
+              PUZZLE: Route Inputs to Channels. Route Channels to Buses. Push
+              Faders above 0. Avoid Dead Channels!
+            </p>
 
-            {/* Flex row for vertical channel strips */}
+            {/* FIX: Channels closer together via gap reduction */}
             <div
               style={{
                 display: "flex",
-                gap: "10px",
-                justifyContent: "space-between",
+                gap: "4px",
+                justifyContent: "center",
                 height: "100%",
               }}
             >
@@ -173,9 +193,9 @@ export default function SoundDesignStage({
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    width: "45px",
+                    width: "50px",
                     background: "#2d3748",
-                    padding: "10px 5px",
+                    padding: "10px 4px",
                     borderRadius: "4px",
                     border: "1px solid #4a5568",
                   }}
@@ -191,14 +211,13 @@ export default function SoundDesignStage({
                     CH {ch}
                   </div>
 
-                  {/* Vertical Bus Buttons for this channel */}
+                  {/* Vertical Bus Buttons */}
                   <div
                     style={{
                       display: "flex",
                       flexDirection: "column",
-                      gap: "8px",
+                      gap: "6px",
                       flex: 1,
-                      justifyContent: "center",
                     }}
                   >
                     {outputBuses.map((bus, index) => {
@@ -210,12 +229,11 @@ export default function SoundDesignStage({
                           onClick={() => handlePatch("outputs", bus, ch)}
                           title={`Route to ${bus}`}
                           style={{
-                            width: "30px",
-                            height: "20px",
+                            width: "35px",
+                            height: "18px",
                             borderRadius: "2px",
                             border: "none",
                             cursor: "pointer",
-                            // Style mimics small tactile analog push buttons
                             background: isActive
                               ? index === 0
                                 ? "#e53e3e"
@@ -224,38 +242,42 @@ export default function SoundDesignStage({
                             boxShadow: isActive
                               ? "inset 0 2px 4px rgba(0,0,0,0.6)"
                               : "0 2px 4px rgba(0,0,0,0.4)",
-                            borderBottom: isActive
-                              ? "none"
-                              : "2px solid #4a5568",
                           }}
                         />
                       );
                     })}
                   </div>
 
-                  {/* Fake Volume Fader Slider UI */}
+                  {/* NEW: Working Interactive Faders */}
                   <div
                     style={{
-                      width: "8px",
-                      height: "60px",
-                      background: "#1a202c",
                       marginTop: "15px",
-                      position: "relative",
-                      borderRadius: "4px",
+                      height: "100px",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
                     }}
                   >
-                    <div
+                    <input
+                      type="range"
+                      min="0"
+                      max="100"
+                      value={channelLevels[ch]}
+                      onChange={(e) =>
+                        setChannelLevels((prev) => ({
+                          ...prev,
+                          [ch]: parseInt(e.target.value),
+                        }))
+                      }
                       style={{
-                        position: "absolute",
-                        bottom: "10px",
-                        left: "-5px",
-                        width: "18px",
-                        height: "12px",
-                        background: "#cbd5e0",
-                        borderRadius: "2px",
-                        borderBottom: "2px solid #718096",
+                        writingMode: "vertical-lr", // Makes standard slider vertical
+                        direction: "rtl",
+                        height: "90px",
+                        width: "8px",
+                        accentColor: "var(--color-pencil-light)",
+                        cursor: "ns-resize",
                       }}
-                    ></div>
+                    />
                   </div>
                 </div>
               ))}

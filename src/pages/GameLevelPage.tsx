@@ -24,8 +24,11 @@ export default function GameLevelPage() {
   const { productionId, difficulty, charId } = useParams();
   const { state, dispatch } = useGame();
   const navigate = useNavigate();
-  const { production, char, departmentCues } = useGameData(productionId, charId);
-  
+  const { production, char, departmentCues } = useGameData(
+    productionId,
+    charId,
+  );
+
   // Change this state to represent if we are in the Overworld walking around
   const [isInOverworld, setIsInOverworld] = useState(false);
 
@@ -36,8 +39,8 @@ export default function GameLevelPage() {
 
   function handleStageAdvance() {
     // Determine if the *current* stage and the *next* stage happen in the same place
-    const noOverworldStages = ['execution', 'wrapup']; // Add any stages that shouldn't trigger an overworld walk
-    
+    const noOverworldStages = ["execution", "wrapup"]; // Add any stages that shouldn't trigger an overworld walk
+
     if (noOverworldStages.includes(currentStageKey)) {
       // Skip overworld, go straight to the next UI
       if (state.session!.currentStageIndex < state.session!.stages.length - 1) {
@@ -62,12 +65,18 @@ export default function GameLevelPage() {
   }
 
   function handleComplete() {
-    const totalCues = departmentCues.length * 2;
-    const hitRate = totalCues > 0 ? state.session!.cuesHit / totalCues : 0;
-    const stars = hitRate >= 0.9 ? 3 : hitRate >= 0.65 ? 2 : 1;
+    const totalCues = departmentCues.length;
+    let stars = 3;
+    if (totalCues > 0) {
+      const hitRate = state.session!.cuesHit / totalCues;
+      stars = hitRate >= 0.9 ? 3 : hitRate >= 0.65 ? 2 : 1;
+    } else {
+      const currentScore = state.session?.score || 0;
+      stars = currentScore >= 100 ? 3 : currentScore >= 50 ? 2 : 1;
+    }
 
     navigate(`/level-complete/${production?.id}/${difficulty}/${char?.id}`, {
-      state: { stars }
+      state: { stars },
     });
 
     dispatch({
@@ -75,22 +84,30 @@ export default function GameLevelPage() {
       productionId: production?.id || "",
       difficulty: (difficulty as any) || "school",
       stars,
-      unlockedStories: []
+      unlockedStories: [],
     });
   }
-
   if (state.session.activeConflict) {
-    return <ConflictMinigame 
-      conflict={state.session.activeConflict} 
-      onResolved={() => dispatch({ type: "RESOLVE_CONFLICT", conflictId: state.session!.activeConflict!.id })}
-    />;
+    return (
+      <ConflictMinigame
+        conflict={state.session.activeConflict}
+        onResolved={() =>
+          dispatch({
+            type: "RESOLVE_CONFLICT",
+            conflictId: state.session!.activeConflict!.id,
+          })
+        }
+      />
+    );
   }
 
   if (!production || !char || !ActiveStage) {
     return (
       <div className="page-container animate-flicker">
         <h2 className="annotation-text">System Error</h2>
-        <p className="console-screen">Missing data for stage: {currentStageKey || "UNKNOWN"}</p>
+        <p className="console-screen">
+          Missing data for stage: {currentStageKey || "UNKNOWN"}
+        </p>
       </div>
     );
   }
@@ -98,18 +115,23 @@ export default function GameLevelPage() {
   // If we are transitioning, render the RPG Overworld instead of the visual delay
   if (isInOverworld) {
     return (
-      <div className="page-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        <OverworldStage 
-          onComplete={handleOverworldComplete} 
+      <div
+        className="page-container"
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <OverworldStage
+          onComplete={handleOverworldComplete}
           department={char?.department} // <-- ADD THIS LINE
         />
       </div>
     );
   }
   return (
-    <ActiveStage 
-      cueSheet={departmentCues} 
-      onComplete={handleStageAdvance} 
-    />
+    <ActiveStage cueSheet={departmentCues} onComplete={handleStageAdvance} />
   );
 }
