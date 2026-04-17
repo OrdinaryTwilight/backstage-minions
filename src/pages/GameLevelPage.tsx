@@ -7,6 +7,7 @@ import { useGameData } from "../hooks/useGameData";
 import CableCoilingStage from "../components/game/CableCoilingStage";
 import ConflictMinigame from "../components/game/ConflictMinigame";
 import CueExecutionStage from "../components/game/CueExecutionStage";
+import DialogueBox from "../components/game/DialogueBox";
 import EquipmentStage from "../components/game/EquipmentStage";
 import OverworldStage from "../components/game/OverworldStage";
 import PlanningStage from "../components/game/PlanningStage";
@@ -35,6 +36,7 @@ export default function GameLevelPage() {
   const [isInOverworld, setIsInOverworld] = useState(false);
   // Quit confirmation state
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
+  const [strikeSkipMessage, setStrikeSkipMessage] = useState<any | null>(null);
 
   if (!state.session) return <Navigate to="/" replace />;
 
@@ -45,6 +47,26 @@ export default function GameLevelPage() {
 
   function handleStageAdvance() {
     // Determine if the *current* stage and the *next* stage happen in the same place
+    const currentIdx = state.session!.currentStageIndex;
+    const nextStage = state.session!.stages[currentIdx + 1];
+
+    // --- CABLE COILING SKIP LOGIC ---
+    // If the next stage is strike, there is a 50% chance an NPC lets you skip it
+    if (nextStage === "cable_coiling" && Math.random() > 0.5) {
+      setStrikeSkipMessage({
+        speaker: "Senior Technician",
+        text: "Hey, take a breather. The locals have the strike handled tonight. Head straight to the SM desk and sign off.",
+        choices: [
+          {
+            id: "skip_strike",
+            text: '"Copy that. Thanks for the help!"',
+            pointDelta: 5,
+          },
+        ],
+      });
+      return;
+    }
+
     const noOverworldStages = ["wrapup"]; // Add any stages that shouldn't trigger an overworld walk
     if (currentStageKey === "wrapup") {
       handleComplete();
@@ -63,6 +85,13 @@ export default function GameLevelPage() {
       // Drop player into the overworld to walk to the next destination
       setIsInOverworld(true);
     }
+  }
+
+  function handleDismissSkip() {
+    setStrikeSkipMessage(null);
+    // Advance twice: once to 'cable_coiling' and once to 'wrapup'
+    dispatch({ type: "NEXT_STAGE" }); // Moves to cable_coiling index
+    dispatch({ type: "NEXT_STAGE" }); // Moves to wrapup index
   }
 
   function handleOverworldComplete() {
@@ -119,6 +148,26 @@ export default function GameLevelPage() {
         <p className="console-screen">
           Missing data for stage: {currentStageKey || "UNKNOWN"}
         </p>
+      </div>
+    );
+  }
+
+  // Handle the skip dialogue if it was triggered
+  if (strikeSkipMessage) {
+    return (
+      <div
+        className="page-container"
+        style={{ display: "flex", alignItems: "center", height: "100vh" }}
+      >
+        <DialogueBox
+          speaker={strikeSkipMessage.speaker}
+          text={strikeSkipMessage.text}
+          choices={strikeSkipMessage.choices}
+          onChoice={(choice: any) => {
+            dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
+            handleDismissSkip();
+          }}
+        />
       </div>
     );
   }
