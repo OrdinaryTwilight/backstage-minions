@@ -12,74 +12,148 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
 
   return (
     <div
-      className="surface-panel"
+      className="surface-panel animate-pop"
       style={{
         maxWidth: "600px",
+        width: "90vw",
+        maxHeight: "90vh",
+        overflowY: "auto",
         padding: "2rem",
-        borderRadius: "8px",
-        background: "rgba(0,0,0,0.9)",
+        borderRadius: "12px",
+        background: "var(--color-blueprint-bg)",
         border: "2px solid var(--glass-border)",
+        boxShadow: "0 20px 50px rgba(0,0,0,0.8)",
       }}
       role="dialog"
       aria-labelledby="settings-title"
-      aria-describedby="settings-description"
     >
-      <h2
-        id="settings-title"
-        className="annotation-text"
-        style={{ fontSize: "1.5rem", marginBottom: "0.5rem" }}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          marginBottom: "1rem",
+        }}
       >
-        ⚙️ Visual Settings
-      </h2>
-      <p
-        id="settings-description"
-        style={{ opacity: 0.6, marginBottom: "1.5rem" }}
-      >
-        Customize your visual experience for better accessibility
-      </p>
+        <h2
+          id="settings-title"
+          className="annotation-text"
+          style={{ fontSize: "1.8rem", margin: 0 }}
+        >
+          ⚙️ Visual Settings
+        </h2>
+        {onClose && (
+          <button
+            onClick={onClose}
+            style={{
+              background: "none",
+              border: "none",
+              color: "var(--color-pencil-light)",
+              fontSize: "1.5rem",
+              cursor: "pointer",
+            }}
+          >
+            ✕
+          </button>
+        )}
+      </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "2rem" }}>
-        {/* Font Size Setting */}
+      {/* --- NEW: LIVE PREVIEW BOX --- */}
+      <div
+        style={{
+          padding: "1rem",
+          background: "var(--color-surface-translucent)",
+          border: "1px dashed var(--glass-border)",
+          borderRadius: "8px",
+          marginBottom: "2rem",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.8rem",
+        }}
+      >
+        <span
+          className="annotation-text"
+          style={{ fontSize: "0.9rem", opacity: 0.8 }}
+        >
+          Live Preview:
+        </span>
+        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+          <div
+            style={{
+              flex: 1,
+              textAlign: "center",
+              padding: "0.5rem",
+              background: "var(--bui-fg-success)",
+              color: "#000",
+              fontWeight: "bold",
+              borderRadius: "4px",
+            }}
+          >
+            Success
+          </div>
+          <div
+            style={{
+              flex: 1,
+              textAlign: "center",
+              padding: "0.5rem",
+              background: "var(--bui-fg-warning)",
+              color: "#000",
+              fontWeight: "bold",
+              borderRadius: "4px",
+            }}
+          >
+            Warning
+          </div>
+          <div
+            style={{
+              flex: 1,
+              textAlign: "center",
+              padding: "0.5rem",
+              background: "var(--bui-fg-danger)",
+              color: "#000",
+              fontWeight: "bold",
+              borderRadius: "4px",
+            }}
+          >
+            Danger
+          </div>
+          <div
+            style={{
+              flex: 1,
+              textAlign: "center",
+              padding: "0.5rem",
+              background: "var(--bui-fg-info)",
+              color: "#000",
+              fontWeight: "bold",
+              borderRadius: "4px",
+            }}
+          >
+            Info
+          </div>
+        </div>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+        {/* --- NEW: THEME TOGGLE --- */}
         <div>
           <label
-            htmlFor="font-size"
+            htmlFor="theme-mode"
             className="annotation-text"
             style={{ display: "block", marginBottom: "0.5rem" }}
           >
-            Font Size
+            Color Theme
           </label>
           <select
-            id="font-size"
-            value={settings.fontSize}
+            id="theme-mode"
+            className="game-select"
+            value={settings.theme}
             onChange={(e) =>
-              updateSetting(
-                "fontSize",
-                e.target.value as "small" | "medium" | "large" | "extra-large"
-              )
+              updateSetting("theme", e.target.value as "dark" | "light")
             }
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid var(--glass-border)",
-              color: "var(--color-pencil-light)",
-              borderRadius: "4px",
-              fontSize: "1rem",
-              cursor: "pointer",
-            }}
-            aria-describedby="font-size-help"
           >
-            <option value="small">Small (0.875x)</option>
-            <option value="medium">Medium (1x)</option>
-            <option value="large">Large (1.25x)</option>
-            <option value="extra-large">Extra Large (1.5x)</option>
+            <option value="dark">Blueprint Dark (Default)</option>
+            <option value="light">Paper Light</option>
           </select>
-          <p
-            id="font-size-help"
-            style={{ fontSize: "0.8rem", opacity: 0.5, marginTop: "0.25rem" }}
-          >
-            Scales all text globally across the interface
-          </p>
         </div>
 
         {/* Contrast Mode */}
@@ -93,31 +167,15 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
           </label>
           <select
             id="contrast-mode"
+            className="game-select"
             value={settings.contrastMode}
             onChange={(e) =>
               updateSetting("contrastMode", e.target.value as "normal" | "high")
             }
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid var(--glass-border)",
-              color: "var(--color-pencil-light)",
-              borderRadius: "4px",
-              fontSize: "1rem",
-              cursor: "pointer",
-            }}
-            aria-describedby="contrast-help"
           >
             <option value="normal">Normal</option>
             <option value="high">High Contrast</option>
           </select>
-          <p
-            id="contrast-help"
-            style={{ fontSize: "0.8rem", opacity: 0.5, marginTop: "0.25rem" }}
-          >
-            Increases color contrast for better readability
-          </p>
         </div>
 
         {/* Color Blind Mode */}
@@ -127,10 +185,11 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
             className="annotation-text"
             style={{ display: "block", marginBottom: "0.5rem" }}
           >
-            Color Blind Simulation
+            Color Blind Filter
           </label>
           <select
             id="color-blind-mode"
+            className="game-select"
             value={settings.colorBlindMode}
             onChange={(e) =>
               updateSetting(
@@ -139,73 +198,42 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
                   | "none"
                   | "protanopia"
                   | "deuteranopia"
-                  | "tritanopia"
+                  | "tritanopia",
               )
             }
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid var(--glass-border)",
-              color: "var(--color-pencil-light)",
-              borderRadius: "4px",
-              fontSize: "1rem",
-              cursor: "pointer",
-            }}
-            aria-describedby="color-blind-help"
           >
             <option value="none">None</option>
             <option value="protanopia">Protanopia (Red-Blind)</option>
             <option value="deuteranopia">Deuteranopia (Green-Blind)</option>
             <option value="tritanopia">Tritanopia (Blue-Blind)</option>
           </select>
-          <p
-            id="color-blind-help"
-            style={{ fontSize: "0.8rem", opacity: 0.5, marginTop: "0.25rem" }}
-          >
-            Simulates color blindness for testing accessibility
-          </p>
         </div>
 
-        {/* Motion Preference */}
+        {/* Font Size Setting */}
         <div>
           <label
-            htmlFor="motion-preference"
+            htmlFor="font-size"
             className="annotation-text"
             style={{ display: "block", marginBottom: "0.5rem" }}
           >
-            Animation Preferences
+            Font Size
           </label>
           <select
-            id="motion-preference"
-            value={settings.motionPreference}
+            id="font-size"
+            className="game-select"
+            value={settings.fontSize}
             onChange={(e) =>
               updateSetting(
-                "motionPreference",
-                e.target.value as "reduced" | "full"
+                "fontSize",
+                e.target.value as "small" | "medium" | "large" | "extra-large",
               )
             }
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid var(--glass-border)",
-              color: "var(--color-pencil-light)",
-              borderRadius: "4px",
-              fontSize: "1rem",
-              cursor: "pointer",
-            }}
-            aria-describedby="motion-help"
           >
-            <option value="full">Full Animations</option>
-            <option value="reduced">Reduced Motion</option>
+            <option value="small">Small (0.875x)</option>
+            <option value="medium">Medium (1x)</option>
+            <option value="large">Large (1.25x)</option>
+            <option value="extra-large">Extra Large (1.5x)</option>
           </select>
-          <p
-            id="motion-help"
-            style={{ fontSize: "0.8rem", opacity: 0.5, marginTop: "0.25rem" }}
-          >
-            Reduces animations for those sensitive to motion
-          </p>
         </div>
 
         {/* Font Family */}
@@ -219,35 +247,44 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
           </label>
           <select
             id="font-family"
+            className="game-select"
             value={settings.fontFamily}
             onChange={(e) =>
               updateSetting(
                 "fontFamily",
-                e.target.value as "system" | "serif" | "monospace"
+                e.target.value as "system" | "serif" | "monospace",
               )
             }
-            style={{
-              width: "100%",
-              padding: "0.5rem",
-              background: "rgba(255,255,255,0.05)",
-              border: "1px solid var(--glass-border)",
-              color: "var(--color-pencil-light)",
-              borderRadius: "4px",
-              fontSize: "1rem",
-              cursor: "pointer",
-            }}
-            aria-describedby="font-family-help"
           >
             <option value="system">System Default</option>
-            <option value="serif">Serif</option>
-            <option value="monospace">Monospace</option>
+            <option value="serif">Serif (High Legibility)</option>
+            <option value="monospace">Monospace (Terminal Style)</option>
           </select>
-          <p
-            id="font-family-help"
-            style={{ fontSize: "0.8rem", opacity: 0.5, marginTop: "0.25rem" }}
+        </div>
+
+        {/* Motion Preference */}
+        <div>
+          <label
+            htmlFor="motion-preference"
+            className="annotation-text"
+            style={{ display: "block", marginBottom: "0.5rem" }}
           >
-            Changes the overall typeface used throughout the interface
-          </p>
+            Animation Preferences
+          </label>
+          <select
+            id="motion-preference"
+            className="game-select"
+            value={settings.motionPreference}
+            onChange={(e) =>
+              updateSetting(
+                "motionPreference",
+                e.target.value as "reduced" | "full",
+              )
+            }
+          >
+            <option value="full">Full Animations</option>
+            <option value="reduced">Reduced Motion</option>
+          </select>
         </div>
       </div>
 
@@ -255,58 +292,44 @@ export default function SettingsPanel({ onClose }: SettingsPanelProps) {
       <div
         style={{
           display: "flex",
-          gap: "1rem",
           marginTop: "2rem",
-          justifyContent: "space-between",
+          borderTop: "1px solid var(--glass-border)",
+          paddingTop: "1.5rem",
         }}
       >
-        <div style={{ display: "flex", gap: "1rem" }}>
-          {!showReset ? (
-            <Button
-              onClick={() => setShowReset(true)}
-              style={{
-                background: "rgba(255,165,0,0.2)",
-                border: "1px solid var(--bui-fg-warning)",
-              }}
-              aria-label="Reset visual settings to defaults"
-            >
-              🔄 Reset to Defaults
-            </Button>
-          ) : (
-            <>
-              <Button
-                onClick={() => {
-                  resetToDefaults();
-                  setShowReset(false);
-                }}
-                style={{
-                  background: "rgba(239,68,68,0.2)",
-                  border: "1px solid var(--bui-fg-danger)",
-                }}
-                aria-label="Confirm reset to defaults"
-              >
-                ✓ Confirm Reset
-              </Button>
-              <Button
-                onClick={() => setShowReset(false)}
-                style={{
-                  background: "rgba(100,100,100,0.2)",
-                }}
-                aria-label="Cancel reset"
-              >
-                ✕ Cancel
-              </Button>
-            </>
-          )}
-        </div>
-        {onClose && (
+        {!showReset ? (
           <Button
-            variant="accent"
-            onClick={onClose}
-            aria-label="Close settings panel"
+            onClick={() => setShowReset(true)}
+            style={{
+              background: "rgba(255,165,0,0.2)",
+              border: "1px solid var(--bui-fg-warning)",
+              width: "100%",
+            }}
           >
-            Close
+            🔄 Reset to Defaults
           </Button>
+        ) : (
+          <div style={{ display: "flex", gap: "1rem", width: "100%" }}>
+            <Button
+              onClick={() => {
+                resetToDefaults();
+                setShowReset(false);
+              }}
+              style={{
+                background: "rgba(239,68,68,0.2)",
+                border: "1px solid var(--bui-fg-danger)",
+                flex: 1,
+              }}
+            >
+              ✓ Confirm Reset
+            </Button>
+            <Button
+              onClick={() => setShowReset(false)}
+              style={{ background: "rgba(100,100,100,0.2)", flex: 1 }}
+            >
+              ✕ Cancel
+            </Button>
+          </div>
         )}
       </div>
     </div>

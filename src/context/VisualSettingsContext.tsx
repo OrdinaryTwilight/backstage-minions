@@ -1,9 +1,9 @@
 import {
-    createContext,
-    ReactNode,
-    useContext,
-    useEffect,
-    useState,
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from "react";
 
 /**
@@ -16,13 +16,14 @@ export interface VisualSettings {
   colorBlindMode: "none" | "protanopia" | "deuteranopia" | "tritanopia";
   motionPreference: "reduced" | "full";
   fontFamily: "system" | "serif" | "monospace";
+  theme: "dark" | "light";
 }
 
 interface VisualSettingsContextType {
   settings: VisualSettings;
   updateSetting: <K extends keyof VisualSettings>(
     key: K,
-    value: VisualSettings[K]
+    value: VisualSettings[K],
   ) => void;
   resetToDefaults: () => void;
 }
@@ -33,11 +34,12 @@ const defaultSettings: VisualSettings = {
   colorBlindMode: "none",
   motionPreference: "full",
   fontFamily: "system",
+  theme: "dark",
 };
 
-const VisualSettingsContext = createContext<VisualSettingsContextType | undefined>(
-  undefined
-);
+const VisualSettingsContext = createContext<
+  VisualSettingsContextType | undefined
+>(undefined);
 
 const STORAGE_KEY = "a3_visual_settings";
 
@@ -48,6 +50,13 @@ const STORAGE_KEY = "a3_visual_settings";
 function applySettingsToDOM(settings: VisualSettings) {
   const root = document.documentElement;
 
+  // Theme toggle
+  if (settings.theme === "light") {
+    root.classList.add("light-mode");
+  } else {
+    root.classList.remove("light-mode");
+  }
+
   // Font size multiplier
   const fontSizeMap: Record<VisualSettings["fontSize"], number> = {
     small: 0.875,
@@ -57,7 +66,7 @@ function applySettingsToDOM(settings: VisualSettings) {
   };
   root.style.setProperty(
     "--font-size-multiplier",
-    fontSizeMap[settings.fontSize].toString()
+    fontSizeMap[settings.fontSize].toString(),
   );
 
   // Contrast mode
@@ -124,7 +133,7 @@ export function VisualSettingsProvider({ children }: { children: ReactNode }) {
 
   const updateSetting = <K extends keyof VisualSettings>(
     key: K,
-    value: VisualSettings[K]
+    value: VisualSettings[K],
   ) => {
     setSettings((prev) => ({ ...prev, [key]: value }));
   };
@@ -146,7 +155,7 @@ export function useVisualSettings() {
   const context = useContext(VisualSettingsContext);
   if (!context) {
     throw new Error(
-      "useVisualSettings must be used within VisualSettingsProvider"
+      "useVisualSettings must be used within VisualSettingsProvider",
     );
   }
   return context;

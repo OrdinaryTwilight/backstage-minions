@@ -357,3 +357,58 @@ body {
   background: rgba(56, 189, 248, 0.3) !important;
   box-shadow: 0 0 15px var(--bui-fg-info);
 }
+
+/* --- NEW: LIGHT MODE --- */
+.light-mode {
+  --color-blueprint-bg: #f8fafc;
+  --color-pencil-light: #0f172a;
+  --glass-border: rgba(0, 0, 0, 0.2);
+  --color-surface-translucent: rgba(240, 240, 240, 0.9);
+  --bui-fg-success: #16a34a;
+  --bui-fg-danger: #dc2626;
+  --bui-fg-info: #0284c7;
+  --bui-fg-warning: #d97706;
+}
+
+.light-mode body {
+  background-image:
+    radial-gradient(rgba(0, 0, 0, 0.1) 0.5px, transparent 0.5px),
+    linear-gradient(rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+}
+
+/* --- NEW: DROPDOWN MENU STYLING --- */
+.game-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--glass-border);
+  color: var(--color-pencil-light);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  cursor: pointer;
+  appearance: none;
+  /* Hides default browser arrow */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+  transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+}
+
+.light-mode .game-select {
+  background: rgba(255, 255, 255, 0.8);
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+.game-select:focus {
+  outline: none;
+  border-color: var(--bui-fg-info);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.game-select option {
+  background: var(--color-blueprint-bg);
+  color: var(--color-pencil-light);
+  font-family: var(--font-mono);
+}

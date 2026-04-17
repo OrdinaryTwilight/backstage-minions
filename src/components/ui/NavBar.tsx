@@ -31,7 +31,6 @@ export default function NavBar() {
           className="nav-item"
           onClick={() => setShowSettings(true)}
           aria-label="Open visual settings"
-          style={{ marginLeft: "auto" }}
         >
           <span>⚙️</span>
           <span>Settings</span>
