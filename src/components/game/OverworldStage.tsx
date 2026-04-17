@@ -6,6 +6,7 @@ import DialogueBox from "./DialogueBox";
 interface NPC {
   id: string;
   name: string;
+  icon: string;
   x: number;
   y: number;
   dx: number;
@@ -18,6 +19,7 @@ interface NPC {
 interface DialogueState {
   speaker: string;
   text: string;
+  icon?: string;
   choices: {
     id: string;
     text: string;
@@ -73,6 +75,7 @@ export default function OverworldStage({
       (npc): NPC => ({
         id: npc.id,
         name: npc.name,
+        icon: npc.icon,
         x: Math.random() * (GAME_WIDTH - 200) + 100,
         y: Math.random() * (GAME_HEIGHT - 200) + 100,
         dx: (Math.random() - 0.5) * 2,
@@ -300,6 +303,7 @@ export default function OverworldStage({
     } else if (activeNpc) {
       setActiveDialogue({
         speaker: activeNpc.name,
+        icon: activeNpc.icon,
         text: `Hey, I'm ${activeNpc.name}. Break a leg out there!`,
         choices: [{ id: "ok", text: "Thanks!", pointDelta: 0, contact: null }],
       });
@@ -507,6 +511,7 @@ export default function OverworldStage({
             speaker={activeDialogue.speaker}
             text={activeDialogue.text}
             choices={activeDialogue.choices}
+            icon={activeDialogue.icon}
             onChoice={() => setActiveDialogue(null)}
           />
         )}

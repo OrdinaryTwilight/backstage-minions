@@ -1,10 +1,7 @@
-// src/pages/ProductionsPage.jsx
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/ui/Button";
 import DifficultyPill from "../components/ui/DifficultyPill";
-import HardwarePanel from "../components/ui/HardwarePanel";
 import NavBar from "../components/ui/NavBar";
-import SectionHeader from "../components/ui/SectionHeader";
 import { useGame } from "../context/GameContext";
 import { PRODUCTIONS, VENUES } from "../data/gameData";
 
@@ -29,82 +26,124 @@ export default function ProductionsPage() {
           minWidth: "auto",
           border: "none",
           background: "transparent",
+          color: "var(--bui-fg-info)",
         }}
       >
         ‹ Back to Archives
       </Button>
 
-      <SectionHeader
-        title={production.title}
-        subtitle="Production Specification"
-      />
+      {/* --- PLAYBILL DESIGN --- */}
+      <div className="playbill-wrapper animate-reveal">
+        <div className="playbill-header">PLAYBILL</div>
 
-      <HardwarePanel
-        style={{ padding: "2.5rem", textAlign: "center", marginBottom: "3rem" }}
-      >
-        <div style={{ fontSize: "5rem", marginBottom: "1.5rem" }}>
-          {production.poster}
-        </div>
-        <p
-          style={{
-            fontSize: "1.1rem",
-            maxWidth: "600px",
-            margin: "0 auto 1.5rem",
-          }}
-        >
-          {production.description}
-        </p>
-        <a
-          href={production.learnMoreUrl}
-          target="_blank"
-          rel="noreferrer"
-          className="annotation-text"
-          style={{ textDecoration: "underline" }}
-        >
-          Reference Technical Manual ↗
-        </a>
-      </HardwarePanel>
+        <div className="playbill-content">
+          <div style={{ fontSize: "6rem", marginBottom: "1rem" }}>
+            {production.poster}
+          </div>
 
-      <h2 className="annotation-text" style={{ marginBottom: "1.5rem" }}>
-        Deploy to Venue
-      </h2>
+          <h1 className="playbill-title">{production.title}</h1>
+          <p
+            style={{
+              fontSize: "1.2rem",
+              fontStyle: "italic",
+              marginBottom: "2rem",
+              color: "#444",
+            }}
+          >
+            {production.description}
+          </p>
 
-      <div className="bento-container">
-        {Object.entries(production.levels).map(([diff, lvl]) => {
-          const prog = state?.progress?.[`${productionId}_${diff}`];
-          const venue = VENUES[lvl.venueId];
-          const isUnlocked = lvl.unlocked || prog?.completed;
+          <a
+            href={production.learnMoreUrl}
+            target="_blank"
+            rel="noreferrer"
+            style={{
+              display: "inline-block",
+              marginBottom: "3rem",
+              color: "#000",
+              fontWeight: "bold",
+            }}
+          >
+            Read the Director's Note ↗
+          </a>
 
-          return (
-            <HardwarePanel
-              key={diff}
-              variant={isUnlocked ? "clickable" : "locked"}
-              onClick={() =>
-                isUnlocked &&
-                navigate(`/productions/${productionId}/difficulty/${diff}`)
-              }
+          <div
+            style={{
+              borderTop: "4px solid #000",
+              borderBottom: "4px solid #000",
+              padding: "1rem 0",
+              marginBottom: "2rem",
+            }}
+          >
+            <h2
+              style={{
+                fontSize: "1.5rem",
+                textTransform: "uppercase",
+                letterSpacing: "2px",
+              }}
             >
-              <h3
-                className="annotation-text"
-                style={{
-                  fontSize: "1.2rem",
-                  color: "var(--color-pencil-light)",
-                }}
-              >
-                {diff.toUpperCase()}
-              </h3>
-              <p style={{ fontSize: "0.85rem", opacity: 0.6, margin: "8px 0" }}>
-                📍 {venue.name}
-              </p>
+              Select Your Call Time
+            </h2>
+          </div>
 
-              <DifficultyPill
-                label={isUnlocked ? "Available" : "Locked"}
-                stars={prog?.stars || 0}
-                unlocked={isUnlocked}
-              />
-            </HardwarePanel>
-          );
-        })}
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {Object.entries(production.levels).map(([diff, lvl]) => {
+              const prog = state?.progress?.[`${productionId}_${diff}`];
+              const venue = VENUES[lvl.venueId];
+              const isUnlocked = lvl.unlocked || prog?.completed;
+
+              return (
+                <div
+                  key={diff}
+                  className="playbill-act-item"
+                  style={{
+                    opacity: isUnlocked ? 1 : 0.5,
+                    cursor: isUnlocked ? "pointer" : "not-allowed",
+                  }}
+                  onClick={() =>
+                    isUnlocked &&
+                    navigate(`/productions/${productionId}/difficulty/${diff}`)
+                  }
+                >
+                  <div>
+                    <h3
+                      style={{
+                        fontSize: "1.4rem",
+                        fontWeight: "bold",
+                        textTransform: "uppercase",
+                      }}
+                    >
+                      ACT{" "}
+                      {diff === "school"
+                        ? "I"
+                        : diff === "community"
+                          ? "II"
+                          : "III"}
+                      : {diff}
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: "1rem",
+                        color: "#555",
+                        marginTop: "4px",
+                        fontStyle: "italic",
+                      }}
+                    >
+                      📍 {venue.name}
+                    </p>
+                  </div>
+                  <div>
+                    <DifficultyPill
+                      label={isUnlocked ? "Ready" : "Locked"}
+                      stars={prog?.stars || 0}
+                      unlocked={isUnlocked}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
