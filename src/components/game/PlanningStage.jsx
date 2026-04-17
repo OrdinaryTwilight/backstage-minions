@@ -201,7 +201,12 @@ export default function PlanningStage({ onComplete }) {
       {/* Control Footer */}
       <div style={{ marginTop: "2rem" }}>
         {!submitted ? (
-          <Button variant="success" onClick={submit} style={{ width: "100%" }}>
+          <Button
+            variant="success"
+            className="btn-xl" // NEW: Makes it taller and more prominent
+            onClick={submit}
+            style={{ width: "100%" }}
+          >
             Commit Technical Plot
           </Button>
         ) : (

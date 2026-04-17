@@ -134,6 +134,7 @@ export default function SoundDesignStage({ onComplete }) {
         {!submitted ? (
           <Button
             variant="success"
+            className="btn-xl" // NEW: Makes it taller and more prominent
             onClick={submit}
             disabled={!isFullyPatched}
             style={{ width: "100%" }}

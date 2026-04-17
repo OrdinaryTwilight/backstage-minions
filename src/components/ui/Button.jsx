@@ -6,10 +6,11 @@ export default function Button({
   style,
   ...props
 }) {
-  const baseClass = variant ? `btn-${variant}` : "action-button";
+  const variantClass = variant ? `btn-${variant}` : "";
+
   return (
     <button
-      className={`${baseClass} ${className}`}
+      className={`btn ${variantClass} ${className}`}
       style={{ filter: "url(#sketch-wobble)", ...style }}
       {...props}
     >

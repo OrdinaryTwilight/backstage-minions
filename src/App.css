@@ -1,27 +1,64 @@
 /* --- 1. BUTTONS & CONTROLS --- */
-.action-button,
-.btn {
+/* src/App.css updates */
+
+/* 1. Base Button Styles - Consolidated and thickened */
+.btn,
+.action-button {
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.8rem 1.5rem;
+  padding: 1rem 2rem;
+  /* Increased padding for better height */
   font-family: var(--font-main);
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: 1rem;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.5px;
   background: var(--color-surface-translucent);
+  /* The dark theme background */
   backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  border: 2px solid var(--glass-border);
+  /* Slightly thicker border */
   border-radius: var(--radius-pill);
   color: var(--color-pencil-light);
   width: 100%;
-  max-width: 320px;
-  margin: 0.5rem auto;
+  /* REMOVED: max-width: 320px; - Let the container control width */
+  margin: 0.5rem 0;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-tactile);
   filter: url(#sketch-wobble);
+}
+
+/* 2. Success Variant (The 'Sign' and 'Commit' buttons) */
+.btn-success {
+  border-color: var(--bui-fg-success);
+  color: var(--bui-fg-success);
+  background: rgba(74, 222, 128, 0.05);
+  /* Subtle tint instead of white */
+}
+
+.btn-success:hover {
+  background: rgba(74, 222, 128, 0.15);
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
+}
+
+/* 3. Accent Variant (The 'Initialize Stage' buttons) */
+.btn-accent {
+  border-color: var(--bui-fg-info);
+  color: var(--bui-fg-info);
+  background: rgba(56, 189, 248, 0.05);
+}
+
+.btn-accent:hover {
+  background: rgba(56, 189, 248, 0.15);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
+}
+
+/* 4. Utility for Extra Large Buttons */
+.btn-xl {
+  padding: 1.5rem 2rem;
+  font-size: 1.2rem;
 }
 
 .action-button:hover:not(:disabled) {
@@ -33,16 +70,6 @@
 
 .action-button:active:not(:disabled) {
   transform: scale(0.96);
-}
-
-.btn-success {
-  border-color: var(--bui-fg-success);
-  color: var(--bui-fg-success);
-}
-
-.btn-accent {
-  border-color: var(--bui-fg-info);
-  color: var(--bui-fg-info);
 }
 
 /* --- 2. THE MASTER GO BUTTON --- */
