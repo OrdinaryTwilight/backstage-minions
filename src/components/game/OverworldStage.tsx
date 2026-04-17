@@ -1,25 +1,35 @@
 import { useEffect, useState } from "react";
 import { useKeyPress } from "../../hooks/useKeyPress";
+import DialogueBox from "./DialogueBox"; // Import your existing dialogue component
 
 interface OverworldStageProps {
   onComplete: () => void;
   nextStageName?: string;
 }
 
-// Define our interactable zones
+// 1. Define zones. Added an "isSolid" flag and dialogue data!
 const ZONES = {
-  booth: { x: 650, y: 50, w: 100, h: 100, label: "BOOTH", color: "#4a4e69" },
-  stageManager: { x: 50, y: 250, w: 60, h: 60, label: "SM DESK", color: "#9a031e" },
-  propsTable: { x: 400, y: 350, w: 120, h: 60, label: "PROPS", color: "#5f0f40" }
+  booth: { x: 650, y: 50, w: 100, h: 100, label: "BOOTH", color: "#4a4e69", isSolid: true },
+  stageManager: { 
+    x: 50, y: 250, w: 60, h: 60, label: "SM DESK", color: "#9a031e", isSolid: true,
+    dialogue: {
+      speaker: "Stage Manager",
+      text: "We hold in 5! Have you verified the signal routing in the sound booth yet?",
+      choices: [{ id: "ok", text: "On my way!", pointDelta: 0, contact: null }]
+    }
+  },
+  propsTable: { x: 400, y: 350, w: 120, h: 60, label: "PROPS", color: "#5f0f40", isSolid: true },
+  wings: { x: 0, y: 0, w: 80, h: 450, label: "STAGE WINGS", color: "rgba(0,0,0,0.3)", isSolid: false } // Non-solid ambient zone
 };
 
 export default function OverworldStage({ onComplete, nextStageName }: OverworldStageProps) {
-  // We use a fixed internal resolution, but CSS will scale it to fit the screen
   const GAME_WIDTH = 800;
   const GAME_HEIGHT = 450; 
+  const PLAYER_SIZE = 32;
   
   const [pos, setPos] = useState({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
   const [activeZone, setActiveZone] = useState<string | null>(null);
+  const [activeDialogue, setActiveDialogue] = useState<any | null>(null); // State for NPC talking
   
   const up = useKeyPress("w");
   const down = useKeyPress("s");
@@ -27,35 +37,53 @@ export default function OverworldStage({ onComplete, nextStageName }: OverworldS
   const right = useKeyPress("d");
   const interact = useKeyPress("e");
 
-  const speed = 6;
+  const speed = 5;
+
+  // Collision Helper Function
+  const checkCollision = (newX: number, newY: number) => {
+    for (const zone of Object.values(ZONES)) {
+      if (zone.isSolid) {
+        if (newX < zone.x + zone.w && newX + PLAYER_SIZE > zone.x &&
+            newY < zone.y + zone.h && newY + PLAYER_SIZE > zone.y) {
+          return true; // Hit a solid object!
+        }
+      }
+    }
+    return false;
+  };
 
   useEffect(() => {
+    // Stop movement if dialogue is open
+    if (activeDialogue) return;
+
     const interval = setInterval(() => {
       setPos((prev) => {
-        let newX = prev.x;
-        let newY = prev.y;
+        let dx = 0;
+        let dy = 0;
 
-        if (up) newY -= speed;
-        if (down) newY += speed;
-        if (left) newX -= speed;
-        if (right) newX += speed;
+        if (up) dy -= speed;
+        if (down) dy += speed;
+        if (left) dx -= speed;
+        if (right) dx += speed;
 
-        // Keep player inside bounds
-        newX = Math.max(0, Math.min(newX, GAME_WIDTH - 32));
-        newY = Math.max(0, Math.min(newY, GAME_HEIGHT - 32));
+        let newX = prev.x + dx;
+        let newY = prev.y + dy;
 
-        // Check distance to all zones
+        // Keep inside screen bounds
+        newX = Math.max(0, Math.min(newX, GAME_WIDTH - PLAYER_SIZE));
+        newY = Math.max(0, Math.min(newY, GAME_HEIGHT - PLAYER_SIZE));
+
+        // Slide Collision: Check X and Y independently
+        if (checkCollision(newX, prev.y)) newX = prev.x; // Revert X if hitting a wall
+        if (checkCollision(prev.x, newY)) newY = prev.y; // Revert Y if hitting a wall
+
+        // Interaction Proximity Check (using a slightly larger box than the solid collision)
         let currentZone = null;
         for (const [key, zone] of Object.entries(ZONES)) {
-          // Simple AABB Collision box check with a little padding
           if (
-            newX < zone.x + zone.w + 20 &&
-            newX + 32 > zone.x - 20 &&
-            newY < zone.y + zone.h + 20 &&
-            newY + 32 > zone.y - 20
-          ) {
-            currentZone = key;
-          }
+            newX < zone.x + zone.w + 20 && newX + PLAYER_SIZE > zone.x - 20 &&
+            newY < zone.y + zone.h + 20 && newY + PLAYER_SIZE > zone.y - 20
+          ) { currentZone = key; }
         }
         setActiveZone(currentZone);
 
@@ -64,29 +92,24 @@ export default function OverworldStage({ onComplete, nextStageName }: OverworldS
     }, 1000 / 60);
 
     return () => clearInterval(interval);
-  }, [up, down, left, right]);
+  }, [up, down, left, right, activeDialogue]);
 
   useEffect(() => {
-    // Only advance to the minigame if they are at the correct zone!
-    // Right now, we assume all next stages require the Booth, but you can adjust this logic.
-    if (interact && activeZone === "booth") {
-      onComplete();
+    if (interact && activeZone) {
+      if (activeZone === "booth") {
+        onComplete();
+      } else if (activeZone === "stageManager" && !activeDialogue) {
+        // Trigger Dialogue
+        setActiveDialogue(ZONES.stageManager.dialogue);
+      }
     }
-  }, [interact, activeZone, onComplete]);
+  }, [interact, activeZone, activeDialogue, onComplete]);
 
   return (
-    // Responsive container scaling
-    <div style={{ width: "100%", maxWidth: "900px", margin: "0 auto", padding: "1rem" }}>
-      <div style={{ 
-        position: "relative", 
-        width: "100%", 
-        aspectRatio: "16/9", 
-        background: "#1a1a2e", 
-        border: "4px solid #fff", 
-        overflow: "hidden" 
-      }}>
+    <div style={{ width: "100%", maxWidth: "900px", margin: "0 auto", padding: "1rem", position: "relative" }}>
+      <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", background: "#1a1a2e", border: "4px solid #fff", overflow: "hidden" }}>
         
-        {/* Render Zones dynamically */}
+        {/* Render Zones */}
         {Object.entries(ZONES).map(([key, zone]) => (
           <div key={key} style={{
             position: "absolute", left: `${(zone.x / GAME_WIDTH) * 100}%`, top: `${(zone.y / GAME_HEIGHT) * 100}%`,
@@ -99,24 +122,32 @@ export default function OverworldStage({ onComplete, nextStageName }: OverworldS
           </div>
         ))}
 
-        {/* Interaction Prompt */}
-        {activeZone && (
-          <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", color: "#fbbf24", fontWeight: "bold", fontSize: "1.2rem", zIndex: 50 }}>
-            Press [E] to interact with {ZONES[activeZone as keyof typeof ZONES].label}
+        {/* Interaction Prompt (Hide if talking) */}
+        {activeZone && !activeDialogue && (
+          <div style={{ position: "absolute", top: "10%", left: "50%", transform: "translateX(-50%)", color: "#fbbf24", fontWeight: "bold", fontSize: "1.2rem", zIndex: 50, background: "rgba(0,0,0,0.5)", padding: "4px 8px", borderRadius: "4px" }}>
+            [E] {ZONES[activeZone as keyof typeof ZONES].label}
           </div>
         )}
 
-        {/* The Player Character - Fixed visibility using hardcoded colors and zIndex */}
+        {/* The Player Character */}
         <div style={{
-          position: "absolute",
-          left: `${(pos.x / GAME_WIDTH) * 100}%`,
-          top: `${(pos.y / GAME_HEIGHT) * 100}%`,
-          width: "4%", height: "7%", // Percentage based on viewport
-          background: "#06d6a0", // Bright visible green!
-          borderRadius: "4px",
-          zIndex: 100
+          position: "absolute", left: `${(pos.x / GAME_WIDTH) * 100}%`, top: `${(pos.y / GAME_HEIGHT) * 100}%`,
+          width: `${(PLAYER_SIZE / GAME_WIDTH) * 100}%`, height: `${(PLAYER_SIZE / GAME_HEIGHT) * 100}%`,
+          background: "var(--accent)", zIndex: 100
         }} />
       </div>
+
+      {/* RENDER DIALOGUE BOX ON TOP OF THE SCREEN */}
+      {activeDialogue && (
+        <div style={{ position: "absolute", bottom: "20px", left: "10%", right: "10%", zIndex: 200 }}>
+          <DialogueBox 
+            speaker={activeDialogue.speaker} 
+            text={activeDialogue.text} 
+            choices={activeDialogue.choices} 
+            onChoice={() => setActiveDialogue(null)} 
+          />
+        </div>
+      )}
     </div>
   );
 }
