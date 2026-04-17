@@ -3,11 +3,10 @@ import { CHARACTERS, OVERWORLD_MAPS } from "../../../data/gameData";
 import { useKeyPress } from "../../../hooks/useKeyPress";
 import DialogueBox from "../DialogueBox";
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_SIZE } from "./constants";
-import { DialogueState, OverworldStageProps } from "./types";
+import { DialogueState, FeedbackMessage, OverworldStageProps } from "./types";
 import { useComms } from "./useComms";
 import { useGameLoop } from "./useGameLoop";
 
-// Import our newly extracted sub-components
 import HeadsetHUD from "./HeadsetHUD";
 import MapViewport from "./MapViewport";
 
@@ -26,7 +25,7 @@ export default function OverworldStage({
   const [activeDialogue, setActiveDialogue] = useState<DialogueState | null>(
     null,
   );
-  const [feedbackMsg, setFeedbackMsg] = useState<string | null>(null);
+  const [feedbackMsg, setFeedbackMsg] = useState<FeedbackMessage | null>(null);
 
   const interactBtn = useKeyPress(["e", "Enter", " "]);
   const up = useKeyPress(["w", "ArrowUp"]);
@@ -50,7 +49,6 @@ export default function OverworldStage({
 
   const playerChar = CHARACTERS.find((c) => c.id === charId);
 
-  // Determine Objectives
   let targetZoneId = "";
   let targetLabel = "";
   let instructionText = "";
@@ -87,15 +85,21 @@ export default function OverworldStage({
       if (staticZone.isDoor) {
         setCurrentRoom(staticZone.isDoor);
         setPos({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
-        setFeedbackMsg(`Entering ${staticZone.isDoor}...`);
-        setTimeout(() => setFeedbackMsg(null), 1000);
+        setFeedbackMsg({
+          text: `Entering ${staticZone.isDoor}...`,
+          isError: false,
+        });
+        setTimeout(() => setFeedbackMsg(null), 1500);
       } else if (activeZone === targetZoneId && currentRoom === "stage") {
         onComplete();
       } else if (
         (activeZone === "lightBooth" && targetZoneId !== "lightBooth") ||
         (activeZone === "soundBooth" && targetZoneId !== "soundBooth")
       ) {
-        setFeedbackMsg(`Not here! Head to the ${targetLabel}!`);
+        setFeedbackMsg({
+          text: `Not here! Head to the ${targetLabel}!`,
+          isError: true,
+        });
         setTimeout(() => setFeedbackMsg(null), 2500);
       } else if (staticZone.dialogues) {
         setActiveDialogue(
@@ -165,33 +169,104 @@ export default function OverworldStage({
         </p>
       </div>
 
-      {/* FIX: Layout splits the HUD and the Map so they never overlap! */}
+      {/* RESPONSIVE LAYOUT FIX */}
       <div
         style={{
           display: "flex",
+          flexWrap: "wrap",
           gap: "1rem",
           alignItems: "flex-start",
           position: "relative",
         }}
       >
-        <HeadsetHUD
-          headsetOn={headsetOn}
-          setHeadsetOn={setHeadsetOn}
-          commsLog={commsLog}
-        />
+        {/* Left Side: Comms HUD */}
+        <div style={{ flex: "1 1 200px", maxWidth: "250px" }}>
+          <HeadsetHUD
+            headsetOn={headsetOn}
+            setHeadsetOn={setHeadsetOn}
+            commsLog={commsLog}
+          />
+        </div>
 
-        <MapViewport
-          currentRoom={currentRoom}
-          currentZones={currentZones}
-          npcs={npcs}
-          pos={pos}
-          playerChar={playerChar}
-          activeZone={activeZone}
-          activeDialogue={activeDialogue}
-          feedbackMsg={feedbackMsg}
-          bumpMsg={bumpMsg}
-          handleStageClick={handleStageClick}
-        />
+        {/* Right Side: Map & Interactive Buttons */}
+        <div
+          style={{
+            flex: "3 1 500px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+          }}
+        >
+          <MapViewport
+            currentRoom={currentRoom}
+            currentZones={currentZones}
+            npcs={npcs}
+            pos={pos}
+            playerChar={playerChar}
+            activeZone={activeZone}
+            activeDialogue={activeDialogue}
+            feedbackMsg={feedbackMsg?.text || null}
+            bumpMsg={bumpMsg}
+            handleStageClick={handleStageClick}
+          />
+
+          {/* DEDICATED INTERACTION BAR */}
+          <div
+            style={{
+              minHeight: "60px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            {feedbackMsg && (
+              <div
+                className="animate-pop"
+                style={{
+                  background: feedbackMsg.isError
+                    ? "var(--bui-bg-danger)"
+                    : "var(--bui-bg-info)",
+                  color: "white",
+                  padding: "12px 24px",
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  marginBottom: "0.5rem",
+                  width: "100%",
+                  textAlign: "center",
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
+                }}
+              >
+                {feedbackMsg.text}
+              </div>
+            )}
+
+            {activeZone && !activeDialogue && !feedbackMsg && (
+              <button
+                onClick={triggerInteraction}
+                className="animate-pop"
+                style={{
+                  background: "#fbbf24",
+                  color: "#000",
+                  border: "2px solid #fff",
+                  padding: "12px 24px",
+                  borderRadius: "8px",
+                  fontWeight: "bold",
+                  fontSize: "1.2rem",
+                  cursor: "pointer",
+                  fontFamily: "var(--font-mono)",
+                  width: "100%",
+                  boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
+                }}
+              >
+                [PRESS E] OR CLICK TO INTERACT WITH{" "}
+                {currentZones[activeZone]?.label ||
+                  npcs.find((n) => n.id === activeZone)?.name?.toUpperCase()}
+              </button>
+            )}
+          </div>
+        </div>
       </div>
 
       <div style={{ minHeight: "150px" }}>

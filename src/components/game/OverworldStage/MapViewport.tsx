@@ -30,13 +30,18 @@ export default function MapViewport({
   pos,
   playerChar,
   activeZone,
-  activeDialogue,
-  feedbackMsg,
   bumpMsg,
   handleStageClick,
 }: MapViewportProps) {
   return (
-    <div style={{ flex: 1, position: "relative" }}>
+    <div
+      style={{
+        flex: 1,
+        position: "relative",
+        width: "100%",
+        minWidth: "300px",
+      }}
+    >
       <button
         onClick={handleStageClick}
         style={{
@@ -50,7 +55,6 @@ export default function MapViewport({
           padding: 0,
         }}
       >
-        {/* ZONES */}
         {Object.entries(currentZones).map(([key, zone]) => (
           <div
             key={key}
@@ -76,7 +80,6 @@ export default function MapViewport({
           </div>
         ))}
 
-        {/* NPCs */}
         {npcs
           .filter((n) => !n.isHidden)
           .map((npc) => (
@@ -135,53 +138,6 @@ export default function MapViewport({
             </div>
           ))}
 
-        {/* RESTORED: FEEDBACK MESSAGES */}
-        {feedbackMsg && (
-          <div
-            style={{
-              position: "absolute",
-              top: "15%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              background: "var(--bui-bg-danger, #b91c1c)",
-              color: "white",
-              padding: "10px 20px",
-              borderRadius: "8px",
-              fontWeight: "bold",
-              zIndex: 300,
-            }}
-          >
-            {feedbackMsg}
-          </div>
-        )}
-
-        {/* RESTORED: INTERACTION PROMPT */}
-        {activeZone && !activeDialogue && !feedbackMsg && (
-          <div
-            style={{
-              position: "absolute",
-              bottom: "10%",
-              left: "50%",
-              transform: "translateX(-50%)",
-              color: "#000",
-              fontWeight: "bold",
-              fontSize: "1.2rem",
-              zIndex: 50,
-              background: "#fbbf24",
-              padding: "8px 16px",
-              borderRadius: "4px",
-              border: "2px solid #fff",
-              fontFamily: "var(--font-mono)",
-              boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
-              pointerEvents: "none",
-            }}
-          >
-            [PRESS E]{" "}
-            {currentZones[activeZone]?.isDoor ? "TO ENTER" : "TO INTERACT"}
-          </div>
-        )}
-
-        {/* PLAYER */}
         <div
           style={{
             position: "absolute",

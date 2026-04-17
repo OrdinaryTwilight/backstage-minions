@@ -101,10 +101,10 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       ],
     },
     doorGreenRoom: {
-      x: 350,
+      x: 250,
       y: 0,
-      w: 100,
-      h: 40,
+      w: 300,
+      h: 50,
       label: "EXIT TO GREEN ROOM ⬆",
       color: "#2f3e46",
       isSolid: false,
@@ -113,11 +113,10 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
   },
   greenRoom: {
     doorStage: {
-      // FIX: Changed label to "BACKSTAGE"
-      x: 350,
-      y: 410,
-      w: 100,
-      h: 40,
+      x: 250,
+      y: 400,
+      w: 300,
+      h: 50,
       label: "⬇ BACK TO BACKSTAGE",
       color: "#2f3e46",
       isSolid: false,

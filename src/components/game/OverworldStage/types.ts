@@ -24,6 +24,11 @@ export interface DialogueState {
   }[];
 }
 
+export interface FeedbackMessage {
+  text: string;
+  isError: boolean;
+}
+
 export interface OverworldStageProps {
   readonly onComplete: () => void;
   readonly department?: string;
