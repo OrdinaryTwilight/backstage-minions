@@ -81,3 +81,15 @@ export interface Production {
   learnMoreUrl: string;
   levels: Partial<Record<"school" | "community" | "professional", LevelDetails>>;
 }
+
+export interface ZoneConfig {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  label: string;
+  color: string;
+  isSolid: boolean;
+  targetDept?: string;
+  dialogue?: any;
+}

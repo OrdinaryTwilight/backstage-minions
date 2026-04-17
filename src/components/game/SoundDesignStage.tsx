@@ -1,7 +1,7 @@
 // src/components/game/SoundDesignStage.jsx
 import { useMemo, useState } from "react";
 import { useGame } from "../../context/GameContext";
-import { CHARACTERS } from "../../data/gameData";
+import { CHARACTERS, SOUND_CONSOLE_CONFIG } from "../../data/gameData";
 import Button from "../ui/Button";
 import HardwarePanel from "../ui/HardwarePanel";
 import SectionHeader from "../ui/SectionHeader";
@@ -41,9 +41,7 @@ function checkWinCondition() {
   }
 }
 
-  const sources = ["Vocals 1", "Vocals 2", "Pit Orchestra", "SFX Playback"];
-  const consoleChannels = [1, 2, 3, 4];
-  const outputBuses = ["Main L/R", "Foldback (Stage)", "Subwoofers"];
+  const { sources, channels: consoleChannels, outputBuses } = SOUND_CONSOLE_CONFIG;
   const deadChannels = useMemo(() => {
     const shuffled = [...consoleChannels].sort(() => 0.5 - Math.random());
     return shuffled.slice(0, 1); // 1 random channel is broken

@@ -37,3 +37,9 @@ export const GEAR_PACKAGES = [
     bonus: -50 // Cost of luxury
   }
 ];
+
+export const SOUND_CONSOLE_CONFIG = {
+  sources: ["Vocals 1", "Vocals 2", "Pit Orchestra", "SFX Playback"],
+  channels: [1, 2, 3, 4, 5],
+  outputBuses: ["Main L/R", "Foldback (Stage)", "Subwoofers"]
+};

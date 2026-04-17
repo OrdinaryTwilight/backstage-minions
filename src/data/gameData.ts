@@ -7,3 +7,4 @@ export * from "./equipment";
 export * from "./productions";
 export * from "./stories";
 export * from "./types";
+export * from "./zones";

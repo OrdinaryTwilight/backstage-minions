@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { AVAILABLE_NPCS } from "../../data/characters";
+import { AVAILABLE_NPCS, OVERWORLD_ZONES } from "../../data/gameData";
 import { useKeyPress } from "../../hooks/useKeyPress";
 import DialogueBox from "./DialogueBox";
 
@@ -7,30 +7,6 @@ interface OverworldStageProps {
   onComplete: () => void;
   department?: string; 
 }
-
-interface ZoneConfig {
-  x: number; y: number; w: number; h: number;
-  label: string; color: string; isSolid: boolean;
-  targetDept?: string;
-  dialogue?: any;
-}
-
-const ZONES: Record<string, ZoneConfig> = {
-  lightBooth: { x: 650, y: 40, w: 100, h: 90, label: "LX BOOTH", color: "#4a4e69", isSolid: true, targetDept: "lighting" },
-  soundBooth: { x: 650, y: 170, w: 100, h: 90, label: "SND BOOTH", color: "#22223b", isSolid: true, targetDept: "sound" },
-  stageManager: { 
-    x: 100, y: 250, w: 80, h: 60, label: "SM DESK", color: "#9a031e", isSolid: true,
-    dialogue: { speaker: "Stage Manager", text: "We hold in 5! Have you verified the signal routing yet?", choices: [{ id: "ok", text: "On my way!", pointDelta: 0, contact: null }] }
-  },
-  propsTable: { 
-    x: 400, y: 350, w: 120, h: 60, label: "PROPS", color: "#5f0f40", isSolid: true,
-    dialogue: { speaker: "Props Master", text: "Hey! Don't touch the prop swords. I just repainted the fake blood.", choices: [{ id: "ok", text: "Backing away slowly...", pointDelta: 0, contact: null }] }
-  },
-  wings: { 
-    x: 0, y: 0, w: 80, h: 450, label: "WINGS", color: "rgba(0,0,0,0.3)", isSolid: false,
-    dialogue: { speaker: "Nervous Actor", text: "Psst! Did I miss my entrance? Oh wait... I'm not even in this scene.", choices: [{ id: "ok", text: "Shh! Quiet in the wings!", pointDelta: 0, contact: null }] }
-  }
-};
 
 export default function OverworldStage({ onComplete, department }: OverworldStageProps) {
   const GAME_WIDTH = 800;
@@ -93,7 +69,7 @@ export default function OverworldStage({ onComplete, department }: OverworldStag
   }, [pos.x, audioStarted]);
 
   const checkCollision = (newX: number, newY: number) => {
-    for (const zone of Object.values(ZONES)) {
+    for (const zone of Object.values(OVERWORLD_ZONES)) {
       if (zone.isSolid) {
         if (newX < zone.x + zone.w && newX + PLAYER_SIZE > zone.x &&
             newY < zone.y + zone.h && newY + PLAYER_SIZE > zone.y) return true;
@@ -122,7 +98,7 @@ export default function OverworldStage({ onComplete, department }: OverworldStag
 
         // Check Zone Interactions
         let currentZone = null;
-        for (const [key, zone] of Object.entries(ZONES)) {
+        for (const [key, zone] of Object.entries(OVERWORLD_ZONES)) {
           if (newX < zone.x + zone.w + 20 && newX + PLAYER_SIZE > zone.x - 20 &&
               newY < zone.y + zone.h + 20 && newY + PLAYER_SIZE > zone.y - 20) currentZone = key;
         }
@@ -169,7 +145,7 @@ export default function OverworldStage({ onComplete, department }: OverworldStag
   // Interaction Handling
   useEffect(() => {
     if (interact && activeZone && !activeDialogue) {
-      const staticZone = ZONES[activeZone];
+      const staticZone = OVERWORLD_ZONES[activeZone];
       const activeNpc = npcs.find(n => n.id === activeZone);
 
       if (staticZone) {
@@ -194,7 +170,7 @@ export default function OverworldStage({ onComplete, department }: OverworldStag
       <div style={{ position: "relative", width: "100%", aspectRatio: "16/9", background: "#1a1a2e", border: "4px solid #fff", overflow: "hidden" }}>
         
         {/* Render Zones */}
-        {Object.entries(ZONES).map(([key, zone]) => (
+        {Object.entries(OVERWORLD_ZONES).map(([key, zone]) => (
           <div key={key} style={{
             position: "absolute", left: `${(zone.x / GAME_WIDTH) * 100}%`, top: `${(zone.y / GAME_HEIGHT) * 100}%`,
             width: `${(zone.w / GAME_WIDTH) * 100}%`, height: `${(zone.h / GAME_HEIGHT) * 100}%`,
