@@ -1,8 +1,14 @@
 import { useState } from "react";
 import { useGame } from "../../context/GameContext";
+import { Conflict } from "../../data/gameData";
 import DialogueBox from "./DialogueBox";
 
-export default function ConflictMinigame({ conflict, onResolved }) {
+interface ConflictMinigameProps {
+  conflict: Conflict;
+  onResolved: () => void;
+}
+
+export default function ConflictMinigame({ conflict, onResolved }: ConflictMinigameProps) {
   const { dispatch } = useGame();
   const [result, setResult] = useState(null);
 

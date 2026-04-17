@@ -1,6 +1,9 @@
-// src/components/ui/MasterControl.jsx
+interface MasterControlProps {
+  onGo: () => void;
+  disabled: boolean;
+}
 
-export default function MasterControl({ onGo, disabled }) {
+export default function MasterControl({ onGo, disabled }: MasterControlProps) {
   return (
     <div style={{ textAlign: "center", margin: "2rem 0" }}>
       <button

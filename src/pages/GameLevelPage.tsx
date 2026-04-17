@@ -1,12 +1,11 @@
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import ConflictMinigame from "../components/game/ConflictMinigame";
 import CueExecutionStage from "../components/game/CueExecutionStage";
 import EquipmentStage from "../components/game/EquipmentStage";
 import PlanningStage from "../components/game/PlanningStage";
 import SoundDesignStage from "../components/game/SoundDesignStage";
 import WrapUpScene from "../components/game/WrapUpScene";
 import { useGame } from "../context/GameContext";
-import { CHARACTERS, CUE_SHEETS, PRODUCTIONS } from "../data/gameData";
+import { useCharacter, useCueSheet, useProduction } from "../hooks/useGameData";
 
 // Define mapping once at the top
 const STAGE_COMPONENTS = {
@@ -22,25 +21,19 @@ export default function GameLevelPage() {
   const { state, dispatch } = useGame();
   const navigate = useNavigate();
 
+  // Use custom hooks for data fetching with case-insensitive lookup
+  // NOTE: Must be called at top level, before refresh guard check
+  const production = useProduction(productionId);
+  const char = useCharacter(charId);
+  const departmentCues = useCueSheet(production?.id, char?.department);
+
   // Refresh Guard
   if (!state.session) return <Navigate to="/" replace />;
-
-  const production = PRODUCTIONS.find(
-    (p) => p.id.toLowerCase() === productionId?.toLowerCase(),
-  );
-  const char = CHARACTERS.find(
-    (c) => c.id.toLowerCase() === charId?.toLowerCase(),
-  );
 
   // Determine current component
   const currentStageKey =
     state.session.stages?.[state.session.currentStageIndex];
   const ActiveStage = STAGE_COMPONENTS[currentStageKey];
-
-  const departmentCues =
-    production && char
-      ? CUE_SHEETS[production.id]?.[char.department] || []
-      : [];
 
   // Unified data check
   if (!production || !char || !ActiveStage) {
@@ -74,15 +67,15 @@ export default function GameLevelPage() {
     dispatch({
       type: "COMPLETE_LEVEL",
       productionId: production.id,
-      difficulty,
+      difficulty: difficulty as "school" | "community" | "professional",
       stars,
       unlockedStories: [], // Add story unlocking logic here if needed
     });
   }
 
-  if (state.session.activeConflict) {
-    return <ConflictMinigame conflict={state.session.activeConflict} />;
-  }
+  // if (state.session.activeConflict) {
+  //   return <ConflictMinigame conflict={state.session.activeConflict} />;
+  // }
 
   return <ActiveStage cueSheet={departmentCues} onComplete={nextStage} />;
 }

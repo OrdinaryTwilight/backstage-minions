@@ -79,7 +79,7 @@ export interface Production {
   poster: string;
   description: string;
   learnMoreUrl: string;
-  levels: Record<string, LevelDetails>;
+  levels: Partial<Record<"school" | "community" | "professional", LevelDetails>>;
 }
 
 // --- PLANNING STAGE CONSTANTS ---

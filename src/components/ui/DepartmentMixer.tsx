@@ -1,11 +1,18 @@
 import { useEffect, useState } from "react";
 import HardwarePanel from "./HardwarePanel";
 
+interface FaderTrackProps {
+  label: string;
+  color: string;
+  onLevelChange: (level: number) => void;
+  currentLevel: number;
+}
+
 /**
  * FaderTrack: A professional-grade channel strip.
  * Fixes alignment by using a vertical container with a relative fader slot.
  */
-function FaderTrack({ label, color, onLevelChange, currentLevel }) {
+function FaderTrack({ label, color, onLevelChange, currentLevel }: FaderTrackProps) {
   // Simulate active signal flicker for realism
   const [flicker, setFlicker] = useState(0);
   
@@ -90,7 +97,13 @@ function FaderTrack({ label, color, onLevelChange, currentLevel }) {
   );
 }
 
-export default function DepartmentMixer({ department, levels, setLevels }) {
+interface DepartmentMixerProps {
+  department?: string;
+  levels: number[];
+  setLevels: (levels: number[]) => void;
+}
+
+export default function DepartmentMixer({ department, levels, setLevels }: DepartmentMixerProps) {
   const channels = department === 'lighting' 
     ? ['WASH', 'CYC', 'SPOT', 'KEYS']
     : ['VOX', 'PIT', 'SFX', 'BAND'];

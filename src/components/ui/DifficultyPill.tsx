@@ -2,7 +2,13 @@
  * DifficultyPill: A reusable UI component for displaying level progress.
  * Used in the HomePage dashboard and SelectLevelPage.
  */
-export default function DifficultyPill({ label, stars, unlocked }) {
+interface DifficultyPillProps {
+  label: string;
+  stars: number;
+  unlocked: boolean;
+}
+
+export default function DifficultyPill({ label, stars, unlocked }: DifficultyPillProps) {
   return (
     <div
       style={{

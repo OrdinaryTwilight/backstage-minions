@@ -1,56 +1,24 @@
 import { createContext, ReactNode, useContext, useEffect, useReducer } from "react";
 import { PRODUCTION_STAGES } from "../data/gameData";
+import {
+    GameAction,
+    GameState
+} from "../types/game";
 
-interface GameSession {
-  productionId: string;
-  difficulty: "school" | "community" | "professional";
-  characterId: string;
-  stages: string[];
-  currentStageIndex: number;
-  gearId: string | null;
-  score: number;
-  lives: number;
-  cuesHit: number;
-  cuesMissed: number;
-  plotLights: unknown[];
-  conflictsSeen: string[];
-}
-
-interface LevelProgress {
-  stars: number;
-  completed: boolean;
-}
-
-interface GameState {
-  session: GameSession | null;
-  progress: Record<string, LevelProgress>;
-  unlockedStories: string[];
-  contacts: string[];
-}
-
-type GameAction =
-  | { type: "LOAD_SAVE"; payload: Partial<GameState> }
-  | {
-      type: "START_SESSION";
-      productionId: string;
-      difficulty: "school" | "community" | "professional";
-      characterId: string;
-    }
-  | { type: "SET_GEAR"; gearId: string }
-  | { type: "NEXT_STAGE" }
-  | { type: "ADD_SCORE"; delta: number }
-  | { type: "LOSE_LIFE" }
-  | { type: "CUE_HIT" }
-  | { type: "CUE_MISSED" }
-  | { type: "SET_PLOT_LIGHTS"; lights: unknown[] }
-  | {
-      type: "COMPLETE_LEVEL";
-      productionId: string;
-      difficulty: string;
-      stars: number;
-      unlockedStories: string[];
-    }
-  | { type: "CLEAR_SESSION" };
+/**
+ * GameContext: Central state management for active gameplay
+ *
+ * Manages:
+ * - Active game sessions (production, difficulty, character, score, progress)
+ * - Career progress (completed levels, stars earned, unlocked content)
+ * - Persistent data (saved games, contact list, story unlocks)
+ *
+ * Usage:
+ * ```tsx
+ * const { state, dispatch } = useGame();
+ * dispatch({ type: "ADD_SCORE", delta: 10 });
+ * ```
+ */
 
 const STORAGE_KEY = "a3_backstage_save";
 
@@ -61,6 +29,60 @@ const initialState: GameState = {
   contacts: [],
 };
 
+/**
+ * Reducer: Core game state machine
+ *
+ * ACTION REFERENCE:
+ *
+ * Session Lifecycle:
+ * - START_SESSION(productionId, difficulty, characterId)
+ *   Initializes a new game session with production/character selection.
+ *   Sets initial lives based on difficulty (professional=2, community=3, school=4).
+ *   Loads stage sequence from PRODUCTION_STAGES.
+ *
+ * - NEXT_STAGE()
+ *   Advances currentStageIndex by 1. Called when player completes a stage.
+ *   Stage mapping is defined in STAGE_COMPONENTS (GameLevelPage).
+ *
+ * - COMPLETE_LEVEL(productionId, difficulty, stars, unlockedStories)
+ *   Marks a level complete and stores star rating (1-3).
+ *   Stars are maximized (never decreased) to preserve best scores.
+ *   Unlocks new stories for later viewing.
+ *
+ * - CLEAR_SESSION()
+ *   Destroys active session (used on game-over or main menu return).
+ *
+ * Scoring & Progress:
+ * - ADD_SCORE(delta: number)
+ *   Increments total score by delta. Called after successful cues, planning, etc.
+ *   Used by: CueExecutionStage (+10 per hit), PlanningStage (+5 per fixture), etc.
+ *
+ * - CUE_HIT()
+ *   Increments cuesHit counter. Tracked separately for statistics/end-level screen.
+ *   Used by: CueExecutionStage when checkFaderAlignment() returns true.
+ *
+ * - CUE_MISSED()
+ *   Increments cuesMissed counter. Inverse of CUE_HIT for hit rate calculation.
+ *   Used by: CueExecutionStage when checkFaderAlignment() returns false.
+ *
+ * - LOSE_LIFE()
+ *   Decrements lives by 1. Game over when lives reach 0.
+ *   Triggered by: Failed conflicts, missed cues in extreme cases, etc.
+ *
+ * Stage State Management:
+ * - SET_GEAR(gearId: string)
+ *   Stores selected gear ID for equipment planning stage.
+ *   Used by: EquipmentStage to track player selection.
+ *
+ * - SET_PLOT_LIGHTS(lights: LightPlotNode[])
+ *   Stores the lighting plot grid state from PlanningStage.
+ *   Used by: PlanningStage upon submission, persisted in progress tracking.
+ *
+ * Persistence:
+ * - LOAD_SAVE(payload: Partial<GameState>)
+ *   Merges saved game state (from localStorage) into current state.
+ *   Used on app mount to restore previous session or career progress.
+ */
 function reducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "LOAD_SAVE":

@@ -1,11 +1,21 @@
 // src/components/game/DialogueBox.jsx updates
+import { ConflictChoice } from "../../data/gameData";
+
+interface DialogueBoxProps {
+  speaker: string;
+  text: string;
+  choices?: ConflictChoice[];
+  onChoice?: (choice: ConflictChoice) => void;
+  icon?: string;
+}
+
 export default function DialogueBox({
   speaker,
   text,
   choices,
   onChoice,
   icon,
-}) {
+}: DialogueBoxProps) {
   return (
     <div
       className="pxbox"

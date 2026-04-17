@@ -24,7 +24,11 @@ const WRAPUP_DIALOGUES = [
   },
 ];
 
-export default function WrapUpScene({ onComplete }) {
+interface WrapUpSceneProps {
+  onComplete: () => void;
+}
+
+export default function WrapUpScene({ onComplete }: WrapUpSceneProps) {
   const { dispatch } = useGame();
   const [step, setStep] = useState(0);
   const [feedback, setFeedback] = useState(null);

@@ -6,7 +6,11 @@ import Button from "../ui/Button";
 import HardwarePanel from "../ui/HardwarePanel";
 import SectionHeader from "../ui/SectionHeader";
 
-export default function SoundDesignStage({ onComplete }) {
+interface SoundDesignStageProps {
+  onComplete: () => void;
+}
+
+export default function SoundDesignStage({ onComplete }: SoundDesignStageProps) {
   const { state, dispatch } = useGame();
   const [patch, setPatch] = useState({ inputs: {}, outputs: {} });
   const [submitted, setSubmitted] = useState(false);

@@ -1,5 +1,10 @@
-// src/components/ui/StatBar.jsx
-export default function StatBar({ label, value, maxValue = 10 }) {
+interface StatBarProps {
+  label: string;
+  value: number;
+  maxValue?: number;
+}
+
+export default function StatBar({ label, value, maxValue = 10 }: StatBarProps) {
   return (
     <div style={{ marginBottom: "1rem", width: "100%" }}>
       <div

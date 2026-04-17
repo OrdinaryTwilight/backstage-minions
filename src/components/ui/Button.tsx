@@ -1,11 +1,19 @@
-// src/components/ui/Button.jsx
+import { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
+
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  children: ReactNode;
+  variant?: string;
+  className?: string;
+  style?: CSSProperties;
+}
+
 export default function Button({
   children,
   variant = "",
   className = "",
   style,
   ...props
-}) {
+}: ButtonProps) {
   const variantClass = variant ? `btn-${variant}` : "";
 
   return (

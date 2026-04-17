@@ -1,11 +1,30 @@
-export default function CueStack({
+import { memo } from "react";
+import { Cue } from "../../data/gameData";
+
+interface CueStackProps {
+  cues: Cue[];
+  cueResults?: Record<string, string>;
+  nextCue?: string;
+  elapsed?: number;
+  duration?: number;
+  department?: string;
+  currentIndex?: number;
+}
+
+/**
+ * CueStack: Displays the active cue list and timing progress
+ * Wrapped in React.memo to prevent unnecessary re-renders when parent GameContext updates
+ * but cue data hasn't actually changed. This is important since CueExecutionStage
+ * updates frequently (every animation frame) from the game timer.
+ */
+function CueStackComponent({
   cues,
   cueResults,
   nextCue,
-  elapsed,
-  duration,
+  elapsed = 0,
+  duration = 30000,
   department,
-}) {
+}: CueStackProps) {
   const progress = Math.min((elapsed / duration) * 100, 100);
 
   return (
@@ -114,3 +133,45 @@ export default function CueStack({
     </div>
   );
 }
+
+// Export memoized component to prevent unnecessary re-renders
+// Custom comparison: deep-equal cues array by length and IDs
+const CueStack = memo(CueStackComponent, (prev, next) => {
+  // Return true if props are equal (skip re-render)
+  // Return false if props differ (allow re-render)
+  
+  // Check basic props
+  if (
+    prev.elapsed !== next.elapsed ||
+    prev.duration !== next.duration ||
+    prev.department !== next.department
+  ) {
+    return false; // Props differ, re-render
+  }
+
+  // Deep compare cues array (by length and element structure)
+  if (prev.cues.length !== next.cues.length) {
+    return false;
+  }
+  for (let i = 0; i < prev.cues.length; i++) {
+    if (prev.cues[i].id !== next.cues[i].id) {
+      return false;
+    }
+  }
+
+  // Compare cueResults object
+  if (JSON.stringify(prev.cueResults) !== JSON.stringify(next.cueResults)) {
+    return false;
+  }
+
+  // Compare nextCue
+  if (prev.nextCue !== next.nextCue) {
+    return false;
+  }
+
+  return true; // Props are equal, skip re-render
+});
+
+CueStack.displayName = "CueStack";
+
+export default CueStack;

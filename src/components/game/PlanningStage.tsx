@@ -1,30 +1,39 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useGame } from "../../context/GameContext";
 import { SCORING } from "../../data/constants";
 import {
-  LIGHT_TYPES,
-  PLOT_GRID_COLS,
-  PLOT_GRID_ROWS,
+    LIGHT_TYPES,
+    PLOT_GRID_COLS,
+    PLOT_GRID_ROWS,
 } from "../../data/gameData";
 import Button from "../ui/Button";
 import HardwarePanel from "../ui/HardwarePanel";
 import SectionHeader from "../ui/SectionHeader";
 
+interface PlanningStageProps {
+  onComplete: () => void;
+}
+
 /**
  * PlanningStage: A technical drafting console for lighting designers.
  * Rearranged for horizontal technical comparison and coverage symmetry.
  */
-export default function PlanningStage({ onComplete }) {
+export default function PlanningStage({ onComplete }: PlanningStageProps) {
   const { dispatch } = useGame();
   const [selectedType, setSelectedType] = useState(LIGHT_TYPES[0].id);
   const [grid, setGrid] = useState(() =>
     Array(PLOT_GRID_ROWS * PLOT_GRID_COLS).fill(null),
   );
   const [submitted, setSubmitted] = useState(false);
-  const [reportScore, setReportScore] = useState(null);
+  const [reportScore, setReportScore] = useState<number | null>(null);
 
-  const placedCount = grid.filter(Boolean).length;
-  const isFail = reportScore !== null && reportScore < 40;
+  // PERF: Memoize grid analysis to prevent recalculation on each render
+  // These computations scan the entire grid array
+  const { placedCount, isFail } = useMemo(() => {
+    const count = grid.filter(Boolean).length;
+    const fail = reportScore !== null && reportScore < 40;
+    return { placedCount: count, isFail: fail };
+  }, [grid, reportScore]);
 
   function placeLight(i) {
     if (submitted) return;

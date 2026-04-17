@@ -1,6 +1,12 @@
 import { useState } from "react";
 
-export default function SectionHeader({ title, subtitle, helpText }) {
+interface SectionHeaderProps {
+  title: string;
+  subtitle: string;
+  helpText?: string;
+}
+
+export default function SectionHeader({ title, subtitle, helpText }: SectionHeaderProps) {
   const [showHelp, setShowHelp] = useState(false);
 
   return (

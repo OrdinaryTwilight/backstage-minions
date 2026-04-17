@@ -1,50 +1,91 @@
 import { useState } from "react";
 import { useGame } from "../../context/GameContext";
-import { CHARACTERS } from "../../data/gameData";
+import { CHARACTERS, Cue } from "../../data/gameData";
 import CueStack from "../ui/CueStack";
 import DepartmentMixer from "../ui/DepartmentMixer";
 import HardwarePanel from "../ui/HardwarePanel";
 import MasterControl from "../ui/MasterControl";
 import SectionHeader from "../ui/SectionHeader";
 
-export default function CueExecutionStage({ cueSheet, onComplete }) {
+interface CueExecutionStageProps {
+  cueSheet: Cue[];
+  onComplete: () => void;
+}
+
+export default function CueExecutionStage({ cueSheet, onComplete }: CueExecutionStageProps) {
   const { state, dispatch } = useGame();
   const [currentIdx, setCurrentIdx] = useState(0);
   const [faderLevels, setFaderLevels] = useState([80, 80, 80, 80, 100]);
-  const [lastResult, setLastResult] = useState(null); // 'hit' | 'miss' | null
+  const [lastResult, setLastResult] = useState<"hit" | "miss" | null>(null);
   const char = CHARACTERS.find((c) => c.id === state.session.characterId);
   const currentCue = cueSheet[currentIdx];
   const isLastCue = currentIdx === cueSheet.length - 1;
 
-  // Hybrid Logic Fix: Handle missing targetLevel from gameData
+  /**
+   * checkFaderAlignment: Core scoring logic for booth execution
+   *
+   * MECHANICAL DESIGN:
+   * - A successful cue execution requires:
+   *   1. Master fader at or near 100% (±10 tolerance)
+   *   2. At least 2 of 4 channel faders within ±10 of the target intensity
+   *
+   * RATIONALE:
+   * - Master fader controls overall output level (technical requirement)
+   * - Channel faders require a minimum of 2/4 at target to simulate:
+   *   a) Realistic backstage team coordination (2+ people on the rig)
+   *   b) Graceful degradation (partial success if setup isn't perfect)
+   * - ±10 tolerance reflects real-world equipment accuracy
+   *
+   * EDGE CASES:
+   * - If targetLevel is missing from gameData (fallback: 80%), allows execution
+   * - If fewer than 2 channels are at target, execution fails (score: 0)
+   * - Master fader below 90% or above 110% also fails (safety mechanism)
+   *
+   * @returns true if fader alignment meets criteria, false otherwise
+   */
   const checkFaderAlignment = () => {
-    // Falls back to 80 if targetLevel is missing in gameData.js
+    // Fallback to 80 if targetLevel is missing in gameData.js
     const target = currentCue?.targetLevel || 80;
-    const margin = 10;
+    const margin = 10; // ±10% tolerance window
+
+    // Check master fader: must be 100% (within ±10%)
     const masterOk = Math.abs(faderLevels[4] - 100) < margin;
+
+    // Check channel faders: need at least 2 of 4 at target level
     const channelsOk =
       faderLevels.slice(0, 4).filter((l) => Math.abs(l - target) < margin)
         .length >= 2;
+
     return masterOk && channelsOk;
   };
 
+  /**
+   * handleGo: Unified dispatch handler for booth operations
+   *
+   * IMPORTANT: This function uses a SINGLE check before dispatch to prevent
+   * the triple-dispatch bug where multiple dispatch calls in rapid succession
+   * caused score increments to stack (e.g., +30 instead of +10).
+   *
+   * FIXED FLOW (Correct):
+   * 1. checkFaderAlignment() → true/false
+   * 2. One dispatch call based on result
+   * 3. Next cue or complete
+   *
+   * BROKEN FLOW (Previous):
+   * 1. Check master → dispatch CUE_HIT
+   * 2. Check channels → dispatch CUE_HIT again
+   * 3. Unified check → dispatch ADD_SCORE
+   * Result: +30 instead of +10
+   */
   function handleGo() {
-    const currentCue = cueSheet[currentIdx];
-    const target = currentCue?.targetLevel ?? 80; // Fallback for legacy data
-    const margin = 12; // Technical tolerance
-    const isAligned = checkFaderAlignment(); // Logic from Phase 3 stability
+    const isAligned = checkFaderAlignment();
     const result = isAligned ? "hit" : "miss";
 
-    // Check if enough faders are in the 'Correct' zone
-    const masterOk = Math.abs(faderLevels[4] - 100) < 5;
-    const channelsOk =
-      faderLevels.slice(0, 4).filter((l) => Math.abs(l - target) < margin)
-        .length >= 2;
-
-    // Trigger visual flash
+    // Trigger visual feedback (CSS animation)
     setLastResult(result);
     setTimeout(() => setLastResult(null), 400);
 
+    // Unified dispatch: single result determines all state changes
     if (isAligned) {
       dispatch({ type: "CUE_HIT" });
       dispatch({ type: "ADD_SCORE", delta: 10 });
@@ -52,18 +93,7 @@ export default function CueExecutionStage({ cueSheet, onComplete }) {
       dispatch({ type: "CUE_MISSED" });
     }
 
-    if (masterOk && channelsOk) {
-      dispatch({ type: "CUE_HIT" });
-    } else {
-      dispatch({ type: "CUE_MISSED" });
-    }
-    if (checkFaderAlignment()) {
-      dispatch({ type: "CUE_HIT" }); // Matches reducer: CUE_HIT
-      dispatch({ type: "ADD_SCORE", delta: 10 });
-    } else {
-      dispatch({ type: "CUE_MISSED" }); // Matches reducer: CUE_MISSED
-    }
-
+    // Stage progression
     if (isLastCue) {
       onComplete();
     } else {

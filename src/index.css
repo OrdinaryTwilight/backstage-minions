@@ -2,6 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Inter:wght@400;700&family=JetBrains+Mono&display=swap');
 
 :root {
+  /* Colors */
   --color-blueprint-bg: #121212;
   --color-pencil-light: #f1f5f9;
   --color-architect-blue: #38bdf8;
@@ -24,6 +25,32 @@
   --glass-border: rgba(255, 255, 255, 0.15);
   --shadow-tactile: 0 10px 30px rgba(0, 0, 0, 0.5);
   --nav-h: 70px;
+
+  /* Spacing System (Centralized for consistency) */
+  --space-xs: 0.5rem;      /* 8px */
+  --space-sm: 1rem;        /* 16px */
+  --space-md: 1.5rem;      /* 24px */
+  --space-lg: 2rem;        /* 32px */
+  --space-xl: 3rem;        /* 48px */
+
+  /* Component Spacing */
+  --panel-padding: var(--space-md);     /* Padding inside panels */
+  --panel-gap: var(--space-md);         /* Gap between panels in grid */
+  --grid-gap: 12px;                     /* Gap in fixture/equipment grids */
+  --section-margin: var(--space-lg);   /* Margin between major sections */
+
+  /* Typography Sizing */
+  --text-xs: 0.65rem;
+  --text-sm: 0.9rem;
+  --text-base: 1rem;
+  --text-lg: 1.4rem;
+  --text-xl: 1.8rem;
+
+  /* Animation Durations */
+  --duration-fast: 200ms;     /* Quick interactions: button press, toggle */
+  --duration-normal: 300ms;   /* Standard transitions: fade, scale */
+  --duration-slow: 400ms;     /* Emphasis animations: feedback overlay */
+  --duration-long: 1s;        /* Stage transitions */
 }
 
 /* --- 2. GLOBAL RESET & BASE --- */
@@ -72,7 +99,7 @@ body {
 }
 
 .page-container {
-  padding: 1.5rem 1rem calc(var(--nav-h) + 2rem);
+  padding: var(--space-md) var(--space-sm) calc(var(--nav-h) + var(--space-lg));
   width: 100%;
   flex: 1;
 }

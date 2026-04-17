@@ -3,7 +3,11 @@ import { GEAR_PACKAGES } from "../../data/gameData";
 import HardwarePanel from "../ui/HardwarePanel";
 import SectionHeader from "../ui/SectionHeader";
 
-export default function EquipmentStage({ onComplete }) {
+interface EquipmentStageProps {
+  onComplete: () => void;
+}
+
+export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
   const { dispatch } = useGame();
 
   function handleSelect(pkg) {

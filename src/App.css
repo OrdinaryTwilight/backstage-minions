@@ -103,7 +103,7 @@
 .hardware-panel {
   background: rgba(20, 20, 20, 0.6);
   border: 2px solid var(--color-pencil-light);
-  padding: 1.5rem;
+  padding: var(--panel-padding);
   position: relative;
   filter: url(#sketch-wobble);
   /* Asymmetric border radius for hand-drawn look */
@@ -112,7 +112,7 @@
   border-bottom-right-radius: 225px 15px;
   border-bottom-left-radius: 15px 255px;
   box-shadow: var(--shadow-tactile);
-  margin-bottom: 2rem;
+  margin-bottom: var(--section-margin);
 }
 
 .console-screen {
@@ -121,7 +121,7 @@
   border-radius: var(--radius-md);
   color: var(--color-architect-blue);
   font-family: var(--font-mono);
-  padding: 1.2rem;
+  padding: var(--space-sm);
   font-size: 0.85rem;
   overflow-x: auto;
 }
@@ -129,7 +129,7 @@
 /* --- 4. SEARCH SYSTEM --- */
 .search-container {
   position: relative;
-  margin-bottom: 2rem;
+  margin-bottom: var(--section-margin);
   max-width: 500px;
   width: 100%;
 }
@@ -140,7 +140,7 @@
   backdrop-filter: blur(12px);
   border: 2px solid var(--glass-border);
   border-radius: var(--radius-pill);
-  padding: 1rem 1.5rem;
+  padding: var(--space-sm) var(--space-md);
   color: var(--color-pencil-light);
   font-family: var(--font-sketch);
   font-size: 1.1rem;
@@ -157,7 +157,7 @@
 
 /* --- 5. HUD FIXES --- */
 .hud-container div:first-child {
-  min-height: 2rem;
+  min-height: var(--space-md);
   display: flex;
   align-items: center;
 }
@@ -173,7 +173,7 @@
   color: var(--bui-fg-info);
   font-size: 0.8rem;
   cursor: help;
-  margin-left: 10px;
+  margin-left: var(--space-xs);
   transition: all 0.2s ease;
   vertical-align: middle;
 }
@@ -191,7 +191,7 @@
   background: var(--color-surface-translucent);
   backdrop-filter: blur(15px);
   border: 1px solid var(--bui-fg-info);
-  padding: 1rem;
+  padding: var(--space-sm);
   border-radius: var(--radius-md);
   z-index: 1100;
   box-shadow: var(--shadow-tactile);
@@ -199,12 +199,60 @@
   font-size: 0.75rem;
   color: var(--color-pencil-light);
   pointer-events: none;
-  margin-top: 10px;
-  animation: hardware-pop 0.3s ease-out;
+  margin-top: var(--space-xs);
+  animation: hardware-pop var(--duration-normal) ease-out;
 }
 
 .tooltip-overlay b {
   color: var(--bui-fg-warning);
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: var(--space-xs);
+}
+
+/* --- 6. FEEDBACK OVERLAY --- */
+/**
+ * Feedback Overlay: Provides visual feedback for cue execution
+ * Shows immediate hit/miss feedback in the booth execution stage
+ * Animation duration matches the visual feedback timeout in CueExecutionStage.tsx
+ */
+.feedback-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 50;
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.feedback-overlay.flash-hit {
+  animation: flash-hit var(--duration-slow) ease-out forwards;
+}
+
+.feedback-overlay.flash-miss {
+  animation: flash-miss var(--duration-slow) ease-out forwards;
+}
+
+@keyframes flash-hit {
+  0% {
+    background: rgba(74, 222, 128, 0.4);
+    opacity: 1;
+  }
+  100% {
+    background: rgba(74, 222, 128, 0);
+    opacity: 0;
+  }
+}
+
+@keyframes flash-miss {
+  0% {
+    background: rgba(239, 68, 68, 0.4);
+    opacity: 1;
+  }
+  100% {
+    background: rgba(239, 68, 68, 0);
+    opacity: 0;
+  }
 }

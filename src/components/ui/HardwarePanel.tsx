@@ -1,12 +1,22 @@
-// src/components/ui/HardwarePanel.jsx
+import { CSSProperties, ReactNode } from "react";
+
+interface HardwarePanelProps {
+  children: ReactNode;
+  variant?: string;
+  className?: string;
+  style?: CSSProperties;
+  onClick?: (e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>) => void;
+  [key: string]: unknown;
+}
+
 export default function HardwarePanel({
   children,
   variant = "",
   className = "",
   style,
-  onClick, // Destructure onClick to handle accessibility
+  onClick,
   ...props
-}) {
+}: HardwarePanelProps) {
   const isClickable = variant === "clickable" || !!onClick;
 
   const handleKeyDown = (e) => {

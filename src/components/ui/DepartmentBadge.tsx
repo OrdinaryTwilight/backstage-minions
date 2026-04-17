@@ -1,5 +1,9 @@
 // src/components/ui/DepartmentBadge.jsx
-export default function DepartmentBadge({ department }) {
+interface DepartmentBadgeProps {
+  department?: string;
+}
+
+export default function DepartmentBadge({ department }: DepartmentBadgeProps) {
   const isLighting = department === "lighting";
   return (
     <div
