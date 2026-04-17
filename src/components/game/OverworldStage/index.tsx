@@ -6,9 +6,14 @@ import { GAME_HEIGHT, GAME_WIDTH, PLAYER_SIZE } from "./constants";
 import { DialogueState, FeedbackMessage, OverworldStageProps } from "./types";
 import { useComms } from "./useComms";
 import { useGameLoop } from "./useGameLoop";
+import { useQuests } from "./useQuests";
 
 import HeadsetHUD from "./HeadsetHUD";
 import MapViewport from "./MapViewport";
+
+// Helper to format camelCase room names to Title Case (greenRoom -> Green Room)
+const formatRoomName = (str: string) =>
+  str.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
 
 export default function OverworldStage({
   onComplete,
@@ -34,6 +39,14 @@ export default function OverworldStage({
   const right = useKeyPress(["d", "ArrowRight"]);
 
   const { headsetOn, setHeadsetOn, commsLog } = useComms();
+
+  // NEW: Initialize the Quest Hook
+  const { inventory, checkQuestIntercept, handleQuestChoice, questFeedback } =
+    useQuests();
+
+  // Override local feedback with quest feedback if it exists
+  const displayFeedback = questFeedback || feedbackMsg;
+
   const { pos, setPos, npcs, activeZone, bumpMsg } = useGameLoop(
     currentZones,
     currentRoom,
@@ -81,12 +94,20 @@ export default function OverworldStage({
     const staticZone = currentZones[activeZone];
     const activeNpc = npcs.find((n) => n.id === activeZone);
 
+    // NEW: Check if a Quest intercepts this interaction first!
+    const questDialogue = checkQuestIntercept(activeZone, activeNpc);
+    if (questDialogue) {
+      setActiveDialogue(questDialogue);
+      return;
+    }
+
     if (staticZone) {
       if (staticZone.isDoor) {
         setCurrentRoom(staticZone.isDoor);
         setPos({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
+        // FIX: Beautiful Title Case formatting for room transitions
         setFeedbackMsg({
-          text: `Entering ${staticZone.isDoor}...`,
+          text: `Entering ${formatRoomName(staticZone.isDoor)}...`,
           isError: false,
         });
         setTimeout(() => setFeedbackMsg(null), 1500);
@@ -160,7 +181,7 @@ export default function OverworldStage({
             fontFamily: "var(--font-mono)",
           }}
         >
-          CURRENT LOCATION: {currentRoom.toUpperCase().replace("ROOM", " ROOM")}
+          CURRENT LOCATION: {formatRoomName(currentRoom).toUpperCase()}
         </h2>
         <p
           style={{ margin: "0.5rem 0 0 0", color: "var(--color-pencil-light)" }}
@@ -169,7 +190,6 @@ export default function OverworldStage({
         </p>
       </div>
 
-      {/* RESPONSIVE LAYOUT FIX */}
       <div
         style={{
           display: "flex",
@@ -179,13 +199,66 @@ export default function OverworldStage({
           position: "relative",
         }}
       >
-        {/* Left Side: Comms HUD */}
-        <div style={{ flex: "1 1 200px", maxWidth: "250px" }}>
+        {/* Left Side: Comms & Inventory HUD */}
+        <div
+          style={{
+            flex: "1 1 200px",
+            maxWidth: "250px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+          }}
+        >
           <HeadsetHUD
             headsetOn={headsetOn}
             setHeadsetOn={setHeadsetOn}
             commsLog={commsLog}
           />
+
+          {/* NEW: RPG Inventory Display */}
+          <div
+            style={{
+              background: "rgba(15, 23, 42, 0.95)",
+              border: "2px solid var(--glass-border)",
+              borderRadius: "8px",
+              padding: "10px",
+            }}
+          >
+            <h3
+              style={{
+                margin: "0 0 10px 0",
+                fontSize: "0.9rem",
+                color: "var(--bui-fg-warning)",
+                fontFamily: "var(--font-mono)",
+              }}
+            >
+              🎒 INVENTORY
+            </h3>
+            {inventory.length === 0 ? (
+              <div
+                style={{
+                  color: "#666",
+                  fontSize: "0.8rem",
+                  fontStyle: "italic",
+                }}
+              >
+                Empty
+              </div>
+            ) : (
+              <ul
+                style={{
+                  margin: 0,
+                  paddingLeft: "20px",
+                  color: "var(--color-pencil-light)",
+                  fontSize: "0.9rem",
+                }}
+              >
+                {inventory.map((item, i) => (
+                  <li key={i}>{item}</li>
+                ))}
+              </ul>
+            )}
+          </div>
         </div>
 
         {/* Right Side: Map & Interactive Buttons */}
@@ -205,12 +278,11 @@ export default function OverworldStage({
             playerChar={playerChar}
             activeZone={activeZone}
             activeDialogue={activeDialogue}
-            feedbackMsg={feedbackMsg?.text || null}
+            feedbackMsg={displayFeedback?.text || null}
             bumpMsg={bumpMsg}
             handleStageClick={handleStageClick}
           />
 
-          {/* DEDICATED INTERACTION BAR */}
           <div
             style={{
               minHeight: "60px",
@@ -220,14 +292,14 @@ export default function OverworldStage({
               width: "100%",
             }}
           >
-            {feedbackMsg && (
+            {displayFeedback && (
               <div
                 className="animate-pop"
                 style={{
-                  background: feedbackMsg.isError
+                  background: displayFeedback.isError
                     ? "var(--bui-bg-danger)"
-                    : "var(--bui-bg-info)",
-                  color: "white",
+                    : "var(--bui-fg-info)",
+                  color: displayFeedback.isError ? "white" : "#000",
                   padding: "12px 24px",
                   borderRadius: "8px",
                   fontWeight: "bold",
@@ -238,11 +310,11 @@ export default function OverworldStage({
                   boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
                 }}
               >
-                {feedbackMsg.text}
+                {displayFeedback.text}
               </div>
             )}
 
-            {activeZone && !activeDialogue && !feedbackMsg && (
+            {activeZone && !activeDialogue && !displayFeedback && (
               <button
                 onClick={triggerInteraction}
                 className="animate-pop"
@@ -276,7 +348,13 @@ export default function OverworldStage({
             text={activeDialogue.text}
             choices={activeDialogue.choices}
             icon={activeDialogue.icon}
-            onChoice={() => setActiveDialogue(null)}
+            onChoice={(choice) => {
+              // NEW: Hand off to Quest handler first. If it wasn't a quest, just close dialogue.
+              const wasQuest = handleQuestChoice(choice.id, () =>
+                setActiveDialogue(null),
+              );
+              if (!wasQuest) setActiveDialogue(null);
+            }}
           />
         )}
       </div>
