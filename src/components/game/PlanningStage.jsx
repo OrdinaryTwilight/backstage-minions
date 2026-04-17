@@ -12,7 +12,7 @@ import SectionHeader from "../ui/SectionHeader";
 
 /**
  * PlanningStage: A technical drafting console for lighting designers.
- * Rearranged for horizontal technical comparison.
+ * Rearranged for horizontal technical comparison and coverage symmetry.
  */
 export default function PlanningStage({ onComplete }) {
   const { dispatch } = useGame();
@@ -30,6 +30,7 @@ export default function PlanningStage({ onComplete }) {
     if (submitted) return;
     setGrid((g) => {
       const copy = [...g];
+      // Toggle logic: if same type, remove; if different, replace.
       copy[i] =
         copy[i]?.typeId === selectedType ? null : { typeId: selectedType };
       return copy;
@@ -191,7 +192,8 @@ export default function PlanningStage({ onComplete }) {
                         position: "absolute",
                         left: `${(col / (PLOT_GRID_COLS - 1)) * 100}%`,
                         bottom: "25%",
-                        width: n.id === "spot" ? "12px" : "45px",
+                        // FIX: Changed 'n.id' to 'type.id' to resolve ReferenceError
+                        width: type.id === "spot" ? "12px" : "45px",
                         height: "8px",
                         background: type.color,
                         borderRadius: "50%",
