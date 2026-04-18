@@ -48,18 +48,20 @@ export default function OverworldStage({
   // Override local feedback with quest feedback if it exists
   const displayFeedback = questFeedback || feedbackMsg;
 
-  const { pos, setPos, npcs, activeZone, bumpMsg } = useGameLoop(
+  const { pos, setPos, npcs, activeZone, bumpMsg } = useGameLoop({
     currentZones,
     currentRoom,
     charId,
-    up,
-    down,
-    left,
-    right,
+    input: {
+      up,
+      down,
+      left,
+      right,
+    },
     targetPos,
     setTargetPos,
     activeDialogue,
-  );
+  });
 
   const playerChar = CHARACTERS.find((c) => c.id === charId);
 
@@ -255,7 +257,7 @@ export default function OverworldStage({
                 }}
               >
                 {inventory.map((item, i) => (
-                  <li key={i}>{item}</li>
+                  <li key={`${item}-${i}`}>{item}</li>
                 ))}
               </ul>
             )}

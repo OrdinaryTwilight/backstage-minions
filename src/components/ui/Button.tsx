@@ -1,25 +1,48 @@
-import { ButtonHTMLAttributes, CSSProperties, ReactNode } from "react";
+import React from "react";
 
-interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  children: ReactNode;
-  variant?: string;
-  className?: string;
-  style?: CSSProperties;
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: "default" | "success" | "danger" | "accent";
 }
 
 export default function Button({
   children,
-  variant = "",
+  variant = "default",
   className = "",
+  disabled,
   style,
   ...props
-}: ButtonProps) {
-  const variantClass = variant ? `btn-${variant}` : "";
+}: Readonly<ButtonProps>) {
+  const baseStyle: React.CSSProperties = {
+    padding: "0.75rem 1.5rem",
+    borderRadius: "var(--radius-sm)",
+    fontWeight: "bold",
+    fontFamily: "var(--font-mono)",
+    cursor: disabled ? "not-allowed" : "pointer",
+    transition: "all 0.2s ease",
+    opacity: disabled ? 0.5 : 1,
+    border: "2px solid transparent",
+    outline: "none",
+    ...style,
+  };
+
+  const variantStyles: Record<string, React.CSSProperties> = {
+    default: {
+      background: "#2d3748",
+      color: "#fff",
+      border: "2px solid #4a5568",
+    },
+    success: { background: "var(--bui-fg-success)", color: "#000" },
+    danger: { background: "var(--bui-fg-danger)", color: "#fff" },
+    accent: { background: "var(--bui-fg-warning)", color: "#000" },
+  };
 
   return (
     <button
-      className={`btn ${variantClass} ${className}`}
-      style={{ filter: "url(#sketch-wobble)", ...style }}
+      type="button"
+      className={`btn-hover-effect ${className}`}
+      style={{ ...baseStyle, ...variantStyles[variant] }}
+      disabled={disabled}
+      aria-disabled={disabled}
       {...props}
     >
       {children}

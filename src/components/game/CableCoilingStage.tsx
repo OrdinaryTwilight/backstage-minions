@@ -6,10 +6,10 @@ import SectionHeader from "../ui/SectionHeader";
 export default function CableCoilingStage({
   onComplete,
   difficulty = "school",
-}: {
+}: Readonly<{
   onComplete: () => void;
   difficulty?: string;
-}) {
+}>) {
   const { dispatch } = useGame();
   const [coils, setCoils] = useState(0);
   const [knots, setKnots] = useState(0);

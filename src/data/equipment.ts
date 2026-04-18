@@ -26,7 +26,7 @@ export const GEAR_PACKAGES = [
     id: "standard", 
     label: "Rental House Pro", 
     description: "Solid, reliable digital equipment. Standard industry windows.",
-    multiplier: 1.0, 
+    multiplier: 1, 
     bonus: 0 
   },
   { 

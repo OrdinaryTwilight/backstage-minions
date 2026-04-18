@@ -3,7 +3,6 @@
  */
 export function generateStageSequence(
   department: string,
-  difficulty: string,
 ): string[] {
   // 1. Every session starts by picking equipment at the loading dock
   const sequence: string[] = ["equipment"];
@@ -16,13 +15,7 @@ export function generateStageSequence(
   }
 
   // 3. The main event
-  sequence.push("execution");
-
-  // 4. Post-Show strike (Cable coiling)
-  sequence.push("cable_coiling");
-
-  // 5. Final sign-out and score report
-  sequence.push("wrapup");
+  sequence.push("execution", "cable_coiling", "wrapup");
 
   return sequence;
 }

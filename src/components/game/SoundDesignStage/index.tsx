@@ -9,10 +9,10 @@ import SoundConsole from "./SoundConsole";
 export default function SoundDesignStage({
   onComplete,
   difficulty = "school",
-}: {
+}: Readonly<{
   onComplete: () => void;
   difficulty?: string;
-}) {
+}>) {
   const { dispatch } = useGame();
   const [patch, setPatch] = useState<Record<string, Record<string, number>>>({
     inputs: {},

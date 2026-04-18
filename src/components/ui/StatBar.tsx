@@ -4,7 +4,11 @@ interface StatBarProps {
   maxValue?: number;
 }
 
-export default function StatBar({ label, value, maxValue = 10 }: StatBarProps) {
+export default function StatBar({
+  label,
+  value,
+  maxValue = 10,
+}: Readonly<StatBarProps>) {
   return (
     <div style={{ marginBottom: "1rem", width: "100%" }}>
       <div
@@ -22,7 +26,7 @@ export default function StatBar({ label, value, maxValue = 10 }: StatBarProps) {
         </span>
       </div>
       <div
-        role="progressbar"
+        role="progress"
         aria-label={label}
         aria-valuenow={value}
         aria-valuemin={0}

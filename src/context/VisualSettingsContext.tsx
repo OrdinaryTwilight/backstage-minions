@@ -102,7 +102,7 @@ function applySettingsToDOM(settings: VisualSettings) {
   root.style.setProperty("--user-font-family", fontMap[settings.fontFamily]);
 }
 
-export function VisualSettingsProvider({ children }: { children: ReactNode }) {
+export function VisualSettingsProvider({ children }: Readonly<{ children: ReactNode }>) {
   const [settings, setSettings] = useState<VisualSettings>(defaultSettings);
   const [isLoaded, setIsLoaded] = useState(false);
 

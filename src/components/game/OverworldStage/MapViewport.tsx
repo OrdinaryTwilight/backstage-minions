@@ -32,7 +32,7 @@ export default function MapViewport({
   activeZone,
   bumpMsg,
   handleStageClick,
-}: MapViewportProps) {
+}: Readonly<MapViewportProps>) {
   return (
     <div
       style={{

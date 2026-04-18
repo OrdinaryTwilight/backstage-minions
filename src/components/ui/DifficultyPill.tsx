@@ -12,7 +12,7 @@ export default function DifficultyPill({
   label,
   stars,
   unlocked,
-}: DifficultyPillProps) {
+}: Readonly<DifficultyPillProps>) {
   return (
     <div
       style={{

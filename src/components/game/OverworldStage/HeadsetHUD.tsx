@@ -8,7 +8,7 @@ export default function HeadsetHUD({
   headsetOn,
   setHeadsetOn,
   commsLog,
-}: HeadsetHUDProps) {
+}: Readonly<HeadsetHUDProps>) {
   return (
     <div
       style={{

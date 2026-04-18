@@ -20,7 +20,7 @@ export default function SoundConsole({
   handlePatch,
   channelLevels,
   setChannelLevels,
-}: SoundConsoleProps) {
+}: Readonly<SoundConsoleProps>) {
   return (
     <HardwarePanel
       style={{
@@ -156,7 +156,7 @@ export default function SoundConsole({
                   onChange={(e) =>
                     setChannelLevels((prev) => ({
                       ...prev,
-                      [ch]: parseInt(e.target.value),
+                      [ch]: Number.parseInt(e.target.value),
                     }))
                   }
                   style={{

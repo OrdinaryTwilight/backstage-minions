@@ -1,229 +1,200 @@
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import DifficultyPill from "../components/ui/DifficultyPill";
+import Button from "../components/ui/Button";
 import HardwarePanel from "../components/ui/HardwarePanel";
-import NavBar from "../components/ui/NavBar";
 import { useGame } from "../context/GameContext";
-import { PRODUCTIONS } from "../data/gameData";
+
+const INTRO_SEQUENCE = [
+  "CONNECTING TO I.A.T.S.E. LOCAL 13 DISPATCH SERVER...",
+  "AUTHENTICATING USER CREDENTIALS...",
+  "USER IDENTIFIED: APPRENTICE TIER.",
+  "WARNING: 3 ACTIVE PRODUCTIONS REQUIRE IMMEDIATE TECHNICAL ASSISTANCE.",
+  "INCOMING MESSAGE FROM [SENIOR TECH]: 'Grab your hard hat and wrench. We are understaffed and doors open in 2 hours. Don't mess this up.'",
+  "SYSTEM READY.",
+];
 
 export default function HomePage() {
   const navigate = useNavigate();
   const { state } = useGame();
-  const hasStarted = Object.keys(state?.progress || {}).length > 0;
-  const firstProd = PRODUCTIONS[0];
-  const hasNotifications = state.unreadContacts.length > 0;
 
+  const isNewPlayer = Object.keys(state.progress).length === 0;
+  const [bootPhase, setBootPhase] = useState(
+    isNewPlayer ? 0 : INTRO_SEQUENCE.length,
+  );
+  const [displayText, setDisplayText] = useState("");
+
+  // Typewriter effect for the cinematic intro
+  useEffect(() => {
+    if (bootPhase >= INTRO_SEQUENCE.length) return;
+
+    const fullText = INTRO_SEQUENCE[bootPhase];
+    let charIndex = 0;
+
+    const interval = setInterval(() => {
+      setDisplayText(fullText.slice(0, charIndex));
+      charIndex++;
+
+      if (charIndex > fullText.length) {
+        clearInterval(interval);
+        setDisplayText(fullText); // ensure full render
+      }
+    }, 40);
+
+    return () => clearInterval(interval);
+  }, [bootPhase]);
+
+  useEffect(() => {
+    if (bootPhase >= INTRO_SEQUENCE.length) return;
+
+    const fullText = INTRO_SEQUENCE[bootPhase];
+    const isComplete = displayText === fullText;
+
+    if (!isComplete) return;
+
+    const delay = bootPhase === INTRO_SEQUENCE.length - 2 ? 3000 : 1000;
+
+    const timeout = setTimeout(() => {
+      setBootPhase((prev) => prev + 1);
+      setDisplayText("");
+    }, delay);
+
+    return () => clearTimeout(timeout);
+  }, [displayText, bootPhase]);
+
+  // If still in the boot sequence, render the terminal
+  if (bootPhase < INTRO_SEQUENCE.length) {
+    return (
+      <div
+        className="page-container"
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          height: "100vh",
+          background: "#050505",
+        }}
+      >
+        <div style={{ maxWidth: "800px", margin: "0 auto", width: "100%" }}>
+          {INTRO_SEQUENCE.slice(0, bootPhase).map((line, idx) => (
+            <p
+              key={`${line}-${idx}`}
+              style={{
+                color: "var(--bui-fg-info)",
+                fontFamily: "var(--font-mono)",
+                marginBottom: "1rem",
+                opacity: 0.7,
+              }}
+            >
+              {line}
+            </p>
+          ))}
+          <p
+            style={{
+              color: "var(--bui-fg-success)",
+              fontFamily: "var(--font-mono)",
+              fontSize: "1.2rem",
+              fontWeight: "bold",
+            }}
+          >
+            {displayText}
+            <span className="animate-flicker">_</span>
+          </p>
+          <Button
+            onClick={() => setBootPhase(INTRO_SEQUENCE.length)}
+            style={{
+              marginTop: "3rem",
+              background: "transparent",
+              border: "1px solid #333",
+              color: "#666",
+              fontSize: "0.8rem",
+            }}
+          >
+            [SKIP BOOT SEQUENCE]
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  // Main Dashboard Render
   return (
-    <div className="page-container">
-      {/* NavBar stays fixed to the viewport */}
-      <NavBar />
+    <div className="page-container animate-blueprint">
+      <div
+        style={{ textAlign: "center", marginBottom: "4rem", marginTop: "2rem" }}
+      >
+        <h1
+          style={{
+            fontSize: "3rem",
+            fontFamily: "var(--font-mono)",
+            color: "var(--bui-fg-warning)",
+            margin: "0 0 1rem 0",
+            textShadow: "0 0 20px rgba(251, 191, 36, 0.3)",
+          }}
+        >
+          BACKSTAGE MINIONS
+        </h1>
+        <p
+          className="annotation-text"
+          style={{ fontSize: "1.2rem", opacity: 0.8 }}
+        >
+          Local 13 Technical Dispatch Dashboard
+        </p>
+      </div>
 
-      {/* Animation wrapper moved inside to prevent breaking fixed positioning */}
-      <div className="animate-blueprint">
-        <header style={{ marginBottom: "2.5rem" }}>
-          <h1
-            className="annotation-text animate-flicker"
-            style={{ fontSize: "2.2rem", color: "var(--bui-fg-info)" }}
-          >
-            Backstage Minions
-          </h1>
-          <div
-            style={{ display: "flex", alignItems: "center", opacity: 0.6 }}
-            role="status"
-            aria-live="polite"
-            aria-label={`Current status: ${state?.session ? "On-Call" : "Off-Duty"}`}
-          >
-            <span
-              className={`status-indicator ${state?.session ? "status-on-call" : "status-off-duty"}`}
-              aria-hidden="true"
-            />
-            Current Status: {state?.session ? "On-Call" : "Off-Duty"}
-          </div>
-        </header>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
+          gap: "2rem",
+          maxWidth: "900px",
+          margin: "0 auto",
+        }}
+      >
+        <HardwarePanel
+          variant="clickable"
+          onClick={() => navigate("/productions")}
+          className="animate-pop"
+          style={{ animationDelay: "0.1s" }}
+        >
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📋</div>
+          <h2 className="annotation-text" style={{ fontSize: "1.5rem" }}>
+            Active Contracts
+          </h2>
+          <p style={{ opacity: 0.7, marginTop: "0.5rem" }}>
+            Review incoming shows and accept technical positions.
+          </p>
+        </HardwarePanel>
 
-        <div className="desktop-two-column">
-          <div className="desktop-col-main">
-            {/* These will now correctly show their borders */}
-            <HardwarePanel
-              className="animate-pop"
-              style={{ borderLeft: "6px solid var(--bui-fg-danger)" }}
-            >
-              <h2
-                className="annotation-text"
-                style={{ color: "var(--bui-fg-danger)", marginTop: 0 }}
-              >
-                📌 Call Sheet
-              </h2>
-              <div style={{ marginTop: "1rem" }}>
-                {!hasStarted ? (
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                    }}
-                  >
-                    <p className="annotation-text">
-                      Accept your first contract: {firstProd.title}
-                    </p>
-                    <button
-                      className="action-button btn-success"
-                      onClick={() => navigate(`/productions/${firstProd.id}`)}
-                    >
-                      Accept
-                    </button>
-                  </div>
-                ) : (
-                  <p className="annotation-text" style={{ opacity: 0.8 }}>
-                    Maintain current rig. Archival data updated.
-                  </p>
-                )}
-              </div>
-            </HardwarePanel>
-
-            <h2
-              className="annotation-text"
-              style={{ marginTop: "2.5rem", marginBottom: "1rem" }}
-            >
-              Work Orders
-            </h2>
+        <HardwarePanel
+          variant="clickable"
+          onClick={() => navigate("/networks")}
+          className="animate-pop"
+          style={{ animationDelay: "0.2s" }}
+        >
+          <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📻</div>
+          <h2 className="annotation-text" style={{ fontSize: "1.5rem" }}>
+            Comms Network
+          </h2>
+          <p style={{ opacity: 0.7, marginTop: "0.5rem" }}>
+            Check messages from department heads and crew.
+          </p>
+          {state.unreadContacts.length > 0 && (
             <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "1.5rem",
+                marginTop: "1rem",
+                display: "inline-block",
+                background: "var(--bui-fg-danger)",
+                color: "#fff",
+                padding: "4px 12px",
+                borderRadius: "20px",
+                fontSize: "0.8rem",
+                fontWeight: "bold",
               }}
-              role="region"
-              aria-label="Available production work orders"
             >
-              {PRODUCTIONS.map((p, idx) => (
-                <HardwarePanel
-                  key={p.id}
-                  className="animate-blueprint"
-                  style={{ cursor: "pointer", animationDelay: `${0.1 * idx}s` }}
-                  onClick={() => navigate(`/productions/${p.id}`)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      navigate(`/productions/${p.id}`);
-                    }
-                  }}
-                  aria-label={`View production: ${p.title}`}
-                >
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: "1.2rem",
-                    }}
-                  >
-                    <h3 style={{ fontSize: "1.3rem", margin: 0 }}>
-                      {p.poster} {p.title}
-                    </h3>
-                    <span
-                      className="problem-highlight"
-                      style={{ fontSize: "0.75rem" }}
-                      aria-hidden="true"
-                    >
-                      DEPLOY ›
-                    </span>
-                  </div>
-                  <div style={{ display: "flex", gap: "0.75rem" }}>
-                    <DifficultyPill
-                      label="School"
-                      stars={state?.progress?.[`${p.id}_school`]?.stars || 0}
-                      unlocked={p.levels.school?.unlocked ?? false}
-                    />
-                    <DifficultyPill
-                      label="Comm"
-                      stars={state?.progress?.[`${p.id}_community`]?.stars || 0}
-                      unlocked={p.levels.community?.unlocked ?? false}
-                    />
-                    <DifficultyPill
-                      label="Prof"
-                      stars={
-                        state?.progress?.[`${p.id}_professional`]?.stars || 0
-                      }
-                      unlocked={p.levels.professional?.unlocked ?? false}
-                    />
-                  </div>
-                </HardwarePanel>
-              ))}
+              {state.unreadContacts.length} UNREAD
             </div>
-          </div>
-
-          <div className="desktop-col-side">
-            <HardwarePanel style={{ textAlign: "center" }}>
-              <h2
-                className="annotation-text"
-                style={{ fontSize: "1.3rem", marginBottom: "1.5rem" }}
-              >
-                Career Log
-              </h2>
-
-              <HardwarePanel
-                variant="clickable"
-                onClick={() => navigate("/networks")}
-                className="animate-pop"
-                style={{ position: "relative" }}
-              >
-                {hasNotifications && (
-                  <div className="notification-badge">
-                    {state.unreadContacts.length}
-                  </div>
-                )}
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "1rem" }}
-                >
-                  <div style={{ fontSize: "2rem" }}>📟</div>
-                  <div>
-                    <h3 style={{ margin: 0 }}>Comms Network</h3>
-                    <p style={{ fontSize: "0.8rem", opacity: 0.7, margin: 0 }}>
-                      {hasNotifications
-                        ? "New frequencies detected!"
-                        : "Manage contacts and secure frequencies."}
-                    </p>
-                  </div>
-                </div>
-              </HardwarePanel>
-
-              <HardwarePanel
-                variant="clickable"
-                style={{
-                  marginBottom: "1rem",
-                  padding: "1rem",
-                  cursor: "pointer",
-                }}
-                onClick={() => navigate("/stories")}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    navigate("/stories");
-                  }
-                }}
-                aria-label={`View unlocked stories. ${state?.unlockedStories?.length || 0} stories available.`}
-              >
-                <div style={{ fontSize: "2rem" }} aria-hidden="true">
-                  📖
-                </div>
-                <div className="annotation-text" style={{ fontSize: "1.2rem" }}>
-                  {state?.unlockedStories?.length || 0}
-                </div>
-                <div
-                  style={{
-                    fontSize: "0.7rem",
-                    opacity: 0.6,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  Stories
-                </div>
-              </HardwarePanel>
-            </HardwarePanel>
-          </div>
-        </div>
+          )}
+        </HardwarePanel>
       </div>
     </div>
   );

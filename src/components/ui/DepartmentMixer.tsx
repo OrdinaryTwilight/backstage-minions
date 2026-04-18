@@ -17,7 +17,7 @@ function FaderTrack({
   currentLevel,
   targetLevel = 80,
   isMaster = false,
-}: FaderTrackProps) {
+}: Readonly<FaderTrackProps>) {
   const [flicker, setFlicker] = useState(0);
 
   useEffect(() => {
@@ -91,7 +91,7 @@ function FaderTrack({
           min="0"
           max="100"
           value={currentLevel}
-          onChange={(e) => onLevelChange(parseInt(e.target.value))}
+          onChange={(e) => onLevelChange(Number.parseInt(e.target.value))}
           style={{
             position: "absolute",
             top: "50%",
@@ -146,7 +146,7 @@ export default function DepartmentMixer({
   levels,
   setLevels,
   targetLevel,
-}: DepartmentMixerProps) {
+}: Readonly<DepartmentMixerProps>) {
   const channels =
     department === "lighting"
       ? ["WASH", "CYC", "SPOT", "KEYS"]

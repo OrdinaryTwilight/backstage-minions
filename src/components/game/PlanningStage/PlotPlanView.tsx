@@ -4,10 +4,10 @@ import HardwarePanel from "../../ui/HardwarePanel";
 export default function PlotPlanView({
   grid,
   placeLight,
-}: {
+}: Readonly<{
   grid: any[];
   placeLight: (i: number) => void;
-}) {
+}>) {
   return (
     <section>
       <div

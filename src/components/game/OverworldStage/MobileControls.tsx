@@ -6,10 +6,10 @@ interface MobileControlsProps {
 export default function MobileControls({
   onInteract,
   activeZoneLabel,
-}: MobileControlsProps) {
+}: Readonly<MobileControlsProps>) {
   // We use touch events to manually dispatch keyboard events so our existing logic works perfectly!
   const triggerKey = (key: string, type: "keydown" | "keyup") => {
-    window.dispatchEvent(new KeyboardEvent(type, { key }));
+    globalThis.dispatchEvent(new KeyboardEvent(type, { key }));
   };
 
   return (

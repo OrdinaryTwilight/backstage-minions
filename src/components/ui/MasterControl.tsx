@@ -3,7 +3,7 @@ interface MasterControlProps {
   disabled: boolean;
 }
 
-export default function MasterControl({ onGo, disabled }: MasterControlProps) {
+export default function MasterControl({ onGo, disabled }: Readonly<MasterControlProps>) {
   return (
     <div style={{ textAlign: "center", margin: "2rem 0" }}>
       <button

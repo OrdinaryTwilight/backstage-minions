@@ -6,7 +6,7 @@ interface SectionHeaderProps {
   helpText?: string;
 }
 
-export default function SectionHeader({ title, subtitle, helpText }: SectionHeaderProps) {
+export default function SectionHeader({ title, subtitle, helpText }: Readonly<SectionHeaderProps>) {
   const [showHelp, setShowHelp] = useState(false);
 
   return (

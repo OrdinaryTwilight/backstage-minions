@@ -14,7 +14,7 @@ interface WrapUpSceneProps {
 export default function WrapUpScene({
   onComplete,
   cueSheet = [],
-}: WrapUpSceneProps) {
+}: Readonly<WrapUpSceneProps>) {
   const { state } = useGame();
   const [phase, setPhase] = useState<"dialogue" | "report">("dialogue");
 

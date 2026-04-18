@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import NavBar from "../components/ui/NavBar";
 import SectionHeader from "../components/ui/SectionHeader";
 import { useGame } from "../context/GameContext";
@@ -34,7 +33,6 @@ const CHAT_SCRIPTS: Record<
 };
 
 export default function NetworksPage() {
-  const navigate = useNavigate();
   const { state, dispatch } = useGame();
   const [activeChat, setActiveChat] = useState<string | null>(null);
 
@@ -90,7 +88,7 @@ export default function NetworksPage() {
           {availableContacts.map((contact) => {
             const isUnread = state.unreadContacts.includes(contact.id);
             return (
-              <div
+              <button
                 key={contact.id}
                 onClick={() => handleOpenChat(contact.id)}
                 style={{
@@ -102,6 +100,9 @@ export default function NetworksPage() {
                   display: "flex",
                   alignItems: "center",
                   gap: "10px",
+                  width: "100%",
+                  border: "none",
+                  textAlign: "left",
                 }}
               >
                 <div style={{ fontSize: "1.5rem" }}>{contact.icon}</div>
@@ -128,7 +129,7 @@ export default function NetworksPage() {
                     </span>
                   )}
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
@@ -174,7 +175,7 @@ export default function NetworksPage() {
             >
               {script.map((msg, idx) => (
                 <div
-                  key={idx}
+                  key={`${msg.sender}-${idx}-${msg.text}`}
                   style={{
                     alignSelf:
                       msg.sender === "player" ? "flex-end" : "flex-start",

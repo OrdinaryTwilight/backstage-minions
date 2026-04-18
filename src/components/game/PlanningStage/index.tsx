@@ -14,13 +14,13 @@ import PlotPlanView from "./PlotPlanView";
 
 export default function PlanningStage({
   onComplete,
-}: {
+}: Readonly<{
   onComplete: () => void;
-}) {
+}>) {
   const { dispatch } = useGame();
   const [selectedType, setSelectedType] = useState(LIGHT_TYPES[0].id);
   const [grid, setGrid] = useState(() =>
-    Array(PLOT_GRID_ROWS * PLOT_GRID_COLS).fill(null),
+    new Array(PLOT_GRID_ROWS * PLOT_GRID_COLS).fill(null),
   );
   const [submitted, setSubmitted] = useState(false);
   const [reportScore, setReportScore] = useState<number | null>(null);

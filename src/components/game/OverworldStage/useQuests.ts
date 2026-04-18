@@ -15,7 +15,15 @@ export function useQuests() {
     activeZone: string,
     activeNpc?: any,
   ): DialogueState | null => {
-    // --- QUEST 1: THE PARCHED ACTOR ---
+    return (
+      handleActorQuest(activeZone, activeNpc) ||
+      handleTapeQuest(activeZone) ||
+      handleDirectorQuest(activeZone, activeNpc) ||
+      null
+    );
+  };
+
+  function handleActorQuest(activeZone: string, activeNpc?: any) {
     if (
       activeZone === "snackTable" &&
       !inventory.includes("Water Bottle") &&
@@ -28,28 +36,34 @@ export function useQuests() {
         choices: [{ id: "take_water", text: "Take Water Bottle" }],
       };
     }
+
     if (
       activeNpc?.id === "actor_lead" &&
       !completedQuests.includes("actor_water")
     ) {
-      if (inventory.includes("Water Bottle")) {
-        return {
-          speaker: activeNpc.name,
-          icon: activeNpc.icon,
-          text: "Oh my gosh, water! My throat was so dry, I thought I'd die out there. Thank you so much!",
-          choices: [{ id: "give_water", text: "Give Water Bottle (+20 pts)" }],
-        };
-      } else {
-        return {
-          speaker: activeNpc.name,
-          icon: activeNpc.icon,
-          text: "I can't go on stage like this... my throat is so dry. I need water...",
-          choices: [{ id: "ok", text: "I'll see if Craft Services has any." }],
-        };
-      }
+      return inventory.includes("Water Bottle")
+        ? {
+            speaker: activeNpc.name,
+            icon: activeNpc.icon,
+            text: "Oh my gosh, water! My throat was so dry, I thought I'd die out there. Thank you so much!",
+            choices: [
+              { id: "give_water", text: "Give Water Bottle (+20 pts)" },
+            ],
+          }
+        : {
+            speaker: activeNpc.name,
+            icon: activeNpc.icon,
+            text: "I can't go on stage like this... my throat is so dry. I need water...",
+            choices: [
+              { id: "ok", text: "I'll see if Craft Services has any." },
+            ],
+          };
     }
 
-    // --- QUEST 2: THE MISSING TAPE ---
+    return null;
+  }
+
+  function handleTapeQuest(activeZone: string) {
     if (
       activeZone === "propsTable" &&
       !inventory.includes("Gaff Tape") &&
@@ -62,6 +76,7 @@ export function useQuests() {
         choices: [{ id: "take_tape", text: "Take Gaff Tape" }],
       };
     }
+
     if (activeZone === "lightBooth" && inventory.includes("Gaff Tape")) {
       return {
         speaker: "LX Operator",
@@ -71,7 +86,10 @@ export function useQuests() {
       };
     }
 
-    // --- QUEST 3: THE DIRECTOR'S SCRIPT ---
+    return null;
+  }
+
+  function handleDirectorQuest(activeZone: string, activeNpc?: any) {
     if (
       activeZone === "stageManager" &&
       !inventory.includes("Director's Script") &&
@@ -87,30 +105,28 @@ export function useQuests() {
         ],
       };
     }
-    // Note: To make this work, add a "Director" NPC to your Green Room spawner in useGameLoop!
+
     if (
       activeNpc?.dept === "Director" &&
       !completedQuests.includes("director_script")
     ) {
-      if (inventory.includes("Director's Script")) {
-        return {
-          speaker: activeNpc.name,
-          icon: activeNpc.icon,
-          text: "Ah, my script! The SM found it? Excellent work, let's get ready for places.",
-          choices: [{ id: "give_script", text: "Give Script (+20 pts)" }],
-        };
-      } else {
-        return {
-          speaker: activeNpc.name,
-          icon: activeNpc.icon,
-          text: "I've completely lost my blocking notes... Have you seen my script?",
-          choices: [{ id: "ok", text: "I'll ask the SM." }],
-        };
-      }
+      return inventory.includes("Director's Script")
+        ? {
+            speaker: activeNpc.name,
+            icon: activeNpc.icon,
+            text: "Ah, my script! The SM found it? Excellent work, let's get ready for places.",
+            choices: [{ id: "give_script", text: "Give Script (+20 pts)" }],
+          }
+        : {
+            speaker: activeNpc.name,
+            icon: activeNpc.icon,
+            text: "I've completely lost my blocking notes... Have you seen my script?",
+            choices: [{ id: "ok", text: "I'll ask the SM." }],
+          };
     }
 
-    return null; // No quest active, proceed with normal dialogue
-  };
+    return null;
+  }
 
   const handleQuestChoice = (choiceId: string, clearDialogue: () => void) => {
     // Pickups

@@ -1,148 +1,143 @@
-import { useEffect, useState } from "react";
-import Button from "../ui/Button";
+import { useEffect, useRef } from "react";
 
-export interface DialogueBoxChoice {
+interface DialogueChoice {
   id: string;
   text: string;
 }
 
-interface DialogueBoxProps<T extends DialogueBoxChoice> {
-  readonly speaker: string;
-  readonly text: string;
-  readonly choices: T[];
-  readonly onChoice: (choice: T) => void;
-  readonly icon?: string; // Fallback giant emoji portrait
-  readonly portraitUrl?: string; // Optional: High-res 2D sprite image URL
+interface DialogueBoxProps {
+  speaker: string;
+  text: string;
+  icon?: string;
+  choices: DialogueChoice[];
+  onChoice: (choice: DialogueChoice) => void;
 }
 
-export default function DialogueBox<T extends DialogueBoxChoice>({
+export default function DialogueBox({
   speaker,
   text,
+  icon,
   choices,
   onChoice,
-  icon,
-  portraitUrl,
-}: DialogueBoxProps<T>) {
-  const [cooldown, setCooldown] = useState(true);
+}: Readonly<DialogueBoxProps>) {
+  const firstChoiceRef = useRef<HTMLButtonElement>(null);
 
-  // Add a slight cooldown so holding Enter doesn't skip 5 boxes instantly
+  // Auto-focus the first choice for rapid keyboard navigation!
   useEffect(() => {
-    const timer = setTimeout(() => setCooldown(false), 300);
-    return () => clearTimeout(timer);
+    if (firstChoiceRef.current) {
+      firstChoiceRef.current.focus();
+    }
   }, [text]);
 
-  // Press Enter/Space to advance
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (
-        (e.key === "Enter" || e.key === " ") &&
-        !cooldown &&
-        choices.length > 0
-      ) {
-        e.preventDefault();
-        onChoice(choices[0]); // Auto-selects the first choice
-      }
-    };
-    globalThis.addEventListener("keydown", handleKeyDown);
-    return () => globalThis.removeEventListener("keydown", handleKeyDown);
-  }, [choices, onChoice, cooldown]);
-
   return (
-    <div className="vn-dialogue-container" style={{ marginTop: "120px" }}>
-      {/* --- CHARACTER PORTRAIT LAYER --- */}
+    <div
+      style={{
+        position: "fixed",
+        bottom: "20px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "90%",
+        maxWidth: "800px",
+        background: "rgba(15, 23, 42, 0.95)",
+        border: "2px solid var(--bui-fg-info)",
+        borderRadius: "8px",
+        padding: "1.5rem",
+        display: "flex",
+        gap: "1.5rem",
+        boxShadow: "0 10px 30px rgba(0,0,0,0.5)",
+        zIndex: 9999,
+        backdropFilter: "blur(10px)",
+      }}
+    >
       <div
         style={{
-          position: "absolute",
-          bottom: "100%", // Anchors the portrait to the top edge of the text box
-          left: "5%",
-          width: "30%",
-          maxWidth: "200px",
-          zIndex: 1, // Behind the speaker tag and text box
-          pointerEvents: "none",
+          fontSize: "4rem",
           display: "flex",
-          alignItems: "flex-end",
-          justifyContent: "center",
+          alignItems: "center",
+          filter: "drop-shadow(0 0 10px rgba(255,255,255,0.2))",
         }}
+        aria-hidden="true"
       >
-        {portraitUrl ? (
-          <img
-            src={portraitUrl}
-            alt={speaker}
-            style={{
-              width: "100%",
-              height: "auto",
-              objectFit: "contain",
-              filter: "drop-shadow(0 0 10px rgba(0,0,0,0.5))",
-            }}
-          />
-        ) : (
-          <div
-            style={{
-              fontSize: "8rem", // Giant emoji fallback
-              lineHeight: "1",
-              filter: "drop-shadow(0 10px 10px rgba(0,0,0,0.5))",
-              transform: "translateY(10px)", // Slight tuck behind the box
-            }}
-          >
-            {icon || "👤"}
-          </div>
-        )}
-        <div
-          style={{
-            position: "absolute",
-            bottom: "10px",
-            right: "15px",
-            fontSize: "0.8rem",
-            color: "var(--color-pencil-light)",
-            opacity: 0.5,
-            fontFamily: "var(--font-mono)",
-          }}
-        >
-          [Press Enter to continue]
-        </div>
+        {icon || "👤"}
       </div>
 
-      {/* --- VN SPEAKER TAG --- */}
-      <div className="vn-speaker-tag">{speaker}</div>
+      <div style={{ flex: 1, display: "flex", flexDirection: "column" }}>
+        <h3
+          className="annotation-text"
+          style={{
+            margin: "0 0 0.5rem 0",
+            color: "var(--bui-fg-info)",
+            fontSize: "1.2rem",
+          }}
+        >
+          {speaker.toUpperCase()}
+        </h3>
 
-      {/* --- MAIN VN TEXT BOX --- */}
-      <div className="vn-text-box" style={{ position: "relative", zIndex: 5 }}>
         <p
           style={{
-            fontSize: "1.25rem",
-            color: "var(--color-pencil-light)",
-            lineHeight: "1.6",
-            margin: 0,
+            fontSize: "1.1rem",
+            lineHeight: "1.5",
+            margin: "0 0 1.5rem 0",
+            color: "#fff",
+            flex: 1,
           }}
         >
-          "{text}"
+          {text}
         </p>
 
-        {/* Vertical VN-style Choices List */}
-        <div
+        <fieldset
           style={{
+            border: "none",
+            padding: 0,
+            margin: 0,
             display: "flex",
-            flexDirection: "column",
-            gap: "0.8rem",
-            marginTop: "1rem",
+            gap: "10px",
+            flexWrap: "wrap",
           }}
         >
-          {choices.map((choice) => (
-            <Button
+          <legend
+            style={{
+              position: "absolute",
+              width: 1,
+              height: 1,
+              overflow: "hidden",
+              clip: "rect(0 0 0 0)",
+            }}
+          >
+            {speaker}'s dialogue choices
+          </legend>
+
+          {choices.map((choice, idx) => (
+            <button
               key={choice.id}
+              ref={idx === 0 ? firstChoiceRef : null}
               onClick={() => onChoice(choice)}
               style={{
-                textAlign: "left",
-                justifyContent: "flex-start",
-                background: "rgba(255,255,255,0.05)",
-                border: "1px solid var(--bui-fg-info)",
-                padding: "0.8rem 1.5rem",
+                background: "#1e293b",
+                color: "#fff",
+                border: "1px solid #3b82f6",
+                borderRadius: "4px",
+                padding: "8px 16px",
+                fontSize: "0.95rem",
+                cursor: "pointer",
+                fontWeight: "bold",
+                transition: "all 0.2s ease",
               }}
+              onMouseEnter={(e) =>
+                (e.currentTarget.style.background = "#3b82f6")
+              }
+              onMouseLeave={(e) =>
+                (e.currentTarget.style.background = "#1e293b")
+              }
+              onFocus={(e) =>
+                (e.currentTarget.style.boxShadow = "0 0 0 2px #fff")
+              }
+              onBlur={(e) => (e.currentTarget.style.boxShadow = "none")}
             >
-              ▶ {choice.text}
-            </Button>
+              {choice.text}
+            </button>
           ))}
-        </div>
+        </fieldset>
       </div>
     </div>
   );

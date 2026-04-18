@@ -4,7 +4,7 @@ interface StageViewportProps {
   currentCueIndex: number;
 }
 
-export default function StageViewport({ lights = [], cues = [], currentCueIndex }: StageViewportProps) {
+export default function StageViewport({ lights = [], cues = [], currentCueIndex }: Readonly<StageViewportProps>) {
   const currentCue = cues[currentCueIndex];
 
   return (

@@ -1,46 +1,62 @@
-import React, { CSSProperties, ReactNode } from "react";
+import React from "react";
 
-interface HardwarePanelProps {
-  children: ReactNode;
-  variant?: string;
+type BaseProps = {
+  variant?: "default" | "clickable";
   className?: string;
-  style?: CSSProperties;
-  // This already allows KeyboardEvent, so the call inside handleKeyDown is safe
-  onClick?: (e: React.MouseEvent<HTMLDivElement> | React.KeyboardEvent<HTMLDivElement>) => void;
-  [key: string]: unknown;
-}
+  style?: React.CSSProperties;
+  children: React.ReactNode;
+};
 
-export default function HardwarePanel({
-  children,
-  variant = "",
-  className = "",
-  style,
-  onClick,
-  ...props
-}: HardwarePanelProps) {
+type DivProps = BaseProps & React.HTMLAttributes<HTMLDivElement>;
+type ButtonProps = BaseProps & React.ButtonHTMLAttributes<HTMLButtonElement>;
+
+export default function HardwarePanel(props: Readonly<DivProps | ButtonProps>) {
+  const {
+    children,
+    variant = "default",
+    className = "",
+    style,
+    onClick,
+    ...rest
+  } = props as any;
+
   const isClickable = variant === "clickable" || !!onClick;
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    if (onClick && (e.key === "Enter" || e.key === " ")) {
-      e.preventDefault();
-      onClick(e);
-    }
+  const commonStyles: React.CSSProperties = {
+    background: "var(--color-surface-base)",
+    border: "1px solid var(--glass-border)",
+    borderRadius: "var(--radius-md)",
+    padding: "1.5rem",
+    boxShadow: "var(--shadow-md)",
+    cursor: isClickable ? "pointer" : "default",
+    transition:
+      "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
+    ...style,
   };
+
+  const commonClass = `hardware-panel ${
+    isClickable ? "clickable-panel" : ""
+  } ${className}`;
+
+  if (isClickable) {
+    return (
+      <button
+        type="button"
+        className={commonClass}
+        style={commonStyles}
+        onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
+        {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}
+      >
+        {children}
+      </button>
+    );
+  }
 
   return (
     <div
-      className={`hardware-panel ${variant} ${className}`}
-      style={{
-        filter: "url(#sketch-wobble)",
-        cursor: isClickable ? "pointer" : "default",
-        ...style,
-      }}
-      onClick={onClick}
-      onKeyDown={isClickable ? handleKeyDown : undefined}
-      tabIndex={isClickable ? 0 : -1}
-      role={isClickable ? "button" : undefined}
-      aria-pressed={isClickable ? "false" : undefined}
-      {...props}
+      className={commonClass}
+      style={commonStyles}
+      {...(rest as React.HTMLAttributes<HTMLDivElement>)}
     >
       {children}
     </div>

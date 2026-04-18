@@ -6,7 +6,7 @@ interface SettingsPanelProps {
   onClose?: () => void;
 }
 
-export default function SettingsPanel({ onClose }: SettingsPanelProps) {
+export default function SettingsPanel({ onClose }: Readonly<SettingsPanelProps>) {
   const { settings, updateSetting, resetToDefaults } = useVisualSettings();
   const [showReset, setShowReset] = useState(false);
 

@@ -7,7 +7,7 @@ interface AvailableGearListProps {
 
 export default function AvailableGearList({
   handleSelect,
-}: AvailableGearListProps) {
+}: Readonly<AvailableGearListProps>) {
   return (
     <div className="bento-container">
       {GEAR_PACKAGES.map((pkg) => (

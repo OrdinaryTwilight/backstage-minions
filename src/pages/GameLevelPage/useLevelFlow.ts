@@ -13,7 +13,6 @@ export interface SkipChoice {
 export function useLevelFlow(
   productionId?: string,
   difficulty?: string,
-  charId?: string,
   departmentCues: Cue[] = [],
 ) {
   const { state, dispatch } = useGame();
