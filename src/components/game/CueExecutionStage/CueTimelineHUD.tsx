@@ -21,7 +21,7 @@ export default function CueTimelineHUD({
   cueResults,
   isReady,
   handleReady,
-}: CueTimelineHUDProps) {
+}: Readonly<CueTimelineHUDProps>) {
   return (
     <div
       style={{
@@ -139,6 +139,31 @@ export default function CueTimelineHUD({
           const isCurrent = i === currentIdx;
           const leftPct = (cue.targetMs / maxShowTime) * 100;
           const windowWidthPct = ((cue.windowMs || 1000) / maxShowTime) * 100;
+
+          // Extract styles and conditions
+          const cueBackground = isCurrent
+            ? "rgba(251, 191, 36, 0.2)"
+            : "transparent";
+
+          const circleSize = isCurrent ? "12px" : "8px";
+          let circleColor;
+          if (isPast) {
+            circleColor = cueResults[cue.id]?.hit
+              ? "var(--bui-fg-success)"
+              : "var(--bui-fg-danger)";
+          } else if (isCurrent) {
+            circleColor = "var(--bui-fg-warning)";
+          } else {
+            circleColor = "#555";
+          }
+
+          const borderStyle = isCurrent ? "2px solid #fff" : "none";
+          const boxShadow = isCurrent
+            ? "0 0 10px var(--bui-fg-warning)"
+            : "none";
+
+          const widthStyle = `${windowWidthPct}vw`;
+
           return (
             <div
               key={cue.id}
@@ -156,30 +181,20 @@ export default function CueTimelineHUD({
                   left: "50%",
                   top: "50%",
                   transform: "translate(-50%, -50%)",
-                  width: `${windowWidthPct}vw`,
+                  width: widthStyle,
                   maxWidth: "40px",
                   height: "20px",
-                  background: isCurrent
-                    ? "rgba(251, 191, 36, 0.2)"
-                    : "transparent",
+                  background: cueBackground,
                 }}
               />
               <div
                 style={{
-                  width: isCurrent ? "12px" : "8px",
-                  height: isCurrent ? "12px" : "8px",
+                  width: circleSize,
+                  height: circleSize,
                   borderRadius: "50%",
-                  background: isPast
-                    ? cueResults[cue.id]?.hit
-                      ? "var(--bui-fg-success)"
-                      : "var(--bui-fg-danger)"
-                    : isCurrent
-                      ? "var(--bui-fg-warning)"
-                      : "#555",
-                  border: isCurrent ? "2px solid #fff" : "none",
-                  boxShadow: isCurrent
-                    ? "0 0 10px var(--bui-fg-warning)"
-                    : "none",
+                  background: circleColor,
+                  border: borderStyle,
+                  boxShadow: boxShadow,
                 }}
               />
             </div>

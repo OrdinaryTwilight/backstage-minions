@@ -1,7 +1,9 @@
 import { LIGHT_TYPES, PLOT_GRID_COLS } from "../../../data/gameData";
 import HardwarePanel from "../../shared/panels/HardwarePanel";
 
-export default function OpticalSimView({ grid }: Readonly<{ grid: any[] }>) {
+export default function OpticalSimView({
+  grid,
+}: Readonly<{ grid: ({ typeId: string } | null)[] }>) {
   return (
     <section>
       <div

@@ -54,7 +54,7 @@ export default function GameLevelPage() {
     return (
       <ConflictMinigame
         conflict={state.session.activeConflict}
-        onResolved={(choice: any) => {
+        onResolved={(choice: unknown) => {
           const resolvedChoice = choice as ConflictChoice;
           dispatch({ type: "ADD_SCORE", delta: resolvedChoice.pointDelta });
           dispatch({

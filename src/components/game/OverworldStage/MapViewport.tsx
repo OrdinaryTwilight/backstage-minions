@@ -1,6 +1,6 @@
 import { ZoneConfig } from "../../../data/types";
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_SIZE } from "./constants";
-import { NPC } from "./types";
+import { DialogueState, NPC } from "./types";
 
 const DEPT_COLORS: Record<string, string> = {
   lighting: "var(--bui-fg-warning)",
@@ -15,9 +15,9 @@ interface MapViewportProps {
   currentZones: Record<string, ZoneConfig>;
   npcs: NPC[];
   pos: { x: number; y: number };
-  playerChar: any;
+  playerChar: { icon?: string } | null;
   activeZone: string | null;
-  activeDialogue: any;
+  activeDialogue: DialogueState | null;
   feedbackMsg: string | null;
   bumpMsg: { id: string; msg: string } | null;
   handleStageClick: (e: React.MouseEvent<HTMLButtonElement>) => void;

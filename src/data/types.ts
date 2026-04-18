@@ -90,7 +90,6 @@ export interface Production {
     Record<"school" | "community" | "professional", LevelDetails>
   >;
 }
-
 export interface ZoneConfig {
   x: number;
   y: number;
@@ -100,7 +99,7 @@ export interface ZoneConfig {
   color: string;
   isSolid: boolean;
   targetDept?: string;
-  dialogue?: any;
-  dialogues?: any[];
+  dialogue?: Record<string, unknown>;
+  dialogues?: Record<string, unknown>[];
   isDoor?: string;
 }
