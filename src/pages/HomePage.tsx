@@ -3,15 +3,9 @@ import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 import HardwarePanel from "../components/ui/HardwarePanel";
 import { useGame } from "../context/GameContext";
+import { NARRATIVE } from "../data/narrative";
 
-const INTRO_SEQUENCE = [
-  "CONNECTING TO I.A.T.S.E. LOCAL 13 DISPATCH SERVER...",
-  "AUTHENTICATING USER CREDENTIALS...",
-  "USER IDENTIFIED: APPRENTICE TIER.",
-  "WARNING: 3 ACTIVE PRODUCTIONS REQUIRE IMMEDIATE TECHNICAL ASSISTANCE.",
-  "INCOMING MESSAGE FROM [SENIOR TECH]: 'Grab your hard hat and wrench. We are understaffed and doors open in 2 hours. Don't mess this up.'",
-  "SYSTEM READY.",
-];
+const INTRO_SEQUENCE = NARRATIVE.bootSequence;
 
 export default function HomePage() {
   const navigate = useNavigate();
