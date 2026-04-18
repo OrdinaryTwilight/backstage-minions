@@ -27,6 +27,18 @@ export default function WrapUpScene({
   // Calculate final stars right here in the component
   const stars = calculateStars(totalCues, cuesHit, score);
 
+  const getResultColor = (starCount: number): string => {
+    if (starCount === 3) return "var(--bui-fg-success)";
+    if (starCount === 2) return "var(--bui-fg-warning)";
+    return "var(--bui-fg-danger)";
+  };
+
+  const getResultText = (starCount: number): string => {
+    if (starCount === 3) return "FLAWLESS EXECUTION!";
+    if (starCount === 2) return "SOLID RUN!";
+    return "ABSOLUTE TRAINWRECK...";
+  };
+
   if (phase === "report") {
     return (
       <div className="page-container animate-pop">
@@ -52,7 +64,7 @@ export default function WrapUpScene({
           >
             {Array.from({ length: 3 }).map((_, i) => (
               <span
-                key={i}
+                key={`star-${i}`}
                 style={{
                   color: i < stars ? "var(--bui-fg-warning)" : "#333",
                   textShadow:
@@ -69,19 +81,10 @@ export default function WrapUpScene({
               fontSize: "2rem",
               marginBottom: "2rem",
               fontFamily: "var(--font-mono)",
-              color:
-                stars === 3
-                  ? "var(--bui-fg-success)"
-                  : stars === 2
-                    ? "var(--bui-fg-warning)"
-                    : "var(--bui-fg-danger)",
+              color: getResultColor(stars),
             }}
           >
-            {stars === 3
-              ? "FLAWLESS EXECUTION!"
-              : stars === 2
-                ? "SOLID RUN!"
-                : "ABSOLUTE TRAINWRECK..."}
+            {getResultText(stars)}
           </h2>
 
           <div

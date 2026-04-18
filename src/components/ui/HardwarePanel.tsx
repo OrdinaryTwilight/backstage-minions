@@ -1,16 +1,18 @@
 import React from "react";
 
-type BaseProps = {
-  variant?: "default" | "clickable";
+interface BaseProps {
+  variant?: "default" | "clickable" | "locked";
   className?: string;
   style?: React.CSSProperties;
   children: React.ReactNode;
-};
+}
 
 type DivProps = BaseProps & React.HTMLAttributes<HTMLDivElement>;
 type ButtonProps = BaseProps & React.ButtonHTMLAttributes<HTMLButtonElement>;
 
-export default function HardwarePanel(props: Readonly<DivProps | ButtonProps>) {
+export default function HardwarePanel(
+  props: Readonly<DivProps | ButtonProps>,
+): React.ReactElement {
   const {
     children,
     variant = "default",
@@ -18,7 +20,7 @@ export default function HardwarePanel(props: Readonly<DivProps | ButtonProps>) {
     style,
     onClick,
     ...rest
-  } = props as any;
+  } = props as DivProps & ButtonProps;
 
   const isClickable = variant === "clickable" || !!onClick;
 

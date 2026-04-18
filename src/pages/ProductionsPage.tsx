@@ -119,7 +119,7 @@ export default function ProductionsPage() {
                 const actNumber = ACT_MAP[diff] || "I";
 
                 return (
-                  <div
+                  <button
                     key={diff}
                     className="playbill-act-item"
                     style={{
@@ -127,21 +127,14 @@ export default function ProductionsPage() {
                       cursor: isUnlocked ? "pointer" : "not-allowed",
                       padding: "1.5rem",
                       borderBottom: "1px solid #eaeaea",
+                      background: "none",
+                      border: "none",
+                      width: "100%",
+                      textAlign: "left",
                     }}
-                    // FIX: Added A11y roles and keyboard support for clickable divs
-                    role="button"
-                    tabIndex={isUnlocked ? 0 : -1}
-                    aria-disabled={!isUnlocked}
+                    disabled={!isUnlocked}
                     onClick={() => {
                       if (isUnlocked) {
-                        navigate(
-                          `/productions/${productionId}/difficulty/${diff}`,
-                        );
-                      }
-                    }}
-                    onKeyDown={(e) => {
-                      if (isUnlocked && (e.key === "Enter" || e.key === " ")) {
-                        e.preventDefault();
                         navigate(
                           `/productions/${productionId}/difficulty/${diff}`,
                         );
@@ -201,7 +194,7 @@ export default function ProductionsPage() {
                         unlocked={isUnlocked}
                       />
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>

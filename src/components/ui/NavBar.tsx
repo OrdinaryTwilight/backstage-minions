@@ -53,9 +53,17 @@ export default function NavBar() {
             zIndex: 1000,
           }}
           onClick={() => setShowSettings(false)}
-          role="presentation"
         >
-          <div onClick={(e) => e.stopPropagation()}>
+          <div
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") {
+                setShowSettings(false);
+              }
+            }}
+            role="dialog"
+            tabIndex={0}
+          >
             <SettingsPanel onClose={() => setShowSettings(false)} />
           </div>
         </div>

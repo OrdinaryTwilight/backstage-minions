@@ -44,7 +44,10 @@ export default function DifficultyPill({
       <div style={{ color: "var(--bui-fg-warning)", fontSize: "1rem" }}>
         {unlocked
           ? Array.from({ length: 3 }).map((_, i) => (
-              <span key={i} style={{ opacity: i < stars ? 1 : 0.2 }}>
+              <span
+                key={`star-${i}-${stars}`}
+                style={{ opacity: i < stars ? 1 : 0.2 }}
+              >
                 ★
               </span>
             ))

@@ -10,7 +10,10 @@ import { useGame } from "../context/GameContext";
 import { CHARACTERS, CUE_SHEETS } from "../data/gameData";
 
 export default function SelectCharacterPage() {
-  const { productionId, difficulty } = useParams<{ productionId: string; difficulty: string }>();
+  const { productionId, difficulty } = useParams<{
+    productionId: string;
+    difficulty: string;
+  }>();
   const navigate = useNavigate();
   const { dispatch } = useGame();
   const [idx, setIdx] = useState(0);
@@ -118,7 +121,6 @@ export default function SelectCharacterPage() {
           justifyContent: "center",
           margin: "2.5rem 0",
         }}
-        role="group"
         aria-label="Character carousel navigation"
       >
         <Button
@@ -130,8 +132,8 @@ export default function SelectCharacterPage() {
         >
           ‹
         </Button>
-        <div 
-          className="annotation-text" 
+        <div
+          className="annotation-text"
           style={{ fontSize: "1.2rem" }}
           aria-live="polite"
           aria-atomic="true"

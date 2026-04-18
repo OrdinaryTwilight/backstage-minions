@@ -41,7 +41,7 @@ export default function GameLevelPage() {
     handleStageAdvance,
     handleDismissSkip,
     handleOverworldComplete,
-  } = useLevelFlow(productionId, difficulty, charId, departmentCues);
+  } = useLevelFlow(productionId, difficulty, departmentCues);
 
   if (!state.session) return <Navigate to="/" replace />;
 

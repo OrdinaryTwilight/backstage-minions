@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGame } from "../../context/GameContext";
-import { Cue } from "../../types/game";
+import { Cue, Difficulty } from "../../types/game";
 import { calculateStars } from "../../utils/scoringEngine";
 
 export interface SkipChoice {
@@ -35,7 +35,7 @@ export function useLevelFlow(
     dispatch({
       type: "COMPLETE_LEVEL",
       productionId: productionId || "",
-      difficulty: (difficulty as any) || "school",
+      difficulty: (difficulty || "school") as Difficulty,
       stars,
       unlockedStories: [],
     });
@@ -44,8 +44,11 @@ export function useLevelFlow(
   }
 
   function handleStageAdvance() {
-    const currentIdx = state.session!.currentStageIndex;
-    const nextStage = state.session!.stages[currentIdx + 1];
+    const session = state.session;
+    if (!session) return;
+
+    const currentIdx = session.currentStageIndex;
+    const nextStage = session.stages[currentIdx + 1];
 
     // Dynamic Story Event interceptor
     if (nextStage === "cable_coiling" && Math.random() > 0.5) {
@@ -63,13 +66,13 @@ export function useLevelFlow(
       return;
     }
 
-    const currentStageKey = state.session!.stages[currentIdx];
+    const currentStageKey = session.stages[currentIdx];
     const noOverworldStages = ["wrapup"];
 
     if (currentStageKey === "wrapup") {
       handleComplete();
     } else if (noOverworldStages.includes(currentStageKey)) {
-      if (currentIdx < state.session!.stages.length - 1) {
+      if (currentIdx < session.stages.length - 1) {
         dispatch({ type: "NEXT_STAGE" });
       } else {
         handleComplete();
@@ -86,8 +89,11 @@ export function useLevelFlow(
   }
 
   function handleOverworldComplete() {
+    const session = state.session;
+    if (!session) return;
+
     setIsInOverworld(false);
-    if (state.session!.currentStageIndex < state.session!.stages.length - 1) {
+    if (session.currentStageIndex < session.stages.length - 1) {
       dispatch({ type: "NEXT_STAGE" });
     } else {
       handleComplete();

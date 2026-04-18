@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useGame } from "../../../context/GameContext";
-import { DialogueState } from "./types";
+import { DialogueState, NPC } from "./types";
 
 export function useQuests() {
   const { dispatch } = useGame();
@@ -13,7 +13,7 @@ export function useQuests() {
 
   const checkQuestIntercept = (
     activeZone: string,
-    activeNpc?: any,
+    activeNpc?: NPC,
   ): DialogueState | null => {
     return (
       handleActorQuest(activeZone, activeNpc) ||
@@ -23,7 +23,7 @@ export function useQuests() {
     );
   };
 
-  function handleActorQuest(activeZone: string, activeNpc?: any) {
+  function handleActorQuest(activeZone: string, activeNpc?: NPC) {
     if (
       activeZone === "snackTable" &&
       !inventory.includes("Water Bottle") &&
@@ -89,7 +89,7 @@ export function useQuests() {
     return null;
   }
 
-  function handleDirectorQuest(activeZone: string, activeNpc?: any) {
+  function handleDirectorQuest(activeZone: string, activeNpc?: NPC) {
     if (
       activeZone === "stageManager" &&
       !inventory.includes("Director's Script") &&

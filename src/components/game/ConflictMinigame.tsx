@@ -16,6 +16,7 @@ export default function ConflictMinigame({
   onResolved,
 }: ConflictMinigameProps) {
   const { dispatch } = useGame();
+
   const [selectedChoice, setSelectedChoice] = useState<ConflictChoice | null>(
     null,
   );
@@ -27,6 +28,7 @@ export default function ConflictMinigame({
     if (choice.sideEffect === "ally_gained") {
       dispatch({ type: "ADD_CONTACT", contactId: conflict.npc });
     }
+
     setSelectedChoice(choice);
   };
 
@@ -49,25 +51,25 @@ export default function ConflictMinigame({
               }}
               role="status"
               aria-live="polite"
-              aria-label={`Conflict outcome: ${selectedChoice.outcome}`}
             >
               RESULT: {selectedChoice.outcome.toUpperCase()}
             </h3>
+
             <article
               style={{ lineHeight: 1.6, marginBottom: "2rem", opacity: 0.9 }}
             >
               {selectedChoice.aftermathText}
             </article>
+
             <Button
               variant="accent"
               onClick={() => onResolved(selectedChoice.outcome)}
-              aria-label="Resume technical operations"
             >
               Resume Technical Operations →
             </Button>
           </div>
         ) : (
-          <DialogueBox
+          <DialogueBox<ConflictChoice>
             speaker={conflict.npc}
             icon={NPC_ICONS[conflict.npc as keyof typeof NPC_ICONS]}
             text={conflict.description}

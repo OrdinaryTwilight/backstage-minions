@@ -26,7 +26,7 @@ export default function StatBar({
         </span>
       </div>
       <div
-        role="progress"
+        role="progressbar"
         aria-label={label}
         aria-valuenow={value}
         aria-valuemin={0}

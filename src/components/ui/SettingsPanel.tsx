@@ -6,12 +6,14 @@ interface SettingsPanelProps {
   onClose?: () => void;
 }
 
-export default function SettingsPanel({ onClose }: Readonly<SettingsPanelProps>) {
+export default function SettingsPanel({
+  onClose,
+}: Readonly<SettingsPanelProps>) {
   const { settings, updateSetting, resetToDefaults } = useVisualSettings();
   const [showReset, setShowReset] = useState(false);
 
   return (
-    <div
+    <dialog
       className="surface-panel animate-pop"
       style={{
         maxWidth: "600px",
@@ -24,7 +26,7 @@ export default function SettingsPanel({ onClose }: Readonly<SettingsPanelProps>)
         border: "2px solid var(--glass-border)",
         boxShadow: "0 20px 50px rgba(0,0,0,0.8)",
       }}
-      role="dialog"
+      open
       aria-labelledby="settings-title"
     >
       <div
@@ -297,18 +299,7 @@ export default function SettingsPanel({ onClose }: Readonly<SettingsPanelProps>)
           paddingTop: "1.5rem",
         }}
       >
-        {!showReset ? (
-          <Button
-            onClick={() => setShowReset(true)}
-            style={{
-              background: "rgba(255,165,0,0.2)",
-              border: "1px solid var(--bui-fg-warning)",
-              width: "100%",
-            }}
-          >
-            🔄 Reset to Defaults
-          </Button>
-        ) : (
+        {showReset ? (
           <div style={{ display: "flex", gap: "1rem", width: "100%" }}>
             <Button
               onClick={() => {
@@ -330,8 +321,19 @@ export default function SettingsPanel({ onClose }: Readonly<SettingsPanelProps>)
               ✕ Cancel
             </Button>
           </div>
+        ) : (
+          <Button
+            onClick={() => setShowReset(true)}
+            style={{
+              background: "rgba(255,165,0,0.2)",
+              border: "1px solid var(--bui-fg-warning)",
+              width: "100%",
+            }}
+          >
+            🔄 Reset to Defaults
+          </Button>
         )}
       </div>
-    </div>
+    </dialog>
   );
 }

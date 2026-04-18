@@ -62,6 +62,9 @@ function FaderTrack({
         }}
         role="meter"
         aria-label={`${label} signal level`}
+        aria-valuenow={currentLevel}
+        aria-valuemin={0}
+        aria-valuemax={100}
       >
         <div
           style={{

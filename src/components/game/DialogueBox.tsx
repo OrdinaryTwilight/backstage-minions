@@ -1,28 +1,33 @@
 import { useEffect, useRef } from "react";
 
-interface DialogueChoice {
+/* ---------------- BASE TYPE ---------------- */
+
+interface BaseChoice {
   id: string;
   text: string;
 }
 
-interface DialogueBoxProps {
+/* ---------------- GENERIC PROPS ---------------- */
+
+interface DialogueBoxProps<T extends BaseChoice> {
   speaker: string;
   text: string;
   icon?: string;
-  choices: DialogueChoice[];
-  onChoice: (choice: DialogueChoice) => void;
+  choices: T[];
+  onChoice: (choice: T) => void;
 }
 
-export default function DialogueBox({
+/* ---------------- COMPONENT ---------------- */
+
+export default function DialogueBox<T extends BaseChoice>({
   speaker,
   text,
   icon,
   choices,
   onChoice,
-}: Readonly<DialogueBoxProps>) {
+}: Readonly<DialogueBoxProps<T>>) {
   const firstChoiceRef = useRef<HTMLButtonElement>(null);
 
-  // Auto-focus the first choice for rapid keyboard navigation!
   useEffect(() => {
     if (firstChoiceRef.current) {
       firstChoiceRef.current.focus();

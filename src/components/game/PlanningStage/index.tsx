@@ -107,16 +107,7 @@ export default function PlanningStage({
       </div>
 
       <div style={{ marginTop: "2rem" }}>
-        {!submitted ? (
-          <Button
-            variant="success"
-            onClick={submit}
-            className="btn-xl"
-            style={{ width: "100%" }}
-          >
-            Commit Technical Plot
-          </Button>
-        ) : (
+        {submitted ? (
           <HardwarePanel className="animate-pop">
             <h3
               className="annotation-text"
@@ -142,6 +133,15 @@ export default function PlanningStage({
               )}
             </div>
           </HardwarePanel>
+        ) : (
+          <Button
+            variant="success"
+            onClick={submit}
+            className="btn-xl"
+            style={{ width: "100%" }}
+          >
+            Commit Technical Plot
+          </Button>
         )}
       </div>
     </div>

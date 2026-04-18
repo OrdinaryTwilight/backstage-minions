@@ -49,7 +49,6 @@ export default function StoriesPage() {
                 lineHeight: "1.8",
                 opacity: 0.9,
               }}
-              role="article"
               aria-label={`Story: ${selected.title}`}
             >
               {selected.content}
@@ -73,7 +72,7 @@ export default function StoriesPage() {
                     role="button"
                     tabIndex={0}
                     onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
+                      if (e.key === "Enter" || e.key === " ") {
                         setSelected(s);
                       }
                     }}
@@ -101,7 +100,6 @@ export default function StoriesPage() {
                     key={s.id}
                     variant="locked"
                     style={{ opacity: 0.4 }}
-                    role="status"
                     aria-disabled="true"
                     aria-label={`Locked story: ${s.title}. Requires ${s.unlockedBy.difficulty} difficulty with ${s.unlockedBy.minStars} stars to unlock.`}
                   >

@@ -18,7 +18,7 @@ const createNewSession = (
     characterId: action.characterId,
 
     // USE THE ENGINE HERE!
-    stages: generateStageSequence(dept, action.difficulty),
+    stages: generateStageSequence(dept),
 
     currentStageIndex: 0,
     gearId: null,

@@ -1,8 +1,12 @@
+import { Character } from "../../../data/types";
+
 interface ActiveLoadoutPanelProps {
-  char: any;
+  readonly char: Character;
 }
 
-export default function ActiveLoadoutPanel({ char }: ActiveLoadoutPanelProps) {
+export default function ActiveLoadoutPanel({
+  char,
+}: Readonly<ActiveLoadoutPanelProps>) {
   return (
     <div
       className="rpg-scene-header"

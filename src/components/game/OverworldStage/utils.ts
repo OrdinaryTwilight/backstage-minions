@@ -96,8 +96,8 @@ export const updateSingleNpc = (
     stepY *= 0.3;
   }
 
-  let nX = npc.x + stepX;
-  let nY = npc.y + stepY;
+  const nX = npc.x + stepX;
+  const nY = npc.y + stepY;
 
   if (nX > 650 && Math.random() < 0.01) {
     return {

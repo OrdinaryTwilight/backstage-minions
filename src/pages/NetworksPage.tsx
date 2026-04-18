@@ -37,12 +37,20 @@ export default function NetworksPage() {
   const [activeChat, setActiveChat] = useState<string | null>(null);
 
   const availableContacts = ["sys_comms", ...state.contacts]
-    .map((id) =>
-      id === "sys_comms"
-        ? { id, name: "System Alerts", icon: "🤖" }
-        : CHARACTERS.find((c) => c.id === id)!,
-    )
-    .filter(Boolean);
+    .map((id) => {
+      if (id === "sys_comms") {
+        return { id, name: "System Alerts", icon: "🤖" };
+      }
+      const character = CHARACTERS.find((c) => c.id === id);
+      return character || null;
+    })
+    .filter(
+      (
+        c,
+      ): c is
+        | (typeof CHARACTERS)[0]
+        | { id: string; name: string; icon: string } => c !== null,
+    );
 
   const handleOpenChat = (id: string) => {
     setActiveChat(id);

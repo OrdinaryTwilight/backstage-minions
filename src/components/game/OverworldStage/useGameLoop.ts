@@ -17,14 +17,14 @@ import {
 
 /* ---------------- TYPES ---------------- */
 
-type InputState = {
+interface InputState {
   up: boolean;
   down: boolean;
   left: boolean;
   right: boolean;
-};
+}
 
-type UseGameLoopParams = {
+interface UseGameLoopParams {
   currentZones: Record<string, ZoneConfig>;
   currentRoom: string;
   charId?: string;
@@ -32,7 +32,7 @@ type UseGameLoopParams = {
   targetPos: { x: number; y: number } | null;
   setTargetPos: (val: null) => void;
   activeDialogue: DialogueState | null;
-};
+}
 
 /* ---------------- PURE TICK ENGINE ---------------- */
 
@@ -128,35 +128,40 @@ export function useGameLoop({
   /* ---------------- SPAWN NPCS ---------------- */
 
   useEffect(() => {
-    const available = CHARACTERS.filter((c) => c.id !== charId);
-    const shuffled = [...available].sort(() => 0.5 - Math.random());
-    const count = Math.floor(Math.random() * 3) + 2;
+    const spawnNpcs = () => {
+      const available = CHARACTERS.filter((c) => c.id !== charId);
+      const shuffled = [...available].sort(() => 0.5 - Math.random());
+      const count = Math.floor(Math.random() * 3) + 2;
 
-    const spawned = shuffled.slice(0, count).map((npc) => {
-      let x = 0;
-      let y = 0;
+      const spawned = shuffled.slice(0, count).map((npc) => {
+        let x = 0;
+        let y = 0;
 
-      do {
-        x = Math.random() * (GAME_WIDTH - 200) + 100;
-        y = Math.random() * (GAME_HEIGHT - 200) + 100;
-      } while (checkCollision(x, y, currentZones));
+        do {
+          x = Math.random() * (GAME_WIDTH - 200) + 100;
+          y = Math.random() * (GAME_HEIGHT - 200) + 100;
+        } while (checkCollision(x, y, currentZones));
 
-      return {
-        id: npc.id,
-        name: npc.name,
-        icon: npc.icon,
-        dept: npc.department || (npc as any).role,
-        x,
-        y,
-        dx: (Math.random() - 0.5) * 2,
-        dy: (Math.random() - 0.5) * 2,
-        moveTimer: Math.floor(Math.random() * 100) + 50,
-        isHidden: false,
-        hideTimer: 0,
-      };
-    });
+        return {
+          id: npc.id,
+          name: npc.name,
+          icon: npc.icon,
+          dept: npc.department || "crew",
+          x,
+          y,
+          dx: (Math.random() - 0.5) * 2,
+          dy: (Math.random() - 0.5) * 2,
+          moveTimer: Math.floor(Math.random() * 100) + 50,
+          isHidden: false,
+          hideTimer: 0,
+        };
+      });
 
-    setNpcs(spawned as NPC[]);
+      return spawned as NPC[];
+    };
+
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setNpcs(spawnNpcs());
   }, [charId, currentRoom, currentZones]);
 
   /* ---------------- GAME LOOP ---------------- */
@@ -190,13 +195,12 @@ export function useGameLoop({
     return () => clearInterval(interval);
   }, [
     npcs,
-    input.up,
-    input.down,
-    input.left,
-    input.right,
+    input,
     targetPos,
     activeDialogue,
     currentZones,
+    bumpMsg,
+    setTargetPos,
   ]);
 
   return { pos, setPos, npcs, activeZone, bumpMsg };

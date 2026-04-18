@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useGame } from "../../context/GameContext";
 import HardwarePanel from "../ui/HardwarePanel";
 import SectionHeader from "../ui/SectionHeader";
@@ -24,8 +24,49 @@ export default function CableCoilingStage({
   const [isComplete, setIsComplete] = useState(false);
 
   // Scale target for coiling based on difficulty
-  const TARGET_COILS =
-    difficulty === "professional" ? 12 : difficulty === "community" ? 8 : 6;
+  const getTargetCoils = (diff: string): number => {
+    if (diff === "professional") return 12;
+    if (diff === "community") return 8;
+    return 6;
+  };
+  const TARGET_COILS = getTargetCoils(difficulty);
+
+  const handleAction = useCallback(
+    (action: "OVER" | "UNDER") => {
+      if (action === expectedNext) {
+        // SUCCESS: Correct technique
+        const newCoils = coils + 1;
+        setCoils(newCoils);
+        setExpectedNext(action === "OVER" ? "UNDER" : "OVER");
+        setFeedback({
+          msg: `Nice ${action}! Now go ${action === "OVER" ? "UNDER" : "OVER"}.`,
+          type: "success",
+        });
+        dispatch({ type: "ADD_SCORE", delta: 5 });
+
+        if (newCoils >= TARGET_COILS) {
+          setIsComplete(true);
+          setFeedback({
+            msg: "Perfect coil! Securing with tie-line...",
+            type: "success",
+          });
+          dispatch({ type: "ADD_SCORE", delta: 50 }); // Completion bonus
+          setTimeout(() => onComplete(), 1500);
+        }
+      } else {
+        // FAIL: Cable knots!
+        setKnots((k) => k + 1);
+        setFeedback({
+          msg: `KNOTTED! You went ${action} twice. Untangling...`,
+          type: "error",
+        });
+        dispatch({ type: "ADD_SCORE", delta: -10 }); // Penalty
+
+        setExpectedNext("OVER"); // Reset the pattern logic
+      }
+    },
+    [expectedNext, coils, TARGET_COILS, dispatch, onComplete],
+  );
 
   // Keyboard support for fast coiling
   useEffect(() => {
@@ -43,41 +84,7 @@ export default function CableCoilingStage({
 
     globalThis.addEventListener("keydown", handleKeyDown);
     return () => globalThis.removeEventListener("keydown", handleKeyDown);
-  }, [expectedNext, isComplete]);
-
-  const handleAction = (action: "OVER" | "UNDER") => {
-    if (action === expectedNext) {
-      // SUCCESS: Correct technique
-      const newCoils = coils + 1;
-      setCoils(newCoils);
-      setExpectedNext(action === "OVER" ? "UNDER" : "OVER");
-      setFeedback({
-        msg: `Nice ${action}! Now go ${action === "OVER" ? "UNDER" : "OVER"}.`,
-        type: "success",
-      });
-      dispatch({ type: "ADD_SCORE", delta: 5 });
-
-      if (newCoils >= TARGET_COILS) {
-        setIsComplete(true);
-        setFeedback({
-          msg: "Perfect coil! Securing with tie-line...",
-          type: "success",
-        });
-        dispatch({ type: "ADD_SCORE", delta: 50 }); // Completion bonus
-        setTimeout(() => onComplete(), 1500);
-      }
-    } else {
-      // FAIL: Cable knots!
-      setKnots((k) => k + 1);
-      setFeedback({
-        msg: `KNOTTED! You went ${action} twice. Untangling...`,
-        type: "error",
-      });
-      dispatch({ type: "ADD_SCORE", delta: -10 }); // Penalty
-
-      setExpectedNext("OVER"); // Reset the pattern logic
-    }
-  };
+  }, [handleAction, isComplete]);
 
   return (
     <div className="page-container animate-blueprint">
@@ -106,7 +113,13 @@ export default function CableCoilingStage({
                 : feedback.type === "error"
                   ? "rgba(248, 113, 113, 0.2)"
                   : "rgba(56, 189, 248, 0.2)",
-            border: `2px solid ${feedback.type === "success" ? "var(--bui-fg-success)" : feedback.type === "error" ? "var(--bui-fg-danger)" : "var(--bui-fg-info)"}`,
+            border: `2px solid ${
+              feedback.type === "success"
+                ? "var(--bui-fg-success)"
+                : feedback.type === "error"
+                  ? "var(--bui-fg-danger)"
+                  : "var(--bui-fg-info)"
+            }`,
             borderRadius: "8px",
             color: "#fff",
             fontWeight: "bold",
@@ -123,7 +136,7 @@ export default function CableCoilingStage({
         <div style={{ position: "relative", width: "250px", height: "250px" }}>
           {Array.from({ length: coils }).map((_, i) => (
             <svg
-              key={i}
+              key={`coil-${i}`}
               style={{
                 position: "absolute",
                 top: 0,

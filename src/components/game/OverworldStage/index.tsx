@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CHARACTERS, OVERWORLD_MAPS } from "../../../data/gameData";
 import { useKeyPress } from "../../../hooks/useKeyPress";
 import DialogueBox from "../DialogueBox";
@@ -90,7 +90,7 @@ export default function OverworldStage({
     });
   };
 
-  const triggerInteraction = () => {
+  const triggerInteraction = useCallback(() => {
     if (!activeZone || activeDialogue) return;
     setTargetPos(null);
 
@@ -150,11 +150,25 @@ export default function OverworldStage({
         choices: [{ id: "ok", text: "Got it." }],
       });
     }
-  };
+  }, [
+    activeZone,
+    activeDialogue,
+    currentZones,
+    npcs,
+    checkQuestIntercept,
+    targetZoneId,
+    currentRoom,
+    targetLabel,
+    onComplete,
+    setPos,
+  ]);
 
   useEffect(() => {
-    if (interactBtn) triggerInteraction();
-  }, [interactBtn]);
+    if (interactBtn) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      triggerInteraction();
+    }
+  }, [interactBtn, triggerInteraction]);
 
   return (
     <div

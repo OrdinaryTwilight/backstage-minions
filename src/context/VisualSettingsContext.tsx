@@ -3,6 +3,7 @@ import {
   ReactNode,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 
@@ -102,7 +103,9 @@ function applySettingsToDOM(settings: VisualSettings) {
   root.style.setProperty("--user-font-family", fontMap[settings.fontFamily]);
 }
 
-export function VisualSettingsProvider({ children }: Readonly<{ children: ReactNode }>) {
+export function VisualSettingsProvider({
+  children,
+}: Readonly<{ children: ReactNode }>) {
   const [settings, setSettings] = useState<VisualSettings>(defaultSettings);
   const [isLoaded, setIsLoaded] = useState(false);
 
@@ -116,8 +119,9 @@ export function VisualSettingsProvider({ children }: Readonly<{ children: ReactN
       }
     } catch (e) {
       console.warn("Failed to load visual settings:", e);
+    } finally {
+      setIsLoaded(true);
     }
-    setIsLoaded(true);
   }, []);
 
   // Apply settings to DOM whenever they change
@@ -139,10 +143,13 @@ export function VisualSettingsProvider({ children }: Readonly<{ children: ReactN
     setSettings(defaultSettings);
   };
 
+  const contextValue = useMemo(
+    () => ({ settings, updateSetting, resetToDefaults }),
+    [settings],
+  );
+
   return (
-    <VisualSettingsContext.Provider
-      value={{ settings, updateSetting, resetToDefaults }}
-    >
+    <VisualSettingsContext.Provider value={contextValue}>
       {/* INJECT SVG FILTERS INTO THE DOM */}
       <svg
         style={{ position: "absolute", width: 0, height: 0 }}

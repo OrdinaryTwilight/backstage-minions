@@ -113,8 +113,12 @@ export default function SoundConsole({
                 }}
               >
                 {outputBuses.map((bus, index) => {
-                  const isActive =
-                    (patch.outputs as Record<string, number>)[bus] === ch;
+                  const isActive = patch.outputs[bus] === ch;
+                  const bgColor = isActive
+                    ? index === 0
+                      ? "#e53e3e"
+                      : "#d69e2e"
+                    : "#718096";
                   return (
                     <button
                       key={bus}
@@ -125,11 +129,7 @@ export default function SoundConsole({
                         borderRadius: "2px",
                         border: "none",
                         cursor: "pointer",
-                        background: isActive
-                          ? index === 0
-                            ? "#e53e3e"
-                            : "#d69e2e"
-                          : "#718096",
+                        background: bgColor,
                         boxShadow: isActive
                           ? "inset 0 2px 4px rgba(0,0,0,0.6)"
                           : "0 2px 4px rgba(0,0,0,0.4)",

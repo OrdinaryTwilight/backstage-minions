@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { SOUND_CONSOLE_CONFIG } from "../../../data/gameData";
 import Button from "../../ui/Button";
@@ -26,6 +26,9 @@ export default function SoundDesignStage({
     5: 0,
   });
   const [submitted, setSubmitted] = useState(false);
+  const [deadChannels, setDeadChannels] = useState<
+    typeof SOUND_CONSOLE_CONFIG.channels
+  >([]);
 
   const {
     sources,
@@ -33,13 +36,27 @@ export default function SoundDesignStage({
     outputBuses,
   } = SOUND_CONSOLE_CONFIG;
 
-  const deadChannels = useMemo(() => {
-    const deadCount =
-      difficulty === "professional" ? 2 : difficulty === "community" ? 1 : 0;
-    return [...consoleChannels]
-      .sort(() => 0.5 - Math.random())
-      .slice(0, deadCount);
-  }, [consoleChannels, difficulty]);
+  useEffect(() => {
+    const getDeadCount = (diff: string): number => {
+      if (diff === "professional") return 2;
+      if (diff === "community") return 1;
+      return 0;
+    };
+    const deadCount = getDeadCount(difficulty);
+    if (deadCount === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDeadChannels([]);
+      return;
+    }
+
+    // Fisher-Yates shuffle to select random channels
+    const shuffled = [...consoleChannels];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    setDeadChannels(shuffled.slice(0, deadCount));
+  }, [difficulty, consoleChannels]);
 
   const handlePatch = (type: string, source: string, target: number) => {
     setPatch((prev) => ({
@@ -49,7 +66,7 @@ export default function SoundDesignStage({
   };
 
   const validPaths = outputBuses.map((bus) => {
-    const outChannel = (patch.outputs as Record<string, number>)[bus];
+    const outChannel = patch.outputs[bus];
     if (!outChannel || deadChannels.includes(outChannel)) return false;
     return (
       Object.values(patch.inputs).includes(outChannel) &&
@@ -99,7 +116,7 @@ export default function SoundDesignStage({
                         flex: "1 0 15%",
                         fontSize: "0.8rem",
                         background:
-                          (patch.inputs as Record<string, number>)[src] === ch
+                          patch.inputs[src] === ch
                             ? "var(--bui-fg-success)"
                             : "",
                       }}
@@ -141,12 +158,20 @@ export default function SoundDesignStage({
         <div style={{ display: "flex", gap: "1rem" }}>
           {outputBuses.map((bus, index) => {
             const isPathValid = validPaths[index];
-            const currentOutChannel = (patch.outputs as Record<string, number>)[
-              bus
-            ];
-            const isPatchedToDead = currentOutChannel
-              ? deadChannels.includes(currentOutChannel)
+            const outChannel = patch.outputs[bus];
+            const isPatchedToDead = outChannel
+              ? deadChannels.includes(outChannel)
               : false;
+            const signalColor = isPathValid
+              ? "var(--bui-fg-success)"
+              : isPatchedToDead
+                ? "var(--bui-fg-danger)"
+                : "var(--bui-fg-warning)";
+            const signalStatus = isPathValid
+              ? "SIGNAL OK"
+              : isPatchedToDead
+                ? "DEAD CHANNEL"
+                : "NO SIGNAL";
             return (
               <div
                 key={bus}
@@ -161,18 +186,10 @@ export default function SoundDesignStage({
                 <span>{bus}</span>
                 <span
                   style={{
-                    color: isPathValid
-                      ? "var(--bui-fg-success)"
-                      : isPatchedToDead
-                        ? "var(--bui-fg-danger)"
-                        : "var(--bui-fg-warning)",
+                    color: signalColor,
                   }}
                 >
-                  {isPathValid
-                    ? "SIGNAL OK"
-                    : isPatchedToDead
-                      ? "DEAD CHANNEL"
-                      : "NO SIGNAL"}
+                  {signalStatus}
                 </span>
               </div>
             );

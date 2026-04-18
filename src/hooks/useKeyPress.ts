@@ -1,10 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 export function useKeyPress(targetKeys: string | string[]) {
   const [keyPressed, setKeyPressed] = useState(false);
 
-  // Normalize to an array
-  const keys = Array.isArray(targetKeys) ? targetKeys : [targetKeys];
+  // Memoize the normalized keys array to maintain referential equality
+  const keys = useMemo(
+    () => (Array.isArray(targetKeys) ? targetKeys : [targetKeys]),
+    [targetKeys],
+  );
 
   useEffect(() => {
     const downHandler = ({ key }: KeyboardEvent) => {
@@ -23,7 +26,7 @@ export function useKeyPress(targetKeys: string | string[]) {
       globalThis.removeEventListener("keydown", downHandler);
       globalThis.removeEventListener("keyup", upHandler);
     };
-  }, [targetKeys]);
+  }, [keys]);
 
   return keyPressed;
 }

@@ -1,9 +1,11 @@
 // src/components/ui/DepartmentBadge.jsx
 interface DepartmentBadgeProps {
-  department?: string;
+  readonly department?: string;
 }
 
-export default function DepartmentBadge({ department }: DepartmentBadgeProps) {
+export default function DepartmentBadge({
+  department,
+}: Readonly<DepartmentBadgeProps>) {
   const isLighting = department === "lighting";
   return (
     <div
