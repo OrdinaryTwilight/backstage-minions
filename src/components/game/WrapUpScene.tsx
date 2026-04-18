@@ -1,8 +1,13 @@
+// src/components/game/WrapUpScene.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGame } from "../../context/GameContext";
-import { CHARACTERS, Cue } from "../../data/gameData";
-import { NARRATIVE } from "../../data/narrative"; // <-- Imported Narrative Data
+import {
+  CHARACTERS,
+  Cue,
+  POST_SHOW_REVIEWS,
+  WRAP_UP_UI_TEXT,
+} from "../../data/gameData";
 import { calculateStars } from "../../utils/scoringEngine";
 import HardwarePanel from "../shared/panels/HardwarePanel";
 import Button from "../shared/ui/Button";
@@ -17,33 +22,39 @@ export default function WrapUpScene({
 }: Readonly<WrapUpSceneProps>) {
   const { state } = useGame();
   const [phase, setPhase] = useState<"dialogue" | "report">("dialogue");
+  const navigate = useNavigate();
 
   const char = CHARACTERS.find((c) => c.id === state.session?.characterId);
   const score = state.session?.score || 0;
   const cuesHit = state.session?.cuesHit || 0;
   const cuesMissed = state.session?.cuesMissed || 0;
   const totalCues = cueSheet.length;
-  const navigate = useNavigate();
+
   const stars = calculateStars(totalCues, cuesHit, score);
 
   const getResultColor = (starCount: number): string => {
-    if (starCount === 3) return "var(--bui-fg-success)";
+    if (starCount >= 3) return "var(--bui-fg-success)";
     if (starCount === 2) return "var(--bui-fg-warning)";
     return "var(--bui-fg-danger)";
   };
 
-  const getResultText = (starCount: number): string => {
-    if (starCount === 3) return "FLAWLESS EXECUTION!";
-    if (starCount === 2) return "SOLID RUN!";
-    return "ABSOLUTE TRAINWRECK...";
-  };
+  // Safe lookups for the text based on the star rating
+  const detailedReviewText =
+    POST_SHOW_REVIEWS.success[
+      stars as keyof typeof POST_SHOW_REVIEWS.success
+    ] || POST_SHOW_REVIEWS.success[0];
+
+  const shortHeaderText =
+    POST_SHOW_REVIEWS.short_header[
+      stars as keyof typeof POST_SHOW_REVIEWS.short_header
+    ] || POST_SHOW_REVIEWS.short_header[0];
 
   if (phase === "report") {
     return (
       <div className="page-container animate-pop">
         <SectionHeader
-          title="Post-Mortem Report"
-          subtitle="Strike is complete. How did the show go?"
+          title={WRAP_UP_UI_TEXT.report_title}
+          subtitle={WRAP_UP_UI_TEXT.report_subtitle}
         />
 
         <HardwarePanel
@@ -56,7 +67,7 @@ export default function WrapUpScene({
         >
           <div
             style={{
-              fontSize: "clamp(3rem, 10vw, 5rem)", // Responsive star sizing
+              fontSize: "clamp(3rem, 10vw, 5rem)",
               marginBottom: "1rem",
               letterSpacing: "clamp(2px, 2vw, 10px)",
             }}
@@ -83,10 +94,9 @@ export default function WrapUpScene({
               color: getResultColor(stars),
             }}
           >
-            {getResultText(stars)}
+            {shortHeaderText}
           </h2>
 
-          {/* Responsive flexbox for score stats */}
           <div
             style={{
               display: "flex",
@@ -107,7 +117,7 @@ export default function WrapUpScene({
                 {score}
               </div>
               <div className="annotation-text" style={{ opacity: 0.7 }}>
-                Total Score
+                {WRAP_UP_UI_TEXT.score_label}
               </div>
             </div>
             {totalCues > 0 && (
@@ -133,7 +143,7 @@ export default function WrapUpScene({
                   </span>
                 </div>
                 <div className="annotation-text" style={{ opacity: 0.7 }}>
-                  Cues Hit
+                  {WRAP_UP_UI_TEXT.cues_label}
                 </div>
               </div>
             )}
@@ -141,10 +151,9 @@ export default function WrapUpScene({
 
           <Button
             onClick={() => {
-              // Clear level session storage so quests reset for next run
               sessionStorage.removeItem("minion_inventory");
               sessionStorage.removeItem("minion_completed_quests");
-              navigate("/"); // Route home instead of calling onComplete()
+              navigate("/");
             }}
             className="btn-xl"
             style={{
@@ -153,7 +162,7 @@ export default function WrapUpScene({
               color: "#000",
             }}
           >
-            Sign Out & Return to Dashboard
+            {WRAP_UP_UI_TEXT.sign_out_btn}
           </Button>
         </HardwarePanel>
       </div>
@@ -192,7 +201,7 @@ export default function WrapUpScene({
             className="annotation-text"
             style={{ color: "var(--bui-fg-warning)", marginBottom: "1rem" }}
           >
-            Senior Technician
+            {WRAP_UP_UI_TEXT.dialogue_title}
           </h2>
           <p
             style={{
@@ -201,15 +210,14 @@ export default function WrapUpScene({
               color: "var(--color-pencil-light)",
             }}
           >
-            {/* Decoupled narrative string injected here */}"
-            {NARRATIVE.wrapUp.seniorTechText}"
+            "{detailedReviewText}"
           </p>
           <div style={{ marginTop: "2rem" }}>
             <Button
               onClick={() => setPhase("report")}
               style={{ width: "100%" }}
             >
-              Review Post-Mortem Report →
+              {WRAP_UP_UI_TEXT.dialogue_btn}
             </Button>
           </div>
         </HardwarePanel>

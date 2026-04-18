@@ -12,8 +12,14 @@ export interface DialogueChoice {
 
 export interface DialogueNode {
   id: string;
-  text: string; // Can include placeholders like {playerName} or {department}
+  // An array of possible texts. The system evaluates the condition and picks the first valid one.
+  variants: {
+    condition?: "high_stress" | "low_affinity" | "high_affinity";
+    text: string;
+  }[];
   choices: DialogueChoice[];
+  timeLimitMs?: number; // e.g., 5000 (5 seconds)
+  timeoutNodeId?: string; // Where to jump if they fail to answer
 }
 
 export type DialogueTree = Record<string, DialogueNode>;

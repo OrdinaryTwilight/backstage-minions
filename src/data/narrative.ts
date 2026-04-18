@@ -144,4 +144,31 @@ export const NARRATIVE = {
     seniorTechText:
       "Alright, cables are coiled, board is covered, and the ghost light is on. Good hustle out there tonight. Let's go look at the SM's post-show report and head home.",
   },
+  commsChatter: [
+    { speaker: "SM", text: "Quiet on headset, please." },
+    { speaker: "SM", text: "Standby all departments." },
+    { speaker: "SM", text: "Who is eating chips on the comms? Mute your mic." },
+    { speaker: "LX", text: "Spot 2 is drifting, fixing it now." },
+    { speaker: "LX", text: "Board is lagging a bit, hold on." },
+    { speaker: "LX", text: "Did someone unplug my monitor?" },
+    { speaker: "SND", text: "Mics 4 and 5 are hot, actors watch your mouths." },
+    { speaker: "SND", text: "Getting some feedback from downstage left." },
+    { speaker: "SND", text: "Battery low on Mic 2, swap it at intermission." },
+    { speaker: "ASM", text: "Actors are at places." },
+    {
+      speaker: "ASM",
+      text: "We are missing the lead! Found them in the bathroom.",
+    },
+    {
+      speaker: "WARDROBE",
+      text: "We have a ripped seam, holding actors in Green Room!",
+    },
+    {
+      speaker: "WARDROBE",
+      text: "Need a flashlight in Dressing Room B, ASAP.",
+    },
+    { speaker: "PROPS", text: "Who took my gaff tape?!" },
+    { speaker: "PROPS", text: "The fake sword is bent again." },
+    { speaker: "DIRECTOR", text: "Can we make it brighter? It feels sad." },
+  ],
 } as const;

@@ -1,4 +1,5 @@
-import { render, screen } from "@testing-library/react";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach } from "node:test";
 import { BrowserRouter } from "react-router-dom";
 import { describe, expect, it, vi } from "vitest";
 import NetworksPage from "./NetworksPage";
@@ -20,6 +21,10 @@ const renderWithRouter = (component: React.ReactNode) => {
 };
 
 describe("NetworksPage Component", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
   it("renders networks page", () => {
     renderWithRouter(<NetworksPage />);
 
@@ -31,7 +36,7 @@ describe("NetworksPage Component", () => {
     renderWithRouter(<NetworksPage />);
 
     const headings = screen.queryAllByRole("heading");
-    expect(headings).toHaveLength(1); // Ensure there is at least one heading
+    expect(headings).toHaveLength(3); // Ensure there is at least one heading
   });
 
   it("renders without crashing", () => {

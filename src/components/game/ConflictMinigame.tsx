@@ -39,7 +39,7 @@ export default function ConflictMinigame({
     >
       <HardwarePanel style={{ maxWidth: "800px", margin: "0 auto" }}>
         <h2 style={{ color: "var(--bui-fg-warning)" }}>
-          ⚡ Technical Conflict
+          ⚡ Conflict
         </h2>
 
         {selectedChoice ? (

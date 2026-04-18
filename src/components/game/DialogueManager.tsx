@@ -1,69 +1,114 @@
-// src/components/game/DialogueManager.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGame } from "../../context/GameContext";
 import {
+  CHARACTERS,
   DIALOGUE_REGISTRY,
   GENERIC_DEPARTMENT_TREE,
-} from "../../data/dialogues";
+} from "../../data/gameData";
 import { DialogueChoice, DialogueTree } from "../../types/dialogue";
-import { Character } from "../../types/game";
 import DialogueBox from "./DialogueBox";
 
 interface DialogueManagerProps {
-  targetNpc: Character;
-  onClose: () => void;
+  readonly npcId: string;
+  readonly onClose: () => void;
 }
 
 export default function DialogueManager({
-  targetNpc,
+  npcId,
   onClose,
-}: Readonly<DialogueManagerProps>) {
+}: DialogueManagerProps) {
   const { state, dispatch } = useGame();
-
-  // 1. Resolve which tree to use (Specific vs Fallback)
-  const tree: DialogueTree =
-    DIALOGUE_REGISTRY[targetNpc.id] || GENERIC_DEPARTMENT_TREE;
-
   const [currentNodeId, setCurrentNodeId] = useState<string>("start");
+
+  const targetNpc = CHARACTERS.find((c) => c.id === npcId);
+  const tree: DialogueTree =
+    DIALOGUE_REGISTRY[npcId] || GENERIC_DEPARTMENT_TREE;
   const currentNode = tree[currentNodeId];
 
-  // 2. Dynamic Text Interpolation (Replaces {department} with "lighting", etc.)
-  const parsedText = currentNode.text
-    .replace("{department}", targetNpc.department || "the deck")
-    .replace("{role}", targetNpc.role || "crew")
-    .replace("{playerName}", "Tech"); // Replace with actual player name if you have one
+  if (!targetNpc || !currentNode) return null;
 
-  // 3. Filter choices based on player state (e.g., inventory checks)
-  const availableChoices = currentNode.choices.filter((choice) => {
-    if (choice.requiredItem && !state.inventory.includes(choice.requiredItem)) {
-      return false; // Hide choice if they don't have the item
+  // 1. RESOLVE VARIANTS BASED ON STATE
+  const activeVariant =
+    currentNode.variants.find((variant) => {
+      if (!variant.condition) return true; // Default fallback
+
+      const currentStress = state.session?.stress || 0;
+      const currentAffinity = state.session?.affinities?.[npcId] || 0;
+
+      if (variant.condition === "high_stress" && currentStress >= 75)
+        return true;
+      if (variant.condition === "low_affinity" && currentAffinity < 0)
+        return true;
+      if (variant.condition === "high_affinity" && currentAffinity >= 10)
+        return true;
+
+      return false;
+    }) || currentNode.variants[0]; // Absolute fallback
+
+  const parsedText = activeVariant.text
+    .replace("{department}", targetNpc.department || "the deck")
+    .replace("{role}", targetNpc.role || "crew");
+
+  // 2. TIMED CHOICES
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (currentNode.timeLimitMs && currentNode.timeoutNodeId) {
+      timer = setTimeout(() => {
+        // Apply stress penalty for timing out
+        dispatch({ type: "UPDATE_STRESS", delta: 10 });
+        setCurrentNodeId(currentNode.timeoutNodeId!);
+      }, currentNode.timeLimitMs);
     }
+    return () => clearTimeout(timer);
+  }, [currentNodeId, currentNode, dispatch]);
+
+  const availableChoices = currentNode.choices.filter((choice) => {
+    // Inventory check
+    if (choice.requiredItem && !state.inventory.includes(choice.requiredItem)) {
+      return false;
+    }
+
+    // MEMORY FIX: Prevent re-triggering quests you already have
+    if (choice.sideEffect === "start_gaff_quest") {
+      const hasQuest =
+        state.session?.activeQuests?.includes("find_gaff_tape") ||
+        state.session?.completedQuests?.includes("find_gaff_tape");
+      if (hasQuest) return false;
+    }
+
+    // MEMORY FIX: Prevent re-gaining the same ally
+    if (choice.sideEffect === "ally_gained") {
+      if (state.contacts?.includes(targetNpc.id)) return false;
+    }
+
     return true;
   });
 
-  // 4. Handle choice execution
-  const handleChoice = (choice: DialogueChoice) => {
-    // Apply points
-    if (choice.pointDelta) {
-      dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
-    }
+  // Failsafe: If all choices were hidden because you completed everything, provide an exit!
+  if (availableChoices.length === 0) {
+    availableChoices.push({
+      id: "auto_exit",
+      text: "I should get back to work.",
+      nextNodeId: "end",
+    });
+  }
 
-    // Apply side effects
+  const handleChoice = (choice: DialogueChoice) => {
+    if (choice.pointDelta)
+      dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
     if (choice.sideEffect === "ally_gained") {
       dispatch({ type: "ADD_CONTACT", contactId: targetNpc.id });
-    } else if (choice.sideEffect === "start_gaff_quest") {
-      dispatch({ type: "ADD_QUEST", questId: "find_gaff_tape" });
+      dispatch({ type: "UPDATE_AFFINITY", npcId: targetNpc.id, delta: 5 }); // Gain affinity!
     }
+    if (choice.sideEffect === "stress_relieved")
+      dispatch({ type: "UPDATE_STRESS", delta: -15 });
 
-    // Navigate to next node or close
     if (choice.nextNodeId === "end") {
       onClose();
     } else {
       setCurrentNodeId(choice.nextNodeId);
     }
   };
-
-  if (!currentNode) return null;
 
   return (
     <DialogueBox<DialogueChoice>
@@ -72,6 +117,7 @@ export default function DialogueManager({
       text={parsedText}
       choices={availableChoices}
       onChoice={handleChoice}
+      timeLimitMs={currentNode.timeLimitMs}
     />
   );
 }

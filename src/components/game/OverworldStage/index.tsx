@@ -5,6 +5,7 @@ import { CHARACTERS, OVERWORLD_MAPS } from "../../../data/gameData";
 import { useKeyPress } from "../../../hooks/useKeyPress";
 import { getOverworldObjective } from "../../../utils/objectiveEngine";
 import DialogueBox from "../DialogueBox";
+import DialogueManager from "../DialogueManager";
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_SIZE } from "./constants";
 import HeadsetHUD from "./HeadsetHUD";
 import MapViewport from "./MapViewport";
@@ -16,7 +17,7 @@ import { useInteraction } from "./useInteraction";
 import { useQuests } from "./useQuests";
 
 const formatRoomName = (str: string) =>
-  str.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
+  str.replaceAll(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
 
 export default function OverworldStage({
   onComplete,
@@ -29,9 +30,8 @@ export default function OverworldStage({
   const [targetPos, setTargetPos] = useState<{ x: number; y: number } | null>(
     null,
   );
-  const [activeDialogue, setActiveDialogue] = useState<DialogueState | null>(
-    null,
-  );
+
+  const [activeNpcId, setActiveNpcId] = useState<string | null>(null);
   const [feedbackMsg, setFeedbackMsg] = useState<FeedbackMessage | null>(null);
 
   const interactBtn = useKeyPress(["e", "Enter", " "]);
@@ -41,7 +41,11 @@ export default function OverworldStage({
   const right = useKeyPress(["d", "ArrowRight"]);
 
   const { headsetOn, setHeadsetOn, commsLog } = useComms();
-  const { inventory, checkQuestIntercept, handleQuestChoice, questFeedback } =
+
+  const [activeQuestDialogue, setActiveQuestDialogue] =
+    useState<DialogueState | null>(null);
+
+  const { inventory, questFeedback, checkQuestIntercept, handleQuestChoice } =
     useQuests();
   const displayFeedback = questFeedback || feedbackMsg;
 
@@ -59,12 +63,14 @@ export default function OverworldStage({
     input: { up, down, left, right },
     targetPos,
     setTargetPos,
-    activeDialogue,
+    activeNpcId,
+    activeQuests: state.session?.activeQuests || [], // <-- PASSED IN HERE
   });
 
   const triggerInteraction = useInteraction({
     activeZone,
-    activeDialogue,
+    activeNpcId,
+    activeQuestDialogue,
     currentZones,
     npcs,
     currentRoom,
@@ -74,7 +80,8 @@ export default function OverworldStage({
     setCurrentRoom,
     setPos,
     setTargetPos,
-    setActiveDialogue,
+    setActiveNpcId,
+    setActiveQuestDialogue,
     setFeedbackMsg,
     checkQuestIntercept,
     onComplete,
@@ -104,7 +111,6 @@ export default function OverworldStage({
       </div>
 
       <div className="overworld-layout">
-        {/* Left Side: Comms & Inventory HUD */}
         <div className="overworld-sidebar">
           <HeadsetHUD
             headsetOn={headsetOn}
@@ -126,7 +132,6 @@ export default function OverworldStage({
           </div>
         </div>
 
-        {/* Right Side: Map & Interactive Buttons */}
         <div className="overworld-main">
           <MapViewport
             currentRoom={currentRoom}
@@ -135,7 +140,7 @@ export default function OverworldStage({
             pos={pos}
             playerChar={playerChar}
             activeZone={activeZone}
-            activeDialogue={activeDialogue}
+            activeNpcId={activeNpcId}
             feedbackMsg={displayFeedback?.text || null}
             bumpMsg={bumpMsg}
             handleStageClick={handleStageClick}
@@ -154,6 +159,31 @@ export default function OverworldStage({
 
           <div className="desktop-only overworld-interaction-bar"></div>
 
+          {/* FIX 3: Extracted nested ternary into independent blocks to satisfy SonarLint */}
+          <div>
+            {activeQuestDialogue && (
+              <DialogueBox
+                speaker={activeQuestDialogue.speaker}
+                text={activeQuestDialogue.text}
+                choices={activeQuestDialogue.choices}
+                icon={activeQuestDialogue.icon}
+                onChoice={(choice) => {
+                  const wasQuest = handleQuestChoice(choice.id, () =>
+                    setActiveQuestDialogue(null),
+                  );
+                  if (!wasQuest) setActiveQuestDialogue(null);
+                }}
+              />
+            )}
+
+            {!activeQuestDialogue && activeNpcId && (
+              <DialogueManager
+                npcId={activeNpcId}
+                onClose={() => setActiveNpcId(null)}
+              />
+            )}
+          </div>
+
           <div className="overworld-interaction-bar">
             {displayFeedback && (
               <div
@@ -163,7 +193,7 @@ export default function OverworldStage({
               </div>
             )}
 
-            {activeZone && !activeDialogue && !displayFeedback && (
+            {activeZone && !activeNpcId && !displayFeedback && (
               <button
                 onClick={triggerInteraction}
                 className="animate-pop interaction-btn"
@@ -175,23 +205,6 @@ export default function OverworldStage({
             )}
           </div>
         </div>
-      </div>
-
-      <div style={{ minHeight: "150px" }}>
-        {activeDialogue && (
-          <DialogueBox
-            speaker={activeDialogue.speaker}
-            text={activeDialogue.text}
-            choices={activeDialogue.choices}
-            icon={activeDialogue.icon}
-            onChoice={(choice) => {
-              const wasQuest = handleQuestChoice(choice.id, () =>
-                setActiveDialogue(null),
-              );
-              if (!wasQuest) setActiveDialogue(null);
-            }}
-          />
-        )}
       </div>
     </div>
   );

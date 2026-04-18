@@ -131,7 +131,7 @@ export default function HomePage() {
           className="annotation-text"
           style={{ fontSize: "1.2rem", opacity: 0.8 }}
         >
-          Local 13 Technical Dispatch Dashboard
+          Technical Dispatch Dashboard
         </p>
       </div>
 
@@ -167,7 +167,7 @@ export default function HomePage() {
         >
           <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>📻</div>
           <h2 className="annotation-text" style={{ fontSize: "1.5rem" }}>
-            Comms Network
+            Friends and Contacts
           </h2>
           <p style={{ opacity: 0.7, marginTop: "0.5rem" }}>
             Check messages from department heads and crew.
