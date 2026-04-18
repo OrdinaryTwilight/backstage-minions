@@ -1,17 +1,24 @@
-import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { GameContext } from "../context/GameContext";
+import { useGame } from "../context/GameContext";
+import { CHARACTERS } from "../data/gameData";
+import { POST_SHOW_REVIEWS } from "../data/reviews";
 
 export default function LevelFailedPage() {
+  const { state, dispatch } = useGame();
   const navigate = useNavigate();
-  // Safe access to dispatch with a fallback
-  const { dispatch } = useContext(GameContext) ?? { dispatch: () => undefined };
 
   const handleBackToHome = () => {
     // Dispatch the action to clear the session
     dispatch({ type: "CLEAR_SESSION" });
     navigate("/"); // Navigate back to the home page
   };
+  const playerChar = CHARACTERS.find(
+    (c) => c.id === state.session?.characterId,
+  );
+  const dept = playerChar?.department?.toLowerCase() || "default";
+  const failureText =
+    POST_SHOW_REVIEWS.failure[dept as keyof typeof POST_SHOW_REVIEWS.failure] ||
+    POST_SHOW_REVIEWS.failure.default;
 
   return (
     <div
@@ -32,8 +39,7 @@ export default function LevelFailedPage() {
           marginBottom: "3rem",
         }}
       >
-        The show couldn't go on this time. Review the cue sheet, brush up on
-        your technique, and try again.
+        {failureText}
       </p>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>

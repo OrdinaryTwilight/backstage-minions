@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
+import Button from "../ui/Button";
 
 interface BaseChoice {
   id: string;
@@ -6,56 +7,91 @@ interface BaseChoice {
 }
 
 interface DialogueBoxProps<T extends BaseChoice> {
-  speaker: string;
-  text: string;
-  icon?: string;
-  choices: T[];
-  onChoice: (choice: T) => void;
-  timeLimitMs?: number; // Optional prop to indicate if this dialogue has a timed choice
+  readonly speaker: string;
+  readonly text: string;
+  readonly choices: T[];
+  readonly onChoice: (choice: T) => void;
+  readonly icon?: string;
+  readonly timeLimitMs?: number; // NEW
 }
 
 export default function DialogueBox<T extends BaseChoice>({
   speaker,
   text,
-  icon,
   choices,
   onChoice,
-}: Readonly<DialogueBoxProps<T>>) {
-  const firstChoiceRef = useRef<HTMLButtonElement>(null);
+  icon,
+  timeLimitMs,
+}: DialogueBoxProps<T>) {
+  const [timeLeftWidth, setTimeLeftWidth] = useState(100);
 
   useEffect(() => {
-    if (firstChoiceRef.current) {
-      firstChoiceRef.current.focus();
-    }
-  }, [text]);
+    if (!timeLimitMs) return;
+    setTimeLeftWidth(100);
+    // Use requestAnimationFrame to let the DOM paint the 100% width, then trigger the shrink
+    const frame = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setTimeLeftWidth(0));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [timeLimitMs, text]); // Reset timer if text changes
 
   return (
-    <div className="dialogue-box-container">
-      <div className="dialogue-box-icon" aria-hidden="true">
-        {icon || "👤"}
-      </div>
-
-      <div className="dialogue-box-content">
-        <h3 className="annotation-text dialogue-box-speaker">
-          {speaker.toUpperCase()}
+    <div className="dialogue-box-container animate-pop">
+      {icon && (
+        <div className="dialogue-box-avatar">
+          <span className="text-4xl">{icon}</span>
+        </div>
+      )}
+      <div className="dialogue-box-content flex-1 flex flex-col">
+        <h3
+          className="dialogue-box-speaker text-xl font-bold mb-2 text-bui-warning"
+          style={{ fontFamily: "var(--font-sketch)" }}
+        >
+          {speaker}
         </h3>
+        <p className="dialogue-box-text text-lg mb-4 leading-relaxed opacity-90">
+          {text}
+        </p>
 
-        <p className="dialogue-box-text">{text || "No dialogue"}</p>
-
-        <fieldset className="dialogue-box-choices">
-          <legend className="sr-only">{speaker}'s dialogue choices</legend>
-
-          {choices.map((choice, idx) => (
-            <button
+        <div className="dialogue-box-choices flex flex-col gap-2 mt-auto">
+          {choices.map((choice) => (
+            <Button
               key={choice.id}
-              ref={idx === 0 ? firstChoiceRef : null}
+              variant="default"
               onClick={() => onChoice(choice)}
-              className="dialogue-box-btn"
+              style={{
+                justifyContent: "flex-start",
+                textAlign: "left",
+                fontFamily: "var(--font-sketch)",
+              }}
             >
-              {choice.text}
-            </button>
+              ▶ {choice.text}
+            </Button>
           ))}
-        </fieldset>
+        </div>
+
+        {/* TIME LIMIT PROGRESS BAR */}
+        {timeLimitMs && (
+          <div
+            style={{
+              width: "100%",
+              height: "6px",
+              background: "rgba(0,0,0,0.5)",
+              marginTop: "1rem",
+              borderRadius: "3px",
+              overflow: "hidden",
+            }}
+          >
+            <div
+              style={{
+                height: "100%",
+                background: "var(--bui-fg-danger)",
+                width: `${timeLeftWidth}%`,
+                transition: `width ${timeLimitMs}ms linear`,
+              }}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

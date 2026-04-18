@@ -161,6 +161,8 @@ export interface GameSession {
   conflictsSeen: string[];
   activeConflict: Conflict | null;
   activeQuests: string[];
+  stress: number; // 0 (calm) to 100 (disaster)
+  affinities: Record<string, number>; // e.g., { "npc_zainab": 10 }
 }
 
 /**
@@ -248,4 +250,6 @@ export type GameAction =
   | { type: "CLEAR_SESSION" }
   | { type: "ADD_CONTACT"; contactId: string }
   | { type: "MARK_CONTACT_READ"; contactId: string }
-  | { type: "ADD_QUEST"; questId: string };
+  | { type: "ADD_QUEST"; questId: string }
+  | { type: "UPDATE_STRESS"; delta: number }
+  | { type: "UPDATE_AFFINITY"; npcId: string; delta: number };

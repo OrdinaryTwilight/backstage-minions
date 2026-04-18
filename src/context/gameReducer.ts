@@ -30,6 +30,8 @@ const createNewSession = (
     conflictsSeen: [],
     activeConflict: null,
     activeQuests: [],
+    stress: 0,
+    affinities: {},
   };
 };
 
@@ -183,6 +185,35 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
             }
           : null,
       };
+    case "UPDATE_STRESS": {
+      if (!state.session) return state;
+      return {
+        ...state,
+        session: {
+          ...state.session,
+          // Clamp stress between 0 and 100
+          stress: Math.max(
+            0,
+            Math.min(100, state.session.stress + action.delta),
+          ),
+        },
+      };
+    }
+
+    case "UPDATE_AFFINITY": {
+      if (!state.session) return state;
+      return {
+        ...state,
+        session: {
+          ...state.session,
+          affinities: {
+            ...state.session.affinities,
+            [action.npcId]:
+              (state.session.affinities[action.npcId] || 0) + action.delta,
+          },
+        },
+      };
+    }
 
     case "CLEAR_SESSION":
       return { ...state, session: null };
