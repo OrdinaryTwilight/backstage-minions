@@ -1,5 +1,7 @@
+// src/pages/NetworksPage.tsx
 import { useState } from "react";
 import Button from "../components/ui/Button";
+import NavBar from "../components/ui/NavBar"; // <-- Added NavBar
 import { useGame } from "../context/GameContext";
 import { CHARACTERS } from "../data/characters";
 import { CHAT_MESSAGES } from "../data/chatMessages";
@@ -8,7 +10,6 @@ export default function NetworksPage() {
   const { state } = useGame();
   const [activeChat, setActiveChat] = useState<string | null>("sys_comms");
 
-  // Always show system, plus any accumulated contacts
   const availableContacts = [
     "sys_comms",
     ...(state.contacts?.filter((id) => id !== "sys_comms") || []),
@@ -39,13 +40,14 @@ export default function NetworksPage() {
   return (
     <div
       className="page-container animate-fade-in"
-      style={{ paddingTop: "2rem" }}
+      style={{ paddingTop: "1rem" }}
     >
-      <header style={{ marginBottom: "2rem" }}>
+      <NavBar />
+      <header style={{ marginBottom: "2rem", marginTop: "2rem" }}>
         <h1 style={{ fontSize: "2.5rem", fontFamily: "var(--font-sketch)" }}>
           Friends & Contacts
         </h1>
-        <p style={{ color: "var(--text-muted)", fontSize: "1.1rem" }}>
+        <p style={{ color: "var(--color-pencil-light)", fontSize: "1.1rem" }}>
           Stay in touch with your crew. You never know when you'll need a favor.
         </p>
       </header>
@@ -57,19 +59,20 @@ export default function NetworksPage() {
           gap: "2rem",
         }}
       >
+        {/* SIDEBAR DIRECTORY */}
         <div
           style={{
-            background: "var(--surface)",
+            background: "rgba(15, 23, 42, 0.8)",
             borderRadius: "12px",
-            border: "1px solid var(--border)",
+            border: "1px solid var(--bui-border)",
             overflow: "hidden",
           }}
         >
           <div
             style={{
               padding: "1rem",
-              background: "var(--surface2)",
-              borderBottom: "1px solid var(--border)",
+              background: "rgba(30, 41, 59, 0.9)",
+              borderBottom: "1px solid var(--bui-border)",
             }}
           >
             <h2 style={{ fontSize: "1.2rem" }}>Directory</h2>
@@ -86,10 +89,10 @@ export default function NetworksPage() {
                   padding: "1rem",
                   background:
                     activeChat === contact.id
-                      ? "var(--surface2)"
+                      ? "rgba(30, 41, 59, 0.9)"
                       : "transparent",
                   border: "none",
-                  borderBottom: "1px solid var(--border)",
+                  borderBottom: "1px solid var(--bui-border)",
                   cursor: "pointer",
                   textAlign: "left",
                   color: "inherit",
@@ -100,7 +103,10 @@ export default function NetworksPage() {
                 <div>
                   <div style={{ fontWeight: "bold" }}>{contact.name}</div>
                   <div
-                    style={{ fontSize: "0.9rem", color: "var(--text-muted)" }}
+                    style={{
+                      fontSize: "0.9rem",
+                      color: "var(--color-pencil-light)",
+                    }}
                   >
                     {contact.role}
                   </div>
@@ -110,11 +116,12 @@ export default function NetworksPage() {
           </div>
         </div>
 
+        {/* CHAT WINDOW */}
         <div
           style={{
-            background: "var(--surface)",
+            background: "rgba(15, 23, 42, 0.8)",
             borderRadius: "12px",
-            border: "1px solid var(--border)",
+            border: "1px solid var(--bui-border)",
             display: "flex",
             flexDirection: "column",
             height: "500px",
@@ -125,8 +132,8 @@ export default function NetworksPage() {
               <div
                 style={{
                   padding: "1rem",
-                  background: "var(--surface2)",
-                  borderBottom: "1px solid var(--border)",
+                  background: "rgba(30, 41, 59, 0.9)",
+                  borderBottom: "1px solid var(--bui-border)",
                   display: "flex",
                   alignItems: "center",
                   gap: "1rem",
@@ -151,8 +158,11 @@ export default function NetworksPage() {
                     style={{
                       alignSelf: i % 2 === 0 ? "flex-start" : "flex-end",
                       background:
-                        i % 2 === 0 ? "var(--surface2)" : "var(--primary)",
-                      color: i % 2 === 0 ? "inherit" : "#fff",
+                        i % 2 === 0
+                          ? "rgba(30, 41, 59, 0.9)"
+                          : "var(--bui-fg-info)",
+                      color: i % 2 === 0 ? "inherit" : "#000",
+                      fontWeight: i % 2 === 0 ? "normal" : "bold",
                       padding: "0.8rem 1.2rem",
                       borderRadius: "12px",
                       maxWidth: "80%",
@@ -165,7 +175,7 @@ export default function NetworksPage() {
               <div
                 style={{
                   padding: "1rem",
-                  borderTop: "1px solid var(--border)",
+                  borderTop: "1px solid var(--bui-border)",
                   display: "flex",
                   gap: "1rem",
                 }}
@@ -175,17 +185,15 @@ export default function NetworksPage() {
                   placeholder="Send a message..."
                   style={{
                     flex: 1,
-                    background: "var(--bg)",
-                    border: "1px solid var(--border)",
+                    background: "rgba(15, 23, 42, 0.5)",
+                    border: "1px solid var(--bui-border)",
                     borderRadius: "20px",
                     padding: "0.5rem 1rem",
                     color: "inherit",
                   }}
                   disabled
                 />
-                <Button variant="default" disabled>
-                  Send
-                </Button>
+                <Button disabled>Send</Button>
               </div>
             </>
           ) : null}

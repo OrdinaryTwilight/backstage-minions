@@ -41,7 +41,7 @@ export default function OverworldStage({
   const right = useKeyPress(["d", "ArrowRight"]);
 
   const { headsetOn, setHeadsetOn, commsLog } = useComms();
-  
+
   const [activeQuestDialogue, setActiveQuestDialogue] =
     useState<DialogueState | null>(null);
 
@@ -64,6 +64,7 @@ export default function OverworldStage({
     targetPos,
     setTargetPos,
     activeNpcId,
+    activeQuests: state.session?.activeQuests || [], // <-- PASSED IN HERE
   });
 
   const triggerInteraction = useInteraction({
@@ -158,6 +159,31 @@ export default function OverworldStage({
 
           <div className="desktop-only overworld-interaction-bar"></div>
 
+          {/* FIX 3: Extracted nested ternary into independent blocks to satisfy SonarLint */}
+          <div>
+            {activeQuestDialogue && (
+              <DialogueBox
+                speaker={activeQuestDialogue.speaker}
+                text={activeQuestDialogue.text}
+                choices={activeQuestDialogue.choices}
+                icon={activeQuestDialogue.icon}
+                onChoice={(choice) => {
+                  const wasQuest = handleQuestChoice(choice.id, () =>
+                    setActiveQuestDialogue(null),
+                  );
+                  if (!wasQuest) setActiveQuestDialogue(null);
+                }}
+              />
+            )}
+
+            {!activeQuestDialogue && activeNpcId && (
+              <DialogueManager
+                npcId={activeNpcId}
+                onClose={() => setActiveNpcId(null)}
+              />
+            )}
+          </div>
+
           <div className="overworld-interaction-bar">
             {displayFeedback && (
               <div
@@ -179,31 +205,6 @@ export default function OverworldStage({
             )}
           </div>
         </div>
-      </div>
-
-      {/* FIX 3: Extracted nested ternary into independent blocks to satisfy SonarLint */}
-      <div style={{ minHeight: "150px" }}>
-        {activeQuestDialogue && (
-          <DialogueBox
-            speaker={activeQuestDialogue.speaker}
-            text={activeQuestDialogue.text}
-            choices={activeQuestDialogue.choices}
-            icon={activeQuestDialogue.icon}
-            onChoice={(choice) => {
-              const wasQuest = handleQuestChoice(choice.id, () =>
-                setActiveQuestDialogue(null),
-              );
-              if (!wasQuest) setActiveQuestDialogue(null);
-            }}
-          />
-        )}
-
-        {!activeQuestDialogue && activeNpcId && (
-          <DialogueManager
-            npcId={activeNpcId}
-            onClose={() => setActiveNpcId(null)}
-          />
-        )}
       </div>
     </div>
   );

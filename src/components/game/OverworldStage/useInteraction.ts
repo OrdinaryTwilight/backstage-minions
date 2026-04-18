@@ -97,10 +97,14 @@ function handleStaticZoneInteraction(
 
 export function useInteraction(props: UseInteractionProps) {
   return useCallback(() => {
-    // Don't trigger if nothing is nearby or a conversation is already happening
-    if (!props.activeZone || props.activeNpcId || props.activeQuestDialogue)
-      return;
+    if (!props.activeZone) return; // We still need an active zone
     props.setTargetPos(null);
+
+    // If an interaction is already open, clear it to allow the override!
+    if (props.activeNpcId || props.activeQuestDialogue) {
+      props.setActiveNpcId(null);
+      props.setActiveQuestDialogue(null);
+    }
 
     const staticZone = props.currentZones[props.activeZone];
     const activeNpc = props.npcs.find((n) => n.id === props.activeZone);

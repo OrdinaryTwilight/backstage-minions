@@ -32,8 +32,8 @@ interface UseGameLoopParams {
   input: InputState;
   targetPos: { x: number; y: number } | null;
   setTargetPos: (val: null) => void;
-  // CHANGED: Now just looks for an active NPC ID string
   activeNpcId: string | null;
+  activeQuests: string[];
 }
 
 /* ---------------- PURE TICK ENGINE ---------------- */
@@ -57,7 +57,6 @@ function computeNextState(params: {
     input.left,
     input.right,
   );
-
   if (reached) setTargetPos(null);
 
   let newX = prevPos.x + dx;
@@ -113,7 +112,8 @@ export function useGameLoop({
   input,
   targetPos,
   setTargetPos,
-  activeNpcId, // Updated parameter
+  activeNpcId,
+  activeQuests,
 }: UseGameLoopParams) {
   const [pos, setPos] = useState({
     x: GAME_WIDTH / 2,
@@ -132,13 +132,32 @@ export function useGameLoop({
   useEffect(() => {
     const spawnNpcs = () => {
       const available = CHARACTERS.filter((c) => c.id !== charId);
-      const shuffled = [...available].sort(() => 0.5 - Math.random());
-      const count = Math.floor(Math.random() * 3) + 2;
 
-      const spawned = shuffled.slice(0, count).map((npc) => {
+      // 1. Identify which NPCs MUST spawn based on active quests
+      const forceSpawnIds: string[] = [];
+      if (activeQuests.includes("find_directors_script"))
+        forceSpawnIds.push("npc_director");
+      if (activeQuests.includes("find_water_bottle"))
+        forceSpawnIds.push("npc_elara");
+      if (activeQuests.includes("find_gaff_tape"))
+        forceSpawnIds.push("npc_zainab");
+
+      // 2. Separate required vs random
+      const mustSpawn = available.filter((npc) =>
+        forceSpawnIds.includes(npc.id),
+      );
+      const optionalSpawn = available.filter(
+        (npc) => !forceSpawnIds.includes(npc.id),
+      );
+
+      // 3. Shuffle optional and pick enough to have roughly 3-4 NPCs in the room
+      const shuffled = [...available].sort(() => 0.5 - Math.random());
+      const randomCount = Math.max(0, 3 - mustSpawn.length);
+      const toSpawn = [...mustSpawn, ...shuffled.slice(0, randomCount)];
+
+      const spawned = toSpawn.map((npc) => {
         let x = 0;
         let y = 0;
-
         do {
           x = Math.random() * (GAME_WIDTH - 200) + 100;
           y = Math.random() * (GAME_HEIGHT - 200) + 100;
@@ -168,7 +187,6 @@ export function useGameLoop({
   /* ---------------- GAME LOOP ---------------- */
 
   useEffect(() => {
-    // CHANGED: Freeze the game loop if an NPC conversation is active
     if (activeNpcId) return;
 
     const interval = setInterval(() => {
