@@ -160,6 +160,7 @@ export interface GameSession {
   plotLights: LightPlotNode[];
   conflictsSeen: string[];
   activeConflict: Conflict | null;
+  activeQuests: string[];
 }
 
 /**
@@ -181,6 +182,7 @@ export interface GameState {
   unlockedStories: string[];
   contacts: string[];
   unreadContacts: string[];
+  inventory: string[];
 }
 
 // ============================================================================
@@ -245,4 +247,5 @@ export type GameAction =
     }
   | { type: "CLEAR_SESSION" }
   | { type: "ADD_CONTACT"; contactId: string }
-  | { type: "MARK_CONTACT_READ"; contactId: string };
+  | { type: "MARK_CONTACT_READ"; contactId: string }
+  | { type: "ADD_QUEST"; questId: string };
