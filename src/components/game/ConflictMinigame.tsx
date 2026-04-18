@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useGame } from "../../context/GameContext";
 import { NPC_ICONS } from "../../data/gameData";
+import { useAnnouncement } from "../../hooks/useAnnouncement";
 import { Conflict, ConflictChoice } from "../../types/game";
 import HardwarePanel from "../shared/panels/HardwarePanel";
 import Button from "../shared/ui/Button";
@@ -16,7 +17,7 @@ export default function ConflictMinigame({
   onResolved,
 }: ConflictMinigameProps) {
   const { dispatch } = useGame();
-
+  const { announce, AnnouncementRegion } = useAnnouncement();
   const [selectedChoice, setSelectedChoice] = useState<ConflictChoice | null>(
     null,
   );
@@ -29,7 +30,8 @@ export default function ConflictMinigame({
       dispatch({ type: "ADD_CONTACT", contactId: conflict.npc });
     }
 
-    setSelectedChoice(choice);
+    // Programmatically announce the result for a11y
+    announce(`Result: ${choice.outcome}. ${choice.aftermathText}`);
   };
 
   return (
@@ -37,10 +39,9 @@ export default function ConflictMinigame({
       className="page-container content-reveal"
       style={{ paddingTop: "10vh" }}
     >
+      <AnnouncementRegion />
       <HardwarePanel style={{ maxWidth: "800px", margin: "0 auto" }}>
-        <h2 style={{ color: "var(--bui-fg-warning)" }}>
-          ⚡ Conflict
-        </h2>
+        <h2 style={{ color: "var(--bui-fg-warning)" }}>⚡ Conflict</h2>
 
         {selectedChoice ? (
           <div className="animate-pop">

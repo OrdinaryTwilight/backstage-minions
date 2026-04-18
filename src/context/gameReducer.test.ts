@@ -19,6 +19,7 @@ const initialState: GameState = {
   unlockedStories: [],
   contacts: [],
   unreadContacts: [],
+  inventory: [],
 };
 
 const mockSession: GameSession = {
@@ -35,6 +36,11 @@ const mockSession: GameSession = {
   plotLights: [],
   conflictsSeen: [],
   activeConflict: null,
+  activeQuests: [],
+  completedQuests: [],
+  inventory: [],
+  stress: 0,
+  affinities: {},
 };
 
 describe("gameReducer", () => {
