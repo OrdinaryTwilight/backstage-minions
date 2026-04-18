@@ -510,11 +510,11 @@
 }
 
 .dialogue-box-container {
-  position: fixed;
-  bottom: 20px;
+  position: relative;
+  bottom: calc(var(--nav-h) + 20px);
   left: 50%;
   transform: translateX(-50%);
-  width: 90%;
+  width: 100%;
   max-width: 800px;
   background: rgba(15, 23, 42, 0.95);
   border: 2px solid var(--bui-fg-info);
