@@ -1,3 +1,4 @@
+// src/components/game/OverworldStage/useGameLoop.ts
 import { useEffect, useState } from "react";
 import { CHARACTERS } from "../../../data/gameData";
 import { ZoneConfig } from "../../../data/types";
@@ -7,7 +8,7 @@ import {
   GAME_WIDTH,
   PLAYER_SIZE,
 } from "./constants";
-import { DialogueState, NPC } from "./types";
+import { NPC } from "./types"; // Note: Removed DialogueState
 import {
   calculateMovementDelta,
   checkCollision,
@@ -31,7 +32,8 @@ interface UseGameLoopParams {
   input: InputState;
   targetPos: { x: number; y: number } | null;
   setTargetPos: (val: null) => void;
-  activeDialogue: DialogueState | null;
+  // CHANGED: Now just looks for an active NPC ID string
+  activeNpcId: string | null;
 }
 
 /* ---------------- PURE TICK ENGINE ---------------- */
@@ -111,7 +113,7 @@ export function useGameLoop({
   input,
   targetPos,
   setTargetPos,
-  activeDialogue,
+  activeNpcId, // Updated parameter
 }: UseGameLoopParams) {
   const [pos, setPos] = useState({
     x: GAME_WIDTH / 2,
@@ -160,14 +162,14 @@ export function useGameLoop({
       return spawned as NPC[];
     };
 
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setNpcs(spawnNpcs());
   }, [charId, currentRoom, currentZones]);
 
   /* ---------------- GAME LOOP ---------------- */
 
   useEffect(() => {
-    if (activeDialogue) return;
+    // CHANGED: Freeze the game loop if an NPC conversation is active
+    if (activeNpcId) return;
 
     const interval = setInterval(() => {
       setPos((prevPos) => {
@@ -199,7 +201,7 @@ export function useGameLoop({
     npcs,
     input,
     targetPos,
-    activeDialogue,
+    activeNpcId,
     currentZones,
     bumpMsg,
     setTargetPos,

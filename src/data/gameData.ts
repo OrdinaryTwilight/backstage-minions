@@ -3,6 +3,7 @@
 export * from "./characters";
 export * from "./conflicts";
 export * from "./cues";
+export * from "./dialogues";
 export * from "./equipment";
 export * from "./productions";
 export * from "./stories";

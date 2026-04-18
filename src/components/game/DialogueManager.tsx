@@ -1,69 +1,68 @@
-// src/components/game/DialogueManager.tsx
 import { useState } from "react";
 import { useGame } from "../../context/GameContext";
 import {
+  CHARACTERS,
   DIALOGUE_REGISTRY,
   GENERIC_DEPARTMENT_TREE,
-} from "../../data/dialogues";
-import { DialogueChoice, DialogueTree } from "../../types/dialogue";
-import { Character } from "../../types/game";
+} from "../../data/gameData";
+import { DialogueChoice, DialogueTree } from "../../types/dialogue"; // Import directly if not in gameData
 import DialogueBox from "./DialogueBox";
 
 interface DialogueManagerProps {
-  targetNpc: Character;
-  onClose: () => void;
+  readonly npcId: string;
+  readonly onClose: () => void;
 }
 
 export default function DialogueManager({
-  targetNpc,
+  npcId,
   onClose,
-}: Readonly<DialogueManagerProps>) {
+}: DialogueManagerProps) {
   const { state, dispatch } = useGame();
 
-  // 1. Resolve which tree to use (Specific vs Fallback)
+  // 1. Find the target character data
+  const targetNpc = CHARACTERS.find((c) => c.id === npcId);
+
+  // 2. Fallback to generic tree if this NPC doesn't have a specific story
   const tree: DialogueTree =
-    DIALOGUE_REGISTRY[targetNpc.id] || GENERIC_DEPARTMENT_TREE;
+    DIALOGUE_REGISTRY[npcId] || GENERIC_DEPARTMENT_TREE;
 
   const [currentNodeId, setCurrentNodeId] = useState<string>("start");
   const currentNode = tree[currentNodeId];
 
-  // 2. Dynamic Text Interpolation (Replaces {department} with "lighting", etc.)
+  // Failsafe
+  if (!targetNpc || !currentNode) {
+    return null;
+  }
+
+  // 3. Dynamic Text Interpolation
   const parsedText = currentNode.text
     .replace("{department}", targetNpc.department || "the deck")
-    .replace("{role}", targetNpc.role || "crew")
-    .replace("{playerName}", "Tech"); // Replace with actual player name if you have one
+    .replace("{role}", targetNpc.role || "crew");
 
-  // 3. Filter choices based on player state (e.g., inventory checks)
+  // 4. Filter choices (Inventory/Quest checks)
   const availableChoices = currentNode.choices.filter((choice) => {
     if (choice.requiredItem && !state.inventory.includes(choice.requiredItem)) {
-      return false; // Hide choice if they don't have the item
+      return false;
     }
     return true;
   });
 
-  // 4. Handle choice execution
   const handleChoice = (choice: DialogueChoice) => {
-    // Apply points
-    if (choice.pointDelta) {
+    // Process points and side effects
+    if (choice.pointDelta)
       dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
-    }
-
-    // Apply side effects
-    if (choice.sideEffect === "ally_gained") {
+    if (choice.sideEffect === "ally_gained")
       dispatch({ type: "ADD_CONTACT", contactId: targetNpc.id });
-    } else if (choice.sideEffect === "start_gaff_quest") {
+    if (choice.sideEffect === "start_gaff_quest")
       dispatch({ type: "ADD_QUEST", questId: "find_gaff_tape" });
-    }
 
-    // Navigate to next node or close
+    // Traverse the tree
     if (choice.nextNodeId === "end") {
       onClose();
     } else {
       setCurrentNodeId(choice.nextNodeId);
     }
   };
-
-  if (!currentNode) return null;
 
   return (
     <DialogueBox<DialogueChoice>

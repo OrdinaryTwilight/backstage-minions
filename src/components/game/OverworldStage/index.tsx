@@ -4,19 +4,19 @@ import { useGame } from "../../../context/GameContext";
 import { CHARACTERS, OVERWORLD_MAPS } from "../../../data/gameData";
 import { useKeyPress } from "../../../hooks/useKeyPress";
 import { getOverworldObjective } from "../../../utils/objectiveEngine";
-import DialogueBox from "../DialogueBox";
+import DialogueManager from "../DialogueManager"; // <-- CHANGED: Import the new Manager
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_SIZE } from "./constants";
 import HeadsetHUD from "./HeadsetHUD";
 import MapViewport from "./MapViewport";
 import MobileControls from "./MobileControls";
-import { DialogueState, FeedbackMessage, OverworldStageProps } from "./types";
+import { FeedbackMessage, OverworldStageProps } from "./types"; // Note: Removed DialogueState
 import { useComms } from "./useComms";
 import { useGameLoop } from "./useGameLoop";
 import { useInteraction } from "./useInteraction";
 import { useQuests } from "./useQuests";
 
 const formatRoomName = (str: string) =>
-  str.replace(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
+  str.replaceAll(/([A-Z])/g, " $1").replace(/^./, (s) => s.toUpperCase());
 
 export default function OverworldStage({
   onComplete,
@@ -29,9 +29,9 @@ export default function OverworldStage({
   const [targetPos, setTargetPos] = useState<{ x: number; y: number } | null>(
     null,
   );
-  const [activeDialogue, setActiveDialogue] = useState<DialogueState | null>(
-    null,
-  );
+
+  // CHANGED: Replaced activeDialogue object with activeNpcId string
+  const [activeNpcId, setActiveNpcId] = useState<string | null>(null);
   const [feedbackMsg, setFeedbackMsg] = useState<FeedbackMessage | null>(null);
 
   const interactBtn = useKeyPress(["e", "Enter", " "]);
@@ -41,8 +41,9 @@ export default function OverworldStage({
   const right = useKeyPress(["d", "ArrowRight"]);
 
   const { headsetOn, setHeadsetOn, commsLog } = useComms();
-  const { inventory, checkQuestIntercept, handleQuestChoice, questFeedback } =
-    useQuests();
+
+  // CHANGED: Quest logic handled by DialogueManager now, we only need inventory for the HUD
+  const { inventory, questFeedback } = useQuests();
   const displayFeedback = questFeedback || feedbackMsg;
 
   const currentZones = OVERWORLD_MAPS[currentRoom] || OVERWORLD_MAPS["stage"];
@@ -52,6 +53,7 @@ export default function OverworldStage({
     department,
   );
 
+  // CHANGED: Passed activeNpcId into useGameLoop
   const { pos, setPos, npcs, activeZone, bumpMsg } = useGameLoop({
     currentZones,
     currentRoom,
@@ -59,12 +61,13 @@ export default function OverworldStage({
     input: { up, down, left, right },
     targetPos,
     setTargetPos,
-    activeDialogue,
+    activeNpcId,
   });
 
+  // CHANGED: Passed activeNpcId and setActiveNpcId into useInteraction
   const triggerInteraction = useInteraction({
     activeZone,
-    activeDialogue,
+    activeNpcId,
     currentZones,
     npcs,
     currentRoom,
@@ -74,9 +77,8 @@ export default function OverworldStage({
     setCurrentRoom,
     setPos,
     setTargetPos,
-    setActiveDialogue,
+    setActiveNpcId,
     setFeedbackMsg,
-    checkQuestIntercept,
     onComplete,
   });
 
@@ -135,7 +137,7 @@ export default function OverworldStage({
             pos={pos}
             playerChar={playerChar}
             activeZone={activeZone}
-            activeDialogue={activeDialogue}
+            activeNpcId={activeNpcId} // <-- Updated to pass the string directly
             feedbackMsg={displayFeedback?.text || null}
             bumpMsg={bumpMsg}
             handleStageClick={handleStageClick}
@@ -163,7 +165,8 @@ export default function OverworldStage({
               </div>
             )}
 
-            {activeZone && !activeDialogue && !displayFeedback && (
+            {/* CHANGED: Button visibility now checks !activeNpcId */}
+            {activeZone && !activeNpcId && !displayFeedback && (
               <button
                 onClick={triggerInteraction}
                 className="animate-pop interaction-btn"
@@ -177,19 +180,12 @@ export default function OverworldStage({
         </div>
       </div>
 
+      {/* CHANGED: Replaced DialogueBox with the new DialogueManager */}
       <div style={{ minHeight: "150px" }}>
-        {activeDialogue && (
-          <DialogueBox
-            speaker={activeDialogue.speaker}
-            text={activeDialogue.text}
-            choices={activeDialogue.choices}
-            icon={activeDialogue.icon}
-            onChoice={(choice) => {
-              const wasQuest = handleQuestChoice(choice.id, () =>
-                setActiveDialogue(null),
-              );
-              if (!wasQuest) setActiveDialogue(null);
-            }}
+        {activeNpcId && (
+          <DialogueManager
+            npcId={activeNpcId}
+            onClose={() => setActiveNpcId(null)}
           />
         )}
       </div>

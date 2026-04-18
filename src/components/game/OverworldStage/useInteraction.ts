@@ -1,14 +1,14 @@
 // src/components/game/OverworldStage/useInteraction.ts
 import { useCallback } from "react";
-import { NARRATIVE } from "../../../data/narrative";
 import { ZoneConfig } from "../../../data/types";
 import { GameState } from "../../../types/game";
 import { GAME_HEIGHT, GAME_WIDTH } from "./constants";
-import { DialogueState, FeedbackMessage, NPC } from "./types";
+import { FeedbackMessage, NPC } from "./types"; // Note: Removed DialogueState
 
 interface UseInteractionProps {
   activeZone: string | null;
-  activeDialogue: DialogueState | null;
+  // CHANGED: Tracks active NPC string instead of dialogue object
+  activeNpcId: string | null;
   currentZones: Record<string, ZoneConfig>;
   npcs: NPC[];
   currentRoom: string;
@@ -18,9 +18,9 @@ interface UseInteractionProps {
   setCurrentRoom: (room: string) => void;
   setPos: (pos: { x: number; y: number }) => void;
   setTargetPos: (pos: null) => void;
-  setActiveDialogue: (dialogue: DialogueState | null) => void;
+  // CHANGED: Setter for the NPC ID
+  setActiveNpcId: (id: string | null) => void;
   setFeedbackMsg: (msg: FeedbackMessage | null) => void;
-  checkQuestIntercept: (zone: string, npc?: NPC) => DialogueState | null;
   onComplete: () => void;
 }
 
@@ -29,7 +29,7 @@ const formatRoomName = (str: string) =>
     .replaceAll(/([A-Z])/g, " $1")
     .replace(/^./, (s: string) => s.toUpperCase());
 
-// Extracted to reduce cognitive complexity inside the hook
+// Extracted to handle doors and props
 function handleStaticZoneInteraction(
   staticZone: ZoneConfig,
   props: UseInteractionProps,
@@ -45,6 +45,7 @@ function handleStaticZoneInteraction(
     return;
   }
 
+  // Objective validation
   if (
     props.activeZone === props.targetZoneId &&
     props.currentRoom === "stage"
@@ -53,6 +54,7 @@ function handleStaticZoneInteraction(
     return;
   }
 
+  // Wrong booth validation
   if (
     (props.activeZone === "lightBooth" &&
       props.targetZoneId !== "lightBooth") ||
@@ -66,72 +68,33 @@ function handleStaticZoneInteraction(
     return;
   }
 
-  if (staticZone.dialogues && staticZone.dialogues.length > 0) {
-    props.setActiveDialogue(
-      staticZone.dialogues[
-        Math.floor(Math.random() * staticZone.dialogues.length)
-      ] as unknown as DialogueState, // Fix: Added type casting
-    );
-    return;
-  }
-
-  if (staticZone.dialogue) {
-    props.setActiveDialogue(
-      staticZone.dialogue as unknown as DialogueState, // Fix: Added type casting
-    );
-  }
-}
-
-// Extracted to reduce cognitive complexity inside the hook
-function handleNpcChatter(activeNpc: NPC, props: UseInteractionProps) {
-  // Safely cast the state value to match the narrative configuration keys
-  const currentStageKey = props.state.session?.stages[
-    props.state.session?.currentStageIndex
-  ] as keyof typeof NARRATIVE.overworld.chatterByStage | undefined;
-
-  const stageChatter =
-    currentStageKey && NARRATIVE.overworld.chatterByStage[currentStageKey]
-      ? NARRATIVE.overworld.chatterByStage[currentStageKey]
-      : NARRATIVE.overworld.npcChatter;
-
-  const randomLine =
-    stageChatter[Math.floor(Math.random() * stageChatter.length)];
-
-  props.setActiveDialogue({
-    speaker: activeNpc.name,
-    icon: activeNpc.icon,
-    text: randomLine,
-    choices: [{ id: "ok", text: "Got it." }],
+  // Fallback for generic static zones that shouldn't open a dialogue tree
+  props.setFeedbackMsg({
+    text: `You inspected the ${props.activeZone}. Looks fine.`,
+    isError: false,
   });
+  setTimeout(() => props.setFeedbackMsg(null), 1500);
 }
 
 export function useInteraction(props: UseInteractionProps) {
   return useCallback(() => {
-    if (!props.activeZone || props.activeDialogue) return;
+    // Don't trigger if nothing is nearby or a conversation is already happening
+    if (!props.activeZone || props.activeNpcId) return;
     props.setTargetPos(null);
 
     const staticZone = props.currentZones[props.activeZone];
     const activeNpc = props.npcs.find((n) => n.id === props.activeZone);
 
-    // 1. Quests Intercept
-    const questDialogue = props.checkQuestIntercept(
-      props.activeZone,
-      activeNpc,
-    );
-    if (questDialogue) {
-      props.setActiveDialogue(questDialogue);
-      return;
-    }
-
-    // 2. Zone Interaction (Doors, Objectives, Static Props)
+    // 1. Zone Interaction (Doors, Objectives, Props)
     if (staticZone) {
       handleStaticZoneInteraction(staticZone, props);
       return;
     }
 
-    // 3. Contextual NPC Chatter
+    // 2. NPC Interaction Trigger
+    // CHANGED: We no longer generate dialogue here. We just trigger the manager.
     if (activeNpc) {
-      handleNpcChatter(activeNpc, props);
+      props.setActiveNpcId(activeNpc.id);
     }
   }, [props]);
 }
