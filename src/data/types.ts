@@ -21,7 +21,10 @@ export interface Character {
     | "carpentry"
     | "wardrobe"
     | "props"
-    | "video";
+    | "video"
+    | "scenic"
+    | "foh"
+    | "management";
   bio: string;
   icon: string;
   stats: StatBlock;

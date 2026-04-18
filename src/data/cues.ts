@@ -1,6 +1,5 @@
 import { Cue } from "../types/game";
 
-// --- CUE SHEETS ---
 export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
   phantom: {
     lighting: [
@@ -111,7 +110,6 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
       },
     ],
   },
-  // ADD MACBETH HERE!
   macbeth: {
     lighting: [
       {
@@ -157,6 +155,146 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
         targetMs: 45000,
         windowMs: 1000,
         targetLevel: 85,
+      },
+    ],
+  },
+  // --- NEW PRODUCTIONS ADDED BELOW TO FIX PERSONNEL ERROR ---
+  prod_hamlet_space: {
+    lighting: [
+      {
+        id: "LQ 1",
+        label: "Flickering Worklight",
+        targetMs: 12000,
+        windowMs: 2000,
+        targetLevel: 30,
+      },
+      {
+        id: "LQ 2",
+        label: "Alien Laser Effect",
+        targetMs: 25000,
+        windowMs: 1500,
+        targetLevel: 80,
+      },
+    ],
+    sound: [
+      {
+        id: "SQ 1",
+        label: "Theremin Intro",
+        targetMs: 12000,
+        windowMs: 2000,
+        targetLevel: 60,
+      },
+    ],
+  },
+  prod_les_mis_community: {
+    lighting: [
+      {
+        id: "LQ 1",
+        label: "Barricade Wash",
+        targetMs: 15000,
+        windowMs: 1000,
+        targetLevel: 75,
+      },
+    ],
+    sound: [
+      {
+        id: "SQ 1",
+        label: "Ensemble Mic Unmute (All 50)",
+        targetMs: 15000,
+        windowMs: 500,
+        targetLevel: 85,
+      },
+    ],
+    scenic: [
+      {
+        id: "FLY 1",
+        label: "Push the Trash Barricade",
+        targetMs: 30000,
+        windowMs: 5000,
+        targetLevel: 0,
+      },
+    ],
+  },
+  prod_midsummer_musical: {
+    lighting: [
+      {
+        id: "LQ 1",
+        label: "Synth-Pop Strobe",
+        targetMs: 10000,
+        windowMs: 500,
+        targetLevel: 100,
+      },
+    ],
+    sound: [
+      {
+        id: "SQ 1",
+        label: "Drop the Bass",
+        targetMs: 10000,
+        windowMs: 300,
+        targetLevel: 95,
+      },
+    ],
+  },
+  prod_phantom_vengeance: {
+    lighting: [
+      {
+        id: "LQ 101",
+        label: "Strobe Impact",
+        targetMs: 12000,
+        windowMs: 400,
+        targetLevel: 100,
+      },
+    ],
+    sound: [
+      {
+        id: "SQ 45",
+        label: "Glass Shatter FX",
+        targetMs: 11500,
+        windowMs: 300,
+        targetLevel: 100,
+      },
+    ],
+    scenic: [
+      {
+        id: "FLY 12",
+        label: "Chandelier Freefall",
+        targetMs: 11700,
+        windowMs: 200,
+        targetLevel: 0,
+      },
+    ],
+  },
+  prod_corporate_keynote: {
+    lighting: [
+      {
+        id: "LQ 1",
+        label: "Walk-on Rock Strobe",
+        targetMs: 5000,
+        windowMs: 200,
+        targetLevel: 100,
+      },
+      {
+        id: "LQ 2",
+        label: "CEO Keylight (Smooth)",
+        targetMs: 10000,
+        windowMs: 1000,
+        targetLevel: 80,
+      },
+    ],
+    sound: [
+      {
+        id: "SQ 1",
+        label: "Walk-on Rock Anthem",
+        targetMs: 5000,
+        windowMs: 200,
+        targetLevel: 90,
+      },
+      {
+        id: "SQ 2",
+        label: "CEO Lav Mic Unmute",
+        targetMs: 10000,
+        windowMs: 300,
+        targetLevel: 75,
       },
     ],
   },

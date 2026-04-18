@@ -45,7 +45,7 @@ export default function SelectCharacterPage() {
       <NavBar />
 
       <Button
-        onClick={() => navigate(`/productions/${productionId}/${difficulty}`)}
+        onClick={() => navigate(`/productions/${productionId}/difficulty`)}
         style={{
           marginBottom: "1.5rem",
           minWidth: "auto",

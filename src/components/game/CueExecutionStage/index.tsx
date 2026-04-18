@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { useGame } from "../../../context/GameContext";
-import { CHARACTERS } from "../../../data/gameData";
+import { CHARACTERS, getStageHelpText } from "../../../data/gameData";
 import { Cue } from "../../../data/types";
 import { useAnnouncement } from "../../../hooks/useAnnouncement";
 import CueStack from "../../shared/panels/CueStack";
@@ -59,7 +59,7 @@ export default function CueExecutionStage({
       <SectionHeader
         title="Booth Operations"
         subtitle="Coordinate the master clock and maintain fader precision."
-        helpText="Watch the Playhead on the timeline. Ensure your faders match the Target Intensity, then hit GO!"
+        helpText={getStageHelpText("execution" as any)}
       />
 
       <CueTimelineHUD

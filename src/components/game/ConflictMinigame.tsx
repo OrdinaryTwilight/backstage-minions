@@ -32,6 +32,8 @@ export default function ConflictMinigame({
 
     // Programmatically announce the result for a11y
     announce(`Result: ${choice.outcome}. ${choice.aftermathText}`);
+
+    setSelectedChoice(choice);
   };
 
   return (

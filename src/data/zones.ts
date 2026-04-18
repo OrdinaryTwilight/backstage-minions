@@ -1,4 +1,4 @@
-import { ZoneConfig } from "./types";
+import { ZoneConfig } from "./gameData";
 
 export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
   stage: {
@@ -41,18 +41,13 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
           text: "Standby all departments... I need eyes on the main curtain.",
           choices: [{ id: "ok", text: "Standing by." }],
         },
-        {
-          speaker: "Stage Manager",
-          text: "Where is the spotlight operator? We are going to miss the opening cue!",
-          choices: [{ id: "ok", text: "I'll page them." }],
-        },
       ],
     },
     propsTable: {
-      x: 400,
-      y: 350,
-      w: 120,
-      h: 60,
+      x: 120,
+      y: 80,
+      w: 100,
+      h: 60, // FIX: Moved Upstage Left, completely away from the Pit
       label: "PROPS",
       color: "#5f0f40",
       isSolid: true,
@@ -62,15 +57,21 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
           text: "Hey! Don't touch the prop swords. I just repainted the fake blood.",
           choices: [{ id: "ok", text: "Backing away slowly..." }],
         },
+      ],
+    },
+    orchestraPit: {
+      x: 250,
+      y: 390,
+      w: 300,
+      h: 50, // FIX: Tucked tightly at the Downstage edge
+      label: "ORCHESTRA PIT",
+      color: "#2C1A38",
+      isSolid: true,
+      dialogues: [
         {
-          speaker: "Props Master",
-          text: "Have you seen a rubber chicken? I swear I left it right here.",
-          choices: [{ id: "ok", text: "I'll keep an eye out." }],
-        },
-        {
-          speaker: "Props Master",
-          text: "Careful around the table, the glass props are highly fragile!",
-          choices: [{ id: "ok", text: "Understood." }],
+          speaker: "Violist",
+          text: "If you drop a wrench on my instrument, my union rep will end your career.",
+          choices: [{ id: "ok", text: "I'll be careful." }],
         },
       ],
     },
@@ -84,11 +85,6 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       isSolid: false,
       dialogues: [
         {
-          speaker: "Nervous Actor",
-          text: "Psst! Did I miss my entrance? Oh wait... I'm not even in this scene.",
-          choices: [{ id: "ok", text: "Shh! Quiet in the wings!" }],
-        },
-        {
           speaker: "Stage Hand",
           text: "Clear the wings! We have a massive set piece coming through in 2 minutes.",
           choices: [{ id: "ok", text: "Moving out of the way." }],
@@ -98,21 +94,42 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
     doorGreenRoom: {
       x: 250,
       y: 0,
-      w: 300,
+      w: 100,
       h: 50,
-      label: "EXIT TO GREEN ROOM ⬆",
+      label: "GREEN ROOM ⬆",
       color: "#2f3e46",
       isSolid: false,
       isDoor: "greenRoom",
     },
+    doorBasement: {
+      x: 50,
+      y: 400,
+      w: 100,
+      h: 50,
+      label: "BASEMENT ⬇",
+      color: "#4A4A4A",
+      isSolid: false,
+      isDoor: "basement",
+    },
+    doorCatwalks: {
+      x: 650,
+      y: 400,
+      w: 100,
+      h: 50,
+      label: "LADDER UP ⬆",
+      color: "#1A1A1A",
+      isSolid: false,
+      isDoor: "catwalks",
+    },
   },
+
   greenRoom: {
     doorStage: {
       x: 250,
       y: 400,
       w: 300,
       h: 50,
-      label: "⬇ BACK TO BACKSTAGE",
+      label: "⬇ BACK TO STAGE",
       color: "#2f3e46",
       isSolid: false,
       isDoor: "stage",
@@ -145,10 +162,95 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
           text: "It's just stale bagels and lukewarm coffee.",
           choices: [{ id: "ok", text: "Grab a coffee." }],
         },
+      ],
+    },
+  },
+
+  basement: {
+    doorStage: {
+      x: 50,
+      y: 50,
+      w: 100,
+      h: 50,
+      label: "⬆ STAGE LEVEL",
+      color: "#4A4A4A",
+      isSolid: false,
+      isDoor: "stage",
+    },
+    dimmerBeach: {
+      x: 100,
+      y: 200,
+      w: 150,
+      h: 150, // FIX: Moved safely to the left. Center is clear.
+      label: "DIMMER BEACH",
+      color: "#800000",
+      isSolid: true,
+      dialogues: [
         {
-          speaker: "Snack Table",
-          text: "Someone took all the good donuts.",
-          choices: [{ id: "ok", text: "Typical." }],
+          speaker: "Dimmer Rack",
+          text: "*Loud electrical humming noise that vibrates your teeth.*",
+          choices: [{ id: "ok", text: "It's so warm..." }],
+        },
+      ],
+    },
+    loadingDock: {
+      x: 600,
+      y: 250,
+      w: 150,
+      h: 150, // FIX: Center is clear.
+      label: "LOADING DOCK",
+      color: "#333333",
+      isSolid: false,
+      dialogues: [
+        {
+          speaker: "Truck Driver",
+          text: "I need a signature on this manifest before I unstrap the road cases.",
+          choices: [{ id: "ok", text: "Let me find the PM." }],
+        },
+      ],
+    },
+  },
+
+  catwalks: {
+    doorStage: {
+      x: 650,
+      y: 50,
+      w: 100,
+      h: 50,
+      label: "⬇ LADDER DOWN",
+      color: "#1A1A1A",
+      isSolid: false,
+      isDoor: "stage",
+    },
+    spotTower: {
+      x: 200,
+      y: 100,
+      w: 150,
+      h: 100, // FIX: Moved up and left. Center is clear.
+      label: "FOLLOWSPOT 1",
+      color: "#FFD700",
+      isSolid: true,
+      dialogues: [
+        {
+          speaker: "Tara (Spot Op)",
+          text: "Don't shake the catwalk! I'm trying to hold focus on a moving target!",
+          choices: [{ id: "ok", text: "Sorry, walking softly!" }],
+        },
+      ],
+    },
+    gridAccess: {
+      x: 100,
+      y: 350,
+      w: 600,
+      h: 40, // FIX: Runs along the bottom safely.
+      label: "THE GRID",
+      color: "#111111",
+      isSolid: false,
+      dialogues: [
+        {
+          speaker: "Inner Thoughts",
+          text: "It's 60 feet down. I should not look down.",
+          choices: [{ id: "ok", text: "Look up." }],
         },
       ],
     },

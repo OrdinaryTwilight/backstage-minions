@@ -1,39 +1,39 @@
-// src/data/reviews.ts
-
 export const POST_SHOW_REVIEWS = {
-  // Detailed feedback spoken by the Senior Technician
   success: {
-    3: "Flawless execution! The director is thrilled, and the crew is buying you drinks tonight.",
-    2: "Solid show. A few minor hiccups, but nothing the audience noticed. Good work.",
-    1: "Rough night. Half the cues were late and the designer was screaming on comms. Do better tomorrow.",
-    0: "An absolute disaster. The production manager is looking for you, and it's not to give you a raise.",
+    4: "A truly transcendent run. The director cried, the cues were impossibly tight, and not a single piece of gaff tape peeled. The holy grail of live theatre. The SM bought pizza for the whole crew.",
+    3: "Flawless execution! The director is thrilled, and the crew is buying you drinks tonight. A few microscopic bobbles, but you recovered so fast nobody out front noticed.",
+    2: "Solid show. You hit the 'Must-Haves' but missed a few of the 'Nice-to-Haves'. The audience got their money's worth, but we have notes to go over tomorrow at 10 AM.",
+    1: "Rough night. Half the cues were late, the designer was screaming on comms, and the lead actor tripped over an uncoiled cable. Drink some water and do better tomorrow.",
+    0: "An absolute disaster. The production manager is looking for you, and it's not to give you a raise. Actors were wandering in the dark, microphones fed back, and a patron asked for a refund.",
   },
-  // Short header text displayed in the Post-Mortem Report
   short_header: {
+    4: "THEATRICAL PERFECTION!",
     3: "FLAWLESS EXECUTION!",
     2: "SOLID RUN!",
     1: "ROUGH NIGHT...",
     0: "ABSOLUTE TRAINWRECK...",
   },
-  // Failure text (used by LevelFailedPage)
   failure: {
     lighting:
-      "The stage went completely dark during the climax. The actors had to use their phones.",
+      "The stage went completely dark during the climax. The actors had to use their phones. The lighting designer walked out of the theater in disgust.",
     sound:
-      "Feedback deafened the front row, and the lead's mic dropped out. Unacceptable.",
+      "Feedback deafened the front row, and the lead's mic dropped out during their emotional solo. You could hear the audience groaning.",
     costumes:
-      "A massive wardrobe malfunction stopped the show dead in its tracks.",
-    default: "Critical technical failure. The show had to be halted.",
+      "A massive wardrobe malfunction stopped the show dead in its tracks. A zipper jam led to an actor entering wearing half a Victorian dress and sweatpants.",
+    scenic:
+      "The Act 1 drop didn't fly out in time, causing the actors to perform an entire scene cramped in a three-foot sliver of downstage space.",
+    default:
+      "Critical technical failure. The stage manager called 'Stop the Show' over the god mic. The ultimate embarrassment.",
   },
 };
 
-// Extracted UI Text for the Wrap-Up Scene
 export const WRAP_UP_UI_TEXT = {
-  dialogue_title: "Senior Technician",
-  dialogue_btn: "Review Post-Mortem Report →",
-  report_title: "Post-Mortem Report",
-  report_subtitle: "Strike is complete. How did the show go?",
-  score_label: "Total Score",
-  cues_label: "Cues Hit",
-  sign_out_btn: "Sign Out & Return to Dashboard",
+  dialogue_title: "Stage Manager's Notes",
+  dialogue_btn: "Read Show Report →",
+  report_title: "Daily Show Report",
+  report_subtitle:
+    "The house is clear. The ghost light is on. Let's see how we did.",
+  score_label: "Professionalism Score",
+  cues_label: "Cues Hit / Missed",
+  sign_out_btn: "Power Down Console & Go Home",
 };

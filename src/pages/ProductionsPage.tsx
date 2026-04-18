@@ -168,7 +168,7 @@ export default function ProductionsPage() {
                 // RESTORED: Safely look up the player's saved progress for this specific show and level
                 const stars =
                   (productionId &&
-                    state.progress?.[productionId]?.[levelKey]) ||
+                    state.progress?.[`${productionId}_${levelKey}`]?.stars) ||
                   0;
 
                 return (

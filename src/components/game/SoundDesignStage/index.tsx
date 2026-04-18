@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useGame } from "../../../context/GameContext";
-import { SOUND_CONSOLE_CONFIG } from "../../../data/gameData";
+import { getStageHelpText, SOUND_CONSOLE_CONFIG } from "../../../data/gameData";
 import HardwarePanel from "../../shared/panels/HardwarePanel";
 import Button from "../../shared/ui/Button";
 import SectionHeader from "../../shared/ui/SectionHeader";
@@ -44,7 +44,6 @@ export default function SoundDesignStage({
     };
     const deadCount = getDeadCount(difficulty);
     if (deadCount === 0) {
-       
       setDeadChannels([]);
       return;
     }
@@ -90,7 +89,7 @@ export default function SoundDesignStage({
       <SectionHeader
         title="Signal Flow Patching"
         subtitle="Route inputs through the console to output buses."
-        helpText="Careful! Backstage rumor says a channel strip on this board is blown out."
+        helpText={getStageHelpText("sound_design" as any)}
       />
 
       <div className="desktop-two-column">

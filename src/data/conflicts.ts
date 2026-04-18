@@ -105,4 +105,137 @@ export const CONFLICTS: Conflict[] = [
       },
     ],
   },
+  {
+    id: "conf_the_rogue_director",
+    trigger: "rehearsal",
+    npc: "Arthur (Director)",
+    description:
+      "Arthur walks up to your console during a tech run. 'I know we locked the cues, but what if right here, all the lights go completely red and we hear a massive heartbeat? It symbolizes their inner turmoil. Can you build that right now?'",
+    choices: [
+      {
+        id: "diplomatic_stall",
+        text: "That's a bold idea, Arthur. Let me build it in the blind and we'll look at it during notes, so we don't stop the run.",
+        outcome: "resolved",
+        pointDelta: 15,
+        aftermathText:
+          "Arthur beams. 'Yes! Protect the momentum of the run! I love working with artists.' The SM gives you a thumbs up from the desk.",
+      },
+      {
+        id: "hard_no",
+        text: "We are in a run. The SM controls the flow, not me. Talk to them.",
+        outcome: "escalated",
+        pointDelta: -5,
+        aftermathText:
+          "Arthur scowls. 'You technicians have no soul.' He stomps over to the SM desk, halting the entire rehearsal to complain.",
+      },
+      {
+        id: "do_it_live",
+        text: "Sure, let's just busk it right now. I'll drop a heartbeat track.",
+        outcome: "neutral",
+        pointDelta: 0,
+        aftermathText:
+          "You throw up red lights. The actors are blinded and stop their lines. The SM yells at you on comms for changing cues unprompted.",
+      },
+    ],
+  },
+  {
+    id: "conf_the_rf_nightmare",
+    trigger: "planning",
+    npc: "Zoe (A2)",
+    description:
+      "Zoe runs up to you with a handful of mic transmitters. 'The local TV station just fired up a new broadcast tower and it's stepping all over our RF frequencies. Half the cast mics sound like radio static!'",
+    choices: [
+      {
+        id: "re_scan",
+        text: "Let's do a fresh frequency sweep of the venue and re-sync the packs. Tell the cast to hold.",
+        outcome: "resolved",
+        pointDelta: 20,
+        aftermathText:
+          "It takes 15 minutes, but you find clean airwaves. Zoe high-fives you. 'Clean audio is godliness.'",
+      },
+      {
+        id: "turn_it_up",
+        text: "Just boost the gain, it'll overpower the static once they start singing.",
+        outcome: "escalated",
+        pointDelta: -20,
+        aftermathText:
+          "During the opening number, the lead's mic blasts a local traffic report into the theater. It's a disaster.",
+      },
+    ],
+  },
+  {
+    id: "conf_the_fly_rail_traffic",
+    trigger: "execution",
+    npc: "Leo (Head Flyman)",
+    description:
+      "You're on comms. Leo's deep voice comes over: 'Lighting, you hung the new moving head too far upstage. If I drop the Act 2 backdrop right now, it's going to snag on your fixture and tear the canvas.'",
+    choices: [
+      {
+        id: "compromise_fly",
+        text: "Understood. Leo, hold the drop halfway. I'll pan the fixture out of the way, then give you the clear.",
+        outcome: "resolved",
+        pointDelta: 15,
+        aftermathText:
+          "'Copy that. Awaiting your clear,' Leo replies. You move the light, the drop comes in safely, and disaster is averted.",
+      },
+      {
+        id: "blame_game",
+        text: "That's where the plot said to hang it! Just drop the scenery carefully.",
+        outcome: "escalated",
+        pointDelta: -25,
+        aftermathText:
+          "Leo drops it. *RIIIP.* The sound of tearing canvas echoes through the house. Scenic is going to murder you.",
+      },
+    ],
+  },
+  {
+    id: "conf_the_quick_change",
+    trigger: "execution",
+    npc: "Chloe (Hair & Makeup)",
+    description:
+      "In the pitch-black wings, Chloe grabs your arm. 'The lead's wig is caught in their zipper! They are supposed to be on stage in twenty seconds! I need light, NOW!'",
+    choices: [
+      {
+        id: "bite_light",
+        text: "Turn on your mouth-held mini flashlight and use your hands to help unjam the zipper.",
+        outcome: "resolved",
+        pointDelta: 10,
+        aftermathText:
+          "With your light, Chloe frees the wig. The actor sprints on stage precisely on cue. 'You're my hero,' Chloe whispers.",
+      },
+      {
+        id: "phone_light",
+        text: "Pull out your phone and turn on the flashlight at maximum brightness.",
+        outcome: "neutral",
+        pointDelta: -5,
+        aftermathText:
+          "You provide light, but the glaring LED phone beam spills out onto the stage, ruining the lighting designer's dark transition.",
+      },
+    ],
+  },
+  {
+    id: "conf_front_of_house_delay",
+    trigger: "execution",
+    npc: "Marcus (House Manager)",
+    description:
+      "Marcus pages you. 'We have a massive line at the women's restroom and a VIP patron who just spilled wine on their shirt. I need a five-minute hold on the start of Act 2.'",
+    choices: [
+      {
+        id: "grant_hold",
+        text: "Relay to SM: 'FOH requests a five-minute hold.' Keep the house lights up.",
+        outcome: "resolved",
+        pointDelta: 10,
+        aftermathText:
+          "The SM sighs but agrees. Marcus handles the VIP. The audience is seated calmly. Good communication.",
+      },
+      {
+        id: "push_forward",
+        text: "Tell Marcus: 'We are on a strict union clock. We are going in two minutes regardless.'",
+        outcome: "escalated",
+        pointDelta: -10,
+        aftermathText:
+          "Act 2 starts while 50 people are still flooding down the aisles, blocking sightlines and shining phone flashlights. Chaos.",
+      },
+    ],
+  },
 ];
