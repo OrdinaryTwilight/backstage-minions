@@ -35,6 +35,26 @@ export const CHAT_MESSAGES: Record<
       "Hold the house! We have a set piece stuck.",
     ],
   },
+  // NEW: Added Ben!
+  npc_ben: {
+    sender: "Ben (LX)",
+    messages: [
+      "Who touched my gels?",
+      "Can we get a worklight on stage left? I can't see my cable run.",
+      "Just patched the new moving lights. Looking sharp.",
+      "Tell the actors to stop leaning on the booms.",
+    ],
+  },
+  // NEW: Added Casey!
+  npc_casey: {
+    sender: "Casey (Audio)",
+    messages: [
+      "Batteries are charged and mics are swept.",
+      "Can everyone please stop dropping the comms packs?",
+      "I'm picking up RF interference from someone's phone... turn them off!",
+      "Does the lead sound muddy to you, or is it just me?",
+    ],
+  },
   default: {
     sender: "Crew Member",
     messages: [

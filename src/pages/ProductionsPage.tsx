@@ -1,9 +1,8 @@
+// src/pages/ProductionsPage.tsx
 import { useNavigate, useParams } from "react-router-dom";
 import NavBar from "../components/shared/layout/NavBar";
 import Button from "../components/shared/ui/Button";
-import DifficultyPill from "../components/shared/ui/DifficultyPill";
-import { useGame } from "../context/GameContext";
-import { PRODUCTIONS, VENUES } from "../data/gameData";
+import { PRODUCTIONS } from "../data/gameData";
 
 // Helper array to easily check the preceding difficulty tier
 const DIFFICULTY_ORDER = ["school", "community", "professional"];
@@ -18,183 +17,216 @@ const ACT_MAP: Record<string, string> = {
 export default function ProductionsPage() {
   const { productionId } = useParams();
   const navigate = useNavigate();
-  const { state } = useGame();
 
   const production = PRODUCTIONS.find((p) => p.id === productionId);
 
-  if (!production)
-    return <div className="page-container">Briefing not found.</div>;
+  if (!production) {
+    return <div className="page-container">Production not found.</div>;
+  }
+
+  const availableLevels = ["school", "community", "professional"] as const;
 
   return (
-    <div className="page-container">
+    <div
+      className="page-container animate-fade-in"
+      style={{ paddingTop: "1rem" }}
+    >
       <NavBar />
-
-      <Button
-        onClick={() => navigate("/productions")}
+      <div
         style={{
-          marginBottom: "2rem",
-          minWidth: "auto",
-          border: "none",
-          background: "transparent",
-          color: "var(--bui-fg-info)",
+          display: "flex",
+          justifyContent: "center",
+          padding: "2rem 1rem",
         }}
       >
-        ‹ Back to Archives
-      </Button>
+        <div
+          className="animate-pop"
+          style={{
+            background: "rgba(15, 23, 42, 0.95)",
+            border: "2px solid var(--bui-fg-info)",
+            borderRadius: "var(--radius-md)",
+            padding: "clamp(1.5rem, 5vw, 4rem)",
+            maxWidth: "700px",
+            width: "100%",
+            boxShadow: "0 20px 50px rgba(0,0,0,0.6)",
+            position: "relative",
+          }}
+        >
+          {/* Blueprint Corner Brackets */}
+          <div
+            style={{
+              position: "absolute",
+              top: "10px",
+              left: "10px",
+              borderTop: "2px solid var(--bui-fg-warning)",
+              borderLeft: "2px solid var(--bui-fg-warning)",
+              width: "20px",
+              height: "20px",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              borderTop: "2px solid var(--bui-fg-warning)",
+              borderRight: "2px solid var(--bui-fg-warning)",
+              width: "20px",
+              height: "20px",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              bottom: "10px",
+              left: "10px",
+              borderBottom: "2px solid var(--bui-fg-warning)",
+              borderLeft: "2px solid var(--bui-fg-warning)",
+              width: "20px",
+              height: "20px",
+            }}
+          />
+          <div
+            style={{
+              position: "absolute",
+              bottom: "10px",
+              right: "10px",
+              borderBottom: "2px solid var(--bui-fg-warning)",
+              borderRight: "2px solid var(--bui-fg-warning)",
+              width: "20px",
+              height: "20px",
+            }}
+          />
 
-      {/* --- PLAYBILL DESIGN --- */}
-      <div className="playbill-wrapper animate-reveal">
-        <div className="playbill-header">PLAYBILL</div>
-
-        <div className="playbill-content">
-          <div style={{ fontSize: "6rem", marginBottom: "1rem" }}>
-            {production.poster}
+          <div style={{ textAlign: "center", marginBottom: "3rem" }}>
+            <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>
+              {production.poster}
+            </div>
+            <h2
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "1rem",
+                textTransform: "uppercase",
+                letterSpacing: "4px",
+                color: "var(--color-pencil-light)",
+                marginBottom: "0.5rem",
+              }}
+            >
+              Backstage Minions Presents
+            </h2>
+            <h1
+              style={{
+                fontFamily: "var(--font-sketch)",
+                fontSize: "clamp(2.5rem, 8vw, 4rem)",
+                color: "var(--bui-fg-warning)",
+                textShadow: "0 0 10px rgba(251, 191, 36, 0.2)",
+                margin: "0",
+              }}
+            >
+              {production.title}
+            </h1>
+            <p
+              style={{
+                fontSize: "1.1rem",
+                color: "var(--text-muted)",
+                marginTop: "1.5rem",
+                lineHeight: "1.6",
+                maxWidth: "90%",
+                margin: "1.5rem auto 0",
+              }}
+            >
+              {production.description}
+            </p>
           </div>
-
-          <h1 className="playbill-title">{production.title}</h1>
-          <p
-            style={{
-              fontSize: "1.2rem",
-              fontStyle: "italic",
-              marginBottom: "2rem",
-              color: "#444",
-            }}
-          >
-            {production.description}
-          </p>
-
-          <a
-            href={production.learnMoreUrl}
-            target="_blank"
-            rel="noreferrer"
-            style={{
-              display: "inline-block",
-              marginBottom: "3rem",
-              color: "#000",
-              fontWeight: "bold",
-            }}
-          >
-            Read the Director's Note ↗
-          </a>
 
           <div
             style={{
-              borderTop: "4px solid #000",
-              borderBottom: "4px solid #000",
-              padding: "1rem 0",
-              marginBottom: "2rem",
+              borderTop: "1px dashed var(--bui-border)",
+              paddingTop: "2rem",
             }}
           >
-            <h2
+            <h3
               style={{
-                fontSize: "1.5rem",
-                textTransform: "uppercase",
-                letterSpacing: "2px",
+                fontFamily: "var(--font-sketch)",
+                fontSize: "2rem",
+                color: "var(--bui-fg-info)",
+                marginBottom: "1.5rem",
+                textAlign: "center",
               }}
             >
-              Select Your Call Time
-            </h2>
-          </div>
+              Callboard: Select Gig
+            </h3>
 
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex", flexDirection: "column" }}>
-              {Object.entries(production.levels || {}).map(([diff, lvl]) => {
-                const prog = state?.progress?.[`${productionId}_${diff}`];
-                const venue = VENUES[lvl.venueId];
-
-                // --- NEW DYNAMIC UNLOCK LOGIC ---
-                const diffIndex = DIFFICULTY_ORDER.indexOf(diff);
-                const prevDiff =
-                  diffIndex > 0 ? DIFFICULTY_ORDER[diffIndex - 1] : null;
-                const prevProg = prevDiff
-                  ? state?.progress?.[`${productionId}_${prevDiff}`]
-                  : null;
-
-                // FIX: Explicitly cast to boolean to fix the TS 'boolean | undefined' error
-                const isUnlocked = Boolean(
-                  lvl.unlocked || prog?.completed || prevProg?.completed,
-                );
-
-                // Fetch the mapped Act number
-                const actNumber = ACT_MAP[diff] || "I";
+            <div
+              style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+            >
+              {availableLevels.map((levelKey) => {
+                const levelData = production.levels[levelKey];
+                const isUnlocked = !!levelData;
 
                 return (
-                  <button
-                    key={diff}
-                    className="playbill-act-item"
+                  <div
+                    key={levelKey}
                     style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "1.25rem",
+                      background: "rgba(0, 0, 0, 0.3)",
+                      border: `1px solid ${isUnlocked ? "var(--bui-border)" : "rgba(255,255,255,0.1)"}`,
+                      borderRadius: "8px",
                       opacity: isUnlocked ? 1 : 0.5,
                       cursor: isUnlocked ? "pointer" : "not-allowed",
-                      padding: "1.5rem",
-                      borderBottom: "1px solid #eaeaea",
-                      background: "none",
-                      border: "none",
-                      width: "100%",
-                      textAlign: "left",
+                      transition: "all 0.2s ease",
                     }}
-                    disabled={!isUnlocked}
                     onClick={() => {
                       if (isUnlocked) {
+                        sessionStorage.removeItem("minion_inventory");
+                        sessionStorage.removeItem("minion_completed_quests");
+                        sessionStorage.removeItem("minion_active_quests");
                         navigate(
-                          `/productions/${productionId}/difficulty/${diff}/character`,
+                          `/productions/${productionId}/difficulty/${levelKey}/character`,
                         );
                       }
                     }}
+                    className={isUnlocked ? "hover-lift" : ""}
                   >
                     <div>
-                      <h3
+                      <h4
                         style={{
+                          fontFamily: "var(--font-sketch)",
                           fontSize: "1.4rem",
-                          fontWeight: "bold",
-                          textTransform: "uppercase",
+                          textTransform: "capitalize",
+                          margin: "0 0 0.25rem 0",
+                          color: isUnlocked ? "#fff" : "inherit",
                         }}
                       >
-                        ACT {actNumber}: {diff}
-                      </h3>
-                      <p
+                        {levelKey} Theater
+                      </h4>
+                      <span
                         style={{
-                          fontSize: "1.1rem",
-                          color: "#222",
-                          marginTop: "4px",
-                          fontWeight: "bold",
+                          fontSize: "0.9rem",
+                          fontFamily: "var(--font-mono)",
+                          color: "var(--color-pencil-light)",
                         }}
                       >
-                        📍 {venue?.name || "Unknown Venue"}
-                      </p>
-
-                      {isUnlocked ? (
-                        <p
-                          style={{
-                            fontSize: "0.9rem",
-                            color: "#666",
-                            marginTop: "4px",
-                            fontStyle: "italic",
-                          }}
-                        >
-                          {venue?.description}
-                        </p>
-                      ) : (
-                        <p
-                          style={{
-                            fontSize: "0.9rem",
-                            color: "var(--bui-fg-danger)",
-                            marginTop: "4px",
-                            fontWeight: "bold",
-                          }}
-                        >
-                          🔒 Clear Act {diffIndex} ({prevDiff}) to unlock.
-                        </p>
-                      )}
+                        {isUnlocked
+                          ? "Positions Available"
+                          : "Production Locked"}
+                      </span>
                     </div>
-
-                    <div style={{ alignSelf: "center" }}>
-                      <DifficultyPill
-                        label={isUnlocked ? "Ready" : "Locked"}
-                        stars={prog?.stars || 0}
-                        unlocked={isUnlocked}
-                      />
-                    </div>
-                  </button>
+                    {isUnlocked && (
+                      <Button
+                        variant="accent"
+                        style={{
+                          pointerEvents: "none",
+                          fontFamily: "var(--font-sketch)",
+                        }}
+                      >
+                        Apply →
+                      </Button>
+                    )}
+                  </div>
                 );
               })}
             </div>

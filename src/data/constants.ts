@@ -39,7 +39,7 @@ export type Difficulty = (typeof DIFFICULTIES)[keyof typeof DIFFICULTIES];
 
 /** Difficulty Multipliers for Cues */
 export const DIFFICULTY_MODIFIERS: Record<Difficulty, number> = {
-  [DIFFICULTIES.SCHOOL]: 1.0,
+  [DIFFICULTIES.SCHOOL]: 1,
   [DIFFICULTIES.COMMUNITY]: 0.8,
   [DIFFICULTIES.PROFESSIONAL]: 0.6,
 };

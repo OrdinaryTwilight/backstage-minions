@@ -157,10 +157,10 @@ export default function OverworldStage({
             }
           />
 
-          <div className="desktop-only overworld-interaction-bar"></div>
-
           {/* FIX 3: Extracted nested ternary into independent blocks to satisfy SonarLint */}
-          <div>
+          <div
+            style={{ marginTop: "0.25rem", position: "relative", zIndex: 100 }}
+          >
             {activeQuestDialogue && (
               <DialogueBox
                 speaker={activeQuestDialogue.speaker}

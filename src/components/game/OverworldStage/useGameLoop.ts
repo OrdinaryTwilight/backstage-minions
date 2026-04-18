@@ -146,9 +146,6 @@ export function useGameLoop({
       const mustSpawn = available.filter((npc) =>
         forceSpawnIds.includes(npc.id),
       );
-      const optionalSpawn = available.filter(
-        (npc) => !forceSpawnIds.includes(npc.id),
-      );
 
       // 3. Shuffle optional and pick enough to have roughly 3-4 NPCs in the room
       const shuffled = [...available].sort(() => 0.5 - Math.random());
