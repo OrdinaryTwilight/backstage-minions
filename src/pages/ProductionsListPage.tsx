@@ -41,7 +41,7 @@ export default function ProductionsListPage() {
             background: "rgba(15, 23, 42, 0.8)",
             border: "2px solid var(--bui-border)",
             color: "white",
-            fontFamily: "var(--font-mono)",
+            fontFamily: "var(--font-sketch)",
             fontSize: "1.1rem",
           }}
           placeholder="Search callboards..."

@@ -171,7 +171,6 @@ export default function ProductionsPage() {
                     }}
                     onClick={() => {
                       if (isUnlocked) {
-                        // ITEM CARRY-OVER BUG FIX: Nuke the previous show's local storage data!
                         sessionStorage.removeItem("minion_inventory");
                         sessionStorage.removeItem("minion_completed_quests");
                         sessionStorage.removeItem("minion_active_quests");
