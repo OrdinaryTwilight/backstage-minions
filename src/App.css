@@ -1,7 +1,198 @@
-/* --- 1. BUTTONS & CONTROLS --- */
-/* src/App.css updates */
+/* --- 1. GLOBAL ANIMATIONS --- */
+@keyframes blueprint-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
 
-/* 1. Base Button Styles - Consolidated and thickened */
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(56, 189, 248, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+  }
+}
+
+@keyframes stat-fill {
+  from {
+    width: 0;
+  }
+}
+
+@keyframes technical-flicker {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  5% {
+    opacity: 0.3;
+  }
+  15% {
+    opacity: 0.4;
+  }
+  25% {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes master-go-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 15px rgba(74, 222, 128, 0);
+  }
+}
+
+@keyframes hardware-pop {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes booth-flash-hit {
+  0% {
+    background-color: rgba(74, 222, 128, 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+@keyframes booth-flash-miss {
+  0% {
+    background-color: rgba(248, 113, 113, 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes row-hit {
+  0% {
+    background-color: rgba(74, 222, 128, 0.4);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+@keyframes row-miss {
+  0% {
+    background-color: rgba(239, 68, 68, 0.4);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes bob {
+  from {
+    transform: translateY(0) rotate(-5deg);
+  }
+  to {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes transit-fade {
+  0%,
+  80% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.05;
+  }
+}
+
+/* Animation Utilities */
+.animate-blueprint,
+.animate-reveal {
+  animation: blueprint-reveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.animate-flicker {
+  animation: technical-flicker 0.4s ease-in-out;
+}
+.animate-pop {
+  animation: hardware-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.animate-pulse-go {
+  animation: master-go-pulse 2s infinite;
+}
+
+.flash-hit {
+  animation: booth-flash-hit 0.4s ease-out forwards;
+}
+.flash-miss {
+  animation: booth-flash-miss 0.4s ease-out forwards;
+}
+.row-flash-hit {
+  animation: row-hit 0.8s ease-out forwards;
+}
+.row-flash-miss {
+  animation: row-miss 0.8s ease-out forwards;
+}
+
+/* Status Indicators */
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+.status-on-call {
+  background: var(--bui-fg-success);
+  animation: pulse-glow 2s infinite;
+}
+.status-off-duty {
+  background: #666;
+}
+
+/* --- 2. BUTTONS & CONTROLS --- */
 .btn,
 .action-button {
   cursor: pointer;
@@ -9,53 +200,41 @@
   align-items: center;
   justify-content: center;
   padding: 1rem 2rem;
-  /* Increased padding for better height */
   font-family: var(--font-main);
   font-weight: bold;
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 1.5px;
   background: var(--color-surface-translucent);
-  /* The dark theme background */
   backdrop-filter: blur(12px);
   border: 2px solid var(--glass-border);
-  /* Slightly thicker border */
   border-radius: var(--radius-pill);
   color: var(--color-pencil-light);
   width: 100%;
-  /* REMOVED: max-width: 320px; - Let the container control width */
   margin: 0.5rem 0;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: var(--shadow-tactile);
   filter: url(#sketch-wobble);
 }
 
-/* 2. Success Variant (The 'Sign' and 'Commit' buttons) */
 .btn-success {
   border-color: var(--bui-fg-success);
   color: var(--bui-fg-success);
   background: rgba(74, 222, 128, 0.05);
-  /* Subtle tint instead of white */
 }
-
 .btn-success:hover {
   background: rgba(74, 222, 128, 0.15);
   box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
 }
-
-/* 3. Accent Variant (The 'Initialize Stage' buttons) */
 .btn-accent {
   border-color: var(--bui-fg-info);
   color: var(--bui-fg-info);
   background: rgba(56, 189, 248, 0.05);
 }
-
 .btn-accent:hover {
   background: rgba(56, 189, 248, 0.15);
   box-shadow: 0 0 20px rgba(56, 189, 248, 0.2);
 }
-
-/* 4. Utility for Extra Large Buttons */
 .btn-xl {
   padding: 1.5rem 2rem;
   font-size: 1.2rem;
@@ -67,12 +246,10 @@
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
 }
-
 .action-button:active:not(:disabled) {
   transform: scale(0.96);
 }
 
-/* --- 2. THE MASTER GO BUTTON --- */
 .btn-master-go {
   width: clamp(100px, 20vw, 140px);
   height: clamp(100px, 20vw, 140px);
@@ -93,20 +270,18 @@
   margin: 1rem auto;
   transition: transform 0.1s ease;
 }
-
 .btn-master-go:active:not(:disabled) {
   transform: scale(0.92);
   box-shadow: 0 0 5px var(--bui-fg-success);
 }
 
-/* --- 3. HARDWARE & SCREENS --- */
+/* --- 3. UI COMPONENTS & OVERLAYS --- */
 .hardware-panel {
   background: rgba(20, 20, 20, 0.6);
   border: 2px solid var(--color-pencil-light);
   padding: var(--panel-padding);
   position: relative;
   filter: url(#sketch-wobble);
-  /* Asymmetric border radius for hand-drawn look */
   border-top-left-radius: 255px 15px;
   border-top-right-radius: 15px 225px;
   border-bottom-right-radius: 225px 15px;
@@ -126,14 +301,12 @@
   overflow-x: auto;
 }
 
-/* --- 4. SEARCH SYSTEM --- */
 .search-container {
   position: relative;
   margin-bottom: var(--section-margin);
   max-width: 500px;
   width: 100%;
 }
-
 .search-input {
   width: 100%;
   background: var(--color-surface-translucent);
@@ -148,20 +321,17 @@
   transition: all 0.2s ease;
   filter: url(#sketch-wobble);
 }
-
 .search-input:focus {
   border-color: var(--color-architect-blue);
   background: rgba(255, 255, 255, 0.1);
   box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
 }
 
-/* --- 5. HUD FIXES --- */
 .hud-container div:first-child {
   min-height: var(--space-md);
   display: flex;
   align-items: center;
 }
-
 .help-trigger {
   display: inline-flex;
   align-items: center;
@@ -177,7 +347,6 @@
   transition: all 0.2s ease;
   vertical-align: middle;
 }
-
 .help-trigger:hover {
   background: rgba(56, 189, 248, 0.2);
   box-shadow: 0 0 10px var(--bui-fg-info);
@@ -202,19 +371,12 @@
   margin-top: var(--space-xs);
   animation: hardware-pop var(--duration-normal) ease-out;
 }
-
 .tooltip-overlay b {
   color: var(--bui-fg-warning);
   display: block;
   margin-bottom: var(--space-xs);
 }
 
-/* --- 6. FEEDBACK OVERLAY --- */
-/**
- * Feedback Overlay: Provides visual feedback for cue execution
- * Shows immediate hit/miss feedback in the booth execution stage
- * Animation duration matches the visual feedback timeout in CueExecutionStage.tsx
- */
 .feedback-overlay {
   position: fixed;
   top: 0;
@@ -227,97 +389,15 @@
   transition: opacity 0.1s ease;
 }
 
-.feedback-overlay.flash-hit {
-  animation: flash-hit var(--duration-slow) ease-out forwards;
-}
-
-.feedback-overlay.flash-miss {
-  animation: flash-miss var(--duration-slow) ease-out forwards;
-}
-
-@keyframes flash-hit {
-  0% {
-    background: rgba(74, 222, 128, 0.4);
-    opacity: 1;
-  }
-  100% {
-    background: rgba(74, 222, 128, 0);
-    opacity: 0;
-  }
-}
-
-@keyframes flash-miss {
-  0% {
-    background: rgba(239, 68, 68, 0.4);
-    opacity: 1;
-  }
-  100% {
-    background: rgba(239, 68, 68, 0);
-    opacity: 0;
-  }
-}
-
-.character-transit {
-  position: fixed;
-  inset: 0;
-  background: var(--color-bg);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 2000;
-  animation: transit-fade 1.5s ease-in-out forwards;
-}
-
-.walking-icon {
-  font-size: 4rem;
-  animation: bob 0.6s infinite alternate ease-in-out;
-}
-
-@keyframes bob {
-  from {
-    transform: translateY(0) rotate(-5deg);
-  }
-
-  to {
-    transform: translateY(-20px) rotate(5deg);
-  }
-}
-
-@keyframes transit-fade {
-  0% {
-    opacity: 0;
-  }
-
-  20% {
-    opacity: 1;
-  }
-
-  80% {
-    opacity: 1;
-  }
-
-  100% {
-    opacity: 0;
-    visibility: hidden;
-  }
-}
-
-/* Reusable Technical Overlay */
 .tech-glow {
   position: relative;
   overflow: hidden;
 }
-
 .tech-glow::before {
   content: " ";
   display: block;
   position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
-  /* Scanline Pattern */
+  inset: 0;
   background:
     linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
     linear-gradient(
@@ -332,15 +412,11 @@
     3px 100%;
   pointer-events: none;
 }
-
 .tech-glow::after {
   content: " ";
   display: block;
   position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  right: 0;
+  inset: 0;
   background: rgba(18, 16, 16, 0.1);
   opacity: 0;
   z-index: 11;
@@ -348,50 +424,482 @@
   animation: flicker 0.15s infinite;
 }
 
-@keyframes flicker {
-  0% {
-    opacity: 0.1;
-  }
+.character-transit {
+  position: fixed;
+  inset: 0;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: transit-fade 1.5s ease-in-out forwards;
+}
+.walking-icon {
+  font-size: 4rem;
+  animation: bob 0.6s infinite alternate ease-in-out;
+}
 
-  50% {
-    opacity: 0.05;
-  }
+/* --- 4. GAME SELECT DROPDOWN --- */
+.game-select {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 2px solid var(--glass-border);
+  color: var(--color-pencil-light);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  background-size: 1em;
+  transition:
+    border-color var(--duration-fast),
+    box-shadow var(--duration-fast);
+}
+.light-mode .game-select {
+  background: rgba(255, 255, 255, 0.8);
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+.game-select:focus {
+  outline: none;
+  border-color: var(--bui-fg-info);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+.game-select option {
+  background: var(--color-blueprint-bg);
+  color: var(--color-pencil-light);
+  font-family: var(--font-mono);
+}
 
-  100% {
-    opacity: 0.1;
+/* --- 5. STAGE: GRAND MA CONSOLES & LIGHTING BEAMS --- */
+.grandma-panel {
+  background: #0d0d0d;
+  border: 2px solid #333;
+  color: #fbbf24;
+  font-family: var(--font-mono);
+  padding: var(--panel-padding);
+}
+.grandma-btn {
+  background: #1a1a1a;
+  border: 1px solid #444;
+  border-top: 2px solid #555;
+  color: #d1d5db;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: bold;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+}
+.grandma-btn:hover {
+  background: #222;
+}
+.grandma-btn.active {
+  background: #fbbf24;
+  color: #000;
+  border-color: #f59e0b;
+}
+
+.plot-cell:focus {
+  background: rgba(56, 189, 248, 0.3) !important;
+  box-shadow: 0 0 15px var(--bui-fg-info);
+}
+.light-beam-spot {
+  clip-path: polygon(40% 0, 60% 0, 100% 100%, 0% 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  width: 40px !important;
+}
+.light-beam-wash {
+  clip-path: polygon(20% 0, 80% 0, 100% 100%, 0% 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(56, 189, 248, 0.5) 0%,
+    rgba(56, 189, 248, 0.05) 100%
+  );
+  width: 100px !important;
+}
+
+/* --- 6. PRODUCTIONS PAGE: PLAYBILLS --- */
+.playbill-wrapper {
+  background: #ffffff;
+  color: #000000;
+  max-width: 600px;
+  margin: 0 auto;
+  border: 1px solid #333;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8);
+  font-family: var(--font-serif, Georgia, serif);
+}
+.playbill-header {
+  background: #ffcc00;
+  color: #000000;
+  text-align: center;
+  padding: 0.5rem;
+  font-weight: 900;
+  font-size: 2.5rem;
+  letter-spacing: 2px;
+  border-bottom: 6px solid #000;
+  font-family: Arial, Helvetica, sans-serif;
+  text-transform: uppercase;
+}
+.playbill-content {
+  padding: 2rem;
+  text-align: center;
+}
+.playbill-title {
+  font-size: 3rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  margin: 1rem 0;
+  line-height: 1.1;
+}
+.playbill-act-item {
+  border-top: 2px solid #eee;
+  padding: 1.5rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--duration-fast);
+}
+.playbill-act-item:hover {
+  background: #f9f9f9;
+}
+
+/* --- 7. NETWORKS PAGE: CHAT TERMINAL --- */
+.networks-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 2rem;
+  height: 70vh;
+  margin-top: 2rem;
+}
+.contacts-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+.contact-item.active {
+  border-color: var(--bui-fg-info);
+  box-shadow: 0 0 10px var(--bui-fg-info);
+}
+.contact-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.contact-icon {
+  font-size: 2rem;
+}
+.contact-name {
+  font-size: 1.1rem;
+  font-weight: bold;
+  margin: 0;
+}
+.contact-role {
+  font-size: 0.8rem;
+  opacity: 0.7;
+  margin: 0;
+}
+
+.chat-terminal {
+  display: flex;
+  flex-direction: column;
+}
+.terminal-window {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0 !important;
+}
+.terminal-header {
+  background: rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 1rem;
+  font-family: monospace;
+  font-size: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.message-history {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.message.incoming {
+  align-self: flex-start;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1rem;
+  border-radius: 4px;
+  max-width: 80%;
+  border-left: 3px solid var(--bui-fg-info);
+}
+.message-text {
+  margin: 0;
+  line-height: 1.4;
+}
+.timestamp {
+  font-size: 0.7rem;
+  opacity: 0.5;
+  display: block;
+  margin-top: 0.5rem;
+}
+.terminal-input-area {
+  padding: 1rem;
+  display: flex;
+  gap: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+.terminal-input {
+  flex: 1;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 0.5rem 1rem;
+  font-family: inherit;
+}
+
+/* --- 8. VISUAL NOVEL & DIALOGUE --- */
+.vn-dialogue-container {
+  position: relative;
+  width: 100%;
+  z-index: 1000;
+  animation: slide-up-fade var(--duration-normal) ease-out;
+}
+.vn-speaker-tag {
+  position: absolute;
+  top: -32px;
+  left: 20px;
+  background: var(--color-architect-blue);
+  color: #ffffff;
+  padding: 6px 24px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 8px 8px 0 0;
+  border: 2px solid var(--glass-border);
+  border-bottom: none;
+  z-index: 2;
+  box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.3);
+  font-family: var(--font-mono);
+  letter-spacing: 1px;
+}
+.vn-text-box {
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid var(--glass-border);
+  border-radius: 8px;
+  padding: 2.5rem 2rem 2rem 2rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.dialogue-box-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 800px;
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid var(--bui-fg-info);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  display: flex;
+  gap: var(--space-md);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+  backdrop-filter: blur(10px);
+}
+.dialogue-box-icon {
+  font-size: 4rem;
+  display: flex;
+  align-items: center;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.2));
+}
+.dialogue-box-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.dialogue-box-speaker {
+  margin: 0 0 0.5rem 0;
+  color: var(--bui-fg-info);
+  font-size: 1.2rem;
+}
+.dialogue-box-text {
+  font-size: 1.1rem;
+  line-height: 1.5;
+  margin: 0 0 1.5rem 0;
+  color: #fff;
+  flex: 1;
+}
+.dialogue-box-choices {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dialogue-box-btn {
+  background: #1e293b;
+  color: #fff;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  font-weight: bold;
+  font-family: var(--font-main);
+  transition: all 0.2s ease;
+  flex: 1 1 auto;
+  text-align: center;
+}
+.dialogue-box-btn:hover {
+  background: #3b82f6;
+}
+.dialogue-box-btn:focus {
+  box-shadow: 0 0 0 2px #fff;
+  outline: none;
+}
+
+@media (max-width: 640px) {
+  .dialogue-box-container {
+    padding: var(--space-sm);
+    gap: var(--space-sm);
+    bottom: 10px;
+    width: 95%;
+  }
+  .dialogue-box-icon {
+    font-size: 2.5rem;
+  }
+  .dialogue-box-choices {
+    flex-direction: column;
+    width: 100%;
+  }
+  .dialogue-box-btn {
+    width: 100%;
   }
 }
 
-/* Row-level feedback animations */
-@keyframes row-hit {
-  0% {
-    background-color: rgba(74, 222, 128, 0.4);
-  }
-
-  100% {
-    background-color: transparent;
-  }
+/* --- 9. OVERWORLD SPECIFIC STYLING --- */
+.overworld-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.overworld-header {
+  text-align: center;
+  background: var(--color-surface-translucent);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--bui-fg-warning);
+}
+.overworld-header h2 {
+  color: var(--bui-fg-warning);
+  margin: 0;
+  font-family: var(--font-mono);
+}
+.overworld-header p {
+  margin: 0.5rem 0 0 0;
+  color: var(--color-pencil-light);
+}
+.overworld-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  position: relative;
+}
+.overworld-sidebar {
+  flex: 1 1 200px;
+  max-width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.overworld-inventory {
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px;
+}
+.overworld-inventory h3 {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: var(--bui-fg-warning);
+  font-family: var(--font-mono);
+}
+.overworld-inventory-empty {
+  color: #666;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+.overworld-inventory-list {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--color-pencil-light);
+  font-size: 0.9rem;
+}
+.overworld-main {
+  flex: 3 1 500px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.overworld-interaction-bar {
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+.interaction-btn {
+  background: var(--bui-fg-warning);
+  color: #000;
+  border: 2px solid #fff;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: bold;
+  font-size: 1.2rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+.feedback-banner {
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+.feedback-error {
+  background: var(--bui-bg-danger, #dc2626);
+  color: white;
+}
+.feedback-success {
+  background: var(--bui-fg-info);
+  color: #000;
 }
 
-@keyframes row-miss {
-  0% {
-    background-color: rgba(239, 68, 68, 0.4);
-  }
-
-  100% {
-    background-color: transparent;
-  }
-}
-
-.row-flash-hit {
-  animation: row-hit 0.8s ease-out forwards;
-}
-
-.row-flash-miss {
-  animation: row-miss 0.8s ease-out forwards;
-}
-
-/* Mobile Optimization Utilities */
 .mobile-dpad-btn {
   background: rgba(255, 255, 255, 0.2);
   border: 2px solid rgba(255, 255, 255, 0.5);
