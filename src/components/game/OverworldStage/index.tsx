@@ -8,6 +8,8 @@ import { useComms } from "./useComms";
 import { useGameLoop } from "./useGameLoop";
 import { useQuests } from "./useQuests";
 
+import { NARRATIVE } from "../../../data/narrative";
+import { getOverworldObjective } from "../../../utils/objectiveEngine";
 import HeadsetHUD from "./HeadsetHUD";
 import MapViewport from "./MapViewport";
 import MobileControls from "./MobileControls";
@@ -64,23 +66,10 @@ export default function OverworldStage({
   });
 
   const playerChar = CHARACTERS.find((c) => c.id === charId);
-
-  let targetZoneId = "";
-  let targetLabel = "";
-  let instructionText = "";
-  if (nextStageKey === "cable_coiling") {
-    targetZoneId = "wings";
-    targetLabel = "STAGE WINGS";
-    instructionText = "Show's over! Report to the WINGS for Strike.";
-  } else if (nextStageKey === "wrapup") {
-    targetZoneId = "stageManager";
-    targetLabel = "SM DESK";
-    instructionText = "Strike is complete. Report to the SM DESK to sign out.";
-  } else {
-    targetZoneId = department === "lighting" ? "lightBooth" : "soundBooth";
-    targetLabel = department === "lighting" ? "LX BOOTH" : "SOUND BOOTH";
-    instructionText = `Report to the ${targetLabel} immediately!`;
-  }
+  const { targetZoneId, targetLabel, instructionText } = getOverworldObjective(
+    nextStageKey,
+    department,
+  );
 
   const handleStageClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -108,7 +97,6 @@ export default function OverworldStage({
       if (staticZone.isDoor) {
         setCurrentRoom(staticZone.isDoor);
         setPos({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
-        // FIX: Beautiful Title Case formatting for room transitions
         setFeedbackMsg({
           text: `Entering ${formatRoomName(staticZone.isDoor)}...`,
           isError: false,
@@ -135,14 +123,10 @@ export default function OverworldStage({
         setActiveDialogue(staticZone.dialogue);
       }
     } else if (activeNpc) {
-      const npcChatter = [
-        "Hope you've checked your cables.",
-        "I'm so nervous for this run.",
-        "Did someone steal my gaff tape again?!",
-        "Break a leg out there!",
-      ];
       const randomLine =
-        npcChatter[Math.floor(Math.random() * npcChatter.length)];
+        NARRATIVE.overworld.npcChatter[
+          Math.floor(Math.random() * NARRATIVE.overworld.npcChatter.length)
+        ];
       setActiveDialogue({
         speaker: activeNpc.name,
         icon: activeNpc.icon,

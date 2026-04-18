@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useGame } from "../../../context/GameContext";
+import { NARRATIVE } from "../../../data/narrative";
 import { DialogueState, NPC } from "./types";
 
 export function useQuests() {
@@ -11,6 +12,7 @@ export function useQuests() {
     isError: boolean;
   } | null>(null);
 
+  const q = NARRATIVE.quests;
   const checkQuestIntercept = (
     activeZone: string,
     activeNpc?: NPC,
@@ -32,8 +34,8 @@ export function useQuests() {
       return {
         speaker: "Craft Services",
         icon: "🍩",
-        text: "Just stale bagels left... but there is one fresh Water Bottle.",
-        choices: [{ id: "take_water", text: "Take Water Bottle" }],
+        text: q.water.pickupText,
+        choices: [{ id: "take_water", text: q.water.pickupAction }],
       };
     }
 
