@@ -17,6 +17,7 @@ const initialState: GameState = {
   unlockedStories: [],
   contacts: ["char_ben", "char_casey", "sys_comms"],
   unreadContacts: ["sys_comms"],
+  inventory: [],
 };
 
 interface GameContextType {

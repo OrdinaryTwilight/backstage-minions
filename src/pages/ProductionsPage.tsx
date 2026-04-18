@@ -136,7 +136,7 @@ export default function ProductionsPage() {
                     onClick={() => {
                       if (isUnlocked) {
                         navigate(
-                          `/productions/${productionId}/difficulty/${diff}`,
+                          `/productions/${productionId}/difficulty/${diff}/character`,
                         );
                       }
                     }}

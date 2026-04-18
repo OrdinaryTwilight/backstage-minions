@@ -29,6 +29,7 @@ const createNewSession = (
     plotLights: [],
     conflictsSeen: [],
     activeConflict: null,
+    activeQuests: [],
   };
 };
 
@@ -172,6 +173,17 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           (id) => id !== action.contactId,
         ),
       };
+    case "ADD_QUEST":
+      return {
+        ...state,
+        session: state.session
+          ? {
+              ...state.session,
+              activeQuests: [...state.session.activeQuests, action.questId],
+            }
+          : null,
+      };
+
     case "CLEAR_SESSION":
       return { ...state, session: null };
     default:
