@@ -47,7 +47,6 @@ function handleStaticZoneInteraction(
     return;
   }
 
-  // Objective validation
   if (
     props.activeZone === props.targetZoneId &&
     props.currentRoom === "stage"
@@ -56,7 +55,6 @@ function handleStaticZoneInteraction(
     return;
   }
 
-  // Wrong booth validation
   if (
     (props.activeZone === "lightBooth" &&
       props.targetZoneId !== "lightBooth") ||
@@ -70,9 +68,28 @@ function handleStaticZoneInteraction(
     return;
   }
 
-  // Fallback for generic static zones that shouldn't open a dialogue tree
+  // FIX: If the zone has dialogue, trigger the quest dialogue box!
+  if (staticZone.dialogues && staticZone.dialogues.length > 0) {
+    props.setActiveQuestDialogue(
+      staticZone.dialogues[
+        Math.floor(Math.random() * staticZone.dialogues.length)
+      ] as unknown as DialogueState,
+    );
+    return;
+  }
+
+  if (staticZone.dialogue) {
+    props.setActiveQuestDialogue(
+      staticZone.dialogue as unknown as DialogueState,
+    );
+    return;
+  }
+
+  // FIX: Format the zone name so it reads "Props Table" instead of "propTable"
+  const zoneName =
+    staticZone.label || formatRoomName(props.activeZone || "area");
   props.setFeedbackMsg({
-    text: `You inspected the ${props.activeZone}. Looks fine.`,
+    text: `You inspected the ${zoneName}. Looks fine.`,
     isError: false,
   });
   setTimeout(() => props.setFeedbackMsg(null), 1500);
