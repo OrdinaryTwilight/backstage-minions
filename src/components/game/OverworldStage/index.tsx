@@ -10,6 +10,7 @@ import { useQuests } from "./useQuests";
 
 import HeadsetHUD from "./HeadsetHUD";
 import MapViewport from "./MapViewport";
+import MobileControls from "./MobileControls";
 
 // Helper to format camelCase room names to Title Case (greenRoom -> Green Room)
 const formatRoomName = (str: string) =>
@@ -282,6 +283,30 @@ export default function OverworldStage({
             bumpMsg={bumpMsg}
             handleStageClick={handleStageClick}
           />
+
+          {/* NEW: Mobile Controls */}
+          <MobileControls
+            onInteract={triggerInteraction}
+            activeZoneLabel={
+              activeZone
+                ? (currentZones[activeZone]?.label ??
+                  npcs.find((n) => n.id === activeZone)?.name ??
+                  null)
+                : null
+            }
+          />
+
+          {/* Desktop Interaction Bar */}
+          <div
+            className="desktop-only"
+            style={{
+              minHeight: "60px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              width: "100%",
+            }}
+          ></div>
 
           <div
             style={{

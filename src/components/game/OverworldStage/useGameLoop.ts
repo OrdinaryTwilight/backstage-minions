@@ -39,7 +39,6 @@ export function useGameLoop(
     let shuffled = [...available].sort(() => 0.5 - Math.random());
     let count = Math.floor(Math.random() * 3) + 2;
 
-    // FIX 1: Ensure the Director and Lead Actor ALWAYS spawn in the Green Room
     if (currentRoom === "greenRoom") {
       const extraActors = [
         {
@@ -123,14 +122,23 @@ export function useGameLoop(
 
         const isPlayerMoving = dx !== 0 || dy !== 0;
 
+        let closestNpcId: string | null = null;
+        let closestDist = Infinity;
+
         let currentNpcs: NPC[] = [];
         setNpcs((prevNpcs) => {
           currentNpcs = prevNpcs.map((npc) => {
-            // FIX 2: Freeze the NPC in place if the player steps within interaction radius!
             const distToPlayer = Math.hypot(newX - npc.x, newY - npc.y);
-            if (distToPlayer < 80) {
-              return npc; // Skip updating position so they stop and wait for you
+
+            // Track the absolute closest NPC
+            if (distToPlayer < closestDist) {
+              closestDist = distToPlayer;
+              closestNpcId = npc.id;
             }
+
+            // Freeze if the player is within 80px interaction range
+            if (distToPlayer < 80) return npc;
+
             return updateSingleNpc(
               npc,
               newX,
@@ -148,43 +156,25 @@ export function useGameLoop(
           currentZones,
         );
 
-        let closestNpcId: string | null = null;
-        let closestDist = Infinity;
-
-        if (currentNpcs.length > 0) {
-          const distances = currentNpcs.map((npc) => ({
-            npc,
-            dist: Math.hypot(newX - npc.x, newY - npc.y),
-          }));
-          const closest = distances.reduce(
-            (prev, curr) => (curr.dist < prev.dist ? curr : prev),
-            distances[0],
-          );
-
-          if (closest.dist < 80) {
-            closestNpcId = closest.npc.id;
-            closestDist = closest.dist;
-          }
-          if (
-            closest.dist < 32 &&
-            isPlayerMoving &&
-            Math.random() < 0.05 &&
-            !bumpMsg
-          ) {
-            setBumpMsg({ id: closest.npc.id, msg: "Watch it!" });
-            setTimeout(() => setBumpMsg(null), 1500);
-          }
-        }
-
-        // Priority Logic: Close NPC > Static Zone > Farther NPC
-        if (closestNpcId && closestDist < 30) {
-          setActiveZone(closestNpcId);
-        } else if (currentActiveStatic) {
+        // Priority: If you are standing in a zone, it takes priority. Otherwise, grab the closest NPC within 80px.
+        if (currentActiveStatic) {
           setActiveZone(currentActiveStatic);
-        } else if (closestNpcId) {
+        } else if (closestNpcId && closestDist < 80) {
           setActiveZone(closestNpcId);
         } else {
           setActiveZone(null);
+        }
+
+        // Bump Logic
+        if (
+          closestNpcId &&
+          closestDist < 32 &&
+          isPlayerMoving &&
+          Math.random() < 0.05 &&
+          !bumpMsg
+        ) {
+          setBumpMsg({ id: closestNpcId, msg: "Watch it!" });
+          setTimeout(() => setBumpMsg(null), 1500);
         }
 
         return { x: newX, y: newY };
