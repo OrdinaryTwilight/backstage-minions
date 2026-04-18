@@ -1,4 +1,5 @@
 import { getStageHelpText } from "../../../data/gameData";
+import { Character } from "../../../types/game";
 import SectionHeader from "../../ui/SectionHeader";
 import ActiveLoadoutPanel from "./ActiveLoadoutPanel";
 import AvailableGearList from "./AvailableGearList";
@@ -10,6 +11,19 @@ interface EquipmentStageProps {
 
 export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
   const { char, handleSelect } = useEquipment(onComplete);
+  const defaultChar: Character = {
+    id: "default",
+    name: "UNKNOWN",
+    role: "none",
+    department: "lighting", // Provide a default department
+    bio: "Placeholder character",
+    icon: "👤",
+    stats: {
+      technical: 5,
+      social: 5,
+      stamina: 5,
+    },
+  };
 
   return (
     <div className="page-container animate-blueprint">
@@ -19,7 +33,7 @@ export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
         helpText={getStageHelpText("equipment" as any)}
       />
 
-      <ActiveLoadoutPanel char={char} />
+      <ActiveLoadoutPanel char={char || defaultChar} />
       <AvailableGearList handleSelect={handleSelect} />
     </div>
   );

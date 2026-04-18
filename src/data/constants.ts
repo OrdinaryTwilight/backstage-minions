@@ -6,7 +6,17 @@ export type GameStage =
   | "liveshow"
   | "wrapup";
 export type DifficultyLevel = "school" | "community" | "professional";
-export type Department = "lighting" | "sound";
+export type Department =
+  | "lighting"
+  | "sound"
+  | "stage management"
+  | "carpentry"
+  | "wardrobe"
+  | "props"
+  | "video"
+  | "scenic"
+  | "foh"
+  | "management";
 
 /** Core Game Progression Order */
 export const STAGE_ORDER: GameStage[] = [
@@ -71,8 +81,16 @@ export const SCORING = {
 
 /** Departments */
 export const DEPARTMENTS = {
-  LIGHTING: "lighting" as const,
-  SOUND: "sound" as const,
+  LIGHTING: "lighting" as Department,
+  SOUND: "sound" as Department,
+  STAGE_MANAGEMENT: "stage management" as Department,
+  CARPENTRY: "carpentry" as Department,
+  WARDROBE: "wardrobe" as Department,
+  PROPS: "props" as Department,
+  VIDEO: "video" as Department,
+  SCENIC: "scenic" as Department,
+  FOH: "foh" as Department,
+  MANAGEMENT: "management" as Department,
 } as const;
 
 /** UI Theme Constants */
