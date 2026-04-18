@@ -1,4 +1,4 @@
-import HardwarePanel from "../../ui/HardwarePanel";
+import HardwarePanel from "../../shared/panels/HardwarePanel";
 
 interface SoundConsoleProps {
   consoleChannels: number[];

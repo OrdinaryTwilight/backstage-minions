@@ -1,5 +1,5 @@
 import { LIGHT_TYPES, PLOT_GRID_COLS } from "../../../data/gameData";
-import HardwarePanel from "../../ui/HardwarePanel";
+import HardwarePanel from "../../shared/panels/HardwarePanel";
 
 export default function PlotPlanView({
   grid,

@@ -10,7 +10,14 @@ export default defineConfig({
       enabled: true,
       reportsDirectory: "./coverage",
       include: ["src/**/*.{ts,tsx}"],
-      exclude: ["src/**/*.test.{ts,tsx}"],
+      // ADD the data, types, and main.tsx to the exclude list here
+      exclude: [
+        "src/**/*.test.{ts,tsx}",
+        "src/data/**/*.{ts,tsx}",
+        "src/types/**/*.{ts,tsx}",
+        "src/main.tsx",
+        "src/vite-env.d.ts",
+      ],
       thresholds: {
         lines: 80,
         functions: 80,

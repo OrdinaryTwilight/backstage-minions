@@ -1,4 +1,4 @@
-import SectionHeader from "../../ui/SectionHeader";
+import SectionHeader from "../../shared/ui/SectionHeader";
 import ActiveLoadoutPanel from "./ActiveLoadoutPanel";
 import AvailableGearList from "./AvailableGearList";
 import { useEquipment } from "./useEquipment";
@@ -18,8 +18,15 @@ export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
         helpText="Choose your gear wisely. Higher quality gear provides score bonuses but may reduce your starting 'Lives'."
       />
 
-      <ActiveLoadoutPanel char={char} />
-      <AvailableGearList handleSelect={handleSelect} />
+      {/* Only render if 'char' is defined */}
+      {char ? (
+        <>
+          <ActiveLoadoutPanel char={char} />
+          <AvailableGearList handleSelect={handleSelect} />
+        </>
+      ) : (
+        <p>Loading character data...</p> // or some fallback UI if 'char' is undefined
+      )}
     </div>
   );
 }

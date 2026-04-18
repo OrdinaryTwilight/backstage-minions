@@ -1,8 +1,8 @@
 import { useNavigate, useParams } from "react-router-dom";
-import DifficultyPill from "../components/ui/DifficultyPill";
-import HardwarePanel from "../components/ui/HardwarePanel";
-import NavBar from "../components/ui/NavBar";
-import SectionHeader from "../components/ui/SectionHeader";
+import NavBar from "../components/shared/layout/NavBar";
+import HardwarePanel from "../components/shared/panels/HardwarePanel";
+import DifficultyPill from "../components/shared/ui/DifficultyPill";
+import SectionHeader from "../components/shared/ui/SectionHeader";
 import { useGame } from "../context/GameContext";
 import { PRODUCTIONS } from "../data/gameData";
 

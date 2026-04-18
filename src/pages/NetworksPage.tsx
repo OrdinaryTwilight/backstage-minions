@@ -1,6 +1,6 @@
 import { useState } from "react";
-import NavBar from "../components/ui/NavBar";
-import SectionHeader from "../components/ui/SectionHeader";
+import NavBar from "../components/shared/layout/NavBar";
+import SectionHeader from "../components/shared/ui/SectionHeader";
 import { useGame } from "../context/GameContext";
 import { CHARACTERS } from "../data/gameData";
 

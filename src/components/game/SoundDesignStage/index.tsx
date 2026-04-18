@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { SOUND_CONSOLE_CONFIG } from "../../../data/gameData";
-import Button from "../../ui/Button";
-import HardwarePanel from "../../ui/HardwarePanel";
-import SectionHeader from "../../ui/SectionHeader";
+import HardwarePanel from "../../shared/panels/HardwarePanel";
+import Button from "../../shared/ui/Button";
+import SectionHeader from "../../shared/ui/SectionHeader";
 import SoundConsole from "./SoundConsole";
 
 export default function SoundDesignStage({

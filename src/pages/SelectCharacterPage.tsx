@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import Button from "../components/ui/Button";
-import DepartmentBadge from "../components/ui/DepartmentBadge";
-import HardwarePanel from "../components/ui/HardwarePanel";
-import NavBar from "../components/ui/NavBar";
-import SectionHeader from "../components/ui/SectionHeader";
-import StatBar from "../components/ui/StatBar";
+import NavBar from "../components/shared/layout/NavBar";
+import HardwarePanel from "../components/shared/panels/HardwarePanel";
+import Button from "../components/shared/ui/Button";
+import DepartmentBadge from "../components/shared/ui/DepartmentBadge";
+import SectionHeader from "../components/shared/ui/SectionHeader";
+import StatBar from "../components/shared/ui/StatBar";
 import { useGame } from "../context/GameContext";
 import { CHARACTERS, CUE_SHEETS } from "../data/gameData";
 

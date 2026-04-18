@@ -4,9 +4,9 @@ import { useGame } from "../../context/GameContext";
 import { CHARACTERS, Cue } from "../../data/gameData";
 import { NARRATIVE } from "../../data/narrative"; // <-- Imported Narrative Data
 import { calculateStars } from "../../utils/scoringEngine";
-import Button from "../ui/Button";
-import HardwarePanel from "../ui/HardwarePanel";
-import SectionHeader from "../ui/SectionHeader";
+import HardwarePanel from "../shared/panels/HardwarePanel";
+import Button from "../shared/ui/Button";
+import SectionHeader from "../shared/ui/SectionHeader";
 
 interface WrapUpSceneProps {
   cueSheet?: Cue[];

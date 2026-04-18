@@ -1,8 +1,8 @@
 // src/pages/StoriesPage.jsx
 import { useState } from "react";
-import HardwarePanel from "../components/ui/HardwarePanel";
-import NavBar from "../components/ui/NavBar";
-import SectionHeader from "../components/ui/SectionHeader";
+import NavBar from "../components/shared/layout/NavBar";
+import HardwarePanel from "../components/shared/panels/HardwarePanel";
+import SectionHeader from "../components/shared/ui/SectionHeader";
 import { useGame } from "../context/GameContext";
 import { STORIES } from "../data/gameData";
 import type { Story } from "../types/game";

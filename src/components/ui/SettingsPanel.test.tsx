@@ -1,6 +1,6 @@
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import SettingsPanel from "./SettingsPanel";
+import SettingsPanel from "../shared/panels/SettingsPanel";
 
 // Mock the VisualSettingsContext
 vi.mock("../../context/VisualSettingsContext", () => ({

@@ -1,5 +1,5 @@
 import { GEAR_PACKAGES } from "../../../data/gameData";
-import HardwarePanel from "../../ui/HardwarePanel";
+import HardwarePanel from "../../shared/panels/HardwarePanel";
 
 interface AvailableGearListProps {
   handleSelect: (pkgId: string) => void;

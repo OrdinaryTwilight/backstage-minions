@@ -1,11 +1,11 @@
 import { useGame } from "../../../context/GameContext";
 import { CHARACTERS } from "../../../data/gameData";
 import { Cue } from "../../../data/types";
-import CueStack from "../../ui/CueStack";
-import DepartmentMixer from "../../ui/DepartmentMixer";
-import HardwarePanel from "../../ui/HardwarePanel";
-import MasterControl from "../../ui/MasterControl";
-import SectionHeader from "../../ui/SectionHeader";
+import CueStack from "../../shared/panels/CueStack";
+import DepartmentMixer from "../../shared/panels/DepartmentMixer";
+import HardwarePanel from "../../shared/panels/HardwarePanel";
+import MasterControl from "../../shared/panels/MasterControl";
+import SectionHeader from "../../shared/ui/SectionHeader";
 import CueTimelineHUD from "./CueTimelineHUD";
 import { useCueEngine } from "./useCueEngine";
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import SettingsPanel from "./SettingsPanel";
+import SettingsPanel from "../panels/SettingsPanel";
 
 const TABS = [
   { path: "/", icon: "🏠", label: "Home" },
@@ -94,6 +94,7 @@ export default function NavBar() {
               margin: 0,
               display: "block",
             }}
+            data-testid="settings-panel"
           >
             <SettingsPanel onClose={() => setShowSettings(false)} />
           </dialog>

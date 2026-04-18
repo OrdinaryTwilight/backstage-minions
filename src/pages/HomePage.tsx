@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Button from "../components/ui/Button";
-import HardwarePanel from "../components/ui/HardwarePanel";
+import HardwarePanel from "../components/shared/panels/HardwarePanel";
+import Button from "../components/shared/ui/Button";
 import { useGame } from "../context/GameContext";
 import { NARRATIVE } from "../data/narrative";
 

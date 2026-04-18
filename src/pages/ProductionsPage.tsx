@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from "react-router-dom";
-import Button from "../components/ui/Button";
-import DifficultyPill from "../components/ui/DifficultyPill";
-import NavBar from "../components/ui/NavBar";
+import NavBar from "../components/shared/layout/NavBar";
+import Button from "../components/shared/ui/Button";
+import DifficultyPill from "../components/shared/ui/DifficultyPill";
 import { useGame } from "../context/GameContext";
 import { PRODUCTIONS, VENUES } from "../data/gameData";
 

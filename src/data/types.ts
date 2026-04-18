@@ -14,7 +14,14 @@ export interface Character {
   id: string;
   name: string;
   role: string;
-  department: "lighting" | "sound";
+  department:
+    | "lighting"
+    | "sound"
+    | "stage management"
+    | "carpentry"
+    | "wardrobe"
+    | "props"
+    | "video";
   bio: string;
   icon: string;
   stats: StatBlock;

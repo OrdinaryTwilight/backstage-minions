@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useVisualSettings } from "../../context/VisualSettingsContext";
-import Button from "./Button";
+import { useVisualSettings } from "../../../context/VisualSettingsContext";
+import Button from "../ui/Button";
 
 interface SettingsPanelProps {
   onClose?: () => void;

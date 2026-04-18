@@ -1,5 +1,5 @@
 import { Cue } from "../../../data/types";
-import Button from "../../ui/Button";
+import Button from "../../shared/ui/Button";
 
 interface CueTimelineHUDProps {
   smMessage: string;

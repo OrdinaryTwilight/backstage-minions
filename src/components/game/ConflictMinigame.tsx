@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useGame } from "../../context/GameContext";
 import { NPC_ICONS } from "../../data/gameData";
 import { Conflict, ConflictChoice } from "../../types/game";
-import Button from "../ui/Button";
-import HardwarePanel from "../ui/HardwarePanel";
+import HardwarePanel from "../shared/panels/HardwarePanel";
+import Button from "../shared/ui/Button";
 import DialogueBox from "./DialogueBox";
 
 interface ConflictMinigameProps {

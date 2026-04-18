@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useGame } from "../../context/GameContext";
-import HardwarePanel from "../ui/HardwarePanel";
-import SectionHeader from "../ui/SectionHeader";
+import HardwarePanel from "../shared/panels/HardwarePanel";
+import SectionHeader from "../shared/ui/SectionHeader";
 
 export default function CableCoilingStage({
   onComplete,

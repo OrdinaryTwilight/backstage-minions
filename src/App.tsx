@@ -2,7 +2,7 @@ import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Suspense, lazy } from "react";
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import { Spinner } from "./components/ui/Spinner";
+import { Spinner } from "./components/shared/ui/Spinner";
 import { GameProvider } from "./context/GameContext";
 import { VisualSettingsProvider } from "./context/VisualSettingsContext";
 

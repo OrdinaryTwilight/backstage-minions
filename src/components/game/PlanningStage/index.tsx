@@ -6,9 +6,9 @@ import {
   PLOT_GRID_COLS,
   PLOT_GRID_ROWS,
 } from "../../../data/gameData";
-import Button from "../../ui/Button";
-import HardwarePanel from "../../ui/HardwarePanel";
-import SectionHeader from "../../ui/SectionHeader";
+import HardwarePanel from "../../shared/panels/HardwarePanel";
+import Button from "../../shared/ui/Button";
+import SectionHeader from "../../shared/ui/SectionHeader";
 import OpticalSimView from "./OpticalSimView";
 import PlotPlanView from "./PlotPlanView";
 

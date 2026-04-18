@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import HardwarePanel from "../components/ui/HardwarePanel";
-import NavBar from "../components/ui/NavBar";
-import SectionHeader from "../components/ui/SectionHeader";
+import NavBar from "../components/shared/layout/NavBar";
+import HardwarePanel from "../components/shared/panels/HardwarePanel";
+import SectionHeader from "../components/shared/ui/SectionHeader";
 import { PRODUCTIONS } from "../data/gameData";
 
 export default function ProductionsListPage() {
