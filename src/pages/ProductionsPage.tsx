@@ -1,12 +1,13 @@
-// src/pages/ProductionsPage.tsx
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/ui/Button";
 import NavBar from "../components/ui/NavBar";
+import { useGame } from "../context/GameContext"; // <-- Added back the context import
 import { PRODUCTIONS } from "../data/gameData";
 
 export default function ProductionsPage() {
   const { productionId } = useParams();
   const navigate = useNavigate();
+  const { state } = useGame(); // <-- Grab the global game state
 
   const production = PRODUCTIONS.find((p) => p.id === productionId);
 
@@ -154,6 +155,12 @@ export default function ProductionsPage() {
                 const levelData = production.levels[levelKey];
                 const isUnlocked = !!levelData;
 
+                // RESTORED: Safely look up the player's saved progress for this specific show and level
+                const stars =
+                  (productionId &&
+                    state.progress?.[productionId]?.[levelKey]) ||
+                  0;
+
                 return (
                   <div
                     key={levelKey}
@@ -192,6 +199,21 @@ export default function ProductionsPage() {
                         }}
                       >
                         {levelKey} Theater
+                        {/* RESTORED: Draw the stars right next to the title if they have any */}
+                        {stars > 0 && (
+                          <span
+                            style={{
+                              marginLeft: "1rem",
+                              color: "var(--bui-fg-warning)",
+                              textShadow: "0 0 5px rgba(251, 191, 36, 0.5)",
+                              letterSpacing: "4px",
+                            }}
+                          >
+                            {Array.from({ length: stars })
+                              .map(() => "★")
+                              .join("")}
+                          </span>
+                        )}
                       </h4>
                       <span
                         style={{
