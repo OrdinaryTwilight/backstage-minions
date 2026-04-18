@@ -63,10 +63,35 @@ export default function DialogueManager({
   }, [currentNodeId, currentNode, dispatch]);
 
   const availableChoices = currentNode.choices.filter((choice) => {
-    if (choice.requiredItem && !state.inventory.includes(choice.requiredItem))
+    // Inventory check
+    if (choice.requiredItem && !state.inventory.includes(choice.requiredItem)) {
       return false;
+    }
+
+    // MEMORY FIX: Prevent re-triggering quests you already have
+    if (choice.sideEffect === "start_gaff_quest") {
+      const hasQuest =
+        state.session?.activeQuests?.includes("find_gaff_tape") ||
+        state.session?.completedQuests?.includes("find_gaff_tape");
+      if (hasQuest) return false;
+    }
+
+    // MEMORY FIX: Prevent re-gaining the same ally
+    if (choice.sideEffect === "ally_gained") {
+      if (state.contacts?.includes(targetNpc.id)) return false;
+    }
+
     return true;
   });
+
+  // Failsafe: If all choices were hidden because you completed everything, provide an exit!
+  if (availableChoices.length === 0) {
+    availableChoices.push({
+      id: "auto_exit",
+      text: "I should get back to work.",
+      nextNodeId: "end",
+    });
+  }
 
   const handleChoice = (choice: DialogueChoice) => {
     if (choice.pointDelta)

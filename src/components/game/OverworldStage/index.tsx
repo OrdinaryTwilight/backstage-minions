@@ -4,12 +4,13 @@ import { useGame } from "../../../context/GameContext";
 import { CHARACTERS, OVERWORLD_MAPS } from "../../../data/gameData";
 import { useKeyPress } from "../../../hooks/useKeyPress";
 import { getOverworldObjective } from "../../../utils/objectiveEngine";
-import DialogueManager from "../DialogueManager"; // <-- CHANGED: Import the new Manager
+import DialogueBox from "../DialogueBox";
+import DialogueManager from "../DialogueManager";
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_SIZE } from "./constants";
 import HeadsetHUD from "./HeadsetHUD";
 import MapViewport from "./MapViewport";
 import MobileControls from "./MobileControls";
-import { FeedbackMessage, OverworldStageProps } from "./types"; // Note: Removed DialogueState
+import { DialogueState, FeedbackMessage, OverworldStageProps } from "./types";
 import { useComms } from "./useComms";
 import { useGameLoop } from "./useGameLoop";
 import { useInteraction } from "./useInteraction";
@@ -30,7 +31,6 @@ export default function OverworldStage({
     null,
   );
 
-  // CHANGED: Replaced activeDialogue object with activeNpcId string
   const [activeNpcId, setActiveNpcId] = useState<string | null>(null);
   const [feedbackMsg, setFeedbackMsg] = useState<FeedbackMessage | null>(null);
 
@@ -41,9 +41,12 @@ export default function OverworldStage({
   const right = useKeyPress(["d", "ArrowRight"]);
 
   const { headsetOn, setHeadsetOn, commsLog } = useComms();
+  
+  const [activeQuestDialogue, setActiveQuestDialogue] =
+    useState<DialogueState | null>(null);
 
-  // CHANGED: Quest logic handled by DialogueManager now, we only need inventory for the HUD
-  const { inventory, questFeedback } = useQuests();
+  const { inventory, questFeedback, checkQuestIntercept, handleQuestChoice } =
+    useQuests();
   const displayFeedback = questFeedback || feedbackMsg;
 
   const currentZones = OVERWORLD_MAPS[currentRoom] || OVERWORLD_MAPS["stage"];
@@ -53,7 +56,6 @@ export default function OverworldStage({
     department,
   );
 
-  // CHANGED: Passed activeNpcId into useGameLoop
   const { pos, setPos, npcs, activeZone, bumpMsg } = useGameLoop({
     currentZones,
     currentRoom,
@@ -64,10 +66,10 @@ export default function OverworldStage({
     activeNpcId,
   });
 
-  // CHANGED: Passed activeNpcId and setActiveNpcId into useInteraction
   const triggerInteraction = useInteraction({
     activeZone,
     activeNpcId,
+    activeQuestDialogue,
     currentZones,
     npcs,
     currentRoom,
@@ -78,7 +80,9 @@ export default function OverworldStage({
     setPos,
     setTargetPos,
     setActiveNpcId,
+    setActiveQuestDialogue,
     setFeedbackMsg,
+    checkQuestIntercept,
     onComplete,
   });
 
@@ -106,7 +110,6 @@ export default function OverworldStage({
       </div>
 
       <div className="overworld-layout">
-        {/* Left Side: Comms & Inventory HUD */}
         <div className="overworld-sidebar">
           <HeadsetHUD
             headsetOn={headsetOn}
@@ -128,7 +131,6 @@ export default function OverworldStage({
           </div>
         </div>
 
-        {/* Right Side: Map & Interactive Buttons */}
         <div className="overworld-main">
           <MapViewport
             currentRoom={currentRoom}
@@ -137,7 +139,7 @@ export default function OverworldStage({
             pos={pos}
             playerChar={playerChar}
             activeZone={activeZone}
-            activeNpcId={activeNpcId} // <-- Updated to pass the string directly
+            activeNpcId={activeNpcId}
             feedbackMsg={displayFeedback?.text || null}
             bumpMsg={bumpMsg}
             handleStageClick={handleStageClick}
@@ -165,7 +167,6 @@ export default function OverworldStage({
               </div>
             )}
 
-            {/* CHANGED: Button visibility now checks !activeNpcId */}
             {activeZone && !activeNpcId && !displayFeedback && (
               <button
                 onClick={triggerInteraction}
@@ -180,9 +181,24 @@ export default function OverworldStage({
         </div>
       </div>
 
-      {/* CHANGED: Replaced DialogueBox with the new DialogueManager */}
+      {/* FIX 3: Extracted nested ternary into independent blocks to satisfy SonarLint */}
       <div style={{ minHeight: "150px" }}>
-        {activeNpcId && (
+        {activeQuestDialogue && (
+          <DialogueBox
+            speaker={activeQuestDialogue.speaker}
+            text={activeQuestDialogue.text}
+            choices={activeQuestDialogue.choices}
+            icon={activeQuestDialogue.icon}
+            onChoice={(choice) => {
+              const wasQuest = handleQuestChoice(choice.id, () =>
+                setActiveQuestDialogue(null),
+              );
+              if (!wasQuest) setActiveQuestDialogue(null);
+            }}
+          />
+        )}
+
+        {!activeQuestDialogue && activeNpcId && (
           <DialogueManager
             npcId={activeNpcId}
             onClose={() => setActiveNpcId(null)}

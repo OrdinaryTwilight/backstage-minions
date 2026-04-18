@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { ZoneConfig } from "../../../data/types";
 import { GameState } from "../../../types/game";
 import { GAME_HEIGHT, GAME_WIDTH } from "./constants";
-import { FeedbackMessage, NPC } from "./types"; // Note: Removed DialogueState
+import { DialogueState, FeedbackMessage, NPC } from "./types"; // Note: Removed DialogueState
 
 interface UseInteractionProps {
   activeZone: string | null;
@@ -18,10 +18,12 @@ interface UseInteractionProps {
   setCurrentRoom: (room: string) => void;
   setPos: (pos: { x: number; y: number }) => void;
   setTargetPos: (pos: null) => void;
-  // CHANGED: Setter for the NPC ID
   setActiveNpcId: (id: string | null) => void;
   setFeedbackMsg: (msg: FeedbackMessage | null) => void;
   onComplete: () => void;
+  activeQuestDialogue: DialogueState | null;
+  setActiveQuestDialogue: (dialogue: DialogueState | null) => void;
+  checkQuestIntercept: (zone: string, npc?: NPC) => DialogueState | null;
 }
 
 const formatRoomName = (str: string) =>
@@ -79,11 +81,22 @@ function handleStaticZoneInteraction(
 export function useInteraction(props: UseInteractionProps) {
   return useCallback(() => {
     // Don't trigger if nothing is nearby or a conversation is already happening
-    if (!props.activeZone || props.activeNpcId) return;
+    if (!props.activeZone || props.activeNpcId || props.activeQuestDialogue)
+      return;
     props.setTargetPos(null);
 
     const staticZone = props.currentZones[props.activeZone];
     const activeNpc = props.npcs.find((n) => n.id === props.activeZone);
+
+    // Check for quest intercept before anything else
+    const questDialogue = props.checkQuestIntercept(
+      props.activeZone,
+      activeNpc,
+    );
+    if (questDialogue) {
+      props.setActiveQuestDialogue(questDialogue);
+      return;
+    }
 
     // 1. Zone Interaction (Doors, Objectives, Props)
     if (staticZone) {
@@ -92,7 +105,6 @@ export function useInteraction(props: UseInteractionProps) {
     }
 
     // 2. NPC Interaction Trigger
-    // CHANGED: We no longer generate dialogue here. We just trigger the manager.
     if (activeNpc) {
       props.setActiveNpcId(activeNpc.id);
     }

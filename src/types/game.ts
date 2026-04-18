@@ -161,6 +161,8 @@ export interface GameSession {
   conflictsSeen: string[];
   activeConflict: Conflict | null;
   activeQuests: string[];
+  completedQuests: string[];
+  inventory: string[];
   stress: number; // 0 (calm) to 100 (disaster)
   affinities: Record<string, number>; // e.g., { "npc_zainab": 10 }
 }

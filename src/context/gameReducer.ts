@@ -30,8 +30,10 @@ const createNewSession = (
     conflictsSeen: [],
     activeConflict: null,
     activeQuests: [],
+    completedQuests: [],
     stress: 0,
     affinities: {},
+    inventory: [],
   };
 };
 
