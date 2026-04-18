@@ -146,7 +146,7 @@ export default function OverworldStage({
       setActiveDialogue({
         speaker: activeNpc.name,
         icon: activeNpc.icon,
-        text: `Hey, I'm ${activeNpc.name}. ${randomLine}`,
+        text: randomLine,
         choices: [{ id: "ok", text: "Got it." }],
       });
     }
@@ -165,7 +165,6 @@ export default function OverworldStage({
 
   useEffect(() => {
     if (interactBtn) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       triggerInteraction();
     }
   }, [interactBtn, triggerInteraction]);

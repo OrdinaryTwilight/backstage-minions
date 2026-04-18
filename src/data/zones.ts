@@ -93,11 +93,6 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
           text: "Clear the wings! We have a massive set piece coming through in 2 minutes.",
           choices: [{ id: "ok", text: "Moving out of the way." }],
         },
-        {
-          speaker: "Lead Actor",
-          text: "My throat is so dry... where is my water bottle?",
-          choices: [{ id: "ok", text: "Check the green room." }],
-        },
       ],
     },
     doorGreenRoom: {

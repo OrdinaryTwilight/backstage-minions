@@ -59,10 +59,15 @@ export default function SoundDesignStage({
   }, [difficulty, consoleChannels]);
 
   const handlePatch = (type: string, source: string, target: number) => {
-    setPatch((prev) => ({
-      ...prev,
-      [type]: { ...prev[type], [source]: target },
-    }));
+    setPatch((prev) => {
+      const isCurrentlyPatched = prev[type][source] === target;
+      if (isCurrentlyPatched) {
+        const updatedType = { ...prev[type] };
+        delete updatedType[source];
+        return { ...prev, [type]: updatedType };
+      }
+      return { ...prev, [type]: { ...prev[type], [source]: target } };
+    });
   };
 
   const validPaths = outputBuses.map((bus) => {
@@ -108,22 +113,19 @@ export default function SoundDesignStage({
                   {src}
                 </div>
                 <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
-                  {consoleChannels.map((ch) => (
-                    <Button
-                      key={ch}
-                      onClick={() => handlePatch("inputs", src, ch)}
-                      style={{
-                        flex: "1 0 15%",
-                        fontSize: "0.8rem",
-                        background:
-                          patch.inputs[src] === ch
-                            ? "var(--bui-fg-success)"
-                            : "",
-                      }}
-                    >
-                      CH {ch}
-                    </Button>
-                  ))}
+                  {consoleChannels.map((ch) => {
+                    const isPatched = patch.inputs[src] === ch;
+                    return (
+                      <Button
+                        key={ch}
+                        variant={isPatched ? "success" : "default"} // FIX: Use variant instead of raw styles!
+                        onClick={() => handlePatch("inputs", src, ch)}
+                        style={{ flex: "1 0 15%", fontSize: "0.8rem" }}
+                      >
+                        CH {ch}
+                      </Button>
+                    );
+                  })}
                 </div>
               </div>
             ))}
@@ -163,7 +165,6 @@ export default function SoundDesignStage({
               ? deadChannels.includes(currentOutChannel)
               : false;
 
-            // FIX: Extracted nested ternary
             let statusColor = "var(--bui-fg-warning)";
             let statusText = "NO SIGNAL";
             if (isPathValid) {
