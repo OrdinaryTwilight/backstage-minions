@@ -112,7 +112,7 @@ describe("HomePage", () => {
     expect(mockNavigate).toHaveBeenCalledWith("/productions");
 
     // Click Comms Network
-    fireEvent.click(screen.getByText("Comms Network"));
+    fireEvent.click(screen.getByText("Friends & Contacts"));
     expect(mockNavigate).toHaveBeenCalledWith("/networks");
   });
 });
