@@ -92,7 +92,7 @@ export const PRODUCTIONS: Production[] = [
       "A local high school's deeply misguided attempt to modernize Shakespeare. Expect aluminum foil costumes, laser pointers, and actors forgetting their lines.",
     learnMoreUrl: "https://en.wikipedia.org/wiki/Hamlet",
     levels: {
-      school: { venueId: "high_school", unlocked: true },
+      school: { venueId: "high_school", unlocked: true }, // Already true
     },
   },
   {
@@ -103,7 +103,7 @@ export const PRODUCTIONS: Production[] = [
       "The community theatre has bitten off more than it can chew. Fifty cast members, only twelve working wireless mics. A barricade made of actual trash that takes five minutes to push onstage.",
     learnMoreUrl: "https://en.wikipedia.org/wiki/Les_Misérables_(musical)",
     levels: {
-      community: { venueId: "church", unlocked: false },
+      community: { venueId: "church", unlocked: true }, // FIX: Changed to true so it can be clicked
     },
   },
   {
@@ -114,7 +114,7 @@ export const PRODUCTIONS: Production[] = [
       "Not art, but it pays the bills. A billionaire CEO needs to walk out to blinding rock-show lights to announce a slightly thinner smartphone. Zero margin for error.",
     learnMoreUrl: "https://en.wikipedia.org/wiki/Keynote",
     levels: {
-      professional: { venueId: "convention_center", unlocked: false },
+      professional: { venueId: "convention_center", unlocked: true }, // FIX: Changed to true so it can be clicked
     },
   },
 ];

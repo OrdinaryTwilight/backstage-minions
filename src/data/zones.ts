@@ -1,4 +1,4 @@
-import { ZoneConfig } from "./gameData";
+import { ZoneConfig } from "../types/game";
 
 export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
   stage: {
@@ -61,9 +61,9 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
     },
     orchestraPit: {
       x: 250,
-      y: 420,
+      y: 370,
       w: 300,
-      h: 60,
+      h: 60, // Pulled up to y:370 so it doesn't overlap bottom doors
       label: "ORCHESTRA PIT",
       color: "#2C1A38",
       isSolid: true,
@@ -103,9 +103,9 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
     },
     doorBasement: {
       x: 50,
-      y: 450,
+      y: 400,
       w: 100,
-      h: 50,
+      h: 50, // FIX: y: 400 instead of 450 so it's inside the map bounds
       label: "BASEMENT ⬇",
       color: "#4A4A4A",
       isSolid: false,
@@ -113,9 +113,9 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
     },
     doorCatwalks: {
       x: 650,
-      y: 450,
+      y: 400,
       w: 100,
-      h: 50,
+      h: 50, // FIX: y: 400 instead of 450
       label: "LADDER UP ⬆",
       color: "#1A1A1A",
       isSolid: false,

@@ -1,6 +1,5 @@
 import { Cue } from "../types/game";
 
-// --- CUE SHEETS ---
 export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
   phantom: {
     lighting: [
@@ -25,14 +24,6 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
         windowMs: 500,
         targetLevel: 0,
       },
-      // The high-stakes drop sequence
-      {
-        id: "LQ 101",
-        label: "Strobe Impact",
-        targetMs: 42000,
-        windowMs: 400,
-        targetLevel: 100,
-      },
     ],
     sound: [
       {
@@ -49,22 +40,6 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
         windowMs: 1000,
         targetLevel: 75,
       },
-      {
-        id: "SQ 45",
-        label: "Glass Shatter FX",
-        targetMs: 41500,
-        windowMs: 300,
-        targetLevel: 100,
-      },
-    ],
-    scenic: [
-      {
-        id: "FLY 12",
-        label: "Chandelier Freefall",
-        targetMs: 41700,
-        windowMs: 200,
-        targetLevel: 0,
-      }, // Very tight window!
     ],
   },
   midsummer: {
@@ -83,13 +58,6 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
         windowMs: 1000,
         targetLevel: 40,
       },
-      {
-        id: "LQ 44",
-        label: "Moonrise Fade (10s)",
-        targetMs: 45000,
-        windowMs: 1500,
-        targetLevel: 60,
-      },
     ],
     sound: [
       {
@@ -105,13 +73,6 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
         targetMs: 26500,
         windowMs: 800,
         targetLevel: 100,
-      },
-      {
-        id: "SQ 12",
-        label: "Crickets Ambience",
-        targetMs: 46000,
-        windowMs: 1000,
-        targetLevel: 45,
       },
     ],
   },
@@ -162,9 +123,9 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
         id: "LQ 31",
         label: "Lightning Flash",
         targetMs: 24000,
-        windowMs: 300,
+        windowMs: 500,
         targetLevel: 100,
-      }, // Fast reaction needed
+      },
       {
         id: "LQ 32",
         label: "Banquo's Ghost Spot",
@@ -177,10 +138,10 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
       {
         id: "SQ 30",
         label: "Thunderclap FX",
-        targetMs: 24000,
-        windowMs: 300,
+        targetMs: 12000,
+        windowMs: 500,
         targetLevel: 95,
-      }, // Syncs with lightning
+      },
       {
         id: "SQ 31",
         label: "Ominous Drone",
@@ -197,6 +158,112 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
       },
     ],
   },
+  // --- NEW PRODUCTIONS ADDED BELOW TO FIX PERSONNEL ERROR ---
+  prod_hamlet_space: {
+    lighting: [
+      {
+        id: "LQ 1",
+        label: "Flickering Worklight",
+        targetMs: 12000,
+        windowMs: 2000,
+        targetLevel: 30,
+      },
+      {
+        id: "LQ 2",
+        label: "Alien Laser Effect",
+        targetMs: 25000,
+        windowMs: 1500,
+        targetLevel: 80,
+      },
+    ],
+    sound: [
+      {
+        id: "SQ 1",
+        label: "Theremin Intro",
+        targetMs: 12000,
+        windowMs: 2000,
+        targetLevel: 60,
+      },
+    ],
+  },
+  prod_les_mis_community: {
+    lighting: [
+      {
+        id: "LQ 1",
+        label: "Barricade Wash",
+        targetMs: 15000,
+        windowMs: 1000,
+        targetLevel: 75,
+      },
+    ],
+    sound: [
+      {
+        id: "SQ 1",
+        label: "Ensemble Mic Unmute (All 50)",
+        targetMs: 15000,
+        windowMs: 500,
+        targetLevel: 85,
+      },
+    ],
+    scenic: [
+      {
+        id: "FLY 1",
+        label: "Push the Trash Barricade",
+        targetMs: 30000,
+        windowMs: 5000,
+        targetLevel: 0,
+      },
+    ],
+  },
+  prod_midsummer_musical: {
+    lighting: [
+      {
+        id: "LQ 1",
+        label: "Synth-Pop Strobe",
+        targetMs: 10000,
+        windowMs: 500,
+        targetLevel: 100,
+      },
+    ],
+    sound: [
+      {
+        id: "SQ 1",
+        label: "Drop the Bass",
+        targetMs: 10000,
+        windowMs: 300,
+        targetLevel: 95,
+      },
+    ],
+  },
+  prod_phantom_vengeance: {
+    lighting: [
+      {
+        id: "LQ 101",
+        label: "Strobe Impact",
+        targetMs: 12000,
+        windowMs: 400,
+        targetLevel: 100,
+      },
+    ],
+    sound: [
+      {
+        id: "SQ 45",
+        label: "Glass Shatter FX",
+        targetMs: 11500,
+        windowMs: 300,
+        targetLevel: 100,
+      },
+    ],
+    scenic: [
+      {
+        id: "FLY 12",
+        label: "Chandelier Freefall",
+        targetMs: 11700,
+        windowMs: 200,
+        targetLevel: 0,
+      },
+    ],
+  },
   prod_corporate_keynote: {
     lighting: [
       {
@@ -205,7 +272,7 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
         targetMs: 5000,
         windowMs: 200,
         targetLevel: 100,
-      }, // Brutal corporate timing
+      },
       {
         id: "LQ 2",
         label: "CEO Keylight (Smooth)",
@@ -228,7 +295,7 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
         targetMs: 10000,
         windowMs: 300,
         targetLevel: 75,
-      }, // Don't miss this or CEO is muted!
+      },
     ],
   },
 };
