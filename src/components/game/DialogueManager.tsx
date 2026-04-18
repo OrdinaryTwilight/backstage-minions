@@ -1,11 +1,12 @@
-import { useState } from "react";
+// src/components/game/DialogueManager.tsx
+import { useEffect, useState } from "react";
 import { useGame } from "../../context/GameContext";
 import {
   CHARACTERS,
   DIALOGUE_REGISTRY,
   GENERIC_DEPARTMENT_TREE,
 } from "../../data/gameData";
-import { DialogueChoice, DialogueTree } from "../../types/dialogue"; // Import directly if not in gameData
+import { DialogueChoice, DialogueTree } from "../../types/dialogue";
 import DialogueBox from "./DialogueBox";
 
 interface DialogueManagerProps {
@@ -18,37 +19,58 @@ export default function DialogueManager({
   onClose,
 }: DialogueManagerProps) {
   const { state, dispatch } = useGame();
+  const [currentNodeId, setCurrentNodeId] = useState<string>("start");
 
-  // 1. Find the target character data
   const targetNpc = CHARACTERS.find((c) => c.id === npcId);
-
-  // 2. Fallback to generic tree if this NPC doesn't have a specific story
   const tree: DialogueTree =
     DIALOGUE_REGISTRY[npcId] || GENERIC_DEPARTMENT_TREE;
-
-  const [currentNodeId, setCurrentNodeId] = useState<string>("start");
   const currentNode = tree[currentNodeId];
 
   // Failsafe
-  if (!targetNpc || !currentNode) {
-    return null;
-  }
+  if (!targetNpc || !currentNode) return null;
 
-  // 3. Dynamic Text Interpolation
-  const parsedText = currentNode.text
+  // --- 1. RESOLVE VARIANTS (Stress / Affinity Checks) ---
+  const activeVariant =
+    currentNode.variants.find((variant) => {
+      if (!variant.condition) return true; // Default fallback
+
+      // Example hookup for conditions (we will build this out next)
+      if (
+        variant.condition === "high_stress" &&
+        state.session?.lives &&
+        state.session.lives < 3
+      ) {
+        return true;
+      }
+      // Add affinity checks here later
+
+      return false;
+    }) || currentNode.variants[0]; // absolute fallback
+
+  // --- 2. DYNAMIC TEXT INTERPOLATION ---
+  const parsedText = activeVariant.text
     .replace("{department}", targetNpc.department || "the deck")
     .replace("{role}", targetNpc.role || "crew");
 
-  // 4. Filter choices (Inventory/Quest checks)
-  const availableChoices = currentNode.choices.filter((choice) => {
-    if (choice.requiredItem && !state.inventory.includes(choice.requiredItem)) {
-      return false;
+  // --- 3. TIMED CHOICES LOGIC ---
+  useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    if (currentNode.timeLimitMs && currentNode.timeoutNodeId) {
+      timer = setTimeout(() => {
+        setCurrentNodeId(currentNode.timeoutNodeId!);
+      }, currentNode.timeLimitMs);
     }
+    return () => clearTimeout(timer); // Cleanup if they click a choice in time
+  }, [currentNodeId, currentNode]);
+
+  // --- 4. FILTER CHOICES & EXECUTE ---
+  const availableChoices = currentNode.choices.filter((choice) => {
+    if (choice.requiredItem && !state.inventory.includes(choice.requiredItem))
+      return false;
     return true;
   });
 
   const handleChoice = (choice: DialogueChoice) => {
-    // Process points and side effects
     if (choice.pointDelta)
       dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
     if (choice.sideEffect === "ally_gained")
@@ -56,7 +78,6 @@ export default function DialogueManager({
     if (choice.sideEffect === "start_gaff_quest")
       dispatch({ type: "ADD_QUEST", questId: "find_gaff_tape" });
 
-    // Traverse the tree
     if (choice.nextNodeId === "end") {
       onClose();
     } else {
@@ -71,6 +92,8 @@ export default function DialogueManager({
       text={parsedText}
       choices={availableChoices}
       onChoice={handleChoice}
+      // Pass the timeLimit down so the UI can draw a shrinking progress bar!
+      timeLimitMs={currentNode.timeLimitMs}
     />
   );
 }

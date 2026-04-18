@@ -11,6 +11,7 @@ interface DialogueBoxProps<T extends BaseChoice> {
   icon?: string;
   choices: T[];
   onChoice: (choice: T) => void;
+  timeLimitMs?: number; // Optional prop to indicate if this dialogue has a timed choice
 }
 
 export default function DialogueBox<T extends BaseChoice>({
