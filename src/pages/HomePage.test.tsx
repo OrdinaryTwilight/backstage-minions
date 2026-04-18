@@ -41,6 +41,7 @@ describe("HomePage", () => {
       unlockedStories: [],
       contacts: [],
       unreadContacts: [],
+      inventory: [],
     };
 
     render(
@@ -66,6 +67,7 @@ describe("HomePage", () => {
       unlockedStories: [],
       contacts: [],
       unreadContacts: [],
+      inventory: [],
     };
 
     render(
@@ -92,6 +94,7 @@ describe("HomePage", () => {
       unlockedStories: [],
       contacts: [],
       unreadContacts: ["contact1"],
+      inventory: [],
     };
 
     render(

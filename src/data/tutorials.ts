@@ -8,5 +8,5 @@ export const STAGE_INSTRUCTIONS = {
   equipment:
     "Review the plot and pack your gig bag. Don't forget the essentials.",
   conflict:
-    "Technical conflict! Choose the best response to keep the show moving.",
+    "Conflict! Choose the best response to keep the show moving.",
 };
