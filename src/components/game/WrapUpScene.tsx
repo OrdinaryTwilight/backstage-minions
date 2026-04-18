@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useGame } from "../../context/GameContext";
 import { CHARACTERS, Cue } from "../../data/gameData";
+import { NARRATIVE } from "../../data/narrative"; // <-- Imported Narrative Data
 import { calculateStars } from "../../utils/scoringEngine";
 import Button from "../ui/Button";
 import HardwarePanel from "../ui/HardwarePanel";
@@ -24,7 +25,6 @@ export default function WrapUpScene({
   const cuesMissed = state.session?.cuesMissed || 0;
   const totalCues = cueSheet.length;
 
-  // Calculate final stars right here in the component
   const stars = calculateStars(totalCues, cuesHit, score);
 
   const getResultColor = (starCount: number): string => {
@@ -50,16 +50,16 @@ export default function WrapUpScene({
         <HardwarePanel
           style={{
             textAlign: "center",
-            padding: "3rem 2rem",
+            padding: "clamp(1.5rem, 5vw, 3rem) clamp(1rem, 4vw, 2rem)",
             maxWidth: "600px",
             margin: "0 auto",
           }}
         >
           <div
             style={{
-              fontSize: "5rem",
+              fontSize: "clamp(3rem, 10vw, 5rem)", // Responsive star sizing
               marginBottom: "1rem",
-              letterSpacing: "10px",
+              letterSpacing: "clamp(2px, 2vw, 10px)",
             }}
           >
             {Array.from({ length: 3 }).map((_, i) => (
@@ -78,7 +78,7 @@ export default function WrapUpScene({
 
           <h2
             style={{
-              fontSize: "2rem",
+              fontSize: "clamp(1.5rem, 5vw, 2rem)",
               marginBottom: "2rem",
               fontFamily: "var(--font-mono)",
               color: getResultColor(stars),
@@ -87,18 +87,20 @@ export default function WrapUpScene({
             {getResultText(stars)}
           </h2>
 
+          {/* Responsive flexbox for score stats */}
           <div
             style={{
               display: "flex",
               justifyContent: "center",
-              gap: "3rem",
+              flexWrap: "wrap",
+              gap: "clamp(1.5rem, 5vw, 3rem)",
               marginBottom: "3rem",
             }}
           >
             <div>
               <div
                 style={{
-                  fontSize: "2.5rem",
+                  fontSize: "clamp(2rem, 6vw, 2.5rem)",
                   fontWeight: "bold",
                   color: "var(--bui-fg-success)",
                 }}
@@ -113,7 +115,7 @@ export default function WrapUpScene({
               <div>
                 <div
                   style={{
-                    fontSize: "2.5rem",
+                    fontSize: "clamp(2rem, 6vw, 2.5rem)",
                     fontWeight: "bold",
                     color:
                       cuesMissed > 0
@@ -122,7 +124,12 @@ export default function WrapUpScene({
                   }}
                 >
                   {cuesHit}{" "}
-                  <span style={{ fontSize: "1.5rem", opacity: 0.5 }}>
+                  <span
+                    style={{
+                      fontSize: "clamp(1rem, 3vw, 1.5rem)",
+                      opacity: 0.5,
+                    }}
+                  >
                     / {totalCues}
                   </span>
                 </div>
@@ -161,10 +168,10 @@ export default function WrapUpScene({
         minHeight: "60vh",
       }}
     >
-      <div style={{ textAlign: "center", maxWidth: "600px" }}>
+      <div style={{ textAlign: "center", maxWidth: "600px", width: "100%" }}>
         <div
           style={{
-            fontSize: "6rem",
+            fontSize: "clamp(4rem, 15vw, 6rem)",
             filter: "drop-shadow(0 10px 20px rgba(0,0,0,0.5))",
           }}
         >
@@ -173,7 +180,7 @@ export default function WrapUpScene({
         <HardwarePanel
           style={{
             marginTop: "2rem",
-            padding: "2rem",
+            padding: "clamp(1rem, 4vw, 2rem)",
             background: "rgba(15, 23, 42, 0.9)",
           }}
         >
@@ -185,17 +192,15 @@ export default function WrapUpScene({
           </h2>
           <p
             style={{
-              fontSize: "1.2rem",
+              fontSize: "clamp(1rem, 3vw, 1.2rem)",
               lineHeight: "1.6",
               color: "var(--color-pencil-light)",
             }}
           >
-            "Alright, cables are coiled, board is covered, and the ghost light
-            is on. Good hustle out there tonight. Let's go look at the SM's
-            post-show report and head home."
+            {/* Decoupled narrative string injected here */}"
+            {NARRATIVE.wrapUp.seniorTechText}"
           </p>
           <div style={{ marginTop: "2rem" }}>
-            {/* Transition to Report Phase instead of instantly finishing! */}
             <Button
               onClick={() => setPhase("report")}
               style={{ width: "100%" }}
