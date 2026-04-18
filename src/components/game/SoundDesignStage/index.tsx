@@ -158,20 +158,22 @@ export default function SoundDesignStage({
         <div style={{ display: "flex", gap: "1rem" }}>
           {outputBuses.map((bus, index) => {
             const isPathValid = validPaths[index];
-            const outChannel = patch.outputs[bus];
-            const isPatchedToDead = outChannel
-              ? deadChannels.includes(outChannel)
+            const currentOutChannel = patch.outputs[bus];
+            const isPatchedToDead = currentOutChannel
+              ? deadChannels.includes(currentOutChannel)
               : false;
-            const signalColor = isPathValid
-              ? "var(--bui-fg-success)"
-              : isPatchedToDead
-                ? "var(--bui-fg-danger)"
-                : "var(--bui-fg-warning)";
-            const signalStatus = isPathValid
-              ? "SIGNAL OK"
-              : isPatchedToDead
-                ? "DEAD CHANNEL"
-                : "NO SIGNAL";
+
+            // FIX: Extracted nested ternary
+            let statusColor = "var(--bui-fg-warning)";
+            let statusText = "NO SIGNAL";
+            if (isPathValid) {
+              statusColor = "var(--bui-fg-success)";
+              statusText = "SIGNAL OK";
+            } else if (isPatchedToDead) {
+              statusColor = "var(--bui-fg-danger)";
+              statusText = "DEAD CHANNEL";
+            }
+
             return (
               <div
                 key={bus}
@@ -184,13 +186,7 @@ export default function SoundDesignStage({
                 }}
               >
                 <span>{bus}</span>
-                <span
-                  style={{
-                    color: signalColor,
-                  }}
-                >
-                  {signalStatus}
-                </span>
+                <span style={{ color: statusColor }}>{statusText}</span>
               </div>
             );
           })}

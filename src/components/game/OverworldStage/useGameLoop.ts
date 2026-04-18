@@ -180,13 +180,15 @@ export function useGameLoop({
           setTargetPos,
         });
 
-        setNpcs(result.npcs);
-        setActiveZone(result.activeZone);
+        Promise.resolve().then(() => {
+          setNpcs(result.npcs);
+          setActiveZone(result.activeZone);
 
-        if (result.bump && !bumpMsg) {
-          setBumpMsg(result.bump);
-          setTimeout(() => setBumpMsg(null), 1500);
-        }
+          if (result.bump && !bumpMsg) {
+            setBumpMsg(result.bump);
+            setTimeout(() => setBumpMsg(null), 1500);
+          }
+        });
 
         return result.pos;
       });

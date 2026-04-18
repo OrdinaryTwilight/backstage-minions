@@ -27,15 +27,17 @@ function FaderTrack({
     return () => clearInterval(interval);
   }, [currentLevel]);
 
-  // FIX: Calculate acceptable color based on the cue's target!
   const target = isMaster ? 100 : targetLevel;
   const margin = 10;
   const isAcceptable = Math.abs(currentLevel - target) <= margin;
-  const barColor = isAcceptable
-    ? "#22c55e"
-    : currentLevel > target
-      ? "#ef4444"
-      : "#eab308";
+
+  // FIX: Extracted nested ternary operation into standard if/else statements
+  let barColor = "#eab308"; // Default Yellow
+  if (isAcceptable) {
+    barColor = "#22c55e"; // Green
+  } else if (currentLevel > target) {
+    barColor = "#ef4444"; // Red
+  }
 
   return (
     <div
@@ -52,6 +54,26 @@ function FaderTrack({
         border: "1px solid var(--glass-border)",
       }}
     >
+      {/* FIX: Native semantic meter for screen readers, visually hidden */}
+      <meter
+        min={0}
+        max={100}
+        value={currentLevel}
+        aria-label={`${label} signal level`}
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          padding: 0,
+          margin: "-1px",
+          overflow: "hidden",
+          clip: "rect(0,0,0,0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      />
+
+      {/* Visual meter hidden from screen readers */}
       <div
         style={{
           width: "8px",
@@ -60,11 +82,7 @@ function FaderTrack({
           border: "1px solid #333",
           position: "relative",
         }}
-        role="meter"
-        aria-label={`${label} signal level`}
-        aria-valuenow={currentLevel}
-        aria-valuemin={0}
-        aria-valuemax={100}
+        aria-hidden="true"
       >
         <div
           style={{
@@ -75,7 +93,6 @@ function FaderTrack({
             background: barColor,
             transition: "height 0.1s ease, background 0.2s ease",
           }}
-          aria-hidden="true"
         />
       </div>
 
@@ -141,7 +158,7 @@ interface DepartmentMixerProps {
   department?: string;
   levels: number[];
   setLevels: (levels: number[]) => void;
-  targetLevel?: number; // Receive the target from CueExecutionStage
+  targetLevel?: number;
 }
 
 export default function DepartmentMixer({

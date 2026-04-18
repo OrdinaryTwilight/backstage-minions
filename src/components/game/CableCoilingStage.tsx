@@ -86,6 +86,16 @@ export default function CableCoilingStage({
     return () => globalThis.removeEventListener("keydown", handleKeyDown);
   }, [handleAction, isComplete]);
 
+  let feedbackBg = "rgba(56, 189, 248, 0.2)";
+  let feedbackBorder = "var(--bui-fg-info)";
+  if (feedback.type === "success") {
+    feedbackBg = "rgba(74, 222, 128, 0.2)";
+    feedbackBorder = "var(--bui-fg-success)";
+  } else if (feedback.type === "error") {
+    feedbackBg = "rgba(248, 113, 113, 0.2)";
+    feedbackBorder = "var(--bui-fg-danger)";
+  }
+
   return (
     <div className="page-container animate-blueprint">
       <SectionHeader
@@ -107,19 +117,8 @@ export default function CableCoilingStage({
         <div
           style={{
             padding: "1rem 2rem",
-            background:
-              feedback.type === "success"
-                ? "rgba(74, 222, 128, 0.2)"
-                : feedback.type === "error"
-                  ? "rgba(248, 113, 113, 0.2)"
-                  : "rgba(56, 189, 248, 0.2)",
-            border: `2px solid ${
-              feedback.type === "success"
-                ? "var(--bui-fg-success)"
-                : feedback.type === "error"
-                  ? "var(--bui-fg-danger)"
-                  : "var(--bui-fg-info)"
-            }`,
+            background: feedbackBg,
+            border: `2px solid ${feedbackBorder}`,
             borderRadius: "8px",
             color: "#fff",
             fontWeight: "bold",
@@ -136,7 +135,7 @@ export default function CableCoilingStage({
         <div style={{ position: "relative", width: "250px", height: "250px" }}>
           {Array.from({ length: coils }).map((_, i) => (
             <svg
-              key={`coil-${i}`}
+              key={`coil-loop-${i}`}
               style={{
                 position: "absolute",
                 top: 0,

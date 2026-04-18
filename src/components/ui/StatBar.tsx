@@ -25,13 +25,29 @@ export default function StatBar({
           {value} / {maxValue}
         </span>
       </div>
-      <div
-        role="progressbar"
+
+      {/* FIX: Native semantic progress for screen readers, visually hidden */}
+      <progress
+        value={value}
+        max={maxValue}
         aria-label={label}
-        aria-valuenow={value}
-        aria-valuemin={0}
-        aria-valuemax={maxValue}
         aria-describedby={`${label}-value`}
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          padding: 0,
+          margin: "-1px",
+          overflow: "hidden",
+          clip: "rect(0,0,0,0)",
+          whiteSpace: "nowrap",
+          border: 0,
+        }}
+      />
+
+      {/* Visual Bar hidden from screen readers */}
+      <div
+        aria-hidden="true"
         style={{
           width: "100%",
           height: "12px",
@@ -51,7 +67,6 @@ export default function StatBar({
               "repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(0,0,0,0.2) 2px, rgba(0,0,0,0.2) 4px)",
             animation: "stat-fill 1s ease-out forwards",
           }}
-          aria-hidden="true"
         />
       </div>
     </div>

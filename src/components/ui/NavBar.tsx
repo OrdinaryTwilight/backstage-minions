@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import SettingsPanel from "./SettingsPanel";
 
 const TABS = [
   { path: "/", icon: "🏠", label: "Home" },
   { path: "/productions", icon: "🎭", label: "Shows" },
-  { path: "/stories", icon: "📖", label: "Stories" },
+  { path: "/stories", icon: "📚", label: "Stories" },
 ];
 
 export default function NavBar() {
@@ -13,12 +13,27 @@ export default function NavBar() {
   const { pathname } = useLocation();
   const [showSettings, setShowSettings] = useState(false);
 
+  // Escape key closes modal (proper global handler)
+  useEffect(() => {
+    if (!showSettings) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setShowSettings(false);
+      }
+    };
+
+    globalThis.addEventListener("keydown", onKeyDown);
+    return () => globalThis.removeEventListener("keydown", onKeyDown);
+  }, [showSettings]);
+
   return (
     <>
       <nav className="nav-bar">
         {TABS.map((t) => (
           <button
             key={t.path}
+            type="button"
             onClick={() => navigate(t.path)}
             className={`nav-item ${pathname === t.path ? "active" : ""}`}
             aria-label={t.label}
@@ -27,7 +42,9 @@ export default function NavBar() {
             <span>{t.label}</span>
           </button>
         ))}
+
         <button
+          type="button"
           className="nav-item"
           onClick={() => setShowSettings(true)}
           aria-label="Open visual settings"
@@ -42,30 +59,44 @@ export default function NavBar() {
         <div
           style={{
             position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.8)",
+            inset: 0,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             zIndex: 1000,
           }}
-          onClick={() => setShowSettings(false)}
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") {
-                setShowSettings(false);
-              }
+          {/* Backdrop (now a real button → fixes a11y warning) */}
+          <button
+            type="button"
+            aria-label="Close settings overlay"
+            onClick={() => setShowSettings(false)}
+            className="settings-backdrop"
+            style={{
+              position: "absolute",
+              inset: 0,
+              background: "rgba(0,0,0,0.8)",
+              border: "none",
+              padding: 0,
+              cursor: "pointer",
             }}
-            role="dialog"
-            tabIndex={0}
+          />
+
+          {/* Modal content */}
+          <dialog
+            open
+            style={{
+              position: "relative",
+              zIndex: 1,
+              background: "transparent",
+              border: "none",
+              padding: 0,
+              margin: 0,
+              display: "block",
+            }}
           >
             <SettingsPanel onClose={() => setShowSettings(false)} />
-          </div>
+          </dialog>
         </div>
       )}
     </>

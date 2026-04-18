@@ -42,7 +42,7 @@ export default function OpticalSimView({ grid }: Readonly<{ grid: any[] }>) {
             const isSpot = type.id === "spot";
             return (
               <div
-                key={i}
+                key={`sim-beam-${i}`}
                 style={{
                   position: "absolute",
                   left: `${((i % PLOT_GRID_COLS) / (PLOT_GRID_COLS - 1)) * 100}%`,
@@ -77,7 +77,7 @@ export default function OpticalSimView({ grid }: Readonly<{ grid: any[] }>) {
               if (!type) return null;
               return (
                 <div
-                  key={i}
+                  key={`sim-pool-${i}`}
                   style={{
                     position: "absolute",
                     left: `${((i % PLOT_GRID_COLS) / (PLOT_GRID_COLS - 1)) * 100}%`,

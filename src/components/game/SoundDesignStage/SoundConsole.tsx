@@ -114,11 +114,11 @@ export default function SoundConsole({
               >
                 {outputBuses.map((bus, index) => {
                   const isActive = patch.outputs[bus] === ch;
-                  const bgColor = isActive
-                    ? index === 0
-                      ? "#e53e3e"
-                      : "#d69e2e"
-                    : "#718096";
+
+                  // FIX: Extracted nested ternary
+                  let btnBg = "#718096";
+                  if (isActive) btnBg = index === 0 ? "#e53e3e" : "#d69e2e";
+
                   return (
                     <button
                       key={bus}
@@ -129,7 +129,7 @@ export default function SoundConsole({
                         borderRadius: "2px",
                         border: "none",
                         cursor: "pointer",
-                        background: bgColor,
+                        background: btnBg,
                         boxShadow: isActive
                           ? "inset 0 2px 4px rgba(0,0,0,0.6)"
                           : "0 2px 4px rgba(0,0,0,0.4)",
