@@ -1,0 +1,193 @@
+/* --- 1. GLOBAL ANIMATIONS --- */
+@keyframes blueprint-reveal {
+  from {
+    clip-path: inset(0 100% 0 0);
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 5px rgba(56, 189, 248, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+  }
+}
+
+@keyframes stat-fill {
+  from {
+    width: 0;
+  }
+}
+
+@keyframes technical-flicker {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  5% {
+    opacity: 0.3;
+  }
+  15% {
+    opacity: 0.4;
+  }
+  25% {
+    opacity: 1;
+  }
+}
+
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes master-go-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+  }
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 15px rgba(74, 222, 128, 0);
+  }
+}
+
+@keyframes hardware-pop {
+  0% {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  80% {
+    transform: scale(1.02);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes booth-flash-hit {
+  0% {
+    background-color: rgba(74, 222, 128, 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+@keyframes booth-flash-miss {
+  0% {
+    background-color: rgba(248, 113, 113, 0.2);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes row-hit {
+  0% {
+    background-color: rgba(74, 222, 128, 0.4);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+@keyframes row-miss {
+  0% {
+    background-color: rgba(239, 68, 68, 0.4);
+  }
+  100% {
+    background-color: transparent;
+  }
+}
+
+@keyframes bob {
+  from {
+    transform: translateY(0) rotate(-5deg);
+  }
+  to {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes transit-fade {
+  0%,
+  80% {
+    opacity: 1;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    visibility: hidden;
+  }
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 0.1;
+  }
+  50% {
+    opacity: 0.05;
+  }
+}
+
+/* Animation Utilities */
+.animate-blueprint,
+.animate-reveal {
+  animation: blueprint-reveal 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+.animate-flicker {
+  animation: technical-flicker 0.4s ease-in-out;
+}
+.animate-pop {
+  animation: hardware-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+.animate-pulse-go {
+  animation: master-go-pulse 2s infinite;
+}
+
+.flash-hit {
+  animation: booth-flash-hit 0.4s ease-out forwards;
+}
+.flash-miss {
+  animation: booth-flash-miss 0.4s ease-out forwards;
+}
+.row-flash-hit {
+  animation: row-hit 0.8s ease-out forwards;
+}
+.row-flash-miss {
+  animation: row-miss 0.8s ease-out forwards;
+}
+
+/* Status Indicators */
+.status-indicator {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 8px;
+}
+.status-on-call {
+  background: var(--bui-fg-success);
+  animation: pulse-glow 2s infinite;
+}
+.status-off-duty {
+  background: #666;
+}

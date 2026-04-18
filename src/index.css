@@ -135,7 +135,6 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  overflow-x: hidden;
 }
 
 /* --- 4. UTILITIES & STRUCTURAL SHELL --- */
@@ -152,6 +151,7 @@ body {
   max-width: 1000px;
   display: flex;
   flex-direction: column;
+  justify-content: flex-start;
 }
 
 .sr-only {
