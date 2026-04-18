@@ -215,7 +215,7 @@ describe("gameReducer", () => {
 
   describe("Contacts and Progress", () => {
     it("handles ADD_CONTACT", () => {
-      let state = gameReducer(initialState, {
+      const state = gameReducer(initialState, {
         type: "ADD_CONTACT",
         contactId: "contact-1",
       });
@@ -231,7 +231,7 @@ describe("gameReducer", () => {
     });
 
     it("handles MARK_CONTACT_READ", () => {
-      let state = gameReducer(
+      const state = gameReducer(
         { ...initialState, unreadContacts: ["c1", "c2"] },
         { type: "MARK_CONTACT_READ", contactId: "c1" },
       );
