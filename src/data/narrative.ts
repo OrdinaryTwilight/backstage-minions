@@ -2,12 +2,12 @@
 
 export const NARRATIVE = {
   bootSequence: [
-    "CONNECTING TO I.A.T.S.E. LOCAL 13 DISPATCH SERVER...",
-    "AUTHENTICATING USER CREDENTIALS...",
-    "USER IDENTIFIED: APPRENTICE TIER.",
-    "WARNING: ACTIVE PRODUCTIONS REQUIRE IMMEDIATE TECHNICAL ASSISTANCE.",
-    "INCOMING MESSAGE FROM [SENIOR TECH]: 'Grab your hard hat and wrench. We are understaffed and doors open in 2 hours. Don't mess this up.'",
-    "SYSTEM READY.",
+    "Flipping off the ghost light...",
+    "Sweeping the stage...",
+    "Checking the callboard...",
+    "Taping down the cable runs...",
+    "Brewing the SM's coffee...",
+    "Ready for places.",
   ],
   overworld: {
     npcChatter: [
@@ -18,6 +18,35 @@ export const NARRATIVE = {
       "Excuse me, coming through!",
       "House opens in 10, let's go!",
     ],
+    // Context-aware chatter based on the current stage
+    chatterByStage: {
+      planning: [
+        "Let's get this plot laid out.",
+        "Where are my drafting pencils?",
+        "SM needs the ground plan ASAP.",
+      ],
+      equipment: [
+        "Check that loadout.",
+        "Who took the good wrenches?",
+        "We need more DMX cables.",
+      ],
+      sound_design: [
+        "Check 1, 2.",
+        "Can we get more monitor mix?",
+        "Frequencies are clear.",
+      ],
+      execution: ["Quiet backstage!", "Standby cue 1...", "Hold for applause."],
+      cable_coiling: [
+        "Over-under, people!",
+        "Strike is going smoothly so far.",
+        "Get those empties to the truck.",
+      ],
+      wrapup: [
+        "Good show everyone.",
+        "Time for the local pub.",
+        "Leave the ghost light on.",
+      ],
+    },
     commsChatter: [
       { speaker: "SM", text: "Quiet on headset, please." },
       { speaker: "SM", text: "Standby all departments." },
@@ -52,9 +81,11 @@ export const NARRATIVE = {
       actorNeedText:
         "I can't go on stage like this... my throat is so dry. I need water...",
       actorThanksText:
-        "Oh my gosh, water! My throat was so dry. Thank you so much!",
+        "Oh my gosh, water! My throat was so dry, I thought I'd die out there. Thank you so much!",
       giveAction: "Give Water Bottle (+20 pts)",
       searchAction: "I'll see if Craft Services has any.",
+      feedbackAcquired: "Acquired: Water Bottle!",
+      feedbackComplete: "Quest Complete! +20 Pts",
     },
     tape: {
       pickupText:
@@ -63,6 +94,8 @@ export const NARRATIVE = {
       lxThanksText:
         "Yes! Gaff tape! You just saved the show. Lock in, we're starting soon.",
       giveAction: "Give Gaff Tape (+20 pts)",
+      feedbackAcquired: "Acquired: Gaff Tape!",
+      feedbackComplete: "Quest Complete! +20 Pts",
     },
     script: {
       pickupText:
@@ -75,6 +108,8 @@ export const NARRATIVE = {
       giveAction: "Give Script (+20 pts)",
       searchAction: "I'll ask the SM.",
       ignoreAction: "Maybe later.",
+      feedbackAcquired: "Acquired: Director's Script!",
+      feedbackComplete: "Quest Complete! +20 Pts",
     },
   },
   networks: {

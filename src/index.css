@@ -118,6 +118,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 /* --- 3. UTILITY CLASSES --- */
@@ -130,6 +131,10 @@ body {
   padding: var(--space-md) var(--space-sm) calc(var(--nav-h) + var(--space-lg));
   width: 100%;
   flex: 1;
+  margin: 0 auto;
+  max-width: 1000px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* --- 4. NAVIGATION DOCK --- */
@@ -678,7 +683,7 @@ body {
   max-width: 800px;
   background: rgba(15, 23, 42, 0.95);
   border: 2px solid var(--bui-fg-info);
-  borderradius: 8px;
+  border-radius: 8px;
   padding: var(--space-md);
   display: flex;
   gap: var(--space-md);
@@ -781,4 +786,125 @@ body {
   .dialogue-box-btn {
     width: 100%;
   }
+}
+
+/* --- OVERWORLD STAGE LAYOUT --- */
+.overworld-container {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.overworld-header {
+  text-align: center;
+  background: var(--color-surface-translucent);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--bui-fg-warning);
+}
+
+.overworld-header h2 {
+  color: var(--bui-fg-warning);
+  margin: 0;
+  font-family: var(--font-mono);
+}
+
+.overworld-header p {
+  margin: 0.5rem 0 0 0;
+  color: var(--color-pencil-light);
+}
+
+.overworld-layout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+  align-items: flex-start;
+  position: relative;
+}
+
+.overworld-sidebar {
+  flex: 1 1 200px;
+  max-width: 250px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.overworld-inventory {
+  background: rgba(15, 23, 42, 0.95);
+  border: 2px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  padding: 10px;
+}
+
+.overworld-inventory h3 {
+  margin: 0 0 10px 0;
+  font-size: 0.9rem;
+  color: var(--bui-fg-warning);
+  font-family: var(--font-mono);
+}
+
+.overworld-inventory-empty {
+  color: #666;
+  font-size: 0.8rem;
+  font-style: italic;
+}
+
+.overworld-inventory-list {
+  margin: 0;
+  padding-left: 20px;
+  color: var(--color-pencil-light);
+  font-size: 0.9rem;
+}
+
+.overworld-main {
+  flex: 3 1 500px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.overworld-interaction-bar {
+  min-height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.interaction-btn {
+  background: var(--bui-fg-warning);
+  color: #000;
+  border: 2px solid #fff;
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: bold;
+  font-size: 1.2rem;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  width: 100%;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+.feedback-banner {
+  padding: 12px 24px;
+  border-radius: var(--radius-md);
+  font-weight: bold;
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+.feedback-error {
+  background: var(--bui-bg-danger, #dc2626);
+  color: white;
+}
+.feedback-success {
+  background: var(--bui-fg-info);
+  color: #000;
 }

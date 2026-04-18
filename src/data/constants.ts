@@ -1,4 +1,10 @@
-export type GameStage = "equipment" | "planning" | "sound_design" | "rehearsal" | "liveshow" | "wrapup";
+export type GameStage =
+  | "equipment"
+  | "planning"
+  | "sound_design"
+  | "rehearsal"
+  | "liveshow"
+  | "wrapup";
 export type DifficultyLevel = "school" | "community" | "professional";
 export type Department = "lighting" | "sound";
 
@@ -29,11 +35,11 @@ export const DIFFICULTIES = {
   PROFESSIONAL: "professional" as const,
 } as const;
 
-export type Difficulty = typeof DIFFICULTIES[keyof typeof DIFFICULTIES];
+export type Difficulty = (typeof DIFFICULTIES)[keyof typeof DIFFICULTIES];
 
 /** Difficulty Multipliers for Cues */
 export const DIFFICULTY_MODIFIERS: Record<Difficulty, number> = {
-  [DIFFICULTIES.SCHOOL]: 1,
+  [DIFFICULTIES.SCHOOL]: 1.0,
   [DIFFICULTIES.COMMUNITY]: 0.8,
   [DIFFICULTIES.PROFESSIONAL]: 0.6,
 };

@@ -84,7 +84,12 @@ export default function GameLevelPage() {
     return (
       <div
         className="page-container"
-        style={{ display: "flex", alignItems: "center", height: "100vh" }}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          minHeight: "100vh",
+          paddingTop: "var(--space-xl)",
+        }}
       >
         <DialogueBox
           speaker={strikeSkipMessage.speaker}
@@ -110,8 +115,9 @@ export default function GameLevelPage() {
             style={{
               display: "flex",
               justifyContent: "center",
-              alignItems: "center",
-              height: "100vh",
+              alignItems: "flex-start",
+              paddingTop: "var(--space-xl)",
+              minHeight: "100vh",
             }}
           >
             <OverworldStage

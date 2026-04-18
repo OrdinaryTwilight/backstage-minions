@@ -1,174 +1,129 @@
-import { useState } from "react";
+// src/components/game/OverworldStage/useQuests.ts
+import { useState, useEffect } from "react";
 import { useGame } from "../../../context/GameContext";
 import { NARRATIVE } from "../../../data/narrative";
 import { DialogueState, NPC } from "./types";
 
 export function useQuests() {
   const { dispatch } = useGame();
-  const [inventory, setInventory] = useState<string[]>([]);
-  const [completedQuests, setCompletedQuests] = useState<string[]>([]);
-  const [questFeedback, setQuestFeedback] = useState<{
-    text: string;
-    isError: boolean;
-  } | null>(null);
+  
+  // Use Session Storage to persist quests and inventory through zone/stage changes
+  const [inventory, setInventory] = useState<string[]>(() => {
+    return JSON.parse(sessionStorage.getItem('minion_inventory') || '[]');
+  });
+  const [completedQuests, setCompletedQuests] = useState<string[]>(() => {
+    return JSON.parse(sessionStorage.getItem('minion_completed_quests') || '[]');
+  });
 
+  const [questFeedback, setQuestFeedback] = useState<{ text: string; isError: boolean } | null>(null);
   const q = NARRATIVE.quests;
-  const checkQuestIntercept = (
-    activeZone: string,
-    activeNpc?: NPC,
-  ): DialogueState | null => {
-    return (
-      handleActorQuest(activeZone, activeNpc) ||
-      handleTapeQuest(activeZone) ||
-      handleDirectorQuest(activeZone, activeNpc) ||
-      null
-    );
+
+  useEffect(() => {
+    sessionStorage.setItem('minion_inventory', JSON.stringify(inventory));
+    sessionStorage.setItem('minion_completed_quests', JSON.stringify(completedQuests));
+  }, [inventory, completedQuests]);
+
+  const checkQuestIntercept = (activeZone: string, activeNpc?: NPC): DialogueState | null => {
+    return handleActorQuest(activeZone, activeNpc) || handleTapeQuest(activeZone) || handleDirectorQuest(activeZone, activeNpc) || null;
   };
 
   function handleActorQuest(activeZone: string, activeNpc?: NPC) {
-    if (
-      activeZone === "snackTable" &&
-      !inventory.includes("Water Bottle") &&
-      !completedQuests.includes("actor_water")
-    ) {
+    if (activeZone === "snackTable" && !inventory.includes("Water Bottle") && !completedQuests.includes("actor_water")) {
       return {
-        speaker: "Craft Services",
-        icon: "🍩",
-        text: q.water.pickupText,
+        speaker: "Craft Services", icon: "🍩", text: q.water.pickupText,
         choices: [{ id: "take_water", text: q.water.pickupAction }],
       };
     }
-
-    if (
-      activeNpc?.id === "actor_lead" &&
-      !completedQuests.includes("actor_water")
-    ) {
+    if (activeNpc?.id === "actor_lead" && !completedQuests.includes("actor_water")) {
       return inventory.includes("Water Bottle")
         ? {
-            speaker: activeNpc.name,
-            icon: activeNpc.icon,
-            text: "Oh my gosh, water! My throat was so dry, I thought I'd die out there. Thank you so much!",
-            choices: [
-              { id: "give_water", text: "Give Water Bottle (+20 pts)" },
-            ],
+            speaker: activeNpc.name, icon: activeNpc.icon, text: q.water.actorThanksText,
+            choices: [{ id: "give_water", text: q.water.giveAction }],
           }
         : {
-            speaker: activeNpc.name,
-            icon: activeNpc.icon,
-            text: "I can't go on stage like this... my throat is so dry. I need water...",
-            choices: [
-              { id: "ok", text: "I'll see if Craft Services has any." },
-            ],
+            speaker: activeNpc.name, icon: activeNpc.icon, text: q.water.actorNeedText,
+            choices: [{ id: "ok", text: q.water.searchAction }],
           };
     }
-
     return null;
   }
 
   function handleTapeQuest(activeZone: string) {
-    if (
-      activeZone === "propsTable" &&
-      !inventory.includes("Gaff Tape") &&
-      !completedQuests.includes("lx_tape")
-    ) {
+    if (activeZone === "propsTable" && !inventory.includes("Gaff Tape") && !completedQuests.includes("lx_tape")) {
       return {
-        speaker: "Props Master",
-        icon: "🛠️",
-        text: "Hey, since you're walking around... Can you bring this Gaff Tape to the LX Booth?",
-        choices: [{ id: "take_tape", text: "Take Gaff Tape" }],
+        speaker: "Props Master", icon: "🛠️", text: q.tape.pickupText,
+        choices: [{ id: "take_tape", text: q.tape.pickupAction }],
       };
     }
-
     if (activeZone === "lightBooth" && inventory.includes("Gaff Tape")) {
       return {
-        speaker: "LX Operator",
-        icon: "💡",
-        text: "Yes! Gaff tape! You just saved the show. Lock in, we're starting soon.",
-        choices: [{ id: "give_tape", text: "Give Gaff Tape (+20 pts)" }],
+        speaker: "LX Operator", icon: "💡", text: q.tape.lxThanksText,
+        choices: [{ id: "give_tape", text: q.tape.giveAction }],
       };
     }
-
     return null;
   }
 
   function handleDirectorQuest(activeZone: string, activeNpc?: NPC) {
-    if (
-      activeZone === "stageManager" &&
-      !inventory.includes("Director's Script") &&
-      !completedQuests.includes("director_script")
-    ) {
+    if (activeZone === "stageManager" && !inventory.includes("Director's Script") && !completedQuests.includes("director_script")) {
       return {
-        speaker: "Stage Manager",
-        icon: "📋",
-        text: "The Director left their script on my desk again. Can you run this to the Green Room before house opens?",
+        speaker: "Stage Manager", icon: "📋", text: q.script.pickupText,
         choices: [
-          { id: "take_script", text: "Take Director's Script" },
-          { id: "ok", text: "Maybe later." },
+          { id: "take_script", text: q.script.pickupAction },
+          { id: "ok", text: q.script.ignoreAction },
         ],
       };
     }
-
-    if (
-      activeNpc?.dept === "Director" &&
-      !completedQuests.includes("director_script")
-    ) {
+    if (activeNpc?.dept === "Director" && !completedQuests.includes("director_script")) {
       return inventory.includes("Director's Script")
         ? {
-            speaker: activeNpc.name,
-            icon: activeNpc.icon,
-            text: "Ah, my script! The SM found it? Excellent work, let's get ready for places.",
-            choices: [{ id: "give_script", text: "Give Script (+20 pts)" }],
+            speaker: activeNpc.name, icon: activeNpc.icon, text: q.script.directorThanksText,
+            choices: [{ id: "give_script", text: q.script.giveAction }],
           }
         : {
-            speaker: activeNpc.name,
-            icon: activeNpc.icon,
-            text: "I've completely lost my blocking notes... Have you seen my script?",
-            choices: [{ id: "ok", text: "I'll ask the SM." }],
+            speaker: activeNpc.name, icon: activeNpc.icon, text: q.script.directorNeedText,
+            choices: [{ id: "ok", text: q.script.searchAction }],
           };
     }
-
     return null;
   }
 
   const handleQuestChoice = (choiceId: string, clearDialogue: () => void) => {
-    // Pickups
+    let wasQuest = true;
+
     if (choiceId === "take_tape") {
       setInventory((prev) => [...prev, "Gaff Tape"]);
-      setQuestFeedback({ text: "Acquired: Gaff Tape!", isError: false });
+      setQuestFeedback({ text: q.tape.feedbackAcquired, isError: false });
     } else if (choiceId === "take_water") {
       setInventory((prev) => [...prev, "Water Bottle"]);
-      setQuestFeedback({ text: "Acquired: Water Bottle!", isError: false });
+      setQuestFeedback({ text: q.water.feedbackAcquired, isError: false });
     } else if (choiceId === "take_script") {
       setInventory((prev) => [...prev, "Director's Script"]);
-      setQuestFeedback({
-        text: "Acquired: Director's Script!",
-        isError: false,
-      });
-    }
-
-    // Dropoffs
-    else if (choiceId === "give_water") {
+      setQuestFeedback({ text: q.script.feedbackAcquired, isError: false });
+    } else if (choiceId === "give_water") {
       setInventory((prev) => prev.filter((i) => i !== "Water Bottle"));
       setCompletedQuests((prev) => [...prev, "actor_water"]);
       dispatch({ type: "ADD_SCORE", delta: 20 });
-      setQuestFeedback({ text: "Quest Complete! +20 Pts", isError: false });
+      setQuestFeedback({ text: q.water.feedbackComplete, isError: false });
     } else if (choiceId === "give_tape") {
       setInventory((prev) => prev.filter((i) => i !== "Gaff Tape"));
       setCompletedQuests((prev) => [...prev, "lx_tape"]);
       dispatch({ type: "ADD_SCORE", delta: 20 });
-      setQuestFeedback({ text: "Quest Complete! +20 Pts", isError: false });
+      setQuestFeedback({ text: q.tape.feedbackComplete, isError: false });
     } else if (choiceId === "give_script") {
       setInventory((prev) => prev.filter((i) => i !== "Director's Script"));
       setCompletedQuests((prev) => [...prev, "director_script"]);
       dispatch({ type: "ADD_SCORE", delta: 20 });
-      setQuestFeedback({ text: "Quest Complete! +20 Pts", isError: false });
+      setQuestFeedback({ text: q.script.feedbackComplete, isError: false });
     } else {
-      return false; // Not a quest choice
+      wasQuest = false; 
     }
 
-    clearDialogue();
-    setTimeout(() => setQuestFeedback(null), 2500);
-    return true;
+    if (wasQuest) {
+      clearDialogue();
+      setTimeout(() => setQuestFeedback(null), 2500);
+    }
+    return wasQuest;
   };
 
   return { inventory, checkQuestIntercept, handleQuestChoice, questFeedback };

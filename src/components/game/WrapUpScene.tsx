@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useGame } from "../../context/GameContext";
 import { CHARACTERS, Cue } from "../../data/gameData";
 import { NARRATIVE } from "../../data/narrative"; // <-- Imported Narrative Data
@@ -8,12 +9,10 @@ import HardwarePanel from "../ui/HardwarePanel";
 import SectionHeader from "../ui/SectionHeader";
 
 interface WrapUpSceneProps {
-  onComplete: () => void;
   cueSheet?: Cue[];
 }
 
 export default function WrapUpScene({
-  onComplete,
   cueSheet = [],
 }: Readonly<WrapUpSceneProps>) {
   const { state } = useGame();
@@ -24,7 +23,7 @@ export default function WrapUpScene({
   const cuesHit = state.session?.cuesHit || 0;
   const cuesMissed = state.session?.cuesMissed || 0;
   const totalCues = cueSheet.length;
-
+  const navigate = useNavigate();
   const stars = calculateStars(totalCues, cuesHit, score);
 
   const getResultColor = (starCount: number): string => {
@@ -141,7 +140,12 @@ export default function WrapUpScene({
           </div>
 
           <Button
-            onClick={onComplete}
+            onClick={() => {
+              // Clear level session storage so quests reset for next run
+              sessionStorage.removeItem("minion_inventory");
+              sessionStorage.removeItem("minion_completed_quests");
+              navigate("/"); // Route home instead of calling onComplete()
+            }}
             className="btn-xl"
             style={{
               width: "100%",

@@ -33,7 +33,10 @@ export default function ConflictMinigame({
   };
 
   return (
-    <div className="page-container content-reveal">
+    <div
+      className="page-container content-reveal"
+      style={{ paddingTop: "10vh" }}
+    >
       <HardwarePanel style={{ maxWidth: "800px", margin: "0 auto" }}>
         <h2 style={{ color: "var(--bui-fg-warning)" }}>
           ⚡ Technical Conflict
