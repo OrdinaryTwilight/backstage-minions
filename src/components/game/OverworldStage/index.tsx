@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { CHARACTERS, OVERWORLD_MAPS } from "../../../data/gameData";
+import { useAnnouncement } from "../../../hooks/useAnnouncement";
 import { useKeyPress } from "../../../hooks/useKeyPress";
 import { getOverworldObjective } from "../../../utils/objectiveEngine";
 import DialogueBox from "../DialogueBox";
@@ -26,6 +27,7 @@ export default function OverworldStage({
   nextStageKey,
 }: OverworldStageProps) {
   const { state } = useGame();
+  const { announce, AnnouncementRegion } = useAnnouncement();
   const [currentRoom, setCurrentRoom] = useState<string>("stage");
   const [targetPos, setTargetPos] = useState<{ x: number; y: number } | null>(
     null,
@@ -48,6 +50,18 @@ export default function OverworldStage({
   const { inventory, questFeedback, checkQuestIntercept, handleQuestChoice } =
     useQuests();
   const displayFeedback = questFeedback || feedbackMsg;
+
+  // Announce dynamic feedback to screen readers immediately
+  useEffect(() => {
+    if (displayFeedback?.text) {
+      announce(displayFeedback.text);
+    }
+  }, [displayFeedback, announce]);
+
+  // Announce room transitions
+  useEffect(() => {
+    announce(`Entered ${formatRoomName(currentRoom)}`);
+  }, [currentRoom, announce]);
 
   const currentZones = OVERWORLD_MAPS[currentRoom] || OVERWORLD_MAPS["stage"];
   const playerChar = CHARACTERS.find((c) => c.id === charId);
@@ -103,6 +117,7 @@ export default function OverworldStage({
 
   return (
     <div className="overworld-container">
+      <AnnouncementRegion />
       <div className="overworld-header">
         <h2>CURRENT LOCATION: {formatRoomName(currentRoom).toUpperCase()}</h2>
         <p>

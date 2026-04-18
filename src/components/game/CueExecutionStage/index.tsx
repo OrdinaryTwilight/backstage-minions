@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { useGame } from "../../../context/GameContext";
 import { CHARACTERS } from "../../../data/gameData";
 import { Cue } from "../../../data/types";
+import { useAnnouncement } from "../../../hooks/useAnnouncement";
 import CueStack from "../../ui/CueStack";
 import DepartmentMixer from "../../ui/DepartmentMixer";
 import HardwarePanel from "../../ui/HardwarePanel";
@@ -24,7 +26,7 @@ export default function CueExecutionStage({
   const char = state.session
     ? CHARACTERS.find((c) => c.id === state.session?.characterId)
     : null;
-
+  const { announce, AnnouncementRegion } = useAnnouncement();
   const {
     currentIdx,
     faderLevels,
@@ -40,8 +42,20 @@ export default function CueExecutionStage({
     handleReady,
   } = useCueEngine(cueSheet, onComplete, difficulty);
 
+  // Announce the active cue requirements dynamically
+  useEffect(() => {
+    if (isLastCue) {
+      announce("Show complete. All stop.");
+    } else if (currentCue) {
+      announce(
+        `Standby ${currentCue.id}. Target intensity ${currentCue.targetLevel || 80} percent.`,
+      );
+    }
+  }, [currentCue, isLastCue, announce]);
+
   return (
     <div className="page-container animate-blueprint">
+      <AnnouncementRegion />
       <SectionHeader
         title="Booth Operations"
         subtitle="Coordinate the master clock and maintain fader precision."

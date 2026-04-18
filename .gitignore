@@ -27,3 +27,4 @@ dist-ssr
 .env*.local
 
 coverage/
+hint-report/https-backstage-minions-vercel-app.html
