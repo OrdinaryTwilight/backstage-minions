@@ -4,8 +4,7 @@ import { GameContext } from "../context/GameContext";
 
 export default function LevelFailedPage() {
   const navigate = useNavigate();
-  const { dispatch } = useContext(GameContext);
-
+  const { dispatch } = useContext(GameContext) ?? { dispatch: () => {} };
   const handleBackToHome = () => {
     // Dispatch the action to clear the session
     dispatch({ type: "CLEAR_SESSION" });

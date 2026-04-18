@@ -39,7 +39,7 @@ export default function DialogueBox<T extends BaseChoice>({
           {speaker.toUpperCase()}
         </h3>
 
-        <p className="dialogue-box-text">{text}</p>
+        <p className="dialogue-box-text">{text || "No dialogue"}</p>
 
         <fieldset className="dialogue-box-choices">
           <legend className="sr-only">{speaker}'s dialogue choices</legend>
