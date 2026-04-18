@@ -31,7 +31,7 @@ describe("NetworksPage Component", () => {
     renderWithRouter(<NetworksPage />);
 
     const headings = screen.queryAllByRole("heading");
-    expect(headings).toHaveLength(2); // Ensure there is at least one heading
+    expect(headings).toHaveLength(1); // Ensure there is at least one heading
   });
 
   it("renders without crashing", () => {

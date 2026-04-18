@@ -4,7 +4,9 @@ import { GameContext } from "../context/GameContext";
 
 export default function LevelFailedPage() {
   const navigate = useNavigate();
+  // Safe access to dispatch with a fallback
   const { dispatch } = useContext(GameContext) ?? { dispatch: () => {} };
+
   const handleBackToHome = () => {
     // Dispatch the action to clear the session
     dispatch({ type: "CLEAR_SESSION" });
@@ -13,6 +15,7 @@ export default function LevelFailedPage() {
 
   return (
     <div
+      data-testid="level-failed-page-container"
       className="page-container"
       style={{ textAlign: "center", paddingTop: "4rem" }}
     >

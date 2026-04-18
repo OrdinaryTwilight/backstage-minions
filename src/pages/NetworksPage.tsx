@@ -36,7 +36,10 @@ export default function NetworksPage() {
   const { state, dispatch } = useGame();
   const [activeChat, setActiveChat] = useState<string | null>(null);
 
-  const availableContacts = ["sys_comms", ...state.contacts]
+  const availableContacts = [
+    "sys_comms",
+    ...state.contacts.filter((id) => id !== "sys_comms"),
+  ]
     .map((id) => {
       if (id === "sys_comms") {
         return { id, name: "System Alerts", icon: "🤖" };

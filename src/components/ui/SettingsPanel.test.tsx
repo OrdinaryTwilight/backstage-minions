@@ -38,7 +38,7 @@ describe("SettingsPanel Component", () => {
     const panel = await screen.findByRole("dialog");
 
     // Check if the dialog is visible (i.e., it's not display: none)
-    const panelStyle = window.getComputedStyle(panel);
+    const panelStyle = globalThis.getComputedStyle(panel);
     expect(panelStyle.display).not.toBe("none"); // Ensure the dialog is visible
   });
 

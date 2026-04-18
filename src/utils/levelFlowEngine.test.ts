@@ -1,7 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import { generateStageSequence } from "./levelFlowEngine";
+import { cleanup } from "@testing-library/react";
 
 describe("levelFlowEngine", () => {
+  afterEach(() => {
+    cleanup();
+  });
   describe("generateStageSequence", () => {
     it("includes planning stage for lighting department", () => {
       const seq = generateStageSequence("lighting");
