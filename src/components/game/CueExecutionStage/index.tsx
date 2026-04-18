@@ -19,7 +19,7 @@ export default function CueExecutionStage({
   cueSheet,
   onComplete,
   difficulty = "school",
-}: CueExecutionStageProps) {
+}: Readonly<CueExecutionStageProps>) {
   const { state } = useGame();
   const char = state.session
     ? CHARACTERS.find((c) => c.id === state.session?.characterId)

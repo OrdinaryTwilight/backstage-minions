@@ -1,6 +1,6 @@
 interface StageViewportProps {
-  lights: any[];
-  cues: any[];
+  lights: ({ typeId: string } | null)[]; 
+  cues: { id: string }[];
   currentCueIndex: number;
 }
 

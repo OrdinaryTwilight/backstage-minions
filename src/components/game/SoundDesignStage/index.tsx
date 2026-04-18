@@ -44,7 +44,7 @@ export default function SoundDesignStage({
     };
     const deadCount = getDeadCount(difficulty);
     if (deadCount === 0) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+       
       setDeadChannels([]);
       return;
     }
@@ -62,9 +62,8 @@ export default function SoundDesignStage({
     setPatch((prev) => {
       const isCurrentlyPatched = prev[type][source] === target;
       if (isCurrentlyPatched) {
-        const updatedType = { ...prev[type] };
-        delete updatedType[source];
-        return { ...prev, [type]: updatedType };
+        const { [source]: removed, ...rest } = prev[type];
+        return { ...prev, [type]: rest as Record<string, number> };
       }
       return { ...prev, [type]: { ...prev[type], [source]: target } };
     });

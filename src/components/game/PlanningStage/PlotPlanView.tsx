@@ -5,7 +5,7 @@ export default function PlotPlanView({
   grid,
   placeLight,
 }: Readonly<{
-  grid: any[];
+  grid: ({ typeId: string } | null)[];
   placeLight: (i: number) => void;
 }>) {
   return (
