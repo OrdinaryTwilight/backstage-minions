@@ -1,4 +1,4 @@
-import { ZoneConfig } from "../types/game";
+import { ZoneConfig } from "./gameData";
 
 export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
   stage: {
@@ -44,10 +44,10 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       ],
     },
     propsTable: {
-      x: 400,
-      y: 350,
-      w: 120,
-      h: 60,
+      x: 120,
+      y: 80,
+      w: 100,
+      h: 60, // FIX: Moved Upstage Left, completely away from the Pit
       label: "PROPS",
       color: "#5f0f40",
       isSolid: true,
@@ -61,9 +61,9 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
     },
     orchestraPit: {
       x: 250,
-      y: 370,
+      y: 390,
       w: 300,
-      h: 60, // Pulled up to y:370 so it doesn't overlap bottom doors
+      h: 50, // FIX: Tucked tightly at the Downstage edge
       label: "ORCHESTRA PIT",
       color: "#2C1A38",
       isSolid: true,
@@ -105,7 +105,7 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       x: 50,
       y: 400,
       w: 100,
-      h: 50, // FIX: y: 400 instead of 450 so it's inside the map bounds
+      h: 50,
       label: "BASEMENT ⬇",
       color: "#4A4A4A",
       isSolid: false,
@@ -115,7 +115,7 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       x: 650,
       y: 400,
       w: 100,
-      h: 50, // FIX: y: 400 instead of 450
+      h: 50,
       label: "LADDER UP ⬆",
       color: "#1A1A1A",
       isSolid: false,
@@ -178,10 +178,10 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       isDoor: "stage",
     },
     dimmerBeach: {
-      x: 300,
-      y: 100,
-      w: 200,
-      h: 150,
+      x: 100,
+      y: 200,
+      w: 150,
+      h: 150, // FIX: Moved safely to the left. Center is clear.
       label: "DIMMER BEACH",
       color: "#800000",
       isSolid: true,
@@ -195,9 +195,9 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
     },
     loadingDock: {
       x: 600,
-      y: 300,
+      y: 250,
       w: 150,
-      h: 150,
+      h: 150, // FIX: Center is clear.
       label: "LOADING DOCK",
       color: "#333333",
       isSolid: false,
@@ -223,10 +223,10 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       isDoor: "stage",
     },
     spotTower: {
-      x: 350,
-      y: 200,
-      w: 100,
-      h: 100,
+      x: 200,
+      y: 100,
+      w: 150,
+      h: 100, // FIX: Moved up and left. Center is clear.
       label: "FOLLOWSPOT 1",
       color: "#FFD700",
       isSolid: true,
@@ -240,9 +240,9 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
     },
     gridAccess: {
       x: 100,
-      y: 100,
-      w: 500,
-      h: 40,
+      y: 350,
+      w: 600,
+      h: 40, // FIX: Runs along the bottom safely.
       label: "THE GRID",
       color: "#111111",
       isSolid: false,

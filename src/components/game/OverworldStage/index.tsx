@@ -123,6 +123,28 @@ export default function OverworldStage({
         <p>
           <strong>{instructionText}</strong>
         </p>
+
+        {/* NEW FIX: Emergency Unstick Button! Safely drops you in the center of the room. */}
+        <button
+          onClick={() => {
+            setPos({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
+            setTargetPos(null);
+          }}
+          style={{
+            padding: "0.5rem 1rem",
+            background: "var(--bui-fg-danger)",
+            color: "white",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+            fontWeight: "bold",
+            fontSize: "0.8rem",
+            opacity: 0.8,
+          }}
+          title="Teleport to center of room if stuck inside a wall"
+        >
+          🚨 UNSTICK
+        </button>
       </div>
 
       <div className="overworld-layout">
