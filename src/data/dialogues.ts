@@ -96,7 +96,125 @@ export const ZAINAB_WARDROBE_TREE: DialogueTree = {
   },
 };
 
-// Map character IDs to their specific trees
+export const SM_EMERGENCY_TREE: DialogueTree = {
+  start: {
+    id: "start",
+    variants: [
+      {
+        text: "Headset check. Whoever is operating the deck audio, the Director just decided to cut the entire intro monologue. We are jumping straight to musical cue 4. Can you adapt?",
+      },
+    ],
+    timeLimitMs: 5000,
+    timeoutNodeId: "too_late",
+    choices: [
+      {
+        id: "c1",
+        text: "Copy. Repatching cues on the fly. Give me 10 seconds.",
+        nextNodeId: "repatching",
+      },
+      {
+        id: "c2",
+        text: "We can't! The console is locked to SMPTE timecode!",
+        nextNodeId: "panic",
+      },
+    ],
+  },
+  repatching: {
+    id: "repatching",
+    variants: [
+      {
+        text: "Good. Bypassing cues 1 through 3. Standby to fire Cue 4 on my mark.",
+      },
+    ],
+    choices: [
+      {
+        id: "c1",
+        text: "Standing by on 4.",
+        nextNodeId: "end",
+        pointDelta: 15,
+        sideEffect: "sm_trust_gained",
+      },
+    ],
+  },
+  panic: {
+    id: "panic",
+    variants: [
+      { text: "Well figure it out! I am calling the cue in 5, 4, 3..." },
+    ],
+    choices: [
+      {
+        id: "c1",
+        text: "Hit the GO button and pray.",
+        nextNodeId: "end",
+        pointDelta: -10,
+      },
+    ],
+  },
+  too_late: {
+    id: "too_late",
+    variants: [
+      {
+        text: "No response? Fine, I'm calling it anyway. Standby sound... GO.",
+      },
+    ],
+    choices: [
+      { id: "c1", text: "(Missed Cue)", nextNodeId: "end", pointDelta: -20 },
+    ],
+  },
+};
+
+export const LEO_FLY_TREE: DialogueTree = {
+  start: {
+    id: "start",
+    variants: [
+      {
+        text: "Hey ground-dweller. The fly line for the moon piece is feeling heavy. I think the counterweight arbor is unbalanced. Have you seen anyone mess with the stage weights?",
+      },
+    ],
+    choices: [
+      {
+        id: "c1",
+        text: "Yeah, Carpentry borrowed some weights to hold down a scenic flat.",
+        nextNodeId: "found_it",
+      },
+      {
+        id: "c2",
+        text: "No idea. Just pull harder?",
+        nextNodeId: "bad_advice",
+      },
+    ],
+  },
+  found_it: {
+    id: "found_it",
+    variants: [
+      {
+        text: "Those absolute termites. Go tell Dante I need my iron back before act two, or the moon isn't rising.",
+      },
+    ],
+    choices: [
+      {
+        id: "c1",
+        text: "I'll go wrangle the carpenters.",
+        nextNodeId: "end",
+        sideEffect: "start_weight_quest",
+      },
+    ],
+  },
+  bad_advice: {
+    id: "bad_advice",
+    variants: [
+      {
+        text: "Pull harder? It's physics, not a gym class. Forget it, I'll figure it out myself.",
+      },
+    ],
+    choices: [
+      { id: "c1", text: "Suit yourself.", nextNodeId: "end", pointDelta: -5 },
+    ],
+  },
+};
+
 export const DIALOGUE_REGISTRY: Record<string, DialogueTree> = {
   npc_zainab: ZAINAB_WARDROBE_TREE,
+  npc_stage_manager_emergency: SM_EMERGENCY_TREE,
+  npc_leo: LEO_FLY_TREE,
 };

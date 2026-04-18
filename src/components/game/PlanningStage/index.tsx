@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { SCORING } from "../../../data/constants";
 import {
+  getStageHelpText,
   LIGHT_TYPES,
   PLOT_GRID_COLS,
   PLOT_GRID_ROWS,
@@ -59,7 +60,7 @@ export default function PlanningStage({
       <SectionHeader
         title="Lighting Plot Drafting"
         subtitle="Map the rig and verify coverage symmetry."
-        helpText="Toggle fixtures on the technical plot (left) to see real-time beam simulation (right)."
+        helpText={getStageHelpText("planning" as any)}
       />
 
       <div

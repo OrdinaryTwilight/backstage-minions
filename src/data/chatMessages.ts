@@ -35,7 +35,6 @@ export const CHAT_MESSAGES: Record<
       "Hold the house! We have a set piece stuck.",
     ],
   },
-  // NEW: Added Ben!
   npc_ben: {
     sender: "Ben (LX)",
     messages: [
@@ -45,7 +44,6 @@ export const CHAT_MESSAGES: Record<
       "Tell the actors to stop leaning on the booms.",
     ],
   },
-  // NEW: Added Casey!
   npc_casey: {
     sender: "Casey (Audio)",
     messages: [
@@ -53,6 +51,34 @@ export const CHAT_MESSAGES: Record<
       "Can everyone please stop dropping the comms packs?",
       "I'm picking up RF interference from someone's phone... turn them off!",
       "Does the lead sound muddy to you, or is it just me?",
+    ],
+  },
+  // --- GROUP CHATS ---
+  group_tech_survivors: {
+    sender: "📱 Group: Tech Survivors",
+    messages: [
+      "Maya (Props): Who took my good fabric scissors? I am not asking nicely.",
+      "Alex (LX): Check Wardrobe. They were looking for something to cut wire with earlier.",
+      "Maya (Props): IF THEY CUT WIRE WITH MY SCISSORS I WILL BURN THIS THEATRE DOWN.",
+      "River (Video): Bring me a Red Bull if you pass the vending machine.",
+    ],
+  },
+  group_official: {
+    sender: "📱 OFFICIAL: Cast & Crew",
+    messages: [
+      "Alex P. (SM): Call time is 6:00 PM. Not 6:05. If you are late, you are dead to me.",
+      "Zainab (Wardrobe): Cast, please stop eating Cheetos in costume. The stains are permanent.",
+      "Arthur (Director): Art cannot be bound by the hands of a clock, Alex.",
+      "Alex P. (SM): Art pays union fines when it goes into overtime, Arthur. 6:00 PM.",
+    ],
+  },
+  group_audio_only: {
+    sender: "📱 Sound Dept (No LX Allowed)",
+    messages: [
+      "Jordan (Sound): The lead singer just asked me to add more 'talent' to their monitor mix.",
+      "Casey (Audio): Just turn up the reverb and tell them you boosted the 'vibe' frequencies.",
+      "Sam (A1): Standard protocol. Did it work?",
+      "Jordan (Sound): Yes. They said it sounds 'much more authentic'. I hate it here.",
     ],
   },
   default: {

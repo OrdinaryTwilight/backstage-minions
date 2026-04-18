@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useGame } from "../../context/GameContext";
+import { getStageHelpText } from "../../data/gameData";
 import HardwarePanel from "../ui/HardwarePanel";
 import SectionHeader from "../ui/SectionHeader";
 
@@ -101,7 +102,7 @@ export default function CableCoilingStage({
       <SectionHeader
         title="Strike & Wrap"
         subtitle="Properly coil the 100ft XLR audio snake."
-        helpText="Alternate between OVER and UNDER loops. Use [Left Arrow] for OVER, [Right Arrow] for UNDER."
+        helpText={getStageHelpText("cable_coiling" as any)}
       />
 
       <div

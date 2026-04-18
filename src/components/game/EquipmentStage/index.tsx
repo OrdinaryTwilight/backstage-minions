@@ -1,3 +1,4 @@
+import { getStageHelpText } from "../../../data/gameData";
 import SectionHeader from "../../ui/SectionHeader";
 import ActiveLoadoutPanel from "./ActiveLoadoutPanel";
 import AvailableGearList from "./AvailableGearList";
@@ -15,7 +16,7 @@ export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
       <SectionHeader
         title="Inventory Logistics"
         subtitle="Select a gear package for this production tier."
-        helpText="Choose your gear wisely. Higher quality gear provides score bonuses but may reduce your starting 'Lives'."
+        helpText={getStageHelpText("equipment" as any)}
       />
 
       <ActiveLoadoutPanel char={char} />

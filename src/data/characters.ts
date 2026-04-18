@@ -74,6 +74,78 @@ export const CHARACTERS: Character[] = [
     icon: "⚒️",
     stats: { technical: 8, social: 9, stamina: 7 },
   },
+  {
+    id: "char_leo",
+    name: "Leo",
+    role: "Head Flyman",
+    department: "scenic",
+    bio: "Spends his life 60 feet in the air on the fly rail. Built like a lumberjack, speaks in cryptic nautical terms, and possesses an uncanny, sixth-sense timing for dropping scenery exactly on the musical downbeat.",
+    icon: "🏗️",
+    stats: { technical: 6, social: 5, stamina: 10 },
+  },
+  {
+    id: "char_tara",
+    name: "Tara",
+    role: "Lead Followspot",
+    department: "lighting",
+    bio: "Operates Spot 1 from the catwalks. Subsists on sour candy and adrenaline. Tara knows every actor's blocking better than the director does and has an eerie ability to track a dancer in pitch darkness.",
+    icon: "🔦",
+    stats: { technical: 7, social: 6, stamina: 8 },
+  },
+  {
+    id: "char_dante",
+    name: "Dante",
+    role: "Master Carpenter",
+    department: "scenic",
+    bio: "Loves sawdust more than oxygen. Dante is grumpy on the surface but will stay until 3 AM to make sure a stair unit is mathematically flawless and perfectly silent to walk on.",
+    icon: "🪚",
+    stats: { technical: 9, social: 4, stamina: 9 },
+  },
+  {
+    id: "char_chloe",
+    name: "Chloe",
+    role: "Hair & Makeup Head",
+    department: "wardrobe",
+    bio: "Part therapist, part artist. Chloe spends preshow gluing on wigs and talking actors off emotional ledges. Moves with terrifying speed during a 30-second quick change.",
+    icon: "💄",
+    stats: { technical: 7, social: 10, stamina: 6 },
+  },
+  {
+    id: "char_marcus",
+    name: "Marcus",
+    role: "House Manager",
+    department: "foh",
+    bio: "The velvet rope between the chaos of backstage and the paying public. Marcus wears an impeccable suit, has a soothing voice, and can de-escalate a furious patron in under a minute.",
+    icon: "🎟️",
+    stats: { technical: 3, social: 10, stamina: 7 },
+  },
+  {
+    id: "char_zoe",
+    name: "Zoe",
+    role: "A2 (Deck Audio)",
+    department: "sound",
+    bio: "The unsung hero of the audio world. Zoe lives in the wings, wrangling sweating actors into mic belts and fixing snapped cables with surgical tape in total darkness.",
+    icon: "🎙️",
+    stats: { technical: 8, social: 7, stamina: 9 },
+  },
+  {
+    id: "char_owen",
+    name: "Owen",
+    role: "Special Effects Tech",
+    department: "props",
+    bio: "Licensed pyrotechnician and fog machine whisperer. Owen's eyebrows haven't fully grown back since the 'Macbeth Incident of 2019', but his dry ice waterfalls are legendary.",
+    icon: "💨",
+    stats: { technical: 9, social: 4, stamina: 5 },
+  },
+  {
+    id: "char_fiona",
+    name: "Fiona",
+    role: "Assistant Stage Manager",
+    department: "management",
+    bio: "Armed with an iPad, three rolls of glow tape, and an encyclopedic knowledge of everyone's coffee order. Fiona is the connective tissue holding the deck together.",
+    icon: "📱",
+    stats: { technical: 5, social: 9, stamina: 10 },
+  },
 ];
 
 export const NPC_ICONS = {
@@ -81,6 +153,9 @@ export const NPC_ICONS = {
   "Costume Designer": "🧵",
   "Senior Technician": "👨‍🔧",
   Director: "🎬",
+  Choreographer: "🕺",
+  "Lead Actor": "🎭",
+  "Music Director": "🎼",
 };
 
 export const AVAILABLE_NPCS = [
@@ -177,6 +252,76 @@ export const AVAILABLE_NPCS = [
         ],
       };
     },
+  },
+  {
+    id: "npc_arthur",
+    name: "Arthur",
+    role: "Director",
+    color: "#ff0066",
+    dialogue: (dept?: string) => {
+      const responses = {
+        lighting:
+          "It's just too... literal. Can we make the light look more like a memory of a Tuesday?",
+        sound:
+          "The rain effect is great, but can it sound more... emotionally devastating?",
+        default:
+          "Why is everyone walking so loudly? The stage must be a sacred void before we begin.",
+      };
+      return {
+        speaker: "Arthur (Director)",
+        text: responses[dept as keyof typeof responses] || responses.default,
+        choices: [
+          {
+            id: "nod",
+            text: "I'll see what I can do to translate that into tech.",
+            pointDelta: 1,
+            contact: null,
+          },
+          {
+            id: "confuse",
+            text: "...Right. I'll just adjust the fader.",
+            pointDelta: -1,
+            contact: null,
+          },
+        ],
+      };
+    },
+  },
+  {
+    id: "npc_madeline",
+    name: "Madeline",
+    role: "Lead Actor",
+    color: "#ffcc00",
+    dialogue: () => ({
+      speaker: "Madeline (Lead)",
+      text: "Is there an unnatural draft in here? My vocal cords are seizing up. And I can't find my specific honey-lemon tea.",
+      choices: [
+        {
+          id: "tea",
+          text: "I think Props has your tea. I'll call them.",
+          pointDelta: 2,
+          contact: "char_maya",
+        },
+      ],
+    }),
+  },
+  {
+    id: "npc_victor",
+    name: "Victor",
+    role: "Music Director",
+    color: "#3399ff",
+    dialogue: () => ({
+      speaker: "Victor (MD)",
+      text: "The pit monitor is picking up the click track. If the front row hears a metronome during the ballad, I'm walking out.",
+      choices: [
+        {
+          id: "fix",
+          text: "On it. Re-routing the aux send to your in-ears only.",
+          pointDelta: 3,
+          contact: "char_sam",
+        },
+      ],
+    }),
   },
   {
     id: "npc_stage_manager",

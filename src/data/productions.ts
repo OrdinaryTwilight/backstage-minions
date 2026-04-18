@@ -1,4 +1,4 @@
-import { Production, Venue } from "./types";
+import { Production, Venue } from "../types/game";
 
 // --- VENUES ---
 export const VENUES: Record<string, Venue> = {
@@ -21,6 +21,11 @@ export const VENUES: Record<string, Venue> = {
     name: "The Grand Adelphi",
     description:
       "The pinnacle. Massive scale, unforgiving timelines, and zero room for error.",
+  },
+  convention_center: {
+    name: "Moscone North Hall",
+    description:
+      "Cold, massive, and echoing. You have 24 hours to load in a stadium-sized rig.",
   },
 };
 
@@ -76,7 +81,40 @@ export const PRODUCTIONS: Production[] = [
     levels: {
       school: { venueId: "high_school", unlocked: true },
       community: { venueId: "regional", unlocked: false },
-      professional: { venueId: "regional", unlocked: false },
+      professional: { venueId: "broadway", unlocked: false },
+    },
+  },
+  {
+    id: "prod_hamlet_space",
+    title: "Hamlet: In Space",
+    poster: "🌌",
+    description:
+      "A local high school's deeply misguided attempt to modernize Shakespeare. Expect aluminum foil costumes, laser pointers, and actors forgetting their lines.",
+    learnMoreUrl: "https://en.wikipedia.org/wiki/Hamlet",
+    levels: {
+      school: { venueId: "high_school", unlocked: true },
+    },
+  },
+  {
+    id: "prod_les_mis_community",
+    title: "Les Misérables (Non-Equity)",
+    poster: "🇫🇷",
+    description:
+      "The community theatre has bitten off more than it can chew. Fifty cast members, only twelve working wireless mics. A barricade made of actual trash that takes five minutes to push onstage.",
+    learnMoreUrl: "https://en.wikipedia.org/wiki/Les_Misérables_(musical)",
+    levels: {
+      community: { venueId: "church", unlocked: false },
+    },
+  },
+  {
+    id: "prod_corporate_keynote",
+    title: "TechCorp Annual Keynote",
+    poster: "📊",
+    description:
+      "Not art, but it pays the bills. A billionaire CEO needs to walk out to blinding rock-show lights to announce a slightly thinner smartphone. Zero margin for error.",
+    learnMoreUrl: "https://en.wikipedia.org/wiki/Keynote",
+    levels: {
+      professional: { venueId: "convention_center", unlocked: false },
     },
   },
 ];
