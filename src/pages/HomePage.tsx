@@ -29,11 +29,14 @@ export default function HomePage() {
           <h1
             style={{
               fontFamily: "var(--font-sketch)",
-              fontSize: "clamp(3rem, 10vw, 6rem)",
+              // Dialed back the max size from 6rem to 4rem
+              fontSize: "clamp(2.5rem, 6vw, 4rem)",
               color: "var(--bui-fg-warning)",
               marginBottom: "1.5rem",
-              lineHeight: 1,
+              lineHeight: 1.1,
               textShadow: "0 0 15px rgba(251, 191, 36, 0.4)",
+              // Added the flicker keyframe animation
+              animation: "technical-flicker 4s infinite",
             }}
           >
             BACKSTAGE
@@ -42,7 +45,7 @@ export default function HomePage() {
           </h1>
           <p
             style={{
-              fontSize: "clamp(1rem, 3vw, 1.25rem)",
+              fontSize: "clamp(1rem, 3vw, 1.15rem)",
               color: "var(--color-pencil-light)",
               marginBottom: "3rem",
               lineHeight: "1.6",
@@ -65,11 +68,12 @@ export default function HomePage() {
           >
             <Button
               className="btn-xl"
+              variant="accent"
               style={{
                 background: "var(--bui-fg-warning)",
                 color: "#000",
                 fontFamily: "var(--font-sketch)",
-                fontSize: "1.5rem",
+                fontSize: "1.25rem",
               }}
               onClick={() => navigate("/productions")}
             >
@@ -77,8 +81,7 @@ export default function HomePage() {
             </Button>
             <Button
               className="btn-xl"
-              variant="accent"
-              style={{ fontFamily: "var(--font-sketch)", fontSize: "1.5rem" }}
+              style={{ fontFamily: "var(--font-sketch)", fontSize: "1.25rem" }}
               onClick={() => navigate("/networks")}
             >
               Check Comm Logs
