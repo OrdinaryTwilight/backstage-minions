@@ -24,7 +24,7 @@ interface GameContextType {
   dispatch: React.Dispatch<GameAction>;
 }
 
-const GameContext = createContext<GameContextType | null>(null);
+export const GameContext = createContext<GameContextType | null>(null);
 
 export function GameProvider({ children }: { readonly children: ReactNode }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);

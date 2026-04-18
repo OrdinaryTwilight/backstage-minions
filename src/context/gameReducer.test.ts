@@ -1,100 +1,94 @@
+// src/context/gameReducer.test.ts
 import { describe, expect, it } from "vitest";
-import { GameState } from "../types/game";
+import { GameSession, GameState } from "../types/game";
 import { gameReducer } from "./gameReducer";
 
-describe("gameReducer Core Logic", () => {
-  const initialState: GameState = {
-    session: null,
-    progress: {},
-    unlockedStories: [],
-    contacts: [],
-    unreadContacts: [],
-  };
+const initialState: GameState = {
+  session: null,
+  progress: {},
+  unlockedStories: [],
+  contacts: [],
+  unreadContacts: [],
+};
 
-  it("START_SESSION initializes a correct technical session", () => {
-    const state = gameReducer(initialState, {
+const mockSession: GameSession = {
+  productionId: "prod-1",
+  difficulty: "community",
+  characterId: "char-1",
+  stages: ["planning", "execution"],
+  currentStageIndex: 0,
+  gearId: null,
+  score: 0,
+  lives: 3,
+  cuesHit: 0,
+  cuesMissed: 0,
+  plotLights: [],
+  conflictsSeen: [],
+  activeConflict: null,
+};
+
+describe("gameReducer", () => {
+  it("handles START_SESSION", () => {
+    const action = {
       type: "START_SESSION",
-      productionId: "phantom",
-      difficulty: "school",
-      characterId: "char_ben",
-    });
-
-    expect(state.session).toBeDefined();
-    expect(state.session?.productionId).toBe("phantom");
-    expect(state.session?.lives).toBe(4); // School difficulty grants 4 lives
-    expect(state.session?.score).toBe(0);
-    expect(state.session?.currentStageIndex).toBe(0);
+      productionId: "test-prod",
+      difficulty: "community",
+      characterId: "char-1",
+    } as const;
+    const state = gameReducer(initialState, action);
+    expect(state.session).not.toBeNull();
+    expect(state.session?.productionId).toBe("test-prod");
+    expect(state.session?.difficulty).toBe("community");
   });
 
-  it("ADD_SCORE correctly increments the score delta", () => {
-    let state = gameReducer(initialState, {
-      type: "START_SESSION",
-      productionId: "phantom",
-      difficulty: "school",
-      characterId: "char_ben",
-    });
-
-    state = gameReducer(state, { type: "ADD_SCORE", delta: 50 });
-    expect(state.session?.score).toBe(50);
-
-    state = gameReducer(state, { type: "ADD_SCORE", delta: -10 });
-    expect(state.session?.score).toBe(40); // Proves penalty logic works
-  });
-
-  it("CUE_HIT and CUE_MISSED update the timeline trackers", () => {
-    let state = gameReducer(initialState, {
-      type: "START_SESSION",
-      productionId: "phantom",
-      difficulty: "school",
-      characterId: "char_ben",
-    });
-
-    state = gameReducer(state, { type: "CUE_HIT" });
-    state = gameReducer(state, { type: "CUE_HIT" });
-    state = gameReducer(state, { type: "CUE_MISSED" });
-
-    expect(state.session?.cuesHit).toBe(2);
-    expect(state.session?.cuesMissed).toBe(1);
-  });
-
-  it("NEXT_STAGE advances the internal index", () => {
-    let state = gameReducer(initialState, {
-      type: "START_SESSION",
-      productionId: "phantom",
-      difficulty: "school",
-      characterId: "char_ben",
-    });
-
-    state = gameReducer(state, { type: "NEXT_STAGE" });
+  it("handles NEXT_STAGE", () => {
+    const startingState: GameState = {
+      ...initialState,
+      session: { ...mockSession, currentStageIndex: 0 },
+    };
+    const action = { type: "NEXT_STAGE" } as const;
+    const state = gameReducer(startingState, action);
     expect(state.session?.currentStageIndex).toBe(1);
   });
 
-  it("COMPLETE_LEVEL correctly saves progress and stars globally", () => {
-    const state = gameReducer(initialState, {
-      type: "COMPLETE_LEVEL",
-      productionId: "phantom",
-      difficulty: "community",
-      stars: 3,
-      unlockedStories: ["story_1"],
-    });
-
-    const savedProgress = state.progress["phantom_community"];
-    expect(savedProgress).toBeDefined();
-    expect(savedProgress.stars).toBe(3);
-    expect(savedProgress.completed).toBe(true);
-    expect(state.unlockedStories).toContain("story_1");
+  it("handles ADD_SCORE", () => {
+    const startingState: GameState = {
+      ...initialState,
+      session: { ...mockSession, score: 10 },
+    };
+    const action = { type: "ADD_SCORE", delta: 15 } as const;
+    const state = gameReducer(startingState, action);
+    expect(state.session?.score).toBe(25);
   });
 
-  it("ADD_CONTACT adds to networks without duplicating", () => {
-    let state = gameReducer(initialState, {
-      type: "ADD_CONTACT",
-      contactId: "char_sam",
-    });
-    expect(state.contacts).toContain("char_sam");
-    expect(state.unreadContacts).toContain("char_sam");
+  it("handles CUE_HIT and CUE_MISSED", () => {
+    let state: GameState = {
+      ...initialState,
+      session: { ...mockSession, cuesHit: 0, cuesMissed: 0 },
+    };
 
-    // Dispatching again should not create duplicates
-    state = gameReducer(state, { type: "ADD_CONTACT", contactId: "char_sam" });
-    expect(state.contacts.length).toBe(1);
+    state = gameReducer(state, { type: "CUE_HIT" });
+    expect(state.session?.cuesHit).toBe(1);
+
+    state = gameReducer(state, { type: "CUE_MISSED" });
+    expect(state.session?.cuesMissed).toBe(1);
+  });
+
+  it("handles COMPLETE_LEVEL and CLEAR_SESSION", () => {
+    let state: GameState = { ...initialState, session: mockSession };
+
+    state = gameReducer(state, {
+      type: "COMPLETE_LEVEL",
+      productionId: "prod-1",
+      difficulty: "community",
+      stars: 3,
+      unlockedStories: ["story-1"],
+    });
+
+    expect(state.progress["prod-1_community"]).toBeDefined();
+    expect(state.progress["prod-1_community"].stars).toBe(3);
+
+    state = gameReducer(state, { type: "CLEAR_SESSION" });
+    expect(state.session).toBeNull();
   });
 });

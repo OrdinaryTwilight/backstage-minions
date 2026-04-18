@@ -1,7 +1,16 @@
+import { useContext } from "react";
 import { useNavigate } from "react-router-dom";
+import { GameContext } from "../context/GameContext";
 
 export default function LevelFailedPage() {
   const navigate = useNavigate();
+  const { dispatch } = useContext(GameContext);
+
+  const handleBackToHome = () => {
+    // Dispatch the action to clear the session
+    dispatch({ type: "CLEAR_SESSION" });
+    navigate("/"); // Navigate back to the home page
+  };
 
   return (
     <div
@@ -33,7 +42,7 @@ export default function LevelFailedPage() {
           Try Again
         </button>
         <button
-          onClick={() => navigate("/")}
+          onClick={handleBackToHome}
           className="action-button"
           style={{ background: "var(--surface2)", color: "white" }}
         >

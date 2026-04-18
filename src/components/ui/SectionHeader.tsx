@@ -6,7 +6,11 @@ interface SectionHeaderProps {
   helpText?: string;
 }
 
-export default function SectionHeader({ title, subtitle, helpText }: Readonly<SectionHeaderProps>) {
+export default function SectionHeader({
+  title,
+  subtitle,
+  helpText,
+}: Readonly<SectionHeaderProps>) {
   const [showHelp, setShowHelp] = useState(false);
 
   return (
@@ -29,7 +33,9 @@ export default function SectionHeader({ title, subtitle, helpText }: Readonly<Se
         )}
       </div>
 
-      <p style={{ opacity: 0.7, marginTop: "0.5rem" }}>{subtitle}</p>
+      {subtitle && (
+        <p style={{ opacity: 0.7, marginTop: "0.5rem" }}>{subtitle}</p>
+      )}
 
       {showHelp && helpText && (
         <div className="tooltip-overlay">
