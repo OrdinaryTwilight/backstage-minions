@@ -315,13 +315,14 @@ export default function SettingsPanel({
               onChange={(e) =>
                 updateSetting(
                   "fontFamily",
-                  e.target.value as "system" | "serif" | "monospace",
+                  e.target.value as "system" | "opendyslexic",
                 )
               }
             >
               <option value="system">System Default</option>
-              <option value="serif">Serif (High Legibility)</option>
-              <option value="monospace">Monospace (Terminal Style)</option>
+              <option value="opendyslexic">
+                OpenDyslexic (Max Legibility)
+              </option>
             </select>
           </div>
 

@@ -1,6 +1,14 @@
 /* --- 1. DESIGN TOKENS --- */
 @import url("https://fonts.googleapis.com/css2?family=Architects+Daughter&family=Inter:wght@400;700&family=JetBrains+Mono&display=swap");
 
+@font-face {
+  font-family: "OpenDyslexic";
+  src: url("https://raw.githubusercontent.com/antijingoist/opendyslexic/master/compiled/OpenDyslexic-Regular.woff2")
+    format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
 :root {
   /* Colors */
   --color-blueprint-bg: #121212;
@@ -64,10 +72,12 @@
   --color-pencil-light: #0f172a;
   --glass-border: rgba(0, 0, 0, 0.2);
   --color-surface-translucent: rgba(240, 240, 240, 0.9);
-  --bui-fg-success: #16a34a;
-  --bui-fg-danger: #dc2626;
-  --bui-fg-info: #0284c7;
-  --bui-fg-warning: #d97706;
+
+  /* Adjusted for WCAG AA Contrast (> 4.5:1) against #f8fafc */
+  --bui-fg-success: #15803d; /* Darkened from #16a34a */
+  --bui-fg-danger: #b91c1c; /* Darkened from #dc2626 */
+  --bui-fg-info: #0369a1; /* Darkened from #0284c7 */
+  --bui-fg-warning: #b45309; /* Darkened from #d97706 */
 }
 
 .light-mode body {

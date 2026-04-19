@@ -14,10 +14,6 @@ export default function AvailableGearList({
 
   const selectedPkg = GEAR_PACKAGES.find((p) => p.id === highlightedId);
 
-  const toggleSelect = (id: string) => {
-    setHighlightedId((prev) => (prev === id ? null : id));
-  };
-
   return (
     <div
       style={{
@@ -25,37 +21,24 @@ export default function AvailableGearList({
         flexDirection: "column",
         alignItems: "center",
         width: "100%",
-        fontFamily: "var(--font-sketch)",
       }}
     >
-      <div
-        className="bento-container"
-        style={{
-          width: "100%",
-          display: "grid",
-          gap: "1rem",
-          fontFamily: "var(--font-sketch)",
-        }}
-      >
+      <div className="bento-container" style={{ width: "100%" }}>
         {GEAR_PACKAGES.map((pkg) => {
           const isHighlighted = highlightedId === pkg.id;
-
           return (
             <HardwarePanel
               key={pkg.id}
               variant="clickable"
-              onClick={() => toggleSelect(pkg.id)}
+              onClick={() => setHighlightedId(pkg.id)}
               role="button"
               tabIndex={0}
               onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  toggleSelect(pkg.id);
-                }
+                if (e.key === "Enter" || e.key === " ")
+                  setHighlightedId(pkg.id);
               }}
               aria-label={`Select ${pkg.label}`}
               style={{
-                position: "relative",
-                zIndex: isHighlighted ? 2 : 1,
                 borderColor: isHighlighted
                   ? "var(--bui-fg-warning)"
                   : undefined,
@@ -63,9 +46,6 @@ export default function AvailableGearList({
                   ? "0 0 10px var(--bui-fg-warning)"
                   : undefined,
                 transform: isHighlighted ? "scale(1.02)" : "scale(1)",
-                background: isHighlighted
-                  ? "rgba(255, 193, 7, 0.08)"
-                  : undefined,
                 transition: "all 0.2s ease",
               }}
             >
@@ -73,22 +53,20 @@ export default function AvailableGearList({
                 className="annotation-text"
                 style={{
                   fontSize: "1.4rem",
-                  color: "var(--bui-fg-primary)",
-                  margin: 0,
+                  color: "var(--color-pencil-light)",
                 }}
               >
                 {pkg.label}
               </h3>
-
               <p
                 style={{
                   margin: "1rem 0",
-                  color: "var(--bui-fg-primary)",
+                  opacity: 0.9,
+                  color: "var(--color-pencil-light)",
                 }}
               >
                 {pkg.description}
               </p>
-
               <div
                 style={{
                   fontSize: "0.8rem",
@@ -106,7 +84,7 @@ export default function AvailableGearList({
       <Button
         disabled={!highlightedId}
         onClick={() => highlightedId && handleSelect(highlightedId)}
-        variant={highlightedId ? "success" : "default"}
+        variant="success"
         className="animate-pulse-go"
         style={{
           width: "100%",

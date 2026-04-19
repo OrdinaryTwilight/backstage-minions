@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useGame } from "../../context/GameContext";
 import { NPC_ICONS } from "../../data/gameData";
 import { useAnnouncement } from "../../hooks/useAnnouncement";
@@ -22,6 +22,11 @@ export default function ConflictMinigame({
     null,
   );
 
+  // Shuffle the choices once when the conflict loads so the correct answer moves around
+  const shuffledChoices = useMemo(() => {
+    return [...conflict.choices].sort(() => Math.random() - 0.5);
+  }, [conflict.choices]);
+
   const handleChoice = (choice: ConflictChoice) => {
     dispatch({ type: "MARK_CONFLICT_SEEN", conflictId: conflict.id });
     dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
@@ -30,9 +35,7 @@ export default function ConflictMinigame({
       dispatch({ type: "ADD_CONTACT", contactId: conflict.npc });
     }
 
-    // Programmatically announce the result for a11y
     announce(`Result: ${choice.outcome}. ${choice.aftermathText}`);
-
     setSelectedChoice(choice);
   };
 
@@ -43,7 +46,9 @@ export default function ConflictMinigame({
     >
       <AnnouncementRegion />
       <HardwarePanel style={{ maxWidth: "800px", margin: "0 auto" }}>
-        <h2 style={{ color: "var(--bui-fg-warning)" }}>⚡ Conflict</h2>
+        <h2 style={{ color: "var(--bui-fg-warning)", marginBottom: "1rem" }}>
+          ⚡ Conflict
+        </h2>
 
         {selectedChoice ? (
           <div className="animate-pop">
@@ -62,7 +67,15 @@ export default function ConflictMinigame({
             </h3>
 
             <article
-              style={{ lineHeight: 1.6, marginBottom: "2rem", opacity: 0.9 }}
+              style={{
+                fontSize: "1.1rem",
+                lineHeight: 1.8,
+                marginBottom: "2rem",
+                padding: "1.5rem",
+                background: "rgba(0,0,0,0.4)",
+                borderRadius: "8px",
+                border: "1px solid var(--glass-border)",
+              }}
             >
               {selectedChoice.aftermathText}
             </article>
@@ -70,18 +83,29 @@ export default function ConflictMinigame({
             <Button
               variant="accent"
               onClick={() => onResolved(selectedChoice.outcome)}
+              style={{ width: "100%" }}
             >
               Resume Technical Operations →
             </Button>
           </div>
         ) : (
-          <DialogueBox<ConflictChoice>
-            speaker={conflict.npc}
-            icon={NPC_ICONS[conflict.npc as keyof typeof NPC_ICONS]}
-            text={conflict.description}
-            choices={conflict.choices}
-            onChoice={handleChoice}
-          />
+          <div
+            style={{
+              fontSize: "1.1rem",
+              lineHeight: 1.8,
+              padding: "1rem",
+              background: "rgba(0,0,0,0.3)",
+              borderRadius: "8px",
+            }}
+          >
+            <DialogueBox<ConflictChoice>
+              speaker={conflict.npc}
+              icon={NPC_ICONS[conflict.npc as keyof typeof NPC_ICONS]}
+              text={conflict.description}
+              choices={shuffledChoices}
+              onChoice={handleChoice}
+            />
+          </div>
         )}
       </HardwarePanel>
     </div>

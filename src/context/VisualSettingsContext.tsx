@@ -16,7 +16,7 @@ export interface VisualSettings {
   contrastMode: "normal" | "high";
   colorBlindMode: "none" | "protanopia" | "deuteranopia" | "tritanopia";
   motionPreference: "reduced" | "full";
-  fontFamily: "system" | "serif" | "monospace";
+  fontFamily: "system" | "opendyslexic";
   theme: "dark" | "light";
 }
 
@@ -52,11 +52,8 @@ function applySettingsToDOM(settings: VisualSettings) {
   const root = document.documentElement;
 
   // Theme toggle
-  if (settings.theme === "light") {
-    root.classList.add("light-mode");
-  } else {
-    root.classList.remove("light-mode");
-  }
+  if (settings.theme === "light") root.classList.add("light-mode");
+  else root.classList.remove("light-mode");
 
   // Font size multiplier
   const fontSizeMap: Record<VisualSettings["fontSize"], number> = {
@@ -71,11 +68,9 @@ function applySettingsToDOM(settings: VisualSettings) {
   );
 
   // Contrast mode
-  if (settings.contrastMode === "high") {
+  if (settings.contrastMode === "high")
     root.classList.add("high-contrast-mode");
-  } else {
-    root.classList.remove("high-contrast-mode");
-  }
+  else root.classList.remove("high-contrast-mode");
 
   // Color blind simulation filter
   const filterMap: Record<VisualSettings["colorBlindMode"], string> = {
@@ -87,20 +82,20 @@ function applySettingsToDOM(settings: VisualSettings) {
   root.style.filter = filterMap[settings.colorBlindMode];
 
   // Motion preference
-  if (settings.motionPreference === "reduced") {
+  if (settings.motionPreference === "reduced")
     root.classList.add("prefers-reduced-motion");
-  } else {
-    root.classList.remove("prefers-reduced-motion");
-  }
+  else root.classList.remove("prefers-reduced-motion");
 
-  // Font family
-  const fontMap: Record<VisualSettings["fontFamily"], string> = {
-    system:
-      "var(--font-sketch), system-ui, -apple-system, sans-serif, monospace",
-    serif: "Georgia, 'Times New Roman', serif",
-    monospace: "Courier New, monospace",
-  };
-  root.style.setProperty("--user-font-family", fontMap[settings.fontFamily]);
+  // Font family - overrides ALL global font variables when OpenDyslexic is enabled
+  if (settings.fontFamily === "opendyslexic") {
+    root.style.setProperty("--user-font-family", "'OpenDyslexic', sans-serif");
+    root.style.setProperty("--font-sketch", "'OpenDyslexic', sans-serif");
+    root.style.setProperty("--font-mono", "'OpenDyslexic', sans-serif");
+  } else {
+    root.style.setProperty("--user-font-family", "var(--font-main)");
+    root.style.setProperty("--font-sketch", "'Architects Daughter', cursive");
+    root.style.setProperty("--font-mono", "'JetBrains Mono', monospace");
+  }
 }
 
 export function VisualSettingsProvider({
