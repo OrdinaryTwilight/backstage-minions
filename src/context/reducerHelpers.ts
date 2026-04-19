@@ -45,11 +45,14 @@ export const createNewSession = (
 export const getNextConflict = (session: GameSession): Conflict | null => {
   const nextIdx = session.currentStageIndex + 1;
   const nextStageKey = session.stages[nextIdx];
-  const availableConflicts = CONFLICTS.filter(
-    (c) => c.trigger === nextStageKey && !session.conflictsSeen.includes(c.id),
-  );
+  const availableConflicts = CONFLICTS.filter((c) => {
+    // Map stage strings to allow "rehearsal" conflicts to appear in the planning/equipment phases
+    const trigger = c.trigger === "rehearsal" ? "planning" : c.trigger;
+    return trigger === nextStageKey && !session.conflictsSeen.includes(c.id);
+  });
 
-  if (availableConflicts.length === 0 || Math.random() <= 0.5) return null;
+  // Guarantee the conflict fires if one is available, rather than dropping 50% of them
+  if (availableConflicts.length === 0) return null;
 
   return availableConflicts[
     Math.floor(Math.random() * availableConflicts.length)

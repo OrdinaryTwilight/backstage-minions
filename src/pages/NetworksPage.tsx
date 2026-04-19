@@ -1,7 +1,6 @@
-// src/pages/NetworksPage.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../components/ui/Button";
-import NavBar from "../components/ui/NavBar"; // <-- Added NavBar
+import NavBar from "../components/ui/NavBar";
 import { useGame } from "../context/GameContext";
 import { CHARACTERS } from "../data/characters";
 import { CHAT_MESSAGES } from "../data/chatMessages";
@@ -32,10 +31,62 @@ export default function NetworksPage() {
   });
 
   const activeContact = availableContacts.find((c) => c.id === activeChat);
-  const chatData =
-    activeChat && CHAT_MESSAGES[activeChat]
-      ? CHAT_MESSAGES[activeChat].messages
-      : CHAT_MESSAGES["default"].messages;
+
+  const [sessionChats, setSessionChats] = useState<
+    Record<string, { sender: string; text: string }[]>
+  >(() => {
+    return JSON.parse(sessionStorage.getItem("minion_chats") || "{}");
+  });
+  const [inputText, setInputText] = useState("");
+
+  useEffect(() => {
+    sessionStorage.setItem("unread_messages", "false");
+    globalThis.dispatchEvent(new Event("unread_messages_update"));
+  }, []);
+
+  const handleSendMessage = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+    if (!inputText.trim() || !activeContact) return;
+
+    const newMsg = { sender: "You", text: inputText };
+    const updatedChats = { ...sessionChats };
+    if (!updatedChats[activeContact.id]) updatedChats[activeContact.id] = [];
+    updatedChats[activeContact.id] = [
+      ...updatedChats[activeContact.id],
+      newMsg,
+    ];
+
+    setSessionChats(updatedChats);
+    setInputText("");
+
+    // Automated Reply
+    setTimeout(() => {
+      const replyChats = JSON.parse(
+        sessionStorage.getItem("minion_chats") || "{}",
+      );
+      if (!replyChats[activeContact.id]) replyChats[activeContact.id] = [];
+      replyChats[activeContact.id].push({
+        sender: activeContact.name,
+        text: "I'm a bit tied up right now. Let's catch up after strike!",
+      });
+      setSessionChats(replyChats);
+      sessionStorage.setItem("minion_chats", JSON.stringify(replyChats));
+    }, 1500);
+  };
+
+  const getCombinedChat = (id: string) => {
+    const staticChat =
+      CHAT_MESSAGES[id]?.messages.map((m) => ({
+        sender: CHAT_MESSAGES[id].sender,
+        text: m,
+      })) || [];
+    const dynamicChat = sessionChats[id] || [];
+    return [...staticChat, ...dynamicChat];
+  };
+
+  const currentMessages = activeContact
+    ? getCombinedChat(activeContact.id)
+    : [];
 
   return (
     <div
@@ -152,27 +203,40 @@ export default function NetworksPage() {
                   gap: "1rem",
                 }}
               >
-                {chatData.map((msg, i) => (
+                {currentMessages.map((msg, i) => (
                   <div
                     key={i}
                     style={{
-                      alignSelf: i % 2 === 0 ? "flex-start" : "flex-end",
+                      alignSelf:
+                        msg.sender === "You" ? "flex-end" : "flex-start",
                       background:
-                        i % 2 === 0
-                          ? "rgba(30, 41, 59, 0.9)"
-                          : "var(--bui-fg-info)",
-                      color: i % 2 === 0 ? "inherit" : "#000",
-                      fontWeight: i % 2 === 0 ? "normal" : "bold",
+                        msg.sender === "You"
+                          ? "var(--bui-fg-info)"
+                          : "rgba(30, 41, 59, 0.9)",
+                      color: msg.sender === "You" ? "#000" : "inherit",
+                      fontWeight: msg.sender === "You" ? "bold" : "normal",
                       padding: "0.8rem 1.2rem",
                       borderRadius: "12px",
                       maxWidth: "80%",
                     }}
                   >
-                    {msg}
+                    {msg.sender !== "You" && (
+                      <div
+                        style={{
+                          fontSize: "0.8rem",
+                          opacity: 0.7,
+                          marginBottom: "0.2rem",
+                        }}
+                      >
+                        {msg.sender}
+                      </div>
+                    )}
+                    {msg.text}
                   </div>
                 ))}
               </div>
-              <div
+              <form
+                onSubmit={handleSendMessage}
                 style={{
                   padding: "1rem",
                   borderTop: "1px solid var(--bui-border)",
@@ -183,6 +247,8 @@ export default function NetworksPage() {
                 <input
                   type="text"
                   placeholder="Send a message..."
+                  value={inputText}
+                  onChange={(e) => setInputText(e.target.value)}
                   style={{
                     flex: 1,
                     background: "rgba(15, 23, 42, 0.5)",
@@ -191,10 +257,9 @@ export default function NetworksPage() {
                     padding: "0.5rem 1rem",
                     color: "inherit",
                   }}
-                  disabled
                 />
-                <Button disabled>Send</Button>
-              </div>
+                <Button type="submit">Send</Button>
+              </form>
             </>
           ) : null}
         </div>

@@ -14,7 +14,12 @@ export interface DialogueNode {
   id: string;
   // An array of possible texts. The system evaluates the condition and picks the first valid one.
   variants: {
-    condition?: "high_stress" | "low_affinity" | "high_affinity";
+    condition?:
+      | "high_stress"
+      | "low_affinity"
+      | "high_affinity"
+      | "pre_show"
+      | "post_show";
     text: string;
   }[];
   choices: DialogueChoice[];

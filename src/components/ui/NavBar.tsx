@@ -6,12 +6,14 @@ const TABS = [
   { path: "/", icon: "🏠", label: "Home" },
   { path: "/productions", icon: "🎭", label: "Shows" },
   { path: "/stories", icon: "📚", label: "Stories" },
+  { path: "/networks", icon: "📱", label: "Contacts" },
 ];
 
 export default function NavBar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [showSettings, setShowSettings] = useState(false);
+  const [hasUnread, setHasUnread] = useState(false);
 
   // Escape key closes modal (proper global handler)
   useEffect(() => {
@@ -27,6 +29,16 @@ export default function NavBar() {
     return () => globalThis.removeEventListener("keydown", onKeyDown);
   }, [showSettings]);
 
+  // Listen for custom event to update unread messages badge
+  useEffect(() => {
+    const checkUnread = () =>
+      setHasUnread(sessionStorage.getItem("unread_messages") === "true");
+    checkUnread();
+    globalThis.addEventListener("unread_messages_update", checkUnread);
+    return () =>
+      globalThis.removeEventListener("unread_messages_update", checkUnread);
+  }, []);
+
   return (
     <>
       <nav className="nav-bar">
@@ -36,10 +48,23 @@ export default function NavBar() {
             type="button"
             onClick={() => navigate(t.path)}
             className={`nav-item ${pathname === t.path ? "active" : ""}`}
-            aria-label={t.label}
+            style={{ position: "relative" }}
           >
             <span>{t.icon}</span>
             <span>{t.label}</span>
+            {t.path === "/networks" && hasUnread && (
+              <span
+                style={{
+                  position: "absolute",
+                  top: "0.5rem",
+                  right: "0.5rem",
+                  width: "10px",
+                  height: "10px",
+                  borderRadius: "50%",
+                  background: "var(--bui-fg-danger)",
+                }}
+              />
+            )}
           </button>
         ))}
 

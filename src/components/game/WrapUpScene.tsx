@@ -1,5 +1,5 @@
 // src/components/game/WrapUpScene.tsx
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGame } from "../../context/GameContext";
 import {
@@ -48,6 +48,22 @@ export default function WrapUpScene({
     POST_SHOW_REVIEWS.short_header[
       stars as keyof typeof POST_SHOW_REVIEWS.short_header
     ] || POST_SHOW_REVIEWS.short_header[0];
+
+  useEffect(() => {
+    if (phase === "report") {
+      const history = JSON.parse(
+        sessionStorage.getItem("minion_chats") || "{}",
+      );
+      if (!history["sys_comms"]) history["sys_comms"] = [];
+      history["sys_comms"].push({
+        sender: "System Alerts",
+        text: `POST-MORTEM REPORT: Hit ${cuesHit}/${totalCues} Cues. Final Score: ${score}. Rating: ${stars} Stars.`,
+      });
+      sessionStorage.setItem("minion_chats", JSON.stringify(history));
+      sessionStorage.setItem("unread_messages", "true");
+      globalThis.dispatchEvent(new Event("unread_messages_update"));
+    }
+  }, [phase, cuesHit, totalCues, score, stars]);
 
   if (phase === "report") {
     return (

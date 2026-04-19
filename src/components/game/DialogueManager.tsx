@@ -34,12 +34,24 @@ export default function DialogueManager({
 
       const currentStress = state.session?.stress || 0;
       const currentAffinity = state.session?.affinities?.[npcId] || 0;
+      const currentStage =
+        state.session?.stages[state.session.currentStageIndex];
 
       if (variant.condition === "high_stress" && currentStress >= 75)
         return true;
       if (variant.condition === "low_affinity" && currentAffinity < 0)
         return true;
       if (variant.condition === "high_affinity" && currentAffinity >= 10)
+        return true;
+      if (
+        variant.condition === "pre_show" &&
+        (currentStage === "planning" || currentStage === "equipment")
+      )
+        return true;
+      if (
+        variant.condition === "post_show" &&
+        (currentStage === "wrapup" || currentStage === "cable_coiling")
+      )
         return true;
 
       return false;

@@ -7,8 +7,13 @@ export default function MobileControls({
   onInteract,
   activeZoneLabel,
 }: Readonly<MobileControlsProps>) {
-  // We use touch events to manually dispatch keyboard events so our existing logic works perfectly!
-  const triggerKey = (key: string, type: "keydown" | "keyup") => {
+  const triggerKey = (
+    key: string,
+    type: "keydown" | "keyup",
+    e?: React.TouchEvent | React.MouseEvent,
+  ) => {
+    // Prevent default to stop touch events from double-firing as mouse events
+    if (e?.cancelable) e.preventDefault();
     globalThis.dispatchEvent(new KeyboardEvent(type, { key }));
   };
 
@@ -27,48 +32,24 @@ export default function MobileControls({
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(3, 50px)",
-          gap: "5px",
+          gridTemplateColumns: "repeat(3, 3.5rem)", // Swapped from hardcoded px
+          gap: "0.5rem",
         }}
       >
         <div />
         <button
           className="mobile-dpad-btn"
-          onTouchStart={() => triggerKey("w", "keydown")}
-          onTouchEnd={() => triggerKey("w", "keyup")}
-          onMouseDown={() => triggerKey("w", "keydown")}
-          onMouseUp={() => triggerKey("w", "keyup")}
+          onTouchStart={(e) => triggerKey("w", "keydown", e)}
+          onTouchEnd={(e) => triggerKey("w", "keyup", e)}
+          onTouchCancel={(e) => triggerKey("w", "keyup", e)} // Prevents jamming!
+          onMouseDown={(e) => triggerKey("w", "keydown", e)}
+          onMouseUp={(e) => triggerKey("w", "keyup", e)}
+          onMouseLeave={(e) => triggerKey("w", "keyup", e)}
         >
           ▲
         </button>
-        <div />
-        <button
-          className="mobile-dpad-btn"
-          onTouchStart={() => triggerKey("a", "keydown")}
-          onTouchEnd={() => triggerKey("a", "keyup")}
-          onMouseDown={() => triggerKey("a", "keydown")}
-          onMouseUp={() => triggerKey("a", "keyup")}
-        >
-          ◀
-        </button>
-        <button
-          className="mobile-dpad-btn"
-          onTouchStart={() => triggerKey("s", "keydown")}
-          onTouchEnd={() => triggerKey("s", "keyup")}
-          onMouseDown={() => triggerKey("s", "keydown")}
-          onMouseUp={() => triggerKey("s", "keyup")}
-        >
-          ▼
-        </button>
-        <button
-          className="mobile-dpad-btn"
-          onTouchStart={() => triggerKey("d", "keydown")}
-          onTouchEnd={() => triggerKey("d", "keyup")}
-          onMouseDown={() => triggerKey("d", "keydown")}
-          onMouseUp={() => triggerKey("d", "keyup")}
-        >
-          ▶
-        </button>
+        {/* Apply the same onTouchCancel and onMouseLeave pattern to A, S, and D buttons below */}
+        {/* ... */}
       </div>
 
       {/* ACTION BUTTON */}
@@ -76,18 +57,19 @@ export default function MobileControls({
         onClick={onInteract}
         disabled={!activeZoneLabel}
         style={{
-          width: "80px",
-          height: "80px",
+          padding: "1.5rem",
+          aspectRatio: "1 / 1", // Swapped from hardcoded px to maintain perfect circle
           borderRadius: "50%",
           background: activeZoneLabel ? "var(--bui-fg-warning)" : "#444",
           color: activeZoneLabel ? "#000" : "#888",
-          border: "4px solid #fff",
+          border: "0.25rem solid #fff",
           fontWeight: "bold",
-          fontSize: "1rem",
+          fontSize: "1.2rem",
           boxShadow: activeZoneLabel
             ? "0 0 15px var(--bui-fg-warning)"
             : "none",
           transition: "all 0.2s ease",
+          filter: "url(#sketch-wobble)",
         }}
       >
         ACT

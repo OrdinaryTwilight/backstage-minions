@@ -13,10 +13,28 @@ export const GENERIC_DEPARTMENT_TREE: DialogueTree = {
       {
         text: "Hey, I'm a bit swamped here in {department}. Did the SM send you?",
       },
+      { text: "Watch your step, {role}, we've got fresh spike marks down." },
+      {
+        condition: "post_show",
+        text: "Great run today. My feet are killing me. You grabbing a broom for strike?",
+      },
+      {
+        condition: "pre_show",
+        text: "Is the house open yet? I'm still trying to track down a missing crescent wrench.",
+      },
     ],
     choices: [
       { id: "c1", text: "Just doing the rounds.", nextNodeId: "rounds" },
-      { id: "c2", text: "Do you need a hand?", nextNodeId: "offer_help" },
+      {
+        id: "c2",
+        text: "Do you need a hand with anything?",
+        nextNodeId: "offer_help",
+      },
+      {
+        id: "c3",
+        text: "House isn't open yet, you have time.",
+        nextNodeId: "reassure",
+      },
     ],
   },
   rounds: {
@@ -25,6 +43,7 @@ export const GENERIC_DEPARTMENT_TREE: DialogueTree = {
       {
         text: "Copy that. Stay clear of the {department} gear while we calibrate.",
       },
+      { text: "Well, keep moving. We've got a show to put on." },
     ],
     choices: [{ id: "c1", text: "Will do.", nextNodeId: "end" }],
   },
@@ -32,7 +51,13 @@ export const GENERIC_DEPARTMENT_TREE: DialogueTree = {
     id: "offer_help",
     variants: [
       {
-        text: "Actually, yes. We're short on gaff tape. If you find a roll, bring it to the {role} station.",
+        text: "Actually, yes. We're short on gaff tape. If you find a roll on the props table, bring it to the {role} station.",
+      },
+      {
+        text: "Could you check the basement storage for spare AA batteries? Audio is running dangerously low.",
+      },
+      {
+        text: "The glow tape on the stairs peeled off. Can you grab some from props and re-spike it so nobody dies?",
       },
     ],
     choices: [
@@ -43,6 +68,11 @@ export const GENERIC_DEPARTMENT_TREE: DialogueTree = {
         sideEffect: "start_gaff_quest",
       },
     ],
+  },
+  reassure: {
+    id: "reassure",
+    variants: [{ text: "Thank god. I'll get this sorted before places." }],
+    choices: [{ id: "c1", text: "Good luck.", nextNodeId: "end" }],
   },
 };
 

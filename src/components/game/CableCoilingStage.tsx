@@ -57,8 +57,9 @@ export default function CableCoilingStage({
       } else {
         // FAIL: Cable knots!
         setKnots((k) => k + 1);
+        setCoils((c) => Math.max(0, c - 1)); // PENALTY: Lose a coil to untangle
         setFeedback({
-          msg: `KNOTTED! You went ${action} twice. Untangling...`,
+          msg: `KNOTTED! You went ${action} twice. Untangling... (-1 Coil)`,
           type: "error",
         });
         dispatch({ type: "ADD_SCORE", delta: -10 }); // Penalty
