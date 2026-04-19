@@ -22,14 +22,10 @@ export default function ConflictMinigame({
     null,
   );
 
-  // Shuffle the choices once when the conflict loads so the correct answer moves around
-  // Using Fisher-Yates shuffle to avoid impure Math.random during render
   const shuffledChoices = useMemo(() => {
     const shuffled = [...conflict.choices];
-    // Deterministic shuffle based on conflict ID to avoid impure Math.random
     let seed = conflict.id.codePointAt(0) || 0;
     for (let i = shuffled.length - 1; i > 0; i--) {
-      // Pseudo-random using simple hash
       seed = (seed * 9301 + 49297) % 233280;
       const j = Math.trunc((seed / 233280) * (i + 1));
       [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
@@ -39,7 +35,16 @@ export default function ConflictMinigame({
 
   const handleChoice = (choice: ConflictChoice) => {
     dispatch({ type: "MARK_CONFLICT_SEEN", conflictId: conflict.id });
+
+    // Apply Score
     dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
+
+    // Apply Stress Consequences based on explicit outcome
+    if (choice.outcome === "escalated") {
+      dispatch({ type: "UPDATE_STRESS", delta: 25 }); // Severe stress penalty
+    } else if (choice.outcome === "resolved") {
+      dispatch({ type: "UPDATE_STRESS", delta: -15 }); // Relief for handling it well
+    }
 
     if (choice.sideEffect === "ally_gained") {
       dispatch({ type: "ADD_CONTACT", contactId: conflict.npc });
@@ -62,18 +67,73 @@ export default function ConflictMinigame({
 
         {selectedChoice ? (
           <div className="animate-pop">
-            <h3
+            <div
               style={{
-                color:
-                  selectedChoice.outcome === "escalated"
-                    ? "var(--bui-fg-danger)"
-                    : "var(--bui-fg-success)",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
                 marginBottom: "1rem",
               }}
-              aria-live="polite"
             >
-              RESULT: {selectedChoice.outcome.toUpperCase()}
-            </h3>
+              <h3
+                style={{
+                  color:
+                    selectedChoice.outcome === "escalated"
+                      ? "var(--bui-fg-danger)"
+                      : "var(--bui-fg-success)",
+                }}
+                aria-live="polite"
+              >
+                RESULT: {selectedChoice.outcome.toUpperCase()}
+              </h3>
+
+              {/* Visual Score and Stress Indicator */}
+              <div style={{ display: "flex", gap: "1rem" }}>
+                <span
+                  style={{
+                    background:
+                      selectedChoice.pointDelta >= 0
+                        ? "rgba(46, 204, 113, 0.2)"
+                        : "rgba(231, 76, 60, 0.2)",
+                    padding: "0.25rem 0.75rem",
+                    borderRadius: "4px",
+                    color:
+                      selectedChoice.pointDelta >= 0
+                        ? "var(--bui-fg-success)"
+                        : "var(--bui-fg-danger)",
+                  }}
+                >
+                  {selectedChoice.pointDelta >= 0
+                    ? `+${selectedChoice.pointDelta}`
+                    : selectedChoice.pointDelta}{" "}
+                  PTS
+                </span>
+                {selectedChoice.outcome === "escalated" && (
+                  <span
+                    style={{
+                      background: "rgba(231, 76, 60, 0.2)",
+                      padding: "0.25rem 0.75rem",
+                      borderRadius: "4px",
+                      color: "var(--bui-fg-danger)",
+                    }}
+                  >
+                    +25 STRESS
+                  </span>
+                )}
+                {selectedChoice.outcome === "resolved" && (
+                  <span
+                    style={{
+                      background: "rgba(46, 204, 113, 0.2)",
+                      padding: "0.25rem 0.75rem",
+                      borderRadius: "4px",
+                      color: "var(--bui-fg-success)",
+                    }}
+                  >
+                    -15 STRESS
+                  </span>
+                )}
+              </div>
+            </div>
 
             <article
               style={{

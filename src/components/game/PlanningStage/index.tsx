@@ -1,6 +1,6 @@
+// src/components/game/PlanningStage/index.tsx
 import { useMemo, useState } from "react";
 import { useGame } from "../../../context/GameContext";
-import { LEVEL_REQUIREMENTS } from "../../../data/constants";
 import {
   getStageHelpText,
   LIGHT_TYPES,
@@ -13,59 +13,213 @@ import SectionHeader from "../../ui/SectionHeader";
 import OpticalSimView from "./OpticalSimView";
 import PlotPlanView from "./PlotPlanView";
 
+// Explicit typing for the grid cells
+type GridCell = { typeId: string; gobo: string | null } | null;
+
+interface ReportDetails {
+  score: number;
+  missingSpots: number;
+  missingWashes: number;
+  missingGobo: boolean;
+  overLimit: boolean;
+}
+
 export default function PlanningStage({
   onComplete,
 }: Readonly<{
   onComplete: () => void;
 }>) {
-  const { dispatch } = useGame();
+  const { state, dispatch } = useGame();
+
   const [selectedType, setSelectedType] = useState(LIGHT_TYPES[0].id);
-  const [grid, setGrid] = useState(() =>
+  const [selectedGobo, setSelectedGobo] = useState<string | null>(null);
+  const [grid, setGrid] = useState<GridCell[]>(() =>
     new Array(PLOT_GRID_ROWS * PLOT_GRID_COLS).fill(null),
   );
-  const [selectedGobo, setSelectedGobo] = useState<string | null>(null);
-  const [submitted, setSubmitted] = useState(false);
-  const [reportScore, setReportScore] = useState<number | null>(null);
 
-  useMemo(
-    () => ({
-      placedCount: grid.filter(Boolean).length,
-      isFail: reportScore !== null && reportScore < 40,
-    }),
-    [grid, reportScore],
+  const [submitted, setSubmitted] = useState(false);
+  const [reportDetails, setReportDetails] = useState<ReportDetails | null>(
+    null,
   );
+
+  // Dynamic requirements scaled by current level difficulty
+  const difficulty = state.session?.difficulty || "school";
+
+  const requirements = useMemo(() => {
+    switch (difficulty) {
+      case "professional":
+        return {
+          targetSpots: 6,
+          targetWashes: 4,
+          requiredGobo: "window",
+          maxFixtures: 12,
+        };
+      case "community":
+        return {
+          targetSpots: 4,
+          targetWashes: 3,
+          requiredGobo: "stars",
+          maxFixtures: 10,
+        };
+      case "school":
+      default:
+        return {
+          targetSpots: 3,
+          targetWashes: 2,
+          requiredGobo: "stars",
+          maxFixtures: 8,
+        };
+    }
+  }, [difficulty]);
 
   function placeLight(i: number) {
     if (submitted) return;
-    setGrid((g) => {
-      const copy = [...g];
-      // Store both type and gobo
-      copy[i] =
-        copy[i]?.typeId === selectedType && copy[i]?.gobo === selectedGobo
+
+    setGrid((prevGrid) => {
+      const newGrid = [...prevGrid];
+      const currentCell = newGrid[i];
+
+      // If clicking exactly what is already there, remove it. Otherwise, place new light.
+      newGrid[i] =
+        currentCell?.typeId === selectedType &&
+        currentCell?.gobo === selectedGobo
           ? null
           : { typeId: selectedType, gobo: selectedGobo };
-      return copy;
+
+      return newGrid;
     });
   }
 
   function submit() {
     let score = 0;
-    const spots = grid.filter((l) => l?.typeId === "spot").length;
-    const washes = grid.filter((l) => l?.typeId === "wash").length;
-    const hasRequiredGobo = grid.some(
-      (l) => l?.gobo === LEVEL_REQUIREMENTS.requiredGobo,
+
+    // Type guard to filter out nulls cleanly
+    const placedLights = grid.filter(
+      (cell): cell is Exclude<GridCell, null> => cell !== null,
     );
 
-    // Score based on requirements match instead of just placed count
-    if (spots >= LEVEL_REQUIREMENTS.targetSpots) score += 40;
-    if (washes >= LEVEL_REQUIREMENTS.targetWashes) score += 30;
-    if (hasRequiredGobo) score += 30;
+    const spots = placedLights.filter((l) => l.typeId === "spot").length;
+    const washes = placedLights.filter((l) => l.typeId === "wash").length;
+    const hasRequiredGobo = placedLights.some(
+      (l) => l.gobo === requirements.requiredGobo,
+    );
+    const withinLimit =
+      placedLights.length > 0 &&
+      placedLights.length <= requirements.maxFixtures;
 
-    setReportScore(score);
+    // Calculate proportional partial credit
+    const spotScore = Math.floor(
+      (Math.min(spots, requirements.targetSpots) / requirements.targetSpots) *
+        30,
+    );
+    const washScore = Math.floor(
+      (Math.min(washes, requirements.targetWashes) /
+        requirements.targetWashes) *
+        20,
+    );
+
+    score += spotScore;
+    score += washScore;
+    if (hasRequiredGobo) score += 20;
+    if (withinLimit) score += 30;
+
+    // Failsafe: An empty stage is an automatic zero
+    if (placedLights.length === 0) score = 0;
+
+    // Save the exact breakdown of what the player missed
+    setReportDetails({
+      score,
+      missingSpots: Math.max(0, requirements.targetSpots - spots),
+      missingWashes: Math.max(0, requirements.targetWashes - washes),
+      missingGobo: !hasRequiredGobo,
+      overLimit: !withinLimit && placedLights.length > 0,
+    });
+
     setSubmitted(true);
-    dispatch({ type: "SET_PLOT_LIGHTS", lights: grid });
-    dispatch({ type: "ADD_SCORE", delta: score });
   }
+
+  const handleFinalize = () => {
+    // We cast grid to any here to bypass the strict LightPlotNode mapping since the reducer
+    // expects a slightly different internal structure, but handles it fine at runtime.
+    // In a future refactor, aligning the Reducer types to the Planner types would be ideal.
+    dispatch({ type: "SET_PLOT_LIGHTS", lights: grid as any });
+    dispatch({ type: "ADD_SCORE", delta: reportDetails?.score || 0 });
+    onComplete();
+  };
+
+  // Extracted to keep JSX Cognitive Complexity low
+  const renderFeedbackPanel = () => {
+    if (!reportDetails) return null;
+
+    const isFailLocal = reportDetails.score < 50;
+    let feedbackHeader = "";
+    let feedbackText = "";
+
+    // Build a dynamic list of exactly what the player missed
+    const issues: string[] = [];
+    if (reportDetails.missingSpots > 0)
+      issues.push(`Need ${reportDetails.missingSpots} more Spot(s)`);
+    if (reportDetails.missingWashes > 0)
+      issues.push(`Need ${reportDetails.missingWashes} more Wash(es)`);
+    if (reportDetails.missingGobo)
+      issues.push(`Missing ${requirements.requiredGobo.toUpperCase()} gobo`);
+    if (reportDetails.overLimit)
+      issues.push(`Exceeded fixture limit (max ${requirements.maxFixtures})`);
+
+    const issuesText =
+      issues.length > 0 ? `\n\n📝 SM NOTES: ${issues.join(" | ")}.` : "";
+
+    // Evaluate all score tiers
+    if (reportDetails.score === 100) {
+      feedbackHeader = "🏆 PERFECT CLEARANCE";
+      feedbackText =
+        "SM: 'Flawless plot! Full coverage, special is ready, and we're well under power limits. Let's get it hung!'";
+    } else if (reportDetails.score >= 80) {
+      feedbackHeader = "✅ TECHNICAL CLEARANCE GRANTED";
+      feedbackText = `SM: 'Looks solid! Minor notes, but great job overall.'${issuesText}`;
+    } else if (reportDetails.score >= 50) {
+      feedbackHeader = "✅ CONDITIONAL CLEARANCE";
+      feedbackText = `SM: 'It's not perfect... the director might complain, but we're out of time. Let's load it in.'${issuesText}`;
+    } else {
+      feedbackHeader = "⚠️ INSUFFICIENT COVERAGE";
+      feedbackText = `SM: 'This doesn't meet the needs at all. Redo the plot.'${issuesText}`;
+    }
+
+    return (
+      <HardwarePanel className="animate-pop">
+        <h3
+          className="annotation-text"
+          style={{
+            color: isFailLocal
+              ? "var(--bui-fg-danger)"
+              : "var(--bui-fg-success)",
+          }}
+        >
+          {feedbackHeader}
+        </h3>
+        <p
+          style={{
+            fontFamily: "var(--font-sketch)",
+            marginTop: "0.5rem",
+            whiteSpace: "pre-wrap",
+          }}
+        >
+          {feedbackText}
+        </p>
+        <div style={{ marginTop: "0.5rem", fontSize: "0.9rem", opacity: 0.8 }}>
+          Score: {reportDetails.score} / 100
+        </div>
+        <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
+          <Button onClick={() => setSubmitted(false)}>Revise Draft</Button>
+          {!isFailLocal && (
+            <Button variant="accent" onClick={handleFinalize}>
+              Initialize Stage
+            </Button>
+          )}
+        </div>
+      </HardwarePanel>
+    );
+  };
 
   return (
     <div className="page-container animate-blueprint">
@@ -75,7 +229,6 @@ export default function PlanningStage({
         helpText={getStageHelpText("planning")}
       />
 
-      {/* SM Comms Request Box */}
       <HardwarePanel
         style={{ marginBottom: "1rem", borderColor: "var(--bui-fg-info)" }}
       >
@@ -86,15 +239,16 @@ export default function PlanningStage({
             fontFamily: "var(--font-sketch)",
           }}
         >
-          📥 INCOMING: SM NOTES
+          📥 INCOMING: SM NOTES ({difficulty.toUpperCase()} PRODUCTION)
         </h3>
         <p style={{ fontFamily: "var(--font-sketch)" }}>
           "Director wants good coverage. We need at least{" "}
-          <strong>{LEVEL_REQUIREMENTS.targetSpots} Spots</strong> and{" "}
-          <strong>{LEVEL_REQUIREMENTS.targetWashes} Washes</strong>. Oh, and
-          make sure we have a{" "}
-          <strong>{LEVEL_REQUIREMENTS.requiredGobo.toUpperCase()}</strong> gobo
-          loaded somewhere for the dream sequence."
+          <strong>{requirements.targetSpots} Spots</strong> and{" "}
+          <strong>{requirements.targetWashes} Washes</strong>. Make sure we have
+          a <strong>{requirements.requiredGobo.toUpperCase()}</strong> gobo
+          loaded for the dream sequence. Also, our dimmer racks are maxed out—do
+          not exceed <strong>{requirements.maxFixtures} total fixtures</strong>
+          ."
         </p>
       </HardwarePanel>
 
@@ -106,8 +260,8 @@ export default function PlanningStage({
           marginBottom: "2rem",
         }}
       >
-        <PlotPlanView grid={grid} placeLight={placeLight} />
-        <OpticalSimView grid={grid} />
+        <PlotPlanView grid={grid as any} placeLight={placeLight} />
+        <OpticalSimView grid={grid as any} />
       </div>
 
       <div className="animate-pop">
@@ -139,7 +293,6 @@ export default function PlanningStage({
               </Button>
             ))}
           </div>
-          {/* Gobo Selection Matrix */}
           <h3
             className="annotation-text"
             style={{ fontSize: "0.8rem", margin: "1rem 0", opacity: 0.8 }}
@@ -165,67 +318,7 @@ export default function PlanningStage({
 
       <div style={{ marginTop: "2rem" }}>
         {submitted ? (
-          (() => {
-            // Calculate dynamic feedback
-            let isFailLocal = reportScore !== null && reportScore < 50;
-            let feedbackHeader = "⚠️ INSUFFICIENT COVERAGE";
-            let feedbackText =
-              "SM: 'This doesn't meet the director's needs at all. We need those spots and washes as requested. Redo the plot.'";
-
-            if (reportScore !== null && reportScore >= 80) {
-              feedbackHeader = "✅ TECHNICAL CLEARANCE GRANTED";
-              feedbackText =
-                "SM: 'Looks solid! Full coverage and the special is ready. Great job, let's get it hung.'";
-            } else if (reportScore !== null && reportScore >= 50) {
-              feedbackHeader = "✅ CONDITIONAL CLEARANCE";
-              feedbackText =
-                "SM: 'It's not perfect, and the director might complain, but we're out of time. Let's load it in.'";
-            }
-
-            return (
-              <HardwarePanel className="animate-pop">
-                <h3
-                  className="annotation-text"
-                  style={{
-                    color: isFailLocal
-                      ? "var(--bui-fg-danger)"
-                      : "var(--bui-fg-success)",
-                  }}
-                >
-                  {feedbackHeader}
-                </h3>
-                <p
-                  style={{
-                    fontFamily: "var(--font-sketch)",
-                    marginTop: "0.5rem",
-                  }}
-                >
-                  {feedbackText}
-                </p>
-                <div
-                  style={{
-                    marginTop: "0.5rem",
-                    fontSize: "0.9rem",
-                    opacity: 0.8,
-                  }}
-                >
-                  Score: {reportScore} / 100
-                </div>
-                <div
-                  style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}
-                >
-                  <Button onClick={() => setSubmitted(false)}>
-                    Revise Draft
-                  </Button>
-                  {!isFailLocal && (
-                    <Button variant="accent" onClick={onComplete}>
-                      Initialize Stage
-                    </Button>
-                  )}
-                </div>
-              </HardwarePanel>
-            );
-          })()
+          renderFeedbackPanel()
         ) : (
           <Button
             variant="success"

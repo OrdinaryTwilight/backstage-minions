@@ -14,6 +14,15 @@ export default function AvailableGearList({
 
   const selectedPkg = GEAR_PACKAGES.find((p) => p.id === highlightedId);
 
+  const handlePanelClick = (pkgId: string) => {
+    // If the same panel is clicked, deselect it
+    if (pkgId === highlightedId) {
+      setHighlightedId(null);
+    } else {
+      setHighlightedId(pkgId);
+    }
+  };
+
   return (
     <div
       style={{
@@ -30,12 +39,13 @@ export default function AvailableGearList({
             <HardwarePanel
               key={pkg.id}
               variant="clickable"
-              onClick={() => setHighlightedId(pkg.id)}
+              onClick={() => handlePanelClick(pkg.id)} // Toggle the selection
               role="button"
               tabIndex={0}
               onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
-                if (e.key === "Enter" || e.key === " ")
-                  setHighlightedId(pkg.id);
+                if (e.key === "Enter" || e.key === " ") {
+                  handlePanelClick(pkg.id); // Toggle the selection with keyboard
+                }
               }}
               aria-label={`Select ${pkg.label}`}
               style={{
@@ -84,8 +94,8 @@ export default function AvailableGearList({
       <Button
         disabled={!highlightedId}
         onClick={() => highlightedId && handleSelect(highlightedId)}
-        variant="success"
-        className="animate-pulse-go"
+        variant={highlightedId ? "accent" : "default"}
+        className={highlightedId ? "animate-pulse-go" : "default"}
         style={{
           width: "100%",
           maxWidth: "600px",

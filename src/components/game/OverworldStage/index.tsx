@@ -1,5 +1,5 @@
 // src/components/game/OverworldStage/index.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { CHARACTERS, OVERWORLD_MAPS } from "../../../data/gameData";
 import { useAnnouncement } from "../../../hooks/useAnnouncement";
@@ -101,11 +101,17 @@ export default function OverworldStage({
     onComplete,
   });
 
+  const interactRef = useRef(triggerInteraction);
+
+  useEffect(() => {
+    interactRef.current = triggerInteraction;
+  }, [triggerInteraction]);
+
   useEffect(() => {
     if (interactBtn) {
-      triggerInteraction();
+      interactRef.current();
     }
-  }, [interactBtn, triggerInteraction]);
+  }, [interactBtn]);
 
   const handleStageClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
