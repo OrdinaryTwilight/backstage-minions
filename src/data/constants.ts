@@ -102,3 +102,10 @@ export const COLORS = {
   CONSOLE_BG: "#051014",
   HARDWARE_BG: "#1a1a1a",
 } as const;
+
+/** Planning Level Requirements */
+export const LEVEL_REQUIREMENTS = {
+  targetSpots: 3,
+  targetWashes: 2,
+  requiredGobo: "stars",
+};

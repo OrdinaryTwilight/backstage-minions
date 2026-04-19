@@ -51,6 +51,20 @@ function handleStaticZoneInteraction(
     props.activeZone === props.targetZoneId &&
     props.currentRoom === "stage"
   ) {
+    if (props.targetZoneId === "wings" && Math.random() > 0.5) {
+      props.setActiveQuestDialogue({
+        speaker: "Senior Technician",
+        text: "Hey, take a breather. The locals have the strike handled tonight. Head straight to the SM desk and sign off.",
+        choices: [
+          {
+            id: "skip_strike_accept",
+            text: '"Copy that. Thanks for the help!"',
+          },
+        ],
+      });
+      return;
+    }
+
     props.onComplete();
     return;
   }

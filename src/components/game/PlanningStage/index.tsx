@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useGame } from "../../../context/GameContext";
-import { SCORING } from "../../../data/constants";
+import { LEVEL_REQUIREMENTS } from "../../../data/constants";
 import {
   getStageHelpText,
   LIGHT_TYPES,
@@ -23,6 +23,7 @@ export default function PlanningStage({
   const [grid, setGrid] = useState(() =>
     new Array(PLOT_GRID_ROWS * PLOT_GRID_COLS).fill(null),
   );
+  const [selectedGobo, setSelectedGobo] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [reportScore, setReportScore] = useState<number | null>(null);
 
@@ -38,17 +39,28 @@ export default function PlanningStage({
     if (submitted) return;
     setGrid((g) => {
       const copy = [...g];
+      // Store both type and gobo
       copy[i] =
-        copy[i]?.typeId === selectedType ? null : { typeId: selectedType };
+        copy[i]?.typeId === selectedType && copy[i]?.gobo === selectedGobo
+          ? null
+          : { typeId: selectedType, gobo: selectedGobo };
       return copy;
     });
   }
 
   function submit() {
-    const score = Math.min(
-      placedCount * SCORING.PLANNING_PER_FIXTURE,
-      SCORING.PLANNING_MAX,
+    let score = 0;
+    const spots = grid.filter((l) => l?.typeId === "spot").length;
+    const washes = grid.filter((l) => l?.typeId === "wash").length;
+    const hasRequiredGobo = grid.some(
+      (l) => l?.gobo === LEVEL_REQUIREMENTS.requiredGobo,
     );
+
+    // Score based on requirements match instead of just placed count
+    if (spots >= LEVEL_REQUIREMENTS.targetSpots) score += 40;
+    if (washes >= LEVEL_REQUIREMENTS.targetWashes) score += 30;
+    if (hasRequiredGobo) score += 30;
+
     setReportScore(score);
     setSubmitted(true);
     dispatch({ type: "SET_PLOT_LIGHTS", lights: grid });
@@ -59,9 +71,32 @@ export default function PlanningStage({
     <div className="page-container animate-blueprint">
       <SectionHeader
         title="Lighting Plot Drafting"
-        subtitle="Map the rig and verify coverage symmetry."
-        helpText={getStageHelpText("equipment")}
+        subtitle="Review the SM's requirements and draft the rig accordingly."
+        helpText={getStageHelpText("planning")}
       />
+
+      {/* SM Comms Request Box */}
+      <HardwarePanel
+        style={{ marginBottom: "1rem", borderColor: "var(--bui-fg-info)" }}
+      >
+        <h3
+          className="annotation-text"
+          style={{
+            color: "var(--bui-fg-info)",
+            fontFamily: "var(--font-sketch)",
+          }}
+        >
+          📥 INCOMING: SM NOTES
+        </h3>
+        <p style={{ fontFamily: "var(--font-sketch)" }}>
+          "Director wants good coverage. We need at least{" "}
+          <strong>{LEVEL_REQUIREMENTS.targetSpots} Spots</strong> and{" "}
+          <strong>{LEVEL_REQUIREMENTS.targetWashes} Washes</strong>. Oh, and
+          make sure we have a{" "}
+          <strong>{LEVEL_REQUIREMENTS.requiredGobo.toUpperCase()}</strong> gobo
+          loaded somewhere for the dream sequence."
+        </p>
+      </HardwarePanel>
 
       <div
         style={{
@@ -101,6 +136,27 @@ export default function PlanningStage({
                 }}
               >
                 {l.icon} {l.label}
+              </Button>
+            ))}
+          </div>
+          {/* Gobo Selection Matrix */}
+          <h3
+            className="annotation-text"
+            style={{ fontSize: "0.8rem", margin: "1rem 0", opacity: 0.8 }}
+          >
+            Gobo Selection Matrix
+          </h3>
+          <div style={{ display: "flex", gap: "1rem" }}>
+            {["none", "stars", "window"].map((gobo) => (
+              <Button
+                key={gobo}
+                onClick={() => setSelectedGobo(gobo === "none" ? null : gobo)}
+                style={{
+                  borderColor:
+                    selectedGobo === gobo ? "var(--bui-fg-accent)" : "",
+                }}
+              >
+                {gobo.toUpperCase()}
               </Button>
             ))}
           </div>

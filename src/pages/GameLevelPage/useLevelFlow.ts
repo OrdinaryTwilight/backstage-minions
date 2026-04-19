@@ -48,24 +48,6 @@ export function useLevelFlow(
     if (!session) return;
 
     const currentIdx = session.currentStageIndex;
-    const nextStage = session.stages[currentIdx + 1];
-
-    // Dynamic Story Event interceptor
-    if (nextStage === "cable_coiling" && Math.random() > 0.5) {
-      setStrikeSkipMessage({
-        speaker: "Senior Technician",
-        text: "Hey, take a breather. The locals have the strike handled tonight. Head straight to the SM desk and sign off.",
-        choices: [
-          {
-            id: "skip_strike",
-            text: '"Copy that. Thanks for the help!"',
-            pointDelta: 5,
-          },
-        ],
-      });
-      return;
-    }
-
     const currentStageKey = session.stages[currentIdx];
     const noOverworldStages = ["wrapup"];
 

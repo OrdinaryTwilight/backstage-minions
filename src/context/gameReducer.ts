@@ -41,8 +41,15 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         session: updateCounter(session, "score", action.delta),
       };
 
-    case "CUE_HIT":
-      return { ...state, session: updateCounter(session, "cuesHit", 1) };
+    case "CUE_HIT": {
+      // 1. Increment cues hit
+      const updatedSession = updateCounter(session, "cuesHit", 1);
+      // 2. Add points to the total score (e.g., 10 points per cue)
+      return {
+        ...state,
+        session: updateCounter(updatedSession, "score", 10),
+      };
+    }
 
     case "CUE_MISSED":
       return { ...state, session: updateCounter(session, "cuesMissed", 1) };

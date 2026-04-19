@@ -246,6 +246,13 @@ export function useQuests() {
       setCompletedQuests((prev) => [...prev, "spike_stairs"]);
       dispatch({ type: "ADD_SCORE", delta: 20 });
       setQuestFeedback({ text: q.spikeTape.feedbackComplete, isError: false });
+    } else if (choiceId === "skip_strike_accept") {
+      // Dispatches NEXT_STAGE to skip cable coiling and move the internal tracker to wrapup
+      dispatch({ type: "NEXT_STAGE" });
+      setQuestFeedback({
+        text: "Strike skipped. Time to head home.",
+        isError: false,
+      });
     } else {
       wasQuest = false;
     }

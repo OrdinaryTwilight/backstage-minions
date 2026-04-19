@@ -1,6 +1,7 @@
 export const STAGE_INSTRUCTIONS = {
   cable_coiling:
     "Grab the cable and coil it using the over-under method. Alternate directions to avoid twists!",
+  planning: "Review the SM's requirements and draft the rig accordingly.",
   sound_console:
     "Mix the channels to match the target levels. Watch out for feedback spikes!",
   cue_execution:

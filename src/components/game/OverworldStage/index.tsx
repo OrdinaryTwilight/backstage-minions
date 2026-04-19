@@ -219,16 +219,19 @@ export default function OverworldStage({
               </div>
             )}
 
-            {activeZone && !activeNpcId && !displayFeedback && (
-              <button
-                onClick={triggerInteraction}
-                className="animate-pop interaction-btn"
-              >
-                [PRESS E] OR CLICK TO INTERACT WITH{" "}
-                {currentZones[activeZone]?.label ||
-                  npcs.find((n) => n.id === activeZone)?.name?.toUpperCase()}
-              </button>
-            )}
+            {activeZone &&
+              !activeNpcId &&
+              !activeQuestDialogue &&
+              !displayFeedback && (
+                <button
+                  onClick={triggerInteraction}
+                  className="animate-pop interaction-btn"
+                >
+                  [PRESS E] OR CLICK TO INTERACT WITH{" "}
+                  {currentZones[activeZone]?.label ||
+                    npcs.find((n) => n.id === activeZone)?.name?.toUpperCase()}
+                </button>
+              )}
           </div>
 
           <button
