@@ -44,7 +44,7 @@ function DPadButton({
 }: Readonly<{
   label: string;
   ariaLabel: string;
-  onPress: (type: "keydown" | "keyup", e: any) => void;
+  onPress: (type: "keydown" | "keyup", e: React.SyntheticEvent) => void;
 }>) {
   return (
     <button
@@ -86,9 +86,10 @@ export default function MobileControls({
 }: Readonly<MobileControlsProps>) {
   const triggerKey = useVirtualKey();
 
-  const bind = (key: string) => (type: "keydown" | "keyup", e: any) => {
-    triggerKey(key, type, e);
-  };
+  const bind =
+    (key: string) => (type: "keydown" | "keyup", e: React.SyntheticEvent) => {
+      triggerKey(key, type, e as unknown as Event);
+    };
 
   return (
     <section

@@ -226,7 +226,7 @@ export default function NetworksPage() {
               >
                 {currentMessages.map((msg, i) => (
                   <div
-                    key={i}
+                    key={`msg-${msg.sender}-${i}`}
                     style={{
                       alignSelf:
                         msg.sender === "You" ? "flex-end" : "flex-start",

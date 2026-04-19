@@ -61,7 +61,7 @@ export default function SoundDesignStage({
     setPatch((prev) => {
       const isCurrentlyPatched = prev[type][source] === target;
       if (isCurrentlyPatched) {
-        const { [source]: removed, ...rest } = prev[type];
+        const { [source]: _removed, ...rest } = prev[type];
         return { ...prev, [type]: rest as Record<string, number> };
       }
       return { ...prev, [type]: { ...prev[type], [source]: target } };
@@ -89,7 +89,7 @@ export default function SoundDesignStage({
       <SectionHeader
         title="Signal Flow Patching"
         subtitle="Route inputs through the console to output buses."
-        helpText={getStageHelpText("sound_design" as any)}
+        helpText={getStageHelpText("sound_console")}
       />
 
       <div className="desktop-two-column">

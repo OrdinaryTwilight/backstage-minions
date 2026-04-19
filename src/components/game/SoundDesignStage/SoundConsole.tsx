@@ -123,6 +123,7 @@ export default function SoundConsole({
                     <button
                       key={bus}
                       onClick={() => handlePatch("outputs", bus, ch)}
+                      aria-label={`Route to ${bus}`}
                       style={{
                         width: "35px",
                         height: "18px",

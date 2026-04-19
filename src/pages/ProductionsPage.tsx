@@ -179,8 +179,20 @@ export default function ProductionsPage() {
                   0;
 
                 return (
-                  <div
+                  <button
                     key={levelKey}
+                    type="button"
+                    disabled={!isUnlocked}
+                    onClick={() => {
+                      if (isUnlocked) {
+                        sessionStorage.removeItem("minion_inventory");
+                        sessionStorage.removeItem("minion_completed_quests");
+                        sessionStorage.removeItem("minion_active_quests");
+                        navigate(
+                          `/productions/${productionId}/difficulty/${levelKey}/character`,
+                        );
+                      }
+                    }}
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
@@ -192,16 +204,7 @@ export default function ProductionsPage() {
                       opacity: isUnlocked ? 1 : 0.5,
                       cursor: isUnlocked ? "pointer" : "not-allowed",
                       transition: "all 0.2s ease",
-                    }}
-                    onClick={() => {
-                      if (isUnlocked) {
-                        sessionStorage.removeItem("minion_inventory");
-                        sessionStorage.removeItem("minion_completed_quests");
-                        sessionStorage.removeItem("minion_active_quests");
-                        navigate(
-                          `/productions/${productionId}/difficulty/${levelKey}/character`,
-                        );
-                      }
+                      textAlign: "left",
                     }}
                     className={isUnlocked ? "hover-lift" : ""}
                   >
@@ -255,7 +258,7 @@ export default function ProductionsPage() {
                         Apply →
                       </Button>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>

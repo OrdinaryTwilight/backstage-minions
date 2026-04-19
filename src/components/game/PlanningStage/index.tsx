@@ -60,7 +60,7 @@ export default function PlanningStage({
       <SectionHeader
         title="Lighting Plot Drafting"
         subtitle="Map the rig and verify coverage symmetry."
-        helpText={getStageHelpText("planning" as any)}
+        helpText={getStageHelpText("equipment")}
       />
 
       <div

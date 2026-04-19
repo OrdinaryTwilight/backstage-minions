@@ -27,7 +27,6 @@ export default function DialogueBox<T extends BaseChoice>({
 
   useEffect(() => {
     if (!timeLimitMs) return;
-    setTimeLeftWidth(100);
     // Use requestAnimationFrame to let the DOM paint the 100% width, then trigger the shrink
     const frame = requestAnimationFrame(() => {
       requestAnimationFrame(() => setTimeLeftWidth(0));

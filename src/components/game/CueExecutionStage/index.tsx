@@ -84,7 +84,7 @@ export default function CueExecutionStage({
       <SectionHeader
         title="Booth Operations"
         subtitle="It's show time! Execute cues accurately to keep the production running smoothly."
-        helpText={getStageHelpText("execution" as any)}
+        helpText={getStageHelpText("cue_execution")}
       />
 
       {/* =========================

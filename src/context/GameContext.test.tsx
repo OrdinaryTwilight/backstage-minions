@@ -13,8 +13,8 @@ function TestConsumer() {
 }
 
 describe("GameContext", () => {
-  let getItemSpy: any;
-  let setItemSpy: any;
+  let getItemSpy: ReturnType<typeof vi.spyOn>;
+  let setItemSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     // Spy on the instance directly instead of Storage.prototype
@@ -30,6 +30,7 @@ describe("GameContext", () => {
   });
 
   it("throws an error if useGame is used outside of GameProvider", () => {
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestConsumer />)).toThrow(
       "useGame must be used within a GameProvider",

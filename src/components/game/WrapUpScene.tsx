@@ -98,18 +98,22 @@ export default function WrapUpScene({
               letterSpacing: "clamp(2px, 2vw, 10px)",
             }}
           >
-            {Array.from({ length: 3 }).map((_, i) => (
-              <span
-                key={`star-${i}`}
-                style={{
-                  color: i < stars ? "var(--bui-fg-warning)" : "#333",
-                  textShadow:
-                    i < stars ? "0 0 20px var(--bui-fg-warning)" : "none",
-                }}
-              >
-                ★
-              </span>
-            ))}
+            {[0, 1, 2].map((i) => {
+              const starLabels = ["first", "second", "third"];
+              const position = starLabels[i];
+              return (
+                <span
+                  key={`star-${position}`}
+                  style={{
+                    color: i < stars ? "var(--bui-fg-warning)" : "#333",
+                    textShadow:
+                      i < stars ? "0 0 20px var(--bui-fg-warning)" : "none",
+                  }}
+                >
+                  ★
+                </span>
+              );
+            })}
           </div>
 
           <h2

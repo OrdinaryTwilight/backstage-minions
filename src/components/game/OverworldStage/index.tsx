@@ -125,6 +125,19 @@ export default function OverworldStage({
         </p>
       </div>
 
+      <button
+        className="help-btn animate-pop"
+        onClick={() =>
+          setFeedbackMsg({
+            text: "CONTROLS: Use W, A, S, D or Arrows to move. Press E or Space to interact with glowing zones and characters.",
+            isError: false,
+          })
+        }
+        style={{ position: "absolute", top: "1rem", right: "1rem" }}
+      >
+        ?
+      </button>
+
       <div className="overworld-layout">
         <div className="overworld-sidebar">
           <HeadsetHUD

@@ -103,7 +103,7 @@ export default function CableCoilingStage({
       <SectionHeader
         title="Strike & Wrap"
         subtitle="Properly coil the 100ft XLR audio snake."
-        helpText={getStageHelpText("cable_coiling" as any)}
+        helpText={getStageHelpText("cable_coiling")}
       />
 
       <div
@@ -137,7 +137,7 @@ export default function CableCoilingStage({
         <div style={{ position: "relative", width: "250px", height: "250px" }}>
           {Array.from({ length: coils }).map((_, i) => (
             <svg
-              key={`coil-loop-${i}`}
+              key={`coil-${coils}-${i}`}
               style={{
                 position: "absolute",
                 top: 0,

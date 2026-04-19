@@ -18,9 +18,13 @@ if (
         mockStorage[key] = value.toString();
       }),
       clear: vi.fn(() => {
-        Object.keys(mockStorage).forEach((key) => delete mockStorage[key]);
+        Object.keys(mockStorage).forEach((key) => {
+          // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+          delete mockStorage[key];
+        });
       }),
       removeItem: vi.fn((key) => {
+        // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
         delete mockStorage[key];
       }),
       key: vi.fn((i) => Object.keys(mockStorage)[i] || null),

@@ -25,6 +25,24 @@ export default function DialogueManager({
     DIALOGUE_REGISTRY[npcId] || GENERIC_DEPARTMENT_TREE;
   const currentNode = tree[currentNodeId];
 
+  // 2. TIMED CHOICES (Hook must run before early returns)
+  useEffect(() => {
+    if (!currentNode?.timeLimitMs || !currentNode?.timeoutNodeId) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      // Apply stress penalty for timing out
+      dispatch({ type: "UPDATE_STRESS", delta: 10 });
+      if (currentNode.timeoutNodeId) {
+        setCurrentNodeId(currentNode.timeoutNodeId);
+      }
+    }, currentNode.timeLimitMs);
+
+    return () => clearTimeout(timer);
+  }, [currentNodeId, currentNode, dispatch]);
+
+  // Guard clause after hooks
   if (!targetNpc || !currentNode) return null;
 
   // 1. RESOLVE VARIANTS BASED ON STATE
@@ -60,19 +78,6 @@ export default function DialogueManager({
   const parsedText = activeVariant.text
     .replace("{department}", targetNpc.department || "the deck")
     .replace("{role}", targetNpc.role || "crew");
-
-  // 2. TIMED CHOICES
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (currentNode.timeLimitMs && currentNode.timeoutNodeId) {
-      timer = setTimeout(() => {
-        // Apply stress penalty for timing out
-        dispatch({ type: "UPDATE_STRESS", delta: 10 });
-        setCurrentNodeId(currentNode.timeoutNodeId!);
-      }, currentNode.timeLimitMs);
-    }
-    return () => clearTimeout(timer);
-  }, [currentNodeId, currentNode, dispatch]);
 
   const availableChoices = currentNode.choices.filter((choice) => {
     // Inventory check

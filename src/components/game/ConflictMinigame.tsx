@@ -23,9 +23,19 @@ export default function ConflictMinigame({
   );
 
   // Shuffle the choices once when the conflict loads so the correct answer moves around
+  // Using Fisher-Yates shuffle to avoid impure Math.random during render
   const shuffledChoices = useMemo(() => {
-    return [...conflict.choices].sort(() => Math.random() - 0.5);
-  }, [conflict.choices]);
+    const shuffled = [...conflict.choices];
+    // Deterministic shuffle based on conflict ID to avoid impure Math.random
+    let seed = conflict.id.codePointAt(0) || 0;
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      // Pseudo-random using simple hash
+      seed = (seed * 9301 + 49297) % 233280;
+      const j = Math.trunc((seed / 233280) * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, [conflict.choices, conflict.id]);
 
   const handleChoice = (choice: ConflictChoice) => {
     dispatch({ type: "MARK_CONFLICT_SEEN", conflictId: conflict.id });
@@ -60,7 +70,6 @@ export default function ConflictMinigame({
                     : "var(--bui-fg-success)",
                 marginBottom: "1rem",
               }}
-              role="status"
               aria-live="polite"
             >
               RESULT: {selectedChoice.outcome.toUpperCase()}

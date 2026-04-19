@@ -37,7 +37,7 @@ export default function PlotPlanView({
               : null;
             return (
               <button
-                key={`plot-cell-${i}`}
+                key={`plot-cell-${lt?.id || "empty"}-${i}`}
                 onClick={() => placeLight(i)}
                 className="plot-cell"
                 style={{

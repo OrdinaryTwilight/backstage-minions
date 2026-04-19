@@ -33,7 +33,7 @@ export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
       <SectionHeader
         title="Inventory Logistics"
         subtitle="Select a gear package for this production tier."
-        helpText={getStageHelpText("equipment" as any)}
+        helpText={getStageHelpText("equipment")}
       />
 
       <ActiveLoadoutPanel char={char || defaultChar} />

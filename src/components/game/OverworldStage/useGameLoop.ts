@@ -1,5 +1,5 @@
 // src/components/game/OverworldStage/useGameLoop.ts
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { CHARACTERS } from "../../../data/gameData";
 import { ZoneConfig } from "../../../data/types";
 import {
@@ -178,49 +178,50 @@ export function useGameLoop({
       return spawned as NPC[];
     };
 
-    setNpcs(spawnNpcs());
-  }, [charId, currentRoom, currentZones]);
+    // Defer setState to avoid cascading renders
+    Promise.resolve().then(() => {
+      setNpcs(spawnNpcs());
+    });
+  }, [charId, currentRoom, currentZones, activeQuests]);
 
   /* ---------------- GAME LOOP ---------------- */
+
+  // Extract callback to reduce nesting depth and add to useCallback
+  const handleGameLoopTick = useCallback(
+    (prevPos: { x: number; y: number }) => {
+      const result = computeNextState({
+        prevPos,
+        npcs,
+        input,
+        targetPos,
+        currentZones,
+        setTargetPos,
+      });
+
+      Promise.resolve().then(() => {
+        setNpcs(result.npcs);
+        setActiveZone(result.activeZone);
+
+        if (result.bump && !bumpMsg) {
+          setBumpMsg(result.bump);
+          setTimeout(() => setBumpMsg(null), 1500);
+        }
+      });
+
+      return result.pos;
+    },
+    [npcs, input, targetPos, currentZones, setTargetPos, bumpMsg],
+  );
 
   useEffect(() => {
     if (activeNpcId) return;
 
     const interval = setInterval(() => {
-      setPos((prevPos) => {
-        const result = computeNextState({
-          prevPos,
-          npcs,
-          input,
-          targetPos,
-          currentZones,
-          setTargetPos,
-        });
-
-        Promise.resolve().then(() => {
-          setNpcs(result.npcs);
-          setActiveZone(result.activeZone);
-
-          if (result.bump && !bumpMsg) {
-            setBumpMsg(result.bump);
-            setTimeout(() => setBumpMsg(null), 1500);
-          }
-        });
-
-        return result.pos;
-      });
+      setPos(handleGameLoopTick);
     }, 1000 / GAME_LOOP_FPS);
 
     return () => clearInterval(interval);
-  }, [
-    npcs,
-    input,
-    targetPos,
-    activeNpcId,
-    currentZones,
-    bumpMsg,
-    setTargetPos,
-  ]);
+  }, [handleGameLoopTick, activeNpcId]);
 
   return { pos, setPos, npcs, activeZone, bumpMsg };
 }
