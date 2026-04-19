@@ -6,8 +6,9 @@ expect.extend(matchers);
 
 // Fix for environments where localStorage.clear might be missing or broken
 if (
-  typeof globalThis.window !== "undefined" &&
-  (!globalThis.localStorage || typeof globalThis.localStorage.clear !== "function")
+  globalThis.window !== undefined &&
+  (!globalThis.localStorage ||
+    typeof globalThis.localStorage.clear !== "function")
 ) {
   const mockStorage: Record<string, string> = {};
   Object.defineProperty(globalThis, "localStorage", {
