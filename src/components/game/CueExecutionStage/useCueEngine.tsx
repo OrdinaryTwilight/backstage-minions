@@ -30,22 +30,26 @@ export function useCueEngine(
 
       const targetMs = currentCue?.targetMs || 0;
       let difficultyMultiplier = 1;
-      if (difficulty === "community") difficultyMultiplier = 0.75; // 25% tighter window
-      if (difficulty === "professional") difficultyMultiplier = 0.5; // 50% tighter window
+      if (difficulty === "community") difficultyMultiplier = 0.75;
+      if (difficulty === "professional") difficultyMultiplier = 0.5;
       const windowMs = (currentCue?.windowMs || 1000) * difficultyMultiplier;
 
       const isTimedWell = Math.abs(elapsedMs - targetMs) <= windowMs;
       const targetLevel = currentCue?.targetLevel || 80;
       const margin = 10;
 
-      const masterOk = Math.abs(faderLevels[4] - 100) <= margin;
-      const acceptableChannels = faderLevels
+      // MASTER FADER LOGIC: Master linearly scales the physical sub-faders
+      const masterValue = faderLevels[4] / 100;
+      const effectiveLevels = faderLevels
         .slice(0, 4)
-        .filter((l) => Math.abs(l - targetLevel) <= margin).length;
-      const isAligned = masterOk && acceptableChannels >= 2;
-      const tooHigh = faderLevels
-        .slice(0, 4)
-        .some((l) => l > targetLevel + margin);
+        .map((l) => l * masterValue);
+
+      const acceptableChannels = effectiveLevels.filter(
+        (l) => Math.abs(l - targetLevel) <= margin,
+      ).length;
+
+      const isAligned = acceptableChannels >= 2;
+      const tooHigh = effectiveLevels.some((l) => l > targetLevel + margin);
       const isHit = !forceMiss && isAligned && isTimedWell;
 
       setCueResults((prev) => ({ ...prev, [currentCue.id]: { hit: isHit } }));
@@ -97,8 +101,6 @@ export function useCueEngine(
   // Master Clock
   useEffect(() => {
     if (isLastCue || !isReady) return;
-    // Using elapsedMs to establish reference point; intentionally omitted from deps
-    // to prevent effect restart on every tick.
     const startTime = Date.now() - elapsedMs;
     const interval = setInterval(
       () => setElapsedMs(Date.now() - startTime),

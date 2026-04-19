@@ -1,11 +1,16 @@
 interface MasterControlProps {
   onGo: () => void;
   disabled: boolean;
+  style?: React.CSSProperties; // Add style support
 }
 
-export default function MasterControl({ onGo, disabled }: Readonly<MasterControlProps>) {
+export default function MasterControl({
+  onGo,
+  disabled,
+  style,
+}: Readonly<MasterControlProps>) {
   return (
-    <div style={{ textAlign: "center", margin: "2rem 0" }}>
+    <div style={{ textAlign: "center", margin: "2rem 0", ...style }}>
       <button
         className={`btn-master-go animate-pulse-go`}
         onClick={onGo}

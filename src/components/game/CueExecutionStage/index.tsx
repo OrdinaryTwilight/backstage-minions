@@ -23,10 +23,12 @@ export default function CueExecutionStage({
   difficulty = "school",
 }: Readonly<CueExecutionStageProps>) {
   const { state } = useGame();
+  const { announce, AnnouncementRegion } = useAnnouncement();
+
   const char = state.session
     ? CHARACTERS.find((c) => c.id === state.session?.characterId)
     : null;
-  const { announce, AnnouncementRegion } = useAnnouncement();
+
   const {
     currentIdx,
     faderLevels,
@@ -42,7 +44,6 @@ export default function CueExecutionStage({
     handleReady,
   } = useCueEngine(cueSheet, onComplete, difficulty);
 
-  // Announce the active cue requirements dynamically
   useEffect(() => {
     if (isLastCue) {
       announce("Show complete. All stop.");
@@ -53,26 +54,65 @@ export default function CueExecutionStage({
     }
   }, [currentCue, isLastCue, announce]);
 
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.code === "Space" && isReady && !isLastCue) {
+        e.preventDefault();
+        handleGo(false);
+      }
+    };
+
+    globalThis.addEventListener("keydown", handler);
+    return () => globalThis.removeEventListener("keydown", handler);
+  }, [handleGo, isReady, isLastCue]);
+
   return (
-    <div className="page-container animate-blueprint">
+    <div
+      className="page-container animate-blueprint"
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        flexDirection: "column",
+        fontFamily: "var(--font-sketch)",
+      }}
+    >
       <AnnouncementRegion />
+
+      {/* =========================
+          HEADER
+      ========================== */}
       <SectionHeader
         title="Booth Operations"
-        subtitle="Coordinate the master clock and maintain fader precision."
+        subtitle="It's show time! Execute cues accurately to keep the production running smoothly."
         helpText={getStageHelpText("execution" as any)}
       />
 
-      <CueTimelineHUD
-        smMessage={smMessage}
-        elapsedMs={elapsedMs}
-        maxShowTime={maxShowTime}
-        cueSheet={cueSheet}
-        currentIdx={currentIdx}
-        cueResults={cueResults}
-        isReady={isReady}
-        handleReady={handleReady}
-      />
+      {/* =========================
+          STICKY HUD
+      ========================== */}
+      <div
+        style={{
+          position: "sticky",
+          top: 0,
+          zIndex: 50,
+          background: "var(--color-blueprint-bg)",
+        }}
+      >
+        <CueTimelineHUD
+          smMessage={smMessage}
+          elapsedMs={elapsedMs}
+          maxShowTime={maxShowTime}
+          cueSheet={cueSheet}
+          currentIdx={currentIdx}
+          cueResults={cueResults}
+          isReady={isReady}
+          handleReady={handleReady}
+        />
+      </div>
 
+      {/* =========================
+          MAIN CONTENT
+      ========================== */}
       <div
         className="desktop-two-column"
         style={{

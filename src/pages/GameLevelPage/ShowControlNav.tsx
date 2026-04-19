@@ -24,7 +24,7 @@ export default function ShowControlNav() {
       {showQuitConfirm ? (
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
           <span style={{ color: "var(--bui-fg-danger)", fontWeight: "bold" }}>
-            Abandon show? You will fail!
+            Abandon show?
           </span>
           <button
             onClick={() => navigate("/")}
@@ -36,6 +36,7 @@ export default function ShowControlNav() {
               borderRadius: "4px",
               fontWeight: "bold",
               cursor: "pointer",
+              fontFamily: "var(--font-sketch)",
             }}
           >
             Yes, Quit
@@ -49,6 +50,7 @@ export default function ShowControlNav() {
               border: "none",
               borderRadius: "4px",
               cursor: "pointer",
+              fontFamily: "var(--font-sketch)",
             }}
           >
             Cancel
@@ -64,9 +66,10 @@ export default function ShowControlNav() {
             border: "1px solid var(--glass-border)",
             borderRadius: "4px",
             cursor: "pointer",
+            fontFamily: "var(--font-sketch)",
           }}
         >
-          ⏏ Leave Show (Home)
+          ⏏ Abandon Show
         </button>
       )}
     </div>

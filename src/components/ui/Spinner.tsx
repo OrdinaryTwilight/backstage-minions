@@ -1,7 +1,6 @@
 /**
  * Loading Spinner Component
  * Displays while lazy-loaded routes are being fetched
- * Pixel-art styled to match game aesthetic
  */
 export function Spinner() {
   return (
@@ -10,7 +9,7 @@ export function Spinner() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        minHeight: "100vlh",
+        minHeight: "100vh",
         background: "var(--bg)",
         color: "var(--text)",
       }}

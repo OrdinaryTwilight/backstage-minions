@@ -85,7 +85,7 @@ export default function ConflictMinigame({
               onClick={() => onResolved(selectedChoice.outcome)}
               style={{ width: "100%" }}
             >
-              Resume Technical Operations →
+              Continue show →
             </Button>
           </div>
         ) : (

@@ -306,7 +306,7 @@ export default function SettingsPanel({
               className="annotation-text"
               style={{ display: "block", marginBottom: "0.5rem" }}
             >
-              Font Family
+              Font
             </label>
             <select
               id="font-family"
@@ -320,9 +320,7 @@ export default function SettingsPanel({
               }
             >
               <option value="system">System Default</option>
-              <option value="opendyslexic">
-                OpenDyslexic (Max Legibility)
-              </option>
+              <option value="opendyslexic">OpenDyslexic</option>
             </select>
           </div>
 

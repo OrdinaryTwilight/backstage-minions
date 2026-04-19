@@ -6,8 +6,10 @@ interface FaderTrackProps {
   color: string;
   onLevelChange: (level: number) => void;
   currentLevel: number;
+  masterLevel: number; // NEW
   targetLevel?: number;
   isMaster?: boolean;
+  isMobile?: boolean; // NEW
 }
 
 function FaderTrack({
@@ -15,29 +17,39 @@ function FaderTrack({
   color,
   onLevelChange,
   currentLevel,
+  masterLevel,
   targetLevel = 80,
   isMaster = false,
+  isMobile = false,
 }: Readonly<FaderTrackProps>) {
+  // Calculate the effective output (LED meter) based on physical position (currentLevel) and Master
+  const effectiveLevel = isMaster
+    ? currentLevel
+    : currentLevel * (masterLevel / 100);
   const [flicker, setFlicker] = useState(0);
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setFlicker(Math.random() * (currentLevel / 10));
+      setFlicker(Math.random() * (effectiveLevel / 10)); // Flicker based on output
     }, 100);
     return () => clearInterval(interval);
-  }, [currentLevel]);
+  }, [effectiveLevel]);
 
   const target = isMaster ? 100 : targetLevel;
   const margin = 10;
-  const isAcceptable = Math.abs(currentLevel - target) <= margin;
+  const isAcceptable = Math.abs(effectiveLevel - target) <= margin;
 
-  // FIX: Extracted nested ternary operation into standard if/else statements
   let barColor = "#eab308"; // Default Yellow
   if (isAcceptable) {
     barColor = "#22c55e"; // Green
-  } else if (currentLevel > target) {
+  } else if (effectiveLevel > target) {
     barColor = "#ef4444"; // Red
   }
+
+  // Dynamic constraints so it fits perfectly on mobile or desktop
+  const trackHeight = isMobile ? 140 : 220;
+  const containerHeight = isMobile ? 220 : 350;
+  const faderWidth = isMobile ? 45 : 70;
 
   return (
     <div
@@ -45,20 +57,19 @@ function FaderTrack({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        width: "70px",
-        height: "350px",
-        gap: "12px",
+        width: `${faderWidth}px`,
+        height: `${containerHeight}px`,
+        gap: isMobile ? "6px" : "12px",
         padding: "10px 0",
         background: "rgba(0,0,0,0.2)",
         borderRadius: "4px",
         border: "1px solid var(--glass-border)",
       }}
     >
-      {/* FIX: Native semantic meter for screen readers, visually hidden */}
       <meter
         min={0}
         max={100}
-        value={currentLevel}
+        value={effectiveLevel}
         aria-label={`${label} signal level`}
         style={{
           position: "absolute",
@@ -73,11 +84,10 @@ function FaderTrack({
         }}
       />
 
-      {/* Visual meter hidden from screen readers */}
       <div
         style={{
           width: "8px",
-          height: "50px",
+          height: isMobile ? "30px" : "50px",
           background: "#000",
           border: "1px solid #333",
           position: "relative",
@@ -89,7 +99,7 @@ function FaderTrack({
             position: "absolute",
             bottom: 0,
             width: "100%",
-            height: `${Math.min(currentLevel + flicker, 100)}%`,
+            height: `${Math.min(effectiveLevel + flicker, 100)}%`,
             background: barColor,
             transition: "height 0.1s ease, background 0.2s ease",
           }}
@@ -99,7 +109,7 @@ function FaderTrack({
       <div
         style={{
           position: "relative",
-          height: "220px",
+          height: `${trackHeight}px`,
           width: "6px",
           background: "#111",
           border: "1px solid #444",
@@ -116,7 +126,7 @@ function FaderTrack({
             position: "absolute",
             top: "50%",
             left: "50%",
-            width: "220px",
+            width: `${trackHeight}px`,
             transform: "translate(-50%, -50%) rotate(-90deg)",
             cursor: "ns-resize",
             appearance: "none",
@@ -133,8 +143,8 @@ function FaderTrack({
             position: "absolute",
             left: "50%",
             bottom: `${currentLevel}%`,
-            width: "30px",
-            height: "40px",
+            width: isMobile ? "24px" : "30px",
+            height: isMobile ? "24px" : "40px",
             background: "#444",
             border: "2px solid #666",
             borderRadius: "3px",
@@ -146,7 +156,11 @@ function FaderTrack({
       </div>
       <span
         className="annotation-text"
-        style={{ fontSize: "0.65rem", color, textAlign: "center" }}
+        style={{
+          fontSize: isMobile ? "0.55rem" : "0.65rem",
+          color,
+          textAlign: "center",
+        }}
       >
         {label}
       </span>
@@ -159,6 +173,7 @@ interface DepartmentMixerProps {
   levels: number[];
   setLevels: (levels: number[]) => void;
   targetLevel?: number;
+  isMobile?: boolean; // NEW
 }
 
 export default function DepartmentMixer({
@@ -166,6 +181,7 @@ export default function DepartmentMixer({
   levels,
   setLevels,
   targetLevel,
+  isMobile = false,
 }: Readonly<DepartmentMixerProps>) {
   const channels =
     department === "lighting"
@@ -177,7 +193,7 @@ export default function DepartmentMixer({
       style={{
         display: "flex",
         justifyContent: "space-around",
-        padding: "25px 15px",
+        padding: isMobile ? "15px 5px" : "25px 15px",
         background: "linear-gradient(180deg, #151515, #0a0a0a)",
         borderTop: "4px solid var(--color-architect-blue)",
       }}
@@ -188,7 +204,9 @@ export default function DepartmentMixer({
           label={ch}
           color="var(--color-architect-blue)"
           currentLevel={levels[i]}
+          masterLevel={levels[4]}
           targetLevel={targetLevel}
+          isMobile={isMobile}
           onLevelChange={(val) => {
             const newLevels = [...levels];
             newLevels[i] = val;
@@ -196,12 +214,19 @@ export default function DepartmentMixer({
           }}
         />
       ))}
-      <div style={{ borderLeft: "1px solid #333", paddingLeft: "15px" }}>
+      <div
+        style={{
+          borderLeft: "1px solid #333",
+          paddingLeft: isMobile ? "5px" : "15px",
+        }}
+      >
         <FaderTrack
           label="MASTER"
           color="var(--bui-fg-success)"
           currentLevel={levels[4]}
+          masterLevel={levels[4]}
           isMaster={true}
+          isMobile={isMobile}
           onLevelChange={(val) => {
             const newLevels = [...levels];
             newLevels[4] = val;
