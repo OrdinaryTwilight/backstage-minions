@@ -1,5 +1,5 @@
 // src/components/game/PlanningStage/index.tsx
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import {
   getStageHelpText,
@@ -45,32 +45,45 @@ export default function PlanningStage({
   // Dynamic requirements scaled by current level difficulty
   const difficulty = state.session?.difficulty || "school";
 
-  const requirements = useMemo(() => {
+  const [requirements] = useState(() => {
+    // Helper to generate a random number within a range
+    const getRandomInt = (min: number, max: number) =>
+      Math.floor(Math.random() * (max - min + 1)) + min;
+
+    // Randomize the requested special gobo
+    const availableGobos = ["stars", "window"];
+    const randomGobo =
+      availableGobos[Math.floor(Math.random() * availableGobos.length)];
+
+    let spots, washes, bonusFixtures;
+
     switch (difficulty) {
       case "professional":
-        return {
-          targetSpots: 6,
-          targetWashes: 4,
-          requiredGobo: "window",
-          maxFixtures: 12,
-        };
+        spots = getRandomInt(5, 7);
+        washes = getRandomInt(3, 5);
+        bonusFixtures = 3;
+        break;
       case "community":
-        return {
-          targetSpots: 4,
-          targetWashes: 3,
-          requiredGobo: "stars",
-          maxFixtures: 10,
-        };
+        spots = getRandomInt(3, 5);
+        washes = getRandomInt(2, 4);
+        bonusFixtures = 3;
+        break;
       case "school":
       default:
-        return {
-          targetSpots: 3,
-          targetWashes: 2,
-          requiredGobo: "stars",
-          maxFixtures: 8,
-        };
+        spots = getRandomInt(2, 3);
+        washes = getRandomInt(1, 2);
+        bonusFixtures = 2;
+        break;
     }
-  }, [difficulty]);
+
+    return {
+      targetSpots: spots,
+      targetWashes: washes,
+      requiredGobo: randomGobo,
+      // Dynamically calculate max fixtures so the limit is always fair but tight
+      maxFixtures: spots + washes + bonusFixtures,
+    };
+  });
 
   function placeLight(i: number) {
     if (submitted) return;

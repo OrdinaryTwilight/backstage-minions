@@ -132,7 +132,7 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       label: "⬇ BACK TO STAGE",
       color: "#2f3e46",
       isSolid: false,
-      isDoor: "stage",
+      isDoor: "backstage",
     },
     couch: {
       x: 100,
@@ -175,7 +175,7 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       label: "⬆ STAGE LEVEL",
       color: "#4A4A4A",
       isSolid: false,
-      isDoor: "stage",
+      isDoor: "backstage",
     },
     dimmerBeach: {
       x: 100,
@@ -220,7 +220,7 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       label: "⬇ LADDER DOWN",
       color: "#1A1A1A",
       isSolid: false,
-      isDoor: "stage",
+      isDoor: "backstage",
     },
     spotTower: {
       x: 200,

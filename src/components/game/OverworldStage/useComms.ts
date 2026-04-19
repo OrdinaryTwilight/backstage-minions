@@ -33,7 +33,7 @@ export function useComms() {
           return newLog.slice(-4);
         });
       }
-    }, 8000); // 8 seconds is a good sweet spot for ambient chatter
+    }, 5000);
 
     // 4. Cleanup function to prevent memory leaks when the component unmounts
     return () => clearInterval(interval);
