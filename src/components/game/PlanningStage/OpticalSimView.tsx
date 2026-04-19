@@ -3,7 +3,7 @@ import HardwarePanel from "../../ui/HardwarePanel";
 
 export default function OpticalSimView({
   grid,
-}: Readonly<{ grid: ({ typeId: string } | null)[] }>) {
+}: Readonly<{ grid: ({ typeId: string; gobo?: string | null } | null)[] }>) {
   return (
     <section>
       <div
@@ -93,7 +93,31 @@ export default function OpticalSimView({
                     boxShadow: `0 0 20px ${type.color}`,
                     transition: "all 0.3s ease",
                   }}
-                />
+                >
+                  {/* Add GoBo previews here */}
+                  {cell.gobo === "stars" && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        backgroundImage:
+                          "radial-gradient(circle, #fff 10%, transparent 20%)",
+                        backgroundSize: "6px 6px",
+                        mixBlendMode: "overlay",
+                      }}
+                    />
+                  )}
+                  {cell.gobo === "window" && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background:
+                          "linear-gradient(90deg, transparent 40%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0.8) 60%, transparent 60%), linear-gradient(0deg, transparent 40%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0.8) 60%, transparent 60%)",
+                      }}
+                    />
+                  )}
+                </div>
               );
             })}
           </div>

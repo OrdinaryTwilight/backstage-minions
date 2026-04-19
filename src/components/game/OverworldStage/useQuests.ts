@@ -59,7 +59,7 @@ export function useQuests() {
       };
     }
     if (
-      activeNpc?.id === "actor_lead" &&
+      activeNpc?.id === "npc_madeline" &&
       !completedQuests.includes("actor_water")
     ) {
       return inventory.includes("Water Bottle")
@@ -120,7 +120,7 @@ export function useQuests() {
       };
     }
     if (
-      activeNpc?.dept === "Director" &&
+      activeNpc?.id === "npc_arthur" && // CHANGED from activeNpc?.dept === "Director"
       !completedQuests.includes("director_script")
     ) {
       return inventory.includes("Director's Script")
@@ -154,7 +154,7 @@ export function useQuests() {
       };
     }
     if (
-      activeNpc?.id === "npc_casey" &&
+      activeNpc?.id === "char_casey" && // CHANGED from "npc_casey" to match char array
       !completedQuests.includes("audio_batteries")
     ) {
       return inventory.includes("AA Batteries")

@@ -131,24 +131,40 @@ export function useGameLoop({
 
   useEffect(() => {
     const spawnNpcs = () => {
-      const available = CHARACTERS.filter((c) => c.id !== charId);
+      // 1. Combine crew and cast into the available pool
+      const baseAvailable = [
+        ...CHARACTERS.filter((c) => c.id !== charId),
+        {
+          id: "npc_arthur",
+          name: "Arthur",
+          department: "Director",
+          icon: "🎬",
+        },
+        {
+          id: "npc_madeline",
+          name: "Madeline",
+          department: "Actor",
+          icon: "🎭",
+        },
+      ];
 
-      // 1. Identify which NPCs MUST spawn based on active quests
+      // 2. Identify which NPCs MUST spawn based on inventory so you don't have to hunt for them
       const forceSpawnIds: string[] = [];
-      if (activeQuests.includes("find_directors_script"))
-        forceSpawnIds.push("npc_director");
-      if (activeQuests.includes("find_water_bottle"))
-        forceSpawnIds.push("npc_elara");
-      if (activeQuests.includes("find_gaff_tape"))
-        forceSpawnIds.push("npc_zainab");
+      const inv = JSON.parse(
+        sessionStorage.getItem("minion_inventory") || "[]",
+      );
+      if (inv.includes("Director's Script")) forceSpawnIds.push("npc_arthur");
+      if (inv.includes("Water Bottle")) forceSpawnIds.push("npc_madeline");
+      if (inv.includes("AA Batteries")) forceSpawnIds.push("char_casey");
 
-      // 2. Separate required vs random
-      const mustSpawn = available.filter((npc) =>
+      // 3. Separate required vs random
+      const mustSpawn = baseAvailable.filter((npc) =>
         forceSpawnIds.includes(npc.id),
       );
+      const shuffled = baseAvailable
+        .filter((npc) => !forceSpawnIds.includes(npc.id))
+        .sort(() => 0.5 - Math.random());
 
-      // 3. Shuffle optional and pick enough to have roughly 3-4 NPCs in the room
-      const shuffled = [...available].sort(() => 0.5 - Math.random());
       const randomCount = Math.max(0, 3 - mustSpawn.length);
       const toSpawn = [...mustSpawn, ...shuffled.slice(0, randomCount)];
 

@@ -27,7 +27,7 @@ export default function PlanningStage({
   const [submitted, setSubmitted] = useState(false);
   const [reportScore, setReportScore] = useState<number | null>(null);
 
-  const { placedCount, isFail } = useMemo(
+  useMemo(
     () => ({
       placedCount: grid.filter(Boolean).length,
       isFail: reportScore !== null && reportScore < 40,
@@ -165,31 +165,67 @@ export default function PlanningStage({
 
       <div style={{ marginTop: "2rem" }}>
         {submitted ? (
-          <HardwarePanel className="animate-pop">
-            <h3
-              className="annotation-text"
-              style={{
-                color: isFail
-                  ? "var(--bui-fg-danger)"
-                  : "var(--bui-fg-success)",
-              }}
-            >
-              {isFail
-                ? "⚠️ INSUFFICIENT COVERAGE"
-                : "✅ TECHNICAL CLEARANCE GRANTED"}
-            </h3>
-            <div style={{ marginTop: "0.5rem", fontSize: "0.9rem" }}>
-              Score: {reportScore} / {Math.max(placedCount * 5, 100)}
-            </div>
-            <div style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}>
-              <Button onClick={() => setSubmitted(false)}>Revise Draft</Button>
-              {!isFail && (
-                <Button variant="accent" onClick={onComplete}>
-                  Initialize Stage
-                </Button>
-              )}
-            </div>
-          </HardwarePanel>
+          (() => {
+            // Calculate dynamic feedback
+            let isFailLocal = reportScore !== null && reportScore < 50;
+            let feedbackHeader = "⚠️ INSUFFICIENT COVERAGE";
+            let feedbackText =
+              "SM: 'This doesn't meet the director's needs at all. We need those spots and washes as requested. Redo the plot.'";
+
+            if (reportScore !== null && reportScore >= 80) {
+              feedbackHeader = "✅ TECHNICAL CLEARANCE GRANTED";
+              feedbackText =
+                "SM: 'Looks solid! Full coverage and the special is ready. Great job, let's get it hung.'";
+            } else if (reportScore !== null && reportScore >= 50) {
+              feedbackHeader = "✅ CONDITIONAL CLEARANCE";
+              feedbackText =
+                "SM: 'It's not perfect, and the director might complain, but we're out of time. Let's load it in.'";
+            }
+
+            return (
+              <HardwarePanel className="animate-pop">
+                <h3
+                  className="annotation-text"
+                  style={{
+                    color: isFailLocal
+                      ? "var(--bui-fg-danger)"
+                      : "var(--bui-fg-success)",
+                  }}
+                >
+                  {feedbackHeader}
+                </h3>
+                <p
+                  style={{
+                    fontFamily: "var(--font-sketch)",
+                    marginTop: "0.5rem",
+                  }}
+                >
+                  {feedbackText}
+                </p>
+                <div
+                  style={{
+                    marginTop: "0.5rem",
+                    fontSize: "0.9rem",
+                    opacity: 0.8,
+                  }}
+                >
+                  Score: {reportScore} / 100
+                </div>
+                <div
+                  style={{ display: "flex", gap: "1rem", marginTop: "1.5rem" }}
+                >
+                  <Button onClick={() => setSubmitted(false)}>
+                    Revise Draft
+                  </Button>
+                  {!isFailLocal && (
+                    <Button variant="accent" onClick={onComplete}>
+                      Initialize Stage
+                    </Button>
+                  )}
+                </div>
+              </HardwarePanel>
+            );
+          })()
         ) : (
           <Button
             variant="success"

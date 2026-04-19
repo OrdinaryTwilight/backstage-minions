@@ -15,10 +15,8 @@ interface MapViewportProps {
   currentZones: Record<string, ZoneConfig>;
   npcs: NPC[];
   pos: { x: number; y: number };
-  // FIX: Allow undefined to match what CHARACTERS.find() returns
   playerChar: { icon?: string } | null | undefined;
   activeZone: string | null;
-  // FIX: Change DialogueState object to the simple string ID we use now
   activeNpcId: string | null;
   feedbackMsg: string | null;
   bumpMsg: { id: string; msg: string } | null;
@@ -70,7 +68,7 @@ export default function MapViewport({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "white",
+              color: key === "spotTower" ? "black" : "white",
               border: activeZone === key ? "3px solid #fbbf24" : "none",
               boxSizing: "border-box",
               fontWeight: "bold",

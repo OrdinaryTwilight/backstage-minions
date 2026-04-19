@@ -1,8 +1,9 @@
 // src/components/game/OverworldStage/useInteraction.ts
 import { useCallback } from "react";
 import { ZoneConfig } from "../../../data/types";
+import { OVERWORLD_MAPS } from "../../../data/zones";
 import { GameState } from "../../../types/game";
-import { GAME_HEIGHT, GAME_WIDTH } from "./constants";
+import { GAME_HEIGHT, GAME_WIDTH, PLAYER_SIZE } from "./constants";
 import { DialogueState, FeedbackMessage, NPC } from "./types"; // Note: Removed DialogueState
 
 interface UseInteractionProps {
@@ -31,26 +32,58 @@ const formatRoomName = (str: string) =>
     .replaceAll(/([A-Z])/g, " $1")
     .replace(/^./, (s: string) => s.toUpperCase());
 
+// --- EXTRACTED HELPER: Calculates the correct spawn coordinates ---
+function getDoorSpawnPosition(targetRoomId: string, currentRoomId: string) {
+  let spawnX = GAME_WIDTH / 2;
+  let spawnY = GAME_HEIGHT / 2;
+
+  const targetRoomConfig = OVERWORLD_MAPS[targetRoomId];
+  if (!targetRoomConfig) return { x: spawnX, y: spawnY };
+
+  // Find the door in the NEXT room that leads BACK to the CURRENT room
+  const entryDoorKey = Object.keys(targetRoomConfig).find(
+    (k) => targetRoomConfig[k].isDoor === currentRoomId,
+  );
+
+  if (entryDoorKey) {
+    const door = targetRoomConfig[entryDoorKey];
+    spawnX = door.x + door.w / 2 - PLAYER_SIZE / 2;
+    // If the door is at the top of the screen, spawn below it. Otherwise, spawn above it.
+    spawnY =
+      door.y < GAME_HEIGHT / 2
+        ? door.y + door.h + 10
+        : door.y - PLAYER_SIZE - 10;
+  }
+
+  return { x: spawnX, y: spawnY };
+}
+
 // Extracted to handle doors and props
 function handleStaticZoneInteraction(
   staticZone: ZoneConfig,
   props: UseInteractionProps,
 ) {
+  // 1. Door Transistions
   if (staticZone.isDoor) {
+    const { x, y } = getDoorSpawnPosition(staticZone.isDoor, props.currentRoom);
+
     props.setCurrentRoom(staticZone.isDoor);
-    props.setPos({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
+    props.setPos({ x, y });
     props.setFeedbackMsg({
       text: `Entering ${formatRoomName(staticZone.isDoor)}...`,
       isError: false,
     });
+
     setTimeout(() => props.setFeedbackMsg(null), 1500);
     return;
   }
 
+  // 2. Stage Objectives
   if (
     props.activeZone === props.targetZoneId &&
     props.currentRoom === "stage"
   ) {
+    // Objective: Strike Skip Interceptor
     if (props.targetZoneId === "wings" && Math.random() > 0.5) {
       props.setActiveQuestDialogue({
         speaker: "Senior Technician",
@@ -69,11 +102,13 @@ function handleStaticZoneInteraction(
     return;
   }
 
-  if (
-    (props.activeZone === "lightBooth" &&
-      props.targetZoneId !== "lightBooth") ||
-    (props.activeZone === "soundBooth" && props.targetZoneId !== "soundBooth")
-  ) {
+  // 3. Incorrect Location Penalties
+  const isWrongLightBooth =
+    props.activeZone === "lightBooth" && props.targetZoneId !== "lightBooth";
+  const isWrongSoundBooth =
+    props.activeZone === "soundBooth" && props.targetZoneId !== "soundBooth";
+
+  if (isWrongLightBooth || isWrongSoundBooth) {
     props.setFeedbackMsg({
       text: `Not here! Head to the ${props.targetLabel}!`,
       isError: true,
@@ -82,16 +117,16 @@ function handleStaticZoneInteraction(
     return;
   }
 
-  // FIX: If the zone has dialogue, trigger the quest dialogue box!
+  // 4. Zone Multi-Dialogue (Randomizer)
   if (staticZone.dialogues && staticZone.dialogues.length > 0) {
+    const randomIdx = Math.floor(Math.random() * staticZone.dialogues.length);
     props.setActiveQuestDialogue(
-      staticZone.dialogues[
-        Math.floor(Math.random() * staticZone.dialogues.length)
-      ] as unknown as DialogueState,
+      staticZone.dialogues[randomIdx] as unknown as DialogueState,
     );
     return;
   }
 
+  // 5. Zone Single Dialogue
   if (staticZone.dialogue) {
     props.setActiveQuestDialogue(
       staticZone.dialogue as unknown as DialogueState,
@@ -99,7 +134,7 @@ function handleStaticZoneInteraction(
     return;
   }
 
-  // FIX: Format the zone name so it reads "Props Table" instead of "propTable"
+  // 6. Generic Prop Inspection fallback
   const zoneName =
     staticZone.label || formatRoomName(props.activeZone || "area");
   props.setFeedbackMsg({
