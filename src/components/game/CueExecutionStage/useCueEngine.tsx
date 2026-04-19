@@ -57,7 +57,6 @@ export function useCueEngine(
       if (isHit) {
         setSmMessage(`Good cue. Standby next.`);
         dispatch({ type: "CUE_HIT" });
-        dispatch({ type: "ADD_SCORE", delta: 10 });
       } else {
         dispatch({ type: "CUE_MISSED" });
         dispatch({ type: "ADD_SCORE", delta: -10 });

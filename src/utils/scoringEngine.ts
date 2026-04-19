@@ -13,8 +13,11 @@ export function calculateStars(
   // If the stage relies on cues (Execution/Sound)
   if (totalCues > 0) {
     const hitRate = cuesHit / totalCues;
-    if (hitRate >= 0.9) return 3;
-    if (hitRate >= 0.65) return 2;
+
+    // Require BOTH a good hit rate AND a positive overall score to get 3 stars
+    // This prevents players from bombing quests but acing the board and getting 3 stars
+    if (hitRate >= 0.9 && currentScore >= 100) return 3;
+    if (hitRate >= 0.65 && currentScore >= 50) return 2;
     return 1;
   }
 

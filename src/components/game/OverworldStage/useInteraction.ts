@@ -1,5 +1,6 @@
 // src/components/game/OverworldStage/useInteraction.ts
 import { useCallback } from "react";
+import { NARRATIVE } from "../../../data/narrative";
 import { ZoneConfig } from "../../../data/types";
 import { OVERWORLD_MAPS } from "../../../data/zones";
 import { GameState } from "../../../types/game";
@@ -176,7 +177,32 @@ export function useInteraction(props: UseInteractionProps) {
 
     // 2. NPC Interaction Trigger
     if (activeNpc) {
-      props.setActiveNpcId(activeNpc.id);
+      // If the NPC is a major character (e.g., char_ben), open their full Dialogue Tree
+      if (activeNpc.id.startsWith("char_")) {
+        props.setActiveNpcId(activeNpc.id);
+      } else {
+        // Otherwise, they are generic crew. Feed them random idle chatter!
+        const currentStage =
+          props.state.session?.stages[props.state.session.currentStageIndex] ||
+          "wrapup";
+
+        const idleQuotes = [
+          ...NARRATIVE.overworld.npcChatter,
+          ...(NARRATIVE.overworld.chatterByStage[
+            currentStage as keyof typeof NARRATIVE.overworld.chatterByStage
+          ] || []),
+        ];
+
+        const randomQuote =
+          idleQuotes[Math.floor(Math.random() * idleQuotes.length)];
+
+        props.setActiveQuestDialogue({
+          speaker: activeNpc.name,
+          icon: activeNpc.icon,
+          text: `"${randomQuote}"`,
+          choices: [{ id: "ok", text: "Leave them to it." }],
+        });
+      }
     }
   }, [props]);
 }
