@@ -156,6 +156,7 @@ export function useGameLoop({
       if (inv.includes("Director's Script")) forceSpawnIds.push("npc_arthur");
       if (inv.includes("Water Bottle")) forceSpawnIds.push("npc_madeline");
       if (inv.includes("AA Batteries")) forceSpawnIds.push("char_casey");
+      if (inv.includes("Gaff Tape")) forceSpawnIds.push("char_alex");
 
       // 3. Separate required vs random
       const mustSpawn = baseAvailable.filter((npc) =>

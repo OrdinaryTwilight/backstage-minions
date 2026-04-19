@@ -213,7 +213,7 @@ export default function PlanningStage({
           <Button onClick={() => setSubmitted(false)}>Revise Draft</Button>
           {!isFailLocal && (
             <Button variant="accent" onClick={handleFinalize}>
-              Initialize Stage
+              Finalise Plot
             </Button>
           )}
         </div>

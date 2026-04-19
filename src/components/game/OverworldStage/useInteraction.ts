@@ -82,7 +82,7 @@ function handleStaticZoneInteraction(
   // 2. Stage Objectives
   if (
     props.activeZone === props.targetZoneId &&
-    props.currentRoom === "stage"
+    props.currentRoom === "backstage"
   ) {
     // Objective: Strike Skip Interceptor
     if (props.targetZoneId === "wings" && Math.random() > 0.5) {

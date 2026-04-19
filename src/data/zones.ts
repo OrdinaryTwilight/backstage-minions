@@ -1,7 +1,7 @@
 import { ZoneConfig } from "./gameData";
 
 export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
-  stage: {
+  backstage: {
     lightBooth: {
       x: 650,
       y: 40,

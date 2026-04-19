@@ -63,7 +63,8 @@ export default function OverworldStage({
     announce(`Entered ${formatRoomName(currentRoom)}`);
   }, [currentRoom, announce]);
 
-  const currentZones = OVERWORLD_MAPS[currentRoom] || OVERWORLD_MAPS["stage"];
+  const currentZones =
+    OVERWORLD_MAPS[currentRoom] || OVERWORLD_MAPS["backstage"];
   const playerChar = CHARACTERS.find((c) => c.id === charId);
   const { targetZoneId, targetLabel, instructionText } = getOverworldObjective(
     nextStageKey,
