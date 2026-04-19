@@ -1,24 +1,24 @@
 /* --- 1. GLOBAL ANIMATIONS --- */
 @keyframes blueprint-reveal {
   from {
-    clip-path: inset(0 100% 0 0);
     opacity: 0;
-    transform: translateX(-10px);
+    transform: translateX(-10px) scaleX(0);
+    transform-origin: left;
   }
   to {
-    clip-path: inset(0 0 0 0);
     opacity: 1;
-    transform: translateX(0);
+    transform: translateX(0) scaleX(1);
+    transform-origin: left;
   }
 }
 
 @keyframes pulse-glow {
   0%,
   100% {
-    box-shadow: 0 0 5px rgba(56, 189, 248, 0.2);
+    filter: drop-shadow(0 0 5px rgba(56, 189, 248, 0.2));
   }
   50% {
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+    filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.5));
   }
 }
 
@@ -59,11 +59,11 @@
   0%,
   100% {
     transform: scale(1);
-    box-shadow: 0 0 0 0 rgba(74, 222, 128, 0);
+    filter: drop-shadow(0 0 0px rgba(74, 222, 128, 0));
   }
   70% {
     transform: scale(1.05);
-    box-shadow: 0 0 0 15px rgba(74, 222, 128, 0);
+    filter: drop-shadow(0 0 15px rgba(74, 222, 128, 0.8));
   }
 }
 
@@ -83,35 +83,35 @@
 
 @keyframes booth-flash-hit {
   0% {
-    background-color: rgba(74, 222, 128, 0.2);
+    filter: brightness(1.3) saturate(1.5);
   }
   100% {
-    background-color: transparent;
+    filter: brightness(1) saturate(1);
   }
 }
 @keyframes booth-flash-miss {
   0% {
-    background-color: rgba(248, 113, 113, 0.2);
+    filter: brightness(1.2) hue-rotate(5deg);
   }
   100% {
-    background-color: transparent;
+    filter: brightness(1) hue-rotate(0deg);
   }
 }
 
 @keyframes row-hit {
   0% {
-    background-color: rgba(74, 222, 128, 0.4);
+    filter: brightness(1.4) saturate(1.5);
   }
   100% {
-    background-color: transparent;
+    filter: brightness(1) saturate(1);
   }
 }
 @keyframes row-miss {
   0% {
-    background-color: rgba(239, 68, 68, 0.4);
+    filter: brightness(1.3) hue-rotate(8deg);
   }
   100% {
-    background-color: transparent;
+    filter: brightness(1) hue-rotate(0deg);
   }
 }
 
