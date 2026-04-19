@@ -6,6 +6,7 @@ import {
   CHARACTERS,
   Cue,
   POST_SHOW_REVIEWS,
+  PRODUCTIONS,
   WRAP_UP_UI_TEXT,
 } from "../../data/gameData";
 import { calculateStars } from "../../utils/scoringEngine";
@@ -55,15 +56,24 @@ export default function WrapUpScene({
         sessionStorage.getItem("minion_chats") || "{}",
       );
       if (!history["sys_comms"]) history["sys_comms"] = [];
+
+      const prod = PRODUCTIONS.find(
+        (p) => p.id === state.session?.productionId,
+      );
+      const diffText = state.session?.difficulty
+        ? state.session.difficulty.toUpperCase()
+        : "UNKNOWN";
+      const prodTitle = prod?.title || "Unknown Production";
+
       history["sys_comms"].push({
         sender: "System Alerts",
-        text: `POST-MORTEM REPORT: Hit ${cuesHit}/${totalCues} Cues. Final Score: ${score}. Rating: ${stars} Stars.`,
+        text: `POST-MORTEM REPORT [${prodTitle} - Tier: ${diffText}]: Hit ${cuesHit}/${totalCues} Cues. Final Score: ${score}. Rating: ${stars} Stars.`,
       });
       sessionStorage.setItem("minion_chats", JSON.stringify(history));
       sessionStorage.setItem("unread_messages", "true");
       globalThis.dispatchEvent(new Event("unread_messages_update"));
     }
-  }, [phase, cuesHit, totalCues, score, stars]);
+  }, [phase, cuesHit, totalCues, score, stars, state.session]);
 
   if (phase === "report") {
     return (

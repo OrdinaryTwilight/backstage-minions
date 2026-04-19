@@ -69,7 +69,7 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       isSolid: true,
       dialogues: [
         {
-          speaker: "Violist",
+          speaker: "Violinist",
           text: "If you drop a wrench on my instrument, my union rep will end your career.",
           choices: [{ id: "ok", text: "I'll be careful." }],
         },

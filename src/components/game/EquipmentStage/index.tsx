@@ -26,7 +26,10 @@ export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
   };
 
   return (
-    <div className="page-container animate-blueprint">
+    <div
+      className="page-container animate-blueprint"
+      style={{ fontFamily: "var(--font-sketch)" }}
+    >
       <SectionHeader
         title="Inventory Logistics"
         subtitle="Select a gear package for this production tier."

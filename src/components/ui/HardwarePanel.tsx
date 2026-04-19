@@ -25,6 +25,7 @@ export default function HardwarePanel(
   const isClickable = variant === "clickable" || !!onClick;
 
   const commonStyles: React.CSSProperties = {
+    fontFamily: "var(--font-sketch)",
     background: "var(--color-surface-base)",
     border: "1px solid var(--glass-border)",
     borderRadius: "var(--radius-md)",

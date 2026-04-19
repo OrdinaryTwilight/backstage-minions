@@ -87,7 +87,6 @@
   border: 2px solid var(--color-pencil-light);
   padding: var(--panel-padding);
   position: relative;
-  filter: url(#sketch-wobble);
   border-top-left-radius: 255px 15px;
   border-top-right-radius: 15px 225px;
   border-bottom-right-radius: 225px 15px;

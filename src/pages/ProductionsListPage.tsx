@@ -56,9 +56,9 @@ export default function ProductionsListPage() {
           gridTemplateColumns:
             "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
           gap: "2rem",
-          maxWidth: "1000px",
           margin: "0 auto",
           padding: "0 1rem",
+          fontFamily: "var(--font-sketch)",
         }}
       >
         {filtered.map((p, idx) => (
@@ -71,6 +71,9 @@ export default function ProductionsListPage() {
               display: "flex",
               flexDirection: "column",
               padding: "2rem",
+              minWidth: 0,
+              width: "100%",
+              boxSizing: "border-box",
             }}
             onClick={() => navigate(`/productions/${p.id}`)}
           >

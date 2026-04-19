@@ -100,7 +100,8 @@ export default function NavBar() {
             style={{
               position: "absolute",
               inset: 0,
-              background: "rgba(0,0,0,0.8)",
+              background: "rgba(0,0,0,0.5)",
+              backdropFilter: "blur(5px)",
               border: "none",
               padding: 0,
               cursor: "pointer",

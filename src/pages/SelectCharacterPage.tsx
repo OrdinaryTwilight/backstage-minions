@@ -45,15 +45,16 @@ export default function SelectCharacterPage() {
       <NavBar />
 
       <Button
-        onClick={() => navigate(`/productions/${productionId}/difficulty`)}
+        onClick={() => navigate(`/productions/${productionId}`)}
         style={{
           marginBottom: "1.5rem",
           minWidth: "auto",
           border: "none",
           background: "transparent",
+          fontFamily: "inherit",
         }}
       >
-        ‹ Back to Contract
+        ‹ Back to Production
       </Button>
 
       <SectionHeader
@@ -154,10 +155,18 @@ export default function SelectCharacterPage() {
         variant="success"
         className="animate-pulse-go"
         onClick={startGame}
-        style={{ width: "100%", height: "70px", fontSize: "1.4rem" }}
-        aria-label={`Sign contract and initialize as ${char.name}`}
+        style={{
+          width: "100%",
+          maxWidth: "600px",
+          margin: "0 auto",
+          display: "block",
+          height: "70px",
+          fontSize: "1.4rem",
+          fontFamily: "inherit",
+        }}
+        aria-label={`Sign contract and start show as ${char.name}`}
       >
-        Sign Contract & Initialise
+        Start show as {char.name}
       </Button>
     </div>
   );

@@ -56,21 +56,42 @@ export default function NetworksPage() {
       newMsg,
     ];
 
-    setSessionChats(updatedChats);
+    // Functional state update ensures we always grab the latest chat log
+    setSessionChats((prev) => {
+      const updated = { ...prev };
+      if (!updated[activeContact.id]) updated[activeContact.id] = [];
+      updated[activeContact.id] = [...updated[activeContact.id], newMsg];
+      sessionStorage.setItem("minion_chats", JSON.stringify(updated));
+      return updated;
+    });
     setInputText("");
 
     // Automated Reply
     setTimeout(() => {
-      const replyChats = JSON.parse(
-        sessionStorage.getItem("minion_chats") || "{}",
-      );
-      if (!replyChats[activeContact.id]) replyChats[activeContact.id] = [];
-      replyChats[activeContact.id].push({
-        sender: activeContact.name,
-        text: "I'm a bit tied up right now. Let's catch up after strike!",
+      setSessionChats((prev) => {
+        const replyChats = { ...prev };
+        if (!replyChats[activeContact.id]) replyChats[activeContact.id] = [];
+
+        const replies = [
+          "I'm a bit tied up right now. Let's catch up after strike!",
+          "Copy that. Standby.",
+          "Can't chat, on comms right now.",
+          "See you at call time!",
+          "Are we holding for the house?",
+          "Did someone take my gaff tape again?",
+        ];
+        const randomReply = replies[Math.floor(Math.random() * replies.length)];
+
+        replyChats[activeContact.id] = [
+          ...replyChats[activeContact.id],
+          {
+            sender: activeContact.name,
+            text: randomReply,
+          },
+        ];
+        sessionStorage.setItem("minion_chats", JSON.stringify(replyChats));
+        return replyChats;
       });
-      setSessionChats(replyChats);
-      sessionStorage.setItem("minion_chats", JSON.stringify(replyChats));
     }, 1500);
   };
 
@@ -91,7 +112,7 @@ export default function NetworksPage() {
   return (
     <div
       className="page-container animate-fade-in"
-      style={{ paddingTop: "1rem" }}
+      style={{ paddingTop: "1rem", fontFamily: "var(--font-sketch)" }}
     >
       <NavBar />
       <header style={{ marginBottom: "2rem", marginTop: "2rem" }}>

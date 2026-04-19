@@ -84,7 +84,7 @@ export default function HomePage() {
               style={{ fontFamily: "var(--font-sketch)", fontSize: "1.25rem" }}
               onClick={() => navigate("/networks")}
             >
-              Check Comm Logs
+              Check Comms
             </Button>
           </div>
         </HardwarePanel>

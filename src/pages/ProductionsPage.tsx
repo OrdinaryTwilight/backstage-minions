@@ -43,6 +43,25 @@ export default function ProductionsPage() {
             position: "relative",
           }}
         >
+          {" "}
+          {/* Close Button added here */}
+          <button
+            onClick={() => navigate("/productions")}
+            aria-label="Close playbill and return to productions list"
+            style={{
+              position: "absolute",
+              top: "1rem",
+              right: "1rem",
+              background: "transparent",
+              border: "none",
+              color: "var(--color-pencil-light)",
+              fontSize: "2rem",
+              cursor: "pointer",
+              zIndex: 10,
+            }}
+          >
+            ×
+          </button>
           {/* Blueprint Corner Brackets */}
           <div
             style={{
@@ -88,7 +107,6 @@ export default function ProductionsPage() {
               height: "20px",
             }}
           />
-
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>
               {production.poster}
@@ -129,7 +147,6 @@ export default function ProductionsPage() {
               {production.description}
             </p>
           </div>
-
           <div
             style={{
               borderTop: "1px dashed var(--bui-border)",
