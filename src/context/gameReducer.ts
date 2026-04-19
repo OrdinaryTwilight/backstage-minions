@@ -74,7 +74,32 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           conflictsSeen: [...session.conflictsSeen, action.conflictId],
         },
       };
+    case "ADD_INVENTORY":
+      if (!session) return state;
+      return {
+        ...state,
+        session: { ...session, inventory: [...session.inventory, action.item] },
+      };
 
+    case "REMOVE_INVENTORY":
+      if (!session) return state;
+      return {
+        ...state,
+        session: {
+          ...session,
+          inventory: session.inventory.filter((i) => i !== action.item),
+        },
+      };
+
+    case "COMPLETE_QUEST":
+      if (!session) return state;
+      return {
+        ...state,
+        session: {
+          ...session,
+          completedQuests: [...session.completedQuests, action.questId],
+        },
+      };
     case "CLEAR_SESSION":
       return { ...state, session: null };
 

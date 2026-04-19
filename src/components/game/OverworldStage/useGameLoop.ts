@@ -1,5 +1,5 @@
 // src/components/game/OverworldStage/useGameLoop.ts
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { CHARACTERS } from "../../../data/gameData";
 import { ZoneConfig } from "../../../data/types";
 import {
@@ -202,42 +202,71 @@ export function useGameLoop({
 
   /* ---------------- GAME LOOP ---------------- */
 
-  // Extract callback to reduce nesting depth and add to useCallback
+  // Use refs to store the latest state without triggering closures/stale data in the animation loop
+  const inputRef = useRef(input);
+  const npcsRef = useRef(npcs);
+  const targetPosRef = useRef(targetPos);
+
+  // Keep refs synced with React state
+  useEffect(() => {
+    inputRef.current = input;
+  }, [input]);
+  useEffect(() => {
+    npcsRef.current = npcs;
+  }, [npcs]);
+  useEffect(() => {
+    targetPosRef.current = targetPos;
+  }, [targetPos]);
+
+  // Extract tick handler to reduce nesting depth (SonarLint S2004)
   const handleGameLoopTick = useCallback(
     (prevPos: { x: number; y: number }) => {
       const result = computeNextState({
         prevPos,
-        npcs,
-        input,
-        targetPos,
+        npcs: npcsRef.current,
+        input: inputRef.current,
+        targetPos: targetPosRef.current,
         currentZones,
         setTargetPos,
       });
 
-      Promise.resolve().then(() => {
-        setNpcs(result.npcs);
-        setActiveZone(result.activeZone);
+      // Batch React updates to prevent render tearing
+      setNpcs(result.npcs);
+      setActiveZone(result.activeZone);
 
-        if (result.bump && !bumpMsg) {
-          setBumpMsg(result.bump);
-          setTimeout(() => setBumpMsg(null), 1500);
-        }
-      });
+      if (result.bump && !bumpMsg) {
+        setBumpMsg(result.bump);
+        setTimeout(() => setBumpMsg(null), 1500);
+      }
 
       return result.pos;
     },
-    [npcs, input, targetPos, currentZones, setTargetPos, bumpMsg],
+    [currentZones, setTargetPos, bumpMsg],
   );
 
   useEffect(() => {
-    if (activeNpcId) return;
+    if (activeNpcId) return; // Pause game loop when talking
 
-    const interval = setInterval(() => {
-      setPos(handleGameLoopTick);
-    }, 1000 / GAME_LOOP_FPS);
+    let animationFrameId: number;
+    let lastTime = performance.now();
 
-    return () => clearInterval(interval);
-  }, [handleGameLoopTick, activeNpcId]);
+    const tick = (currentTime: number) => {
+      // Delta time calculation allows us to make movement frame-rate independent later if needed
+      const deltaTime = currentTime - lastTime;
+
+      // Throttle to approximate GAME_LOOP_FPS (e.g., 60fps ~ 16.6ms)
+      if (deltaTime >= 1000 / GAME_LOOP_FPS) {
+        setPos((prevPos) => handleGameLoopTick(prevPos));
+        lastTime = currentTime;
+      }
+
+      animationFrameId = requestAnimationFrame(tick);
+    };
+
+    animationFrameId = requestAnimationFrame(tick);
+
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [activeNpcId, handleGameLoopTick]);
 
   return { pos, setPos, npcs, activeZone, bumpMsg };
 }

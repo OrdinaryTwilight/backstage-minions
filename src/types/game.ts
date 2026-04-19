@@ -189,7 +189,6 @@ export interface GameState {
   unlockedStories: string[];
   contacts: string[];
   unreadContacts: string[];
-  inventory: string[];
 }
 
 // ============================================================================
@@ -257,4 +256,7 @@ export type GameAction =
   | { type: "MARK_CONTACT_READ"; contactId: string }
   | { type: "ADD_QUEST"; questId: string }
   | { type: "UPDATE_STRESS"; delta: number }
-  | { type: "UPDATE_AFFINITY"; npcId: string; delta: number };
+  | { type: "UPDATE_AFFINITY"; npcId: string; delta: number }
+  | { type: "ADD_INVENTORY"; item: string }
+  | { type: "REMOVE_INVENTORY"; item: string }
+  | { type: "COMPLETE_QUEST"; questId: string };

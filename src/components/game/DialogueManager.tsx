@@ -80,8 +80,13 @@ export default function DialogueManager({
     .replace("{role}", targetNpc.role || "crew");
 
   const availableChoices = currentNode.choices.filter((choice) => {
+    const currentInventory = state.session?.inventory || [];
+
     // Inventory check
-    if (choice.requiredItem && !state.inventory.includes(choice.requiredItem)) {
+    if (
+      choice.requiredItem &&
+      !currentInventory.includes(choice.requiredItem)
+    ) {
       return false;
     }
 

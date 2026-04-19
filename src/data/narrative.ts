@@ -86,9 +86,9 @@ export const NARRATIVE = {
       pickupText:
         "Just stale bagels left... but there is one fresh Water Bottle.",
       pickupAction: "Take Water Bottle",
-      actorNeedText:
+      targetNeedText:
         "I can't go on stage like this... my throat is so dry. I need water...",
-      actorThanksText:
+      targetThanksText:
         "Oh my gosh, water! My throat was so dry, I thought I'd die out there. Thank you so much!",
       giveAction: "Give Water Bottle (+20 pts)",
       searchAction: "I'll see if Craft Services has any.",
@@ -99,7 +99,7 @@ export const NARRATIVE = {
       pickupText:
         "Hey, since you're walking around... Can you bring this Gaff Tape to the LX Booth?",
       pickupAction: "Take Gaff Tape",
-      lxThanksText:
+      targetThanksText:
         "Yes! Gaff tape! You just saved the show. Lock in, we're starting soon.",
       giveAction: "Give Gaff Tape (+20 pts)",
       feedbackAcquired: "Acquired: Gaff Tape!",
@@ -109,9 +109,9 @@ export const NARRATIVE = {
       pickupText:
         "The Director left their script on my desk again. Can you run this to the Green Room before house opens?",
       pickupAction: "Take Director's Script",
-      directorNeedText:
+      targetNeedText:
         "I've completely lost my blocking notes... Have you seen my script?",
-      directorThanksText:
+      targetThanksText:
         "Ah, my script! The SM found it? Excellent work, let's get ready for places.",
       giveAction: "Give Script (+20 pts)",
       searchAction: "I'll ask the SM.",
@@ -123,8 +123,9 @@ export const NARRATIVE = {
       pickupText:
         "Audio is out of double-As and act two starts in 15. The ASM said there's a stash in the basement.",
       pickupAction: "Find AA Batteries",
-      actorNeedText: "My mic pack keeps flashing red. Is that bad?",
-      actorThanksText: "Oh, fresh batteries! You saved my solo. I owe you one.",
+      targetNeedText: "My mic pack keeps flashing red. Is that bad?",
+      targetThanksText:
+        "Oh, fresh batteries! You saved my solo. I owe you one.",
       giveAction: "Swap Batteries (+20 pts)",
       searchAction: "Check the basement storage.",
       feedbackAcquired: "Acquired: 8-pack of AA Batteries!",

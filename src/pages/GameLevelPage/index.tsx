@@ -18,6 +18,7 @@ import WrapUpScene from "../../components/game/WrapUpScene";
 import ShowControlNav from "./ShowControlNav";
 import { SkipChoice, useLevelFlow } from "./useLevelFlow";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const STAGE_COMPONENTS: Record<string, any> = {
   equipment: EquipmentStage,
   planning: PlanningStage,

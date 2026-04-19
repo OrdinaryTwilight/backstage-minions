@@ -10,7 +10,8 @@ import { z } from "zod";
 import { GameAction, GameState } from "../types/game";
 import { gameReducer } from "./gameReducer";
 
-const STORAGE_KEY = "a3_backstage_save";
+const LOCAL_STORAGE_KEY = "a3_backstage_save";
+const SESSION_STORAGE_KEY = "a3_backstage_active_run";
 
 // ----------------------------------------------------------------------------
 // 1. Zod Schemas for Validation
@@ -27,7 +28,6 @@ const GameSaveSchema = z.object({
   unlockedStories: z.array(z.string()).catch([]),
   contacts: z.array(z.string()).catch(["char_ben", "char_casey", "sys_comms"]),
   unreadContacts: z.array(z.string()).catch(["sys_comms"]),
-  inventory: z.array(z.string()).catch([]),
 });
 
 // ----------------------------------------------------------------------------
@@ -39,7 +39,6 @@ const initialState: GameState = {
   unlockedStories: [],
   contacts: ["char_ben", "char_casey", "sys_comms"],
   unreadContacts: ["sys_comms"],
-  inventory: [],
 };
 
 interface GameContextType {
@@ -58,40 +57,62 @@ export function GameProvider({ children }: { readonly children: ReactNode }) {
   // --- MOUNT: Load & Validate Save Data ---
   useEffect(() => {
     try {
-      const savedString = localStorage.getItem(STORAGE_KEY);
-      if (savedString) {
-        const parsedJson = JSON.parse(savedString);
+      let loadedState: Partial<GameState> = {};
 
-        // safeParse won't throw errors. It returns a success boolean.
+      // 1. Load Career Progress (Local Storage)
+      const localString = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (localString) {
+        const parsedJson = JSON.parse(localString);
         const validation = GameSaveSchema.safeParse(parsedJson);
 
         if (validation.success) {
-          dispatch({ type: "LOAD_SAVE", payload: validation.data });
+          loadedState = { ...validation.data };
         } else {
           console.warn("Save file root structure is invalid. Starting fresh.");
         }
       }
+
+      // 2. Load Active Run (Session Storage)
+      const sessionString = sessionStorage.getItem(SESSION_STORAGE_KEY);
+      if (sessionString) {
+        // Ephemeral data doesn't strictly need Zod validation since it clears on tab close,
+        // but wrapping it in try/catch prevents a corrupted string from crashing the load.
+        loadedState.session = JSON.parse(sessionString);
+      }
+
+      // 3. Dispatch Combined State
+      if (Object.keys(loadedState).length > 0) {
+        dispatch({ type: "LOAD_SAVE", payload: loadedState });
+      }
     } catch (error) {
-      console.error("Failed to parse localStorage data:", error);
+      console.error("Failed to parse storage data:", error);
     }
   }, []);
 
   // --- UPDATE: Debounced Persistent Saving ---
   useEffect(() => {
-    // Debounce timer: wait 1 second after the last state change to save
     const handler = setTimeout(() => {
-      // Strip out the ephemeral session data; keep the rest
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { session, ...persistentState } = state;
 
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(persistentState));
+        // 1. Save Career Progress
+        localStorage.setItem(
+          LOCAL_STORAGE_KEY,
+          JSON.stringify(persistentState),
+        );
+
+        // 2. Save Active Run
+        if (session) {
+          sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+        } else {
+          // Clean up session storage if the session was cleared (e.g., returning to main menu)
+          sessionStorage.removeItem(SESSION_STORAGE_KEY);
+        }
       } catch (error) {
-        console.error("Failed to write to localStorage:", error);
+        console.error("Failed to write to storage:", error);
       }
     }, 1000);
 
-    // Cleanup: If state changes again within 1 second, clear the previous timer
     return () => {
       clearTimeout(handler);
     };
