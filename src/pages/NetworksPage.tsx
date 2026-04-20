@@ -1,3 +1,4 @@
+// src/pages/NetworksPage.tsx
 import { useEffect, useState } from "react";
 import Button from "../components/ui/Button";
 import NavBar from "../components/ui/NavBar";
@@ -6,7 +7,7 @@ import { CHARACTERS } from "../data/characters";
 import { CHAT_MESSAGES } from "../data/chatMessages";
 
 export default function NetworksPage() {
-  const { state } = useGame();
+  const { state, dispatch } = useGame();
   const [activeChat, setActiveChat] = useState<string | null>("sys_comms");
 
   const availableContacts = [
@@ -34,29 +35,42 @@ export default function NetworksPage() {
 
   const [sessionChats, setSessionChats] = useState<
     Record<string, { sender: string; text: string }[]>
-  >(() => {
-    return JSON.parse(sessionStorage.getItem("minion_chats") || "{}");
+  >(() => JSON.parse(sessionStorage.getItem("minion_chats") || "{}"));
+
+  // Mocking standard Dialogue Choices for the Chat
+  const [activeChoices, setActiveChoices] = useState<
+    Record<string, { text: string; response: string; sideEffect?: string }[]>
+  >({
+    sam: [
+      {
+        text: "I'm ready for my shift.",
+        response:
+          "Great. Click into the Phantom of the Opera callboard and select 'School' difficulty.",
+      },
+      {
+        text: "What am I supposed to do?",
+        response:
+          "We need an extra set of hands on Phantom. Look for the poster on the productions page.",
+      },
+    ],
   });
-  const [inputText, setInputText] = useState("");
 
+  // Clear unread dot for active chat
   useEffect(() => {
-    sessionStorage.setItem("unread_messages", "false");
-    globalThis.dispatchEvent(new Event("unread_messages_update"));
-  }, []);
+    if (activeChat && state.unreadContacts?.includes(activeChat)) {
+      dispatch({ type: "MARK_CONTACT_READ", contactId: activeChat });
+    }
+  }, [activeChat, state.unreadContacts, dispatch]);
 
-  const handleSendMessage = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-    if (!inputText.trim() || !activeContact) return;
+  const handleSendReply = (
+    replyText: string,
+    automatedResponse: string,
+    sideEffect?: string,
+  ) => {
+    if (!activeContact) return;
 
-    const newMsg = { sender: "You", text: inputText };
-    const updatedChats = { ...sessionChats };
-    if (!updatedChats[activeContact.id]) updatedChats[activeContact.id] = [];
-    updatedChats[activeContact.id] = [
-      ...updatedChats[activeContact.id],
-      newMsg,
-    ];
-
-    // Functional state update ensures we always grab the latest chat log
+    // 1. Add Player's Message
+    const newMsg = { sender: "You", text: replyText };
     setSessionChats((prev) => {
       const updated = { ...prev };
       if (!updated[activeContact.id]) updated[activeContact.id] = [];
@@ -64,35 +78,31 @@ export default function NetworksPage() {
       sessionStorage.setItem("minion_chats", JSON.stringify(updated));
       return updated;
     });
-    setInputText("");
 
-    // Automated Reply
+    // 2. Clear choices once answered
+    setActiveChoices((prev) => {
+      const updated = { ...prev };
+      delete updated[activeContact.id];
+      return updated;
+    });
+
+    // 3. Automated delayed response
     setTimeout(() => {
       setSessionChats((prev) => {
         const replyChats = { ...prev };
-        if (!replyChats[activeContact.id]) replyChats[activeContact.id] = [];
-
-        const replies = [
-          "I'm a bit tied up right now. Let's catch up after strike!",
-          "Copy that. Standby.",
-          "Can't chat, on comms right now.",
-          "See you at call time!",
-          "Are we holding for the house?",
-          "Did someone take my gaff tape again?",
-        ];
-        const randomReply = replies[Math.floor(Math.random() * replies.length)];
-
         replyChats[activeContact.id] = [
           ...replyChats[activeContact.id],
-          {
-            sender: activeContact.name,
-            text: randomReply,
-          },
+          { sender: activeContact.name, text: automatedResponse },
         ];
         sessionStorage.setItem("minion_chats", JSON.stringify(replyChats));
         return replyChats;
       });
-    }, 1500);
+
+      // Handle side effects (like unlocking a level) if defined
+      if (sideEffect === "unlock_phantom") {
+        // Here you would dispatch to your progress state if needed
+      }
+    }, 1200);
   };
 
   const getCombinedChat = (id: string) => {
@@ -108,6 +118,7 @@ export default function NetworksPage() {
   const currentMessages = activeContact
     ? getCombinedChat(activeContact.id)
     : [];
+  const currentOptions = activeContact ? activeChoices[activeContact.id] : [];
 
   return (
     <div
@@ -116,11 +127,9 @@ export default function NetworksPage() {
     >
       <NavBar />
       <header style={{ marginBottom: "2rem", marginTop: "2rem" }}>
-        <h1 style={{ fontSize: "2.5rem", fontFamily: "var(--font-sketch)" }}>
-          Friends & Contacts
-        </h1>
+        <h1 style={{ fontSize: "2.5rem" }}>Networks & Comms</h1>
         <p style={{ color: "var(--color-pencil-light)", fontSize: "1.1rem" }}>
-          Stay in touch with your crew. You never know when you'll need a favor.
+          Stay in touch with your crew. Quick replies only—we're on headset!
         </p>
       </header>
 
@@ -150,41 +159,63 @@ export default function NetworksPage() {
             <h2 style={{ fontSize: "1.2rem" }}>Directory</h2>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {availableContacts.map((contact) => (
-              <button
-                key={contact.id}
-                onClick={() => setActiveChat(contact.id)}
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                  padding: "1rem",
-                  background:
-                    activeChat === contact.id
-                      ? "rgba(30, 41, 59, 0.9)"
-                      : "transparent",
-                  border: "none",
-                  borderBottom: "1px solid var(--bui-border)",
-                  cursor: "pointer",
-                  textAlign: "left",
-                  color: "inherit",
-                  width: "100%",
-                }}
-              >
-                <span style={{ fontSize: "2rem" }}>{contact.icon}</span>
-                <div>
-                  <div style={{ fontWeight: "bold" }}>{contact.name}</div>
-                  <div
-                    style={{
-                      fontSize: "0.9rem",
-                      color: "var(--color-pencil-light)",
-                    }}
-                  >
-                    {contact.role}
+            {availableContacts.map((contact) => {
+              const isUnread = state.unreadContacts?.includes(contact.id);
+
+              return (
+                <button
+                  key={contact.id}
+                  onClick={() => setActiveChat(contact.id)}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "1rem",
+                    padding: "1rem",
+                    background:
+                      activeChat === contact.id
+                        ? "rgba(30, 41, 59, 0.9)"
+                        : "transparent",
+                    border: "none",
+                    borderBottom: "1px solid var(--bui-border)",
+                    cursor: "pointer",
+                    textAlign: "left",
+                    color: "inherit",
+                    width: "100%",
+                    position: "relative",
+                  }}
+                >
+                  <span style={{ fontSize: "2rem" }}>{contact.icon}</span>
+                  <div>
+                    <div style={{ fontWeight: "bold" }}>{contact.name}</div>
+                    <div
+                      style={{
+                        fontSize: "0.9rem",
+                        color: "var(--color-pencil-light)",
+                      }}
+                    >
+                      {contact.role}
+                    </div>
                   </div>
-                </div>
-              </button>
-            ))}
+
+                  {/* UNREAD DOT FOR DIRECTORY ITEM */}
+                  {isUnread && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        right: "1rem",
+                        top: "50%",
+                        transform: "translateY(-50%)",
+                        width: "12px",
+                        height: "12px",
+                        borderRadius: "50%",
+                        background: "var(--bui-fg-danger)",
+                        boxShadow: "0 0 8px var(--bui-fg-danger)",
+                      }}
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -196,7 +227,7 @@ export default function NetworksPage() {
             border: "1px solid var(--bui-border)",
             display: "flex",
             flexDirection: "column",
-            height: "500px",
+            height: "550px",
           }}
         >
           {activeContact ? (
@@ -214,6 +245,7 @@ export default function NetworksPage() {
                 <span style={{ fontSize: "1.5rem" }}>{activeContact.icon}</span>
                 <h2 style={{ fontSize: "1.2rem" }}>{activeContact.name}</h2>
               </div>
+
               <div
                 style={{
                   flex: 1,
@@ -224,6 +256,17 @@ export default function NetworksPage() {
                   gap: "1rem",
                 }}
               >
+                {currentMessages.length === 0 && (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      color: "var(--color-pencil-light)",
+                      margin: "auto",
+                    }}
+                  >
+                    No message history.
+                  </div>
+                )}
                 {currentMessages.map((msg, i) => (
                   <div
                     key={`msg-${msg.sender}-${i}`}
@@ -239,14 +282,17 @@ export default function NetworksPage() {
                       padding: "0.8rem 1.2rem",
                       borderRadius: "12px",
                       maxWidth: "80%",
+                      fontFamily:
+                        msg.sender === "You" ? "inherit" : "var(--font-mono)",
+                      fontSize: msg.sender !== "You" ? "0.95rem" : "1rem",
                     }}
                   >
                     {msg.sender !== "You" && (
                       <div
                         style={{
-                          fontSize: "0.8rem",
+                          fontSize: "0.75rem",
                           opacity: 0.7,
-                          marginBottom: "0.2rem",
+                          marginBottom: "0.4rem",
                         }}
                       >
                         {msg.sender}
@@ -256,31 +302,54 @@ export default function NetworksPage() {
                   </div>
                 ))}
               </div>
-              <form
-                onSubmit={handleSendMessage}
+
+              {/* QUICK REPLIES / DIALOGUE CHOICES */}
+              <div
                 style={{
                   padding: "1rem",
                   borderTop: "1px solid var(--bui-border)",
                   display: "flex",
-                  gap: "1rem",
+                  flexDirection: "column",
+                  gap: "0.5rem",
+                  background: "rgba(0,0,0,0.2)",
                 }}
               >
-                <input
-                  type="text"
-                  placeholder="Send a message..."
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  style={{
-                    flex: 1,
-                    background: "rgba(15, 23, 42, 0.5)",
-                    border: "1px solid var(--bui-border)",
-                    borderRadius: "20px",
-                    padding: "0.5rem 1rem",
-                    color: "inherit",
-                  }}
-                />
-                <Button type="submit">Send</Button>
-              </form>
+                {currentOptions && currentOptions.length > 0 ? (
+                  currentOptions.map((choice, idx) => (
+                    <Button
+                      key={idx}
+                      onClick={() =>
+                        handleSendReply(
+                          choice.text,
+                          choice.response,
+                          choice.sideEffect,
+                        )
+                      }
+                      style={{
+                        textAlign: "left",
+                        justifyContent: "flex-start",
+                        fontFamily: "var(--font-sketch)",
+                        fontSize: "1rem",
+                      }}
+                    >
+                      {choice.text}
+                    </Button>
+                  ))
+                ) : (
+                  <div
+                    style={{
+                      textAlign: "center",
+                      color: "var(--color-pencil-light)",
+                      fontStyle: "italic",
+                      fontSize: "0.9rem",
+                    }}
+                  >
+                    {activeContact.id === "sys_comms"
+                      ? "Cannot reply to automated system."
+                      : "Waiting for them to type..."}
+                  </div>
+                )}
+              </div>
             </>
           ) : null}
         </div>
