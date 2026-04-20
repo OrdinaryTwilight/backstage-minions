@@ -1,4 +1,3 @@
-// src/components/game/OverworldStage/useInteraction.ts
 import { useCallback } from "react";
 import { NARRATIVE } from "../../../data/narrative";
 import { ZoneConfig } from "../../../data/types";
@@ -55,7 +54,6 @@ function getDoorSpawnPosition(targetRoomId: string, currentRoomId: string) {
   return { x: spawnX, y: spawnY };
 }
 
-// Global helper to determine the current narrative phase of the show
 export function getShowPhase(
   session: GameSession | null,
 ): "preShow" | "duringShow" | "postShow" {
@@ -67,7 +65,6 @@ export function getShowPhase(
     return "postShow";
   if (currentStage === "cue_execution") return "duringShow";
 
-  // If it's an overworld stage, we need to look ahead to determine context
   const execIndex = stages.indexOf("cue_execution");
   if (execIndex > -1 && currentStageIndex > execIndex) return "postShow";
   if (execIndex > -1 && currentStageIndex === execIndex - 1)
@@ -82,8 +79,16 @@ function handleStaticZoneInteraction(
 ) {
   if (staticZone.isDoor) {
     const { x, y } = getDoorSpawnPosition(staticZone.isDoor, props.currentRoom);
+
+    // Trigger the room transition wrapper
     props.setCurrentRoom(staticZone.isDoor);
-    props.setPos({ x, y });
+
+    // Wait for the fade out to complete before moving the player,
+    // so the teleport happens while the screen is black
+    setTimeout(() => {
+      props.setPos({ x, y });
+    }, 200);
+
     props.setFeedbackMsg({
       text: `Entering ${formatRoomName(staticZone.isDoor)}...`,
       isError: false,
@@ -169,7 +174,6 @@ export function useInteraction(props: UseInteractionProps) {
       if (activeNpc.id.startsWith("char_")) {
         props.setActiveNpcId(activeNpc.id);
       } else {
-        // Dynamically pull quotes based on the current phase of the show
         const phase = getShowPhase(props.state.session);
         const idleQuotes = NARRATIVE.overworld.npcChatter[phase];
 

@@ -1,4 +1,3 @@
-// src/components/game/OverworldStage/index.tsx
 import { useEffect, useRef, useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { CHARACTERS, OVERWORLD_MAPS } from "../../../data/gameData";
@@ -25,13 +24,17 @@ export default function OverworldStage({
   department,
   charId,
   nextStageKey,
-}: OverworldStageProps) {
+}: Readonly<OverworldStageProps>) {
   const { state } = useGame();
   const { announce, AnnouncementRegion } = useAnnouncement();
   const [currentRoom, setCurrentRoom] = useState<string>("backstage");
   const [targetPos, setTargetPos] = useState<{ x: number; y: number } | null>(
     null,
   );
+
+  // Transition State
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [transitionTarget, setTransitionTarget] = useState<string | null>(null);
 
   const [activeNpcId, setActiveNpcId] = useState<string | null>(null);
   const [feedbackMsg, setFeedbackMsg] = useState<FeedbackMessage | null>(null);
@@ -71,15 +74,28 @@ export default function OverworldStage({
     department,
   );
 
+  // Wrap setCurrentRoom to handle the visual transition
+  const handleRoomTransition = (newRoom: string) => {
+    setTransitionTarget(newRoom);
+    setIsTransitioning(true);
+    setTimeout(() => {
+      setCurrentRoom(newRoom);
+      setIsTransitioning(false);
+    }, 400); // 400ms fade duration
+  };
+
   const { pos, setPos, npcs, activeZone, bumpMsg } = useGameLoop({
     currentZones,
     currentRoom,
     charId,
-    input: { up, down, left, right },
-    targetPos,
+    // Disable movement input while transitioning
+    input: isTransitioning
+      ? { up: false, down: false, left: false, right: false }
+      : { up, down, left, right },
+    targetPos: isTransitioning ? null : targetPos,
     setTargetPos,
     activeNpcId,
-    activeQuests: state.session?.activeQuests || [], // <-- PASSED IN HERE
+    activeQuests: state.session?.activeQuests || [],
   });
 
   const triggerInteraction = useInteraction({
@@ -92,7 +108,7 @@ export default function OverworldStage({
     targetZoneId,
     targetLabel,
     state,
-    setCurrentRoom,
+    setCurrentRoom: handleRoomTransition,
     setPos,
     setTargetPos,
     setActiveNpcId,
@@ -109,12 +125,13 @@ export default function OverworldStage({
   }, [triggerInteraction]);
 
   useEffect(() => {
-    if (interactBtn) {
+    if (interactBtn && !isTransitioning) {
       interactRef.current();
     }
-  }, [interactBtn]);
+  }, [interactBtn, isTransitioning]);
 
   const handleStageClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (isTransitioning) return;
     const rect = e.currentTarget.getBoundingClientRect();
     setTargetPos({
       x: ((e.clientX - rect.left) / rect.width) * GAME_WIDTH - PLAYER_SIZE / 2,
@@ -168,18 +185,51 @@ export default function OverworldStage({
         </div>
 
         <div className="overworld-main">
-          <MapViewport
-            currentRoom={currentRoom}
-            currentZones={currentZones}
-            npcs={npcs}
-            pos={pos}
-            playerChar={playerChar}
-            activeZone={activeZone}
-            activeNpcId={activeNpcId}
-            feedbackMsg={displayFeedback?.text || null}
-            bumpMsg={bumpMsg}
-            handleStageClick={handleStageClick}
-          />
+          {/* Transition overlay wrapping the MapViewport */}
+          <div style={{ position: "relative", width: "100%" }}>
+            <MapViewport
+              currentRoom={currentRoom}
+              currentZones={currentZones}
+              npcs={npcs}
+              pos={pos}
+              playerChar={playerChar}
+              activeZone={activeZone}
+              activeNpcId={activeNpcId}
+              feedbackMsg={displayFeedback?.text || null}
+              bumpMsg={bumpMsg}
+              handleStageClick={handleStageClick}
+            />
+
+            {/* Fade Overlay */}
+            <div
+              aria-hidden="true"
+              style={{
+                position: "absolute",
+                inset: 0,
+                background: "#000",
+                opacity: isTransitioning ? 1 : 0,
+                transition: "opacity 0.3s ease-in-out",
+                pointerEvents: "none",
+                zIndex: 1000,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <span
+                style={{
+                  color: "#fff",
+                  fontFamily: "var(--font-sketch)",
+                  fontSize: "1.5rem",
+                  opacity: isTransitioning ? 1 : 0,
+                  transition: "opacity 0.2s ease-in-out",
+                  transitionDelay: isTransitioning ? "0.1s" : "0s",
+                }}
+              >
+                Loading {formatRoomName(transitionTarget || currentRoom)}...
+              </span>
+            </div>
+          </div>
 
           <MobileControls
             onInteract={triggerInteraction}
