@@ -48,7 +48,7 @@ export default function MapViewport({
           position: "relative",
           width: "100%",
           aspectRatio: "16/9",
-          background: currentRoom === "stage" ? "#1a1a2e" : "#2d3748",
+          background: currentRoom === "backstage" ? "#1a1a2e" : "#2d3748",
           border: "4px solid #fff",
           overflow: "hidden",
           cursor: "crosshair",

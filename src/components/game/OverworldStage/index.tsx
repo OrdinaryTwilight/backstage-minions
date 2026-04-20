@@ -28,7 +28,7 @@ export default function OverworldStage({
 }: OverworldStageProps) {
   const { state } = useGame();
   const { announce, AnnouncementRegion } = useAnnouncement();
-  const [currentRoom, setCurrentRoom] = useState<string>("stage");
+  const [currentRoom, setCurrentRoom] = useState<string>("backstage");
   const [targetPos, setTargetPos] = useState<{ x: number; y: number } | null>(
     null,
   );

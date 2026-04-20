@@ -60,10 +60,10 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       ],
     },
     orchestraPit: {
-      x: 250,
+      x: 300,
       y: 390,
       w: 300,
-      h: 50, // FIX: Tucked tightly at the Downstage edge
+      h: 50,
       label: "ORCHESTRA PIT",
       color: "#2C1A38",
       isSolid: true,
@@ -92,9 +92,9 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       ],
     },
     doorGreenRoom: {
-      x: 250,
+      x: 300,
       y: 0,
-      w: 100,
+      w: 200,
       h: 50,
       label: "GREEN ROOM ⬆",
       color: "#2f3e46",
@@ -102,9 +102,9 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       isDoor: "greenRoom",
     },
     doorBasement: {
-      x: 50,
+      x: 90,
       y: 400,
-      w: 100,
+      w: 150,
       h: 50,
       label: "BASEMENT ⬇",
       color: "#4A4A4A",
@@ -177,12 +177,12 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       isSolid: false,
       isDoor: "backstage",
     },
-    dimmerBeach: {
+    dimmerRack: {
       x: 100,
       y: 200,
       w: 150,
       h: 150, // FIX: Moved safely to the left. Center is clear.
-      label: "DIMMER BEACH",
+      label: "DIMMER RACK",
       color: "#800000",
       isSolid: true,
       dialogues: [
@@ -226,7 +226,7 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       x: 200,
       y: 100,
       w: 150,
-      h: 100, // FIX: Moved up and left. Center is clear.
+      h: 100,
       label: "FOLLOWSPOT 1",
       color: "#FFD700",
       isSolid: true,

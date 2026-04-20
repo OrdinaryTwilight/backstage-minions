@@ -12,32 +12,40 @@ export function useComms() {
     // 1. Guard Clause: If the headset is off, don't even start the interval
     if (!headsetOn) return;
 
-    const interval = setInterval(() => {
-      // 2. Roll the dice (50% chance to broadcast)
-      if (Math.random() > 0.5) {
-        const randomChatter =
-          NARRATIVE.commsChatter[
-            Math.floor(Math.random() * NARRATIVE.commsChatter.length)
-          ];
+    // Helper to trigger a message
+    const triggerChatter = () => {
+      const randomChatter =
+        NARRATIVE.commsChatter[
+          Math.floor(Math.random() * NARRATIVE.commsChatter.length)
+        ];
 
-        setCommsLog((prev) => {
-          const newLog = [
-            ...prev,
-            {
-              id: Date.now(),
-              speaker: randomChatter.speaker,
-              text: randomChatter.text,
-            },
-          ];
-          // 3. Keep the array short so it doesn't flood the UI memory
-          return newLog.slice(-4);
-        });
+      setCommsLog((prev) => {
+        const newLog = [
+          ...prev,
+          {
+            id: Date.now(),
+            speaker: randomChatter.speaker,
+            text: randomChatter.text,
+          },
+        ];
+        // Keep the array short so it doesn't flood the UI memory
+        return newLog.slice(-4);
+      });
+    };
+
+    // Trigger one immediately on load so the player knows it works
+    triggerChatter();
+
+    const interval = setInterval(() => {
+      // Roll the dice (60% chance to broadcast every 5 seconds)
+      if (Math.random() > 0.4) {
+        triggerChatter();
       }
     }, 5000);
 
-    // 4. Cleanup function to prevent memory leaks when the component unmounts
+    // Cleanup function to prevent memory leaks
     return () => clearInterval(interval);
-  }, [headsetOn]); // Re-run this hook whenever the player toggles the headset
+  }, [headsetOn]);
 
   return { headsetOn, setHeadsetOn, commsLog };
 }
