@@ -44,6 +44,7 @@ export default function MapViewport({
     >
       <button
         onClick={handleStageClick}
+        aria-label="Interactive Map Area. Click or tap to move the character."
         style={{
           position: "relative",
           width: "100%",
@@ -53,32 +54,59 @@ export default function MapViewport({
           overflow: "hidden",
           cursor: "crosshair",
           padding: 0,
+          display: "block",
         }}
       >
-        {Object.entries(currentZones).map(([key, zone]) => (
-          <div
-            key={key}
-            style={{
-              position: "absolute",
-              left: `${(zone.x / GAME_WIDTH) * 100}%`,
-              top: `${(zone.y / GAME_HEIGHT) * 100}%`,
-              width: `${(zone.w / GAME_WIDTH) * 100}%`,
-              height: `${(zone.h / GAME_HEIGHT) * 100}%`,
-              background: zone.color,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: key === "spotTower" ? "black" : "white",
-              border: activeZone === key ? "3px solid #fbbf24" : "none",
-              boxSizing: "border-box",
-              fontWeight: "bold",
-              fontFamily: "var(--font-sketch)",
-              opacity: zone.isSolid || zone.isDoor ? 1 : 0.6,
-            }}
-          >
-            {zone.label}
-          </div>
-        ))}
+        {Object.entries(currentZones).map(([key, zone]) => {
+          const isActive = activeZone === key;
+
+          return (
+            <div
+              key={key}
+              style={{
+                position: "absolute",
+                left: `${(zone.x / GAME_WIDTH) * 100}%`,
+                top: `${(zone.y / GAME_HEIGHT) * 100}%`,
+                width: `${(zone.w / GAME_WIDTH) * 100}%`,
+                height: `${(zone.h / GAME_HEIGHT) * 100}%`,
+                background: isActive ? zone.color : `${zone.color}99`, // Dim inactive zones slightly
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                border: isActive
+                  ? "3px solid var(--bui-fg-warning)"
+                  : "1px solid rgba(255,255,255,0.15)",
+                boxSizing: "border-box",
+                transition: "all 0.2s ease",
+              }}
+            >
+              <span
+                style={{
+                  fontFamily: "var(--font-sketch)",
+                  fontWeight: "bold",
+                  // Scale up slightly when active, but clamp the sizes so they remain readable
+                  fontSize: isActive
+                    ? "clamp(0.8rem, 3vw, 1.2rem)"
+                    : "clamp(0.6rem, 2vw, 0.9rem)",
+                  color: key === "spotTower" && isActive ? "#000" : "#fff",
+                  whiteSpace: "nowrap", // Force single line
+                  background: isActive ? "transparent" : "rgba(0, 0, 0, 0.13)", // Badge background for readability when overflowing
+                  padding: "2px 6px",
+                  borderRadius: "4px",
+                  textShadow:
+                    isActive && key !== "spotTower"
+                      ? "1px 1px 3px rgba(0, 0, 0, 0)"
+                      : "none",
+                  pointerEvents: "none", // Ensure the overflowing text doesn't intercept clicks meant for adjacent zones
+                  zIndex: isActive ? 10 : 1, // Bring active label to the front
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {zone.label}
+              </span>
+            </div>
+          );
+        })}
 
         {npcs
           .filter((n) => !n.isHidden)
@@ -101,6 +129,7 @@ export default function MapViewport({
                     ? "2px solid #fbbf24"
                     : "1px solid #555",
                 fontSize: "20px",
+                transition: "all 0.1s linear",
               }}
             >
               <div
@@ -113,6 +142,10 @@ export default function MapViewport({
                   color: DEPT_COLORS[npc.dept] || "#fff",
                   whiteSpace: "nowrap",
                   textShadow: "1px 1px 2px #000",
+                  background: "rgba(0,0,0,0.6)",
+                  padding: "1px 4px",
+                  borderRadius: "3px",
+                  pointerEvents: "none",
                 }}
               >
                 {npc.name}
@@ -130,6 +163,7 @@ export default function MapViewport({
                     fontSize: "10px",
                     whiteSpace: "nowrap",
                     zIndex: 200,
+                    pointerEvents: "none",
                   }}
                 >
                   {bumpMsg.msg}
@@ -153,6 +187,7 @@ export default function MapViewport({
             justifyContent: "center",
             fontSize: "20px",
             zIndex: 100,
+            transition: "all 0.1s linear",
           }}
         >
           <div
@@ -165,6 +200,10 @@ export default function MapViewport({
               color: "#06d6a0",
               whiteSpace: "nowrap",
               textShadow: "1px 1px 2px #000",
+              background: "rgba(0,0,0,0.6)",
+              padding: "1px 4px",
+              borderRadius: "3px",
+              pointerEvents: "none",
             }}
           >
             YOU
