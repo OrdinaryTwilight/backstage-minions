@@ -243,7 +243,7 @@ export type GameAction =
   | { type: "CUE_MISSED" }
   | { type: "SET_PLOT_LIGHTS"; lights: LightPlotNode[] }
   | { type: "MARK_CONFLICT_SEEN"; conflictId: string }
-  | { type: "RESOLVE_CONFLICT"; conflictId: string }
+  | { type: "RESOLVE_CONFLICT"; conflictId: string; pointDelta: number }
   | {
       type: "COMPLETE_LEVEL";
       productionId: string;
@@ -259,4 +259,4 @@ export type GameAction =
   | { type: "UPDATE_AFFINITY"; npcId: string; delta: number }
   | { type: "ADD_INVENTORY"; item: string }
   | { type: "REMOVE_INVENTORY"; item: string }
-  | { type: "COMPLETE_QUEST"; questId: string };
+  | { type: "COMPLETE_QUEST"; questId: string; pointDelta: number };
