@@ -13,8 +13,8 @@ export function useComms() {
     if (!headsetOn) return;
 
     const interval = setInterval(() => {
-      // 2. Roll the dice (30% chance to broadcast)
-      if (Math.random() > 0.7) {
+      // 2. Roll the dice (50% chance to broadcast)
+      if (Math.random() > 0.5) {
         const randomChatter =
           NARRATIVE.commsChatter[
             Math.floor(Math.random() * NARRATIVE.commsChatter.length)
@@ -24,7 +24,7 @@ export function useComms() {
           const newLog = [
             ...prev,
             {
-              id: Date.now(), // Date.now() is perfectly safe for this use case
+              id: Date.now(),
               speaker: randomChatter.speaker,
               text: randomChatter.text,
             },
