@@ -1,23 +1,26 @@
+// src/components/game/OverworldStage/useComms.ts
 import { useEffect, useState } from "react";
+import { useGame } from "../../../context/GameContext";
 import { NARRATIVE } from "../../../data/narrative";
+import { getShowPhase } from "./useInteraction";
 
 export function useComms() {
-  // Default to true so players hear chatter immediately
+  const { state } = useGame();
   const [headsetOn, setHeadsetOn] = useState(true);
   const [commsLog, setCommsLog] = useState<
     { id: number; speaker: string; text: string }[]
   >([]);
 
   useEffect(() => {
-    // 1. Guard Clause: If the headset is off, don't even start the interval
     if (!headsetOn) return;
 
-    // Helper to trigger a message
     const triggerChatter = () => {
+      // Filter chatter dynamically by phase of show progression
+      const phase = getShowPhase(state.session);
+      const chatterPool = NARRATIVE.commsChatter[phase];
+
       const randomChatter =
-        NARRATIVE.commsChatter[
-          Math.floor(Math.random() * NARRATIVE.commsChatter.length)
-        ];
+        chatterPool[Math.floor(Math.random() * chatterPool.length)];
 
       setCommsLog((prev) => {
         const newLog = [
@@ -45,7 +48,7 @@ export function useComms() {
 
     // Cleanup function to prevent memory leaks
     return () => clearInterval(interval);
-  }, [headsetOn]);
+  }, [headsetOn, state.session]);
 
   return { headsetOn, setHeadsetOn, commsLog };
 }

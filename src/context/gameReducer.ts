@@ -39,7 +39,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "ADD_SCORE":
       return withSession(state, (session) =>
-        updateCounter(session, "score", action.delta),
+        updateCounter(session, "score", action.delta || 0),
       );
 
     case "CUE_HIT":
@@ -67,7 +67,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         const updatedSession = updateCounter(
           session,
           "score",
-          action.pointDelta,
+          action.pointDelta || 0,
         );
 
         return {
@@ -95,7 +95,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         const updatedSession = updateCounter(
           session,
           "score",
-          action.pointDelta,
+          action.pointDelta || 0,
         );
 
         return {
@@ -107,14 +107,11 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "CLEAR_SESSION":
       return { ...state, session: null };
 
-    // --- NEW: Handle persistent contact state ---
     case "ADD_CONTACT": {
-      // Prevent duplicates if they already have the contact
       if (state.contacts.includes(action.contactId)) return state;
       return {
         ...state,
         contacts: [...state.contacts, action.contactId],
-        // Automatically mark new contacts as unread to trigger the notification dot
         unreadContacts: [...(state.unreadContacts || []), action.contactId],
       };
     }

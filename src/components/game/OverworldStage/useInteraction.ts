@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { NARRATIVE } from "../../../data/narrative";
 import { ZoneConfig } from "../../../data/types";
 import { OVERWORLD_MAPS } from "../../../data/zones";
-import { GameState } from "../../../types/game";
+import { GameSession, GameState } from "../../../types/game";
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_SIZE } from "./constants";
 import { DialogueState, FeedbackMessage, NPC } from "./types";
 
@@ -32,7 +32,6 @@ const formatRoomName = (str: string) =>
     .replaceAll(/([A-Z])/g, " $1")
     .replace(/^./, (s: string) => s.toUpperCase());
 
-// --- EXTRACTED HELPER: Calculates the correct spawn coordinates ---
 function getDoorSpawnPosition(targetRoomId: string, currentRoomId: string) {
   let spawnX = GAME_WIDTH / 2;
   let spawnY = GAME_HEIGHT / 2;
@@ -40,7 +39,6 @@ function getDoorSpawnPosition(targetRoomId: string, currentRoomId: string) {
   const targetRoomConfig = OVERWORLD_MAPS[targetRoomId];
   if (!targetRoomConfig) return { x: spawnX, y: spawnY };
 
-  // Find the door in the NEXT room that leads BACK to the CURRENT room
   const entryDoorKey = Object.keys(targetRoomConfig).find(
     (k) => targetRoomConfig[k].isDoor === currentRoomId,
   );
@@ -57,36 +55,51 @@ function getDoorSpawnPosition(targetRoomId: string, currentRoomId: string) {
   return { x: spawnX, y: spawnY };
 }
 
+// Global helper to determine the current narrative phase of the show
+export function getShowPhase(
+  session: GameSession | null,
+): "preShow" | "duringShow" | "postShow" {
+  if (!session) return "preShow";
+  const { stages, currentStageIndex } = session;
+  const currentStage = stages[currentStageIndex];
+
+  if (currentStage === "wrapup" || currentStage === "cable_coiling")
+    return "postShow";
+  if (currentStage === "cue_execution") return "duringShow";
+
+  // If it's an overworld stage, we need to look ahead to determine context
+  const execIndex = stages.indexOf("cue_execution");
+  if (execIndex > -1 && currentStageIndex > execIndex) return "postShow";
+  if (execIndex > -1 && currentStageIndex === execIndex - 1)
+    return "duringShow";
+
+  return "preShow";
+}
+
 function handleStaticZoneInteraction(
   staticZone: ZoneConfig,
   props: UseInteractionProps,
 ) {
-  // 1. Door Transistions
   if (staticZone.isDoor) {
     const { x, y } = getDoorSpawnPosition(staticZone.isDoor, props.currentRoom);
-
     props.setCurrentRoom(staticZone.isDoor);
     props.setPos({ x, y });
     props.setFeedbackMsg({
       text: `Entering ${formatRoomName(staticZone.isDoor)}...`,
       isError: false,
     });
-
     setTimeout(() => props.setFeedbackMsg(null), 1500);
     return;
   }
 
-  // 2. Stage Objectives
   if (
     props.activeZone === props.targetZoneId &&
     props.currentRoom === "backstage"
   ) {
-    // Stage completed (triggers NEXT_STAGE in the reducer)
     props.onComplete();
     return;
   }
 
-  // 3. Incorrect Location Penalties
   const isWrongLightBooth =
     props.activeZone === "lightBooth" && props.targetZoneId !== "lightBooth";
   const isWrongSoundBooth =
@@ -101,7 +114,6 @@ function handleStaticZoneInteraction(
     return;
   }
 
-  // 4. Zone Multi-Dialogue (Randomizer)
   if (staticZone.dialogues && staticZone.dialogues.length > 0) {
     const randomIdx = Math.floor(Math.random() * staticZone.dialogues.length);
     props.setActiveQuestDialogue(
@@ -110,7 +122,6 @@ function handleStaticZoneInteraction(
     return;
   }
 
-  // 5. Zone Single Dialogue
   if (staticZone.dialogue) {
     props.setActiveQuestDialogue(
       staticZone.dialogue as unknown as DialogueState,
@@ -118,7 +129,6 @@ function handleStaticZoneInteraction(
     return;
   }
 
-  // 6. Generic Prop Inspection fallback
   const zoneName =
     staticZone.label || formatRoomName(props.activeZone || "area");
   props.setFeedbackMsg({
@@ -133,7 +143,6 @@ export function useInteraction(props: UseInteractionProps) {
     if (!props.activeZone) return;
     props.setTargetPos(null);
 
-    // If an interaction is already open, clear it to allow the override!
     if (props.activeNpcId || props.activeQuestDialogue) {
       props.setActiveNpcId(null);
       props.setActiveQuestDialogue(null);
@@ -142,7 +151,6 @@ export function useInteraction(props: UseInteractionProps) {
     const staticZone = props.currentZones[props.activeZone];
     const activeNpc = props.npcs.find((n) => n.id === props.activeZone);
 
-    // Check for quest intercept before anything else
     const questDialogue = props.checkQuestIntercept(
       props.activeZone,
       activeNpc,
@@ -152,29 +160,18 @@ export function useInteraction(props: UseInteractionProps) {
       return;
     }
 
-    // 1. Zone Interaction (Doors, Objectives, Props)
     if (staticZone) {
       handleStaticZoneInteraction(staticZone, props);
       return;
     }
 
-    // 2. NPC Interaction Trigger
     if (activeNpc) {
-      // If the NPC is a major character (e.g., char_ben), open their full Dialogue Tree
       if (activeNpc.id.startsWith("char_")) {
         props.setActiveNpcId(activeNpc.id);
       } else {
-        // Otherwise, they are generic crew. Feed them random idle chatter!
-        const currentStage =
-          props.state.session?.stages[props.state.session.currentStageIndex] ||
-          "wrapup";
-
-        const idleQuotes = [
-          ...NARRATIVE.overworld.npcChatter,
-          ...(NARRATIVE.overworld.chatterByStage[
-            currentStage as keyof typeof NARRATIVE.overworld.chatterByStage
-          ] || []),
-        ];
+        // Dynamically pull quotes based on the current phase of the show
+        const phase = getShowPhase(props.state.session);
+        const idleQuotes = NARRATIVE.overworld.npcChatter[phase];
 
         const randomQuote =
           idleQuotes[Math.floor(Math.random() * idleQuotes.length)];

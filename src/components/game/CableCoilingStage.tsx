@@ -15,6 +15,7 @@ export default function CableCoilingStage({
   const [coils, setCoils] = useState(0);
   const [knots, setKnots] = useState(0);
   const [expectedNext, setExpectedNext] = useState<"OVER" | "UNDER">("OVER");
+  const [isComplete, setIsComplete] = useState(false);
   const [feedback, setFeedback] = useState<{
     msg: string;
     type: "success" | "error" | "neutral";
@@ -22,15 +23,42 @@ export default function CableCoilingStage({
     msg: "Grab the XLR cable. Start with an OVER loop.",
     type: "neutral",
   });
-  const [isComplete, setIsComplete] = useState(false);
 
-  // Scale target for coiling based on difficulty
+  // Difficulty scaling
   const getTargetCoils = (diff: string): number => {
     if (diff === "professional") return 12;
     if (diff === "community") return 8;
     return 6;
   };
+
+  const getInitialTime = (diff: string): number => {
+    if (diff === "professional") return 15;
+    if (diff === "community") return 20;
+    return 30;
+  };
+
   const TARGET_COILS = getTargetCoils(difficulty);
+  const [timeLeft, setTimeLeft] = useState(getInitialTime(difficulty));
+
+  // Timer countdown
+  useEffect(() => {
+    if (isComplete || timeLeft <= 0) return;
+    const timer = setInterval(() => setTimeLeft((t) => t - 1), 1000);
+    return () => clearInterval(timer);
+  }, [isComplete, timeLeft]);
+
+  // Timeout failsafe
+  useEffect(() => {
+    if (timeLeft <= 0 && !isComplete) {
+      setIsComplete(true);
+      setFeedback({
+        msg: "Time's up! The senior techs had to take over.",
+        type: "error",
+      });
+      // No completion or time bonus given, just move on
+      setTimeout(() => onComplete(), 2500);
+    }
+  }, [timeLeft, isComplete, onComplete]);
 
   const handleAction = useCallback(
     (action: "OVER" | "UNDER") => {
@@ -47,12 +75,13 @@ export default function CableCoilingStage({
 
         if (newCoils >= TARGET_COILS) {
           setIsComplete(true);
+          const timeBonus = timeLeft * 3; // Scale points by speed
           setFeedback({
-            msg: "Perfect coil! Securing with tie-line...",
+            msg: `Perfect coil! Time Bonus: +${timeBonus} pts`,
             type: "success",
           });
-          dispatch({ type: "ADD_SCORE", delta: 50 }); // Completion bonus
-          setTimeout(() => onComplete(), 1500);
+          dispatch({ type: "ADD_SCORE", delta: 50 + timeBonus }); // Base + Speed bonus
+          setTimeout(() => onComplete(), 2000);
         }
       } else {
         // FAIL: Cable knots!
@@ -62,17 +91,17 @@ export default function CableCoilingStage({
           msg: `KNOTTED! You went ${action} twice. Untangling... (-1 Coil)`,
           type: "error",
         });
-        dispatch({ type: "ADD_SCORE", delta: -10 }); // Penalty
+        dispatch({ type: "ADD_SCORE", delta: -10 }); // Accuracy Penalty
 
-        setExpectedNext("OVER"); // Reset the pattern logic
+        setExpectedNext("OVER"); // Reset pattern logic
       }
     },
-    [expectedNext, coils, TARGET_COILS, dispatch, onComplete],
+    [expectedNext, coils, TARGET_COILS, timeLeft, dispatch, onComplete],
   );
 
   // Keyboard support for fast coiling
   useEffect(() => {
-    if (isComplete) return;
+    if (isComplete || timeLeft <= 0) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") {
@@ -86,7 +115,7 @@ export default function CableCoilingStage({
 
     globalThis.addEventListener("keydown", handleKeyDown);
     return () => globalThis.removeEventListener("keydown", handleKeyDown);
-  }, [handleAction, isComplete]);
+  }, [handleAction, isComplete, timeLeft]);
 
   let feedbackBg = "rgba(56, 189, 248, 0.2)";
   let feedbackBorder = "var(--bui-fg-info)";
@@ -102,7 +131,7 @@ export default function CableCoilingStage({
     <div className="page-container animate-blueprint">
       <SectionHeader
         title="Strike & Wrap"
-        subtitle="Properly coil the 100ft XLR audio snake."
+        subtitle="Properly coil the XLR audio snake before the truck leaves."
         helpText={getStageHelpText("cable_coiling")}
       />
 
@@ -112,12 +141,40 @@ export default function CableCoilingStage({
           flexDirection: "column",
           alignItems: "center",
           gap: "2rem",
-          marginTop: "2rem",
+          marginTop: "1rem",
         }}
       >
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            width: "100%",
+            maxWidth: "500px",
+          }}
+        >
+          <div
+            className="annotation-text"
+            style={{
+              fontSize: "1.5rem",
+              color:
+                timeLeft <= 5 ? "var(--bui-fg-danger)" : "var(--bui-fg-info)",
+            }}
+          >
+            ⏱️ 00:{timeLeft.toString().padStart(2, "0")}
+          </div>
+          <div
+            className="annotation-text"
+            style={{ fontSize: "1.5rem", color: "var(--bui-fg-warning)" }}
+          >
+            TIER: {difficulty.toUpperCase()}
+          </div>
+        </div>
+
         {/* Feedback Display */}
         <div
           style={{
+            width: "100%",
+            maxWidth: "500px",
             padding: "1rem 2rem",
             background: feedbackBg,
             border: `2px solid ${feedbackBorder}`,
@@ -144,12 +201,10 @@ export default function CableCoilingStage({
                 left: 0,
                 width: "100%",
                 height: "100%",
-                // Creates a 3D overlapping pile effect by slightly offsetting and rotating
                 transform: `translate(${(i % 2) * 5}px, ${(i % 3) * 5}px) rotate(${i * 35}deg) scale(${1 - i * 0.03})`,
                 opacity: 0.9,
               }}
             >
-              {/* Thicker shadow/outline for depth */}
               <ellipse
                 cx="125"
                 cy="125"
@@ -159,7 +214,6 @@ export default function CableCoilingStage({
                 stroke="#1a202c"
                 strokeWidth="10"
               />
-              {/* Inner cable core with slight dash to look like twists */}
               <ellipse
                 cx="125"
                 cy="125"
@@ -225,7 +279,7 @@ export default function CableCoilingStage({
         >
           <button
             onClick={() => handleAction("OVER")}
-            disabled={isComplete}
+            disabled={isComplete || timeLeft <= 0}
             style={{
               flex: 1,
               padding: "1.5rem",
@@ -236,7 +290,7 @@ export default function CableCoilingStage({
               color: expectedNext === "OVER" ? "#000" : "#fff",
               border: "none",
               borderRadius: "8px",
-              cursor: isComplete ? "not-allowed" : "pointer",
+              cursor: isComplete || timeLeft <= 0 ? "not-allowed" : "pointer",
               boxShadow:
                 expectedNext === "OVER"
                   ? "0 0 15px var(--bui-fg-warning)"
@@ -249,7 +303,7 @@ export default function CableCoilingStage({
 
           <button
             onClick={() => handleAction("UNDER")}
-            disabled={isComplete}
+            disabled={isComplete || timeLeft <= 0}
             style={{
               flex: 1,
               padding: "1.5rem",
@@ -260,7 +314,7 @@ export default function CableCoilingStage({
               color: expectedNext === "UNDER" ? "#000" : "#fff",
               border: "none",
               borderRadius: "8px",
-              cursor: isComplete ? "not-allowed" : "pointer",
+              cursor: isComplete || timeLeft <= 0 ? "not-allowed" : "pointer",
               boxShadow:
                 expectedNext === "UNDER"
                   ? "0 0 15px var(--bui-fg-info)"
