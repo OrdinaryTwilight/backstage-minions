@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 interface MobileControlsProps {
   onInteract: () => void;
@@ -27,7 +27,7 @@ const srOnlyStyle: React.CSSProperties = {
 
 /**
  * ============================
- * Pure Math Helpers
+ * Math Helpers
  * ============================
  */
 function calculateClampedPosition(
@@ -53,7 +53,6 @@ function updateDirectionalKeys(
 ) {
   const newKeys = { w: false, a: false, s: false, d: false };
 
-  // Determine active vector octant based on dead zone threshold
   if (Math.hypot(dx, dy) > DEAD_ZONE) {
     if (dx < -DEAD_ZONE) newKeys.a = true;
     if (dx > DEAD_ZONE) newKeys.d = true;
@@ -61,9 +60,7 @@ function updateDirectionalKeys(
     if (dy > DEAD_ZONE) newKeys.s = true;
   }
 
-  // Compare active states to prevent spamming duplicate events
-  const keysToMap: ("w" | "a" | "s" | "d")[] = ["w", "a", "s", "d"];
-  keysToMap.forEach((key) => {
+  (["w", "a", "s", "d"] as const).forEach((key) => {
     if (newKeys[key] !== activeKeys[key]) {
       triggerKey(key, newKeys[key] ? "keydown" : "keyup");
       activeKeys[key] = newKeys[key];
@@ -89,18 +86,25 @@ function useVirtualKey() {
 
 /**
  * ============================
- * Smooth Virtual Joystick
+ * Virtual Joystick
  * ============================
  */
 function VirtualJoystick({
   triggerKey,
 }: Readonly<{ triggerKey: (k: string, t: "keydown" | "keyup") => void }>) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [keyboardVector, setKeyboardVector] = useState({ x: 0, y: 0 });
+
   const isDragging = useRef(false);
   const center = useRef({ x: 0, y: 0 });
   const activeKeys = useRef({ w: false, a: false, s: false, d: false });
   const baseRef = useRef<HTMLDivElement>(null);
 
+  /**
+   * ============================
+   * Pointer (touch/mouse)
+   * ============================
+   */
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       isDragging.current = true;
@@ -128,6 +132,7 @@ function VirtualJoystick({
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (!isDragging.current) return;
+
       const newPos = calculateClampedPosition(
         e.clientX,
         e.clientY,
@@ -143,48 +148,98 @@ function VirtualJoystick({
     (e: React.PointerEvent<HTMLDivElement>) => {
       isDragging.current = false;
       e.currentTarget.releasePointerCapture(e.pointerId);
+
       setPosition({ x: 0, y: 0 });
       updateDirectionalKeys(0, 0, activeKeys.current, triggerKey);
     },
     [triggerKey],
   );
 
+  /**
+   * ============================
+   * Keyboard → Joystick sync
+   * ============================
+   */
+  useEffect(() => {
+    const pressed = { w: false, a: false, s: false, d: false };
+
+    const updateVector = () => {
+      let dx = 0;
+      let dy = 0;
+
+      if (pressed.a) dx -= 1;
+      if (pressed.d) dx += 1;
+      if (pressed.w) dy -= 1;
+      if (pressed.s) dy += 1;
+
+      if (dx !== 0 || dy !== 0) {
+        const len = Math.hypot(dx, dy);
+        dx /= len;
+        dy /= len;
+      }
+
+      setKeyboardVector({
+        x: dx * MAX_PULL,
+        y: dy * MAX_PULL,
+      });
+    };
+
+    const down = (e: KeyboardEvent) => {
+      if (e.key in pressed) {
+        pressed[e.key as keyof typeof pressed] = true;
+        updateVector();
+      }
+    };
+
+    const up = (e: KeyboardEvent) => {
+      if (e.key in pressed) {
+        pressed[e.key as keyof typeof pressed] = false;
+        updateVector();
+      }
+    };
+
+    globalThis.addEventListener("keydown", down);
+    globalThis.addEventListener("keyup", up);
+
+    return () => {
+      globalThis.removeEventListener("keydown", down);
+      globalThis.removeEventListener("keyup", up);
+    };
+  }, []);
+
+  /**
+   * ============================
+   * Derived Visual State
+   * ============================
+   */
+  const displayPosition = isDragging.current ? position : keyboardVector;
+
+  const isActive =
+    isDragging.current || keyboardVector.x !== 0 || keyboardVector.y !== 0;
+
+  /**
+   * ============================
+   * Render
+   * ============================
+   */
   return (
     <div style={{ position: "relative", touchAction: "none" }}>
-      {/* SR-only directional buttons for WCAG keyboard/screen-reader accessibility */}
+      {/* Screen-reader controls */}
       <fieldset style={srOnlyStyle}>
         <legend>Movement Controls</legend>
-        <button
-          type="button"
-          onKeyDown={() => triggerKey("w", "keydown")}
-          onKeyUp={() => triggerKey("w", "keyup")}
-        >
-          Move Up
-        </button>
-        <button
-          type="button"
-          onKeyDown={() => triggerKey("s", "keydown")}
-          onKeyUp={() => triggerKey("s", "keyup")}
-        >
-          Move Down
-        </button>
-        <button
-          type="button"
-          onKeyDown={() => triggerKey("a", "keydown")}
-          onKeyUp={() => triggerKey("a", "keyup")}
-        >
-          Move Left
-        </button>
-        <button
-          type="button"
-          onKeyDown={() => triggerKey("d", "keydown")}
-          onKeyUp={() => triggerKey("d", "keyup")}
-        >
-          Move Right
-        </button>
+        {(["w", "a", "s", "d"] as const).map((k) => (
+          <button
+            key={k}
+            type="button"
+            onKeyDown={() => triggerKey(k, "keydown")}
+            onKeyUp={() => triggerKey(k, "keyup")}
+          >
+            Move {k.toUpperCase()}
+          </button>
+        ))}
       </fieldset>
 
-      {/* Visual Joystick */}
+      {/* Joystick Base */}
       <div
         ref={baseRef}
         aria-hidden="true"
@@ -193,8 +248,8 @@ function VirtualJoystick({
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
         style={{
-          width: "100px",
-          height: "100px",
+          width: "120px",
+          height: "120px",
           borderRadius: "50%",
           background: "rgba(255, 255, 255, 0.1)",
           border: "2px solid rgba(255, 255, 255, 0.2)",
@@ -202,22 +257,37 @@ function VirtualJoystick({
           alignItems: "center",
           justifyContent: "center",
           position: "relative",
-          boxShadow: "inset 0 0 20px rgba(0,0,0,0.5)",
           cursor: "pointer",
+          boxShadow: isActive
+            ? "inset 0 0 25px rgba(0,0,0,0.6), 0 0 15px var(--bui-fg-warning)"
+            : "inset 0 0 20px rgba(0,0,0,0.5)",
+          transition: "box-shadow 0.2s ease",
         }}
       >
+        {/* Joystick Thumb */}
         <div
           style={{
-            width: "40px",
-            height: "40px",
+            width: "50px",
+            height: "50px",
             borderRadius: "50%",
-            background: "var(--bui-fg-warning)",
-            boxShadow: "0 4px 10px rgba(0,0,0,0.5)",
-            transform: `translate(${position.x}px, ${position.y}px)`,
+            background: isActive
+              ? "var(--bui-fg-warning)"
+              : "rgba(255,255,255,0.3)",
+            transform: `translate(${displayPosition.x}px, ${displayPosition.y}px) scale(${
+              isDragging.current ? 1.1 : isActive ? 1.05 : 1
+            })`,
             transition: isDragging.current
               ? "none"
-              : "transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
+              : "transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), background 0.2s ease",
             position: "absolute",
+            boxShadow: isActive
+              ? `
+                0 0 10px var(--bui-fg-warning),
+                0 0 25px var(--bui-fg-warning),
+                0 0 45px var(--bui-fg-warning),
+                0 4px 12px rgba(0,0,0,0.6)
+              `
+              : "0 4px 10px rgba(0,0,0,0.4)",
           }}
         />
       </div>
