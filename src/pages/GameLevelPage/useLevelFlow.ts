@@ -27,10 +27,8 @@ export function useLevelFlow(
 
   function handleComplete() {
     const totalCues = departmentCues.length;
-    const currentScore = state.session?.score || 0;
-    const cuesHit = state.session?.cuesHit || 0;
 
-    const stars = calculateStars(totalCues, cuesHit, currentScore);
+    const stars = calculateStars(state.session, totalCues);
 
     dispatch({
       type: "COMPLETE_LEVEL",

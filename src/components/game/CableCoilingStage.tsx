@@ -50,13 +50,17 @@ export default function CableCoilingStage({
   // Timeout failsafe
   useEffect(() => {
     if (timeLeft <= 0 && !isComplete) {
-      setIsComplete(true);
-      setFeedback({
-        msg: "Time's up! The senior techs had to take over.",
-        type: "error",
-      });
-      // No completion or time bonus given, just move on
-      setTimeout(() => onComplete(), 2500);
+      // Move setState to within a callback to avoid cascading renders
+      const timer = setTimeout(() => {
+        setIsComplete(true);
+        setFeedback({
+          msg: "Time's up! The senior techs had to take over.",
+          type: "error",
+        });
+        // No completion or time bonus given, just move on
+        setTimeout(() => onComplete(), 2500);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [timeLeft, isComplete, onComplete]);
 

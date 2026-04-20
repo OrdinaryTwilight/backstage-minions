@@ -2,6 +2,7 @@ import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GameContext } from "../context/GameContext";
+import { GameState } from "../types/game";
 import LevelFailedPage from "./LevelFailedPage";
 
 const mockNavigate = vi.fn();
@@ -26,10 +27,17 @@ describe("LevelFailedPage", () => {
   it("dispatches CLEAR_SESSION and navigates to '/' when clicking Back to Home", () => {
     const mockDispatch = vi.fn();
 
+    const mockState: GameState = {
+      session: null,
+      progress: {},
+      unlockedStories: [],
+      contacts: [],
+      unreadContacts: [],
+    };
     render(
       <MemoryRouter>
         <GameContext.Provider
-          value={{ state: {} as any, dispatch: mockDispatch }}
+          value={{ state: mockState, dispatch: mockDispatch }}
         >
           <LevelFailedPage />
         </GameContext.Provider>
@@ -45,7 +53,18 @@ describe("LevelFailedPage", () => {
   it("renders buttons correctly", () => {
     render(
       <MemoryRouter>
-        <GameContext.Provider value={{ state: {} as any, dispatch: vi.fn() }}>
+        <GameContext.Provider
+          value={{
+            state: {
+              session: null,
+              progress: {},
+              unlockedStories: [],
+              contacts: [],
+              unreadContacts: [],
+            },
+            dispatch: vi.fn(),
+          }}
+        >
           <LevelFailedPage />
         </GameContext.Provider>
       </MemoryRouter>,
@@ -61,7 +80,18 @@ describe("LevelFailedPage", () => {
   it("navigates to '/productions' when clicking Try Again", () => {
     render(
       <MemoryRouter>
-        <GameContext.Provider value={{ state: {} as any, dispatch: vi.fn() }}>
+        <GameContext.Provider
+          value={{
+            state: {
+              session: null,
+              progress: {},
+              unlockedStories: [],
+              contacts: [],
+              unreadContacts: [],
+            },
+            dispatch: vi.fn(),
+          }}
+        >
           <LevelFailedPage />
         </GameContext.Provider>
       </MemoryRouter>,

@@ -12,7 +12,7 @@ export default function HomePage() {
 
   // Filter for levels where the player got a perfect 3 stars
   const perfectScores = Object.entries(state.progress || {}).filter(
-    ([_, prog]) => prog.stars === 3,
+    ([, prog]) => prog.stars === 3,
   );
 
   return (

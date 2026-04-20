@@ -90,8 +90,7 @@ export default function NetworksPage() {
 
     // 2. Clear choices once answered
     setActiveChoices((prev) => {
-      const updated = { ...prev };
-      delete updated[activeContact.id];
+      const { [activeContact.id]: _, ...updated } = prev;
       return updated;
     });
 
@@ -323,9 +322,9 @@ export default function NetworksPage() {
                 }}
               >
                 {currentOptions && currentOptions.length > 0 ? (
-                  currentOptions.map((choice, idx) => (
+                  currentOptions.map((choice) => (
                     <Button
-                      key={idx}
+                      key={choice.text}
                       onClick={() =>
                         handleSendReply(
                           choice.text,

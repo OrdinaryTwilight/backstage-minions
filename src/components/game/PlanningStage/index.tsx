@@ -1,4 +1,3 @@
-// src/components/game/PlanningStage/index.tsx
 import { useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import {
@@ -7,6 +6,7 @@ import {
   PLOT_GRID_COLS,
   PLOT_GRID_ROWS,
 } from "../../../data/gameData";
+import type { LightPlotNode } from "../../../types/game";
 import Button from "../../ui/Button";
 import HardwarePanel from "../../ui/HardwarePanel";
 import SectionHeader from "../../ui/SectionHeader";
@@ -152,7 +152,23 @@ export default function PlanningStage({
   }
 
   const handleFinalize = () => {
-    dispatch({ type: "SET_PLOT_LIGHTS", lights: grid as any });
+    dispatch({
+      type: "SET_PLOT_LIGHTS",
+      lights: grid
+        .map((cell, idx) =>
+          cell
+            ? {
+                id: `light_${idx}`,
+                type: cell.typeId,
+                gridX: idx % PLOT_GRID_COLS,
+                gridY: Math.floor(idx / PLOT_GRID_COLS),
+                intensity: 100,
+                color: undefined,
+              }
+            : null,
+        )
+        .filter(Boolean) as LightPlotNode[],
+    });
     dispatch({ type: "ADD_SCORE", delta: reportDetails?.score || 0 });
     onComplete();
   };
@@ -268,8 +284,8 @@ export default function PlanningStage({
           marginBottom: "2rem",
         }}
       >
-        <PlotPlanView grid={grid as any} placeLight={placeLight} />
-        <OpticalSimView grid={grid as any} />
+        <PlotPlanView grid={grid} placeLight={placeLight} />
+        <OpticalSimView grid={grid} />
       </div>
 
       <div className="animate-pop">

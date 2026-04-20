@@ -56,13 +56,16 @@ export default function GameLevelPage() {
       <ConflictMinigame
         conflict={state.session.activeConflict}
         onResolved={(choice: unknown) => {
-          const resolvedChoice = choice as ConflictChoice;
+          const resolvedChoice = choice as ConflictChoice & {
+            contactId?: string;
+          };
           dispatch({ type: "ADD_SCORE", delta: resolvedChoice.pointDelta });
           dispatch({
             type: "RESOLVE_CONFLICT",
-            conflictId: state.session!.activeConflict!.id,
+            conflictId: state.session?.activeConflict?.id ?? "",
+            pointDelta: resolvedChoice.pointDelta,
           });
-          const contactToUnlock = (resolvedChoice as any).contactId;
+          const contactToUnlock = resolvedChoice.contactId;
           if (contactToUnlock)
             dispatch({ type: "ADD_CONTACT", contactId: contactToUnlock });
         }}

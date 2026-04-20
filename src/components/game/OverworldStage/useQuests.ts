@@ -25,7 +25,10 @@ export function useQuests() {
     if (completedQuests.includes(quest.id)) return null;
 
     // Use a unified type assertion since we standardized narrative.ts
-    const qText = NARRATIVE.quests[quest.narrativeRef] as any;
+    const qText = NARRATIVE.quests[quest.narrativeRef] as Record<
+      string,
+      string
+    >;
 
     // 1. Check for Pickup
     if (
@@ -41,8 +44,7 @@ export function useQuests() {
     }
 
     // 2. Check for Turn-in (Targeting either an NPC or a Zone)
-    const isTargetingNpc =
-      activeNpc !== undefined && activeNpc.id === quest.targetNpcId;
+    const isTargetingNpc = activeNpc?.id === quest.targetNpcId;
     const isTargetingZone = activeZone === quest.targetZoneId;
 
     if (isTargetingNpc || isTargetingZone) {
@@ -100,14 +102,21 @@ export function useQuests() {
       const quest = QUEST_REGISTRY.find((q) => q.id === targetQuestId);
 
       if (quest) {
-        const qText = NARRATIVE.quests[quest.narrativeRef] as any;
+        const qText = NARRATIVE.quests[quest.narrativeRef] as Record<
+          string,
+          string
+        >;
 
         if (actionType === "take") {
           dispatch({ type: "ADD_INVENTORY", item: quest.requiredItem });
           setQuestFeedback({ text: qText.feedbackAcquired, isError: false });
         } else if (actionType === "give") {
           dispatch({ type: "REMOVE_INVENTORY", item: quest.requiredItem });
-          dispatch({ type: "COMPLETE_QUEST", questId: quest.id });
+          dispatch({
+            type: "COMPLETE_QUEST",
+            questId: quest.id,
+            pointDelta: 50,
+          });
           dispatch({ type: "ADD_SCORE", delta: quest.scoreReward });
           setQuestFeedback({ text: qText.feedbackComplete, isError: false });
         }
