@@ -1,6 +1,10 @@
 // src/components/game/OverworldStage/useGameLoop.ts
 import { useCallback, useEffect, useRef, useState } from "react";
-import { CHARACTERS } from "../../../data/gameData";
+import {
+  AVAILABLE_NPCS,
+  CHARACTERS,
+  NPC_ICONS,
+} from "../../../data/characters";
 import { ZoneConfig } from "../../../data/types";
 import {
   GAME_HEIGHT,
@@ -8,7 +12,7 @@ import {
   GAME_WIDTH,
   PLAYER_SIZE,
 } from "./constants";
-import { NPC } from "./types"; // Note: Removed DialogueState
+import { NPC } from "./types";
 import {
   calculateMovementDelta,
   checkCollision,
@@ -131,24 +135,29 @@ export function useGameLoop({
 
   useEffect(() => {
     const spawnNpcs = () => {
-      // 1. Combine crew and cast into the available pool
+      // 1. Map AVAILABLE_NPCS to the internal NPC footprint
+      const mappedAvailableNPCs = AVAILABLE_NPCS.map((npc) => {
+        const iconKey = Object.keys(NPC_ICONS).find((k) =>
+          npc.role.includes(k),
+        );
+        const icon = iconKey
+          ? NPC_ICONS[iconKey as keyof typeof NPC_ICONS]
+          : "👤";
+        return {
+          id: npc.id,
+          name: npc.name,
+          department: npc.role,
+          icon,
+        };
+      });
+
+      // 2. Combine core crew and cast into the available pool
       const baseAvailable = [
         ...CHARACTERS.filter((c) => c.id !== charId),
-        {
-          id: "npc_arthur",
-          name: "Arthur",
-          department: "Director",
-          icon: "🎬",
-        },
-        {
-          id: "npc_madeline",
-          name: "Madeline",
-          department: "Actor",
-          icon: "🎭",
-        },
+        ...mappedAvailableNPCs,
       ];
 
-      // 2. Identify which NPCs MUST spawn based on inventory so you don't have to hunt for them
+      // 3. Identify which NPCs MUST spawn based on inventory so you don't have to hunt for them
       const forceSpawnIds: string[] = [];
       const inv = JSON.parse(
         sessionStorage.getItem("minion_inventory") || "[]",
@@ -157,8 +166,9 @@ export function useGameLoop({
       if (inv.includes("Water Bottle")) forceSpawnIds.push("npc_madeline");
       if (inv.includes("AA Batteries")) forceSpawnIds.push("char_casey");
       if (inv.includes("Gaff Tape")) forceSpawnIds.push("char_alex");
+      if (inv.includes("Missing Prop Sword")) forceSpawnIds.push("npc_sam");
 
-      // 3. Separate required vs random
+      // 4. Separate required vs random
       const mustSpawn = baseAvailable.filter((npc) =>
         forceSpawnIds.includes(npc.id),
       );
@@ -195,7 +205,6 @@ export function useGameLoop({
       return spawned as NPC[];
     };
 
-    // Defer setState to avoid cascading renders
     Promise.resolve().then(() => {
       setNpcs(spawnNpcs());
     });
@@ -203,12 +212,10 @@ export function useGameLoop({
 
   /* ---------------- GAME LOOP ---------------- */
 
-  // Use refs to store the latest state without triggering closures/stale data in the animation loop
   const inputRef = useRef(input);
   const npcsRef = useRef(npcs);
   const targetPosRef = useRef(targetPos);
 
-  // Keep refs synced with React state
   useEffect(() => {
     inputRef.current = input;
   }, [input]);
@@ -219,7 +226,6 @@ export function useGameLoop({
     targetPosRef.current = targetPos;
   }, [targetPos]);
 
-  // Extract tick handler to reduce nesting depth (SonarLint S2004)
   const handleGameLoopTick = useCallback(
     (prevPos: { x: number; y: number }) => {
       const result = computeNextState({
@@ -231,7 +237,6 @@ export function useGameLoop({
         setTargetPos,
       });
 
-      // Batch React updates to prevent render tearing
       setNpcs(result.npcs);
       setActiveZone(result.activeZone);
 
@@ -246,21 +251,17 @@ export function useGameLoop({
   );
 
   useEffect(() => {
-    if (activeNpcId) return; // Pause game loop when talking
+    if (activeNpcId) return;
 
     let animationFrameId: number;
     let lastTime = performance.now();
 
     const tick = (currentTime: number) => {
-      // Delta time calculation allows us to make movement frame-rate independent later if needed
       const deltaTime = currentTime - lastTime;
-
-      // Throttle to approximate GAME_LOOP_FPS (e.g., 60fps ~ 16.6ms)
       if (deltaTime >= 1000 / GAME_LOOP_FPS) {
         setPos((prevPos) => handleGameLoopTick(prevPos));
         lastTime = currentTime;
       }
-
       animationFrameId = requestAnimationFrame(tick);
     };
 

@@ -1,4 +1,3 @@
-// src/pages/HomePage.tsx
 import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 import HardwarePanel from "../components/ui/HardwarePanel";
@@ -65,7 +64,7 @@ export default function HomePage() {
           >
             Welcome to the shadows. Grab your headset, double-check your rig,
             and keep the show running at all costs. The cast gets the applause,
-            but we hold the power (?)
+            but we hold the power.
           </p>
 
           <div

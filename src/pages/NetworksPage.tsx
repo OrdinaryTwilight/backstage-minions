@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Button from "../components/ui/Button";
 import NavBar from "../components/ui/NavBar";
 import { useGame } from "../context/GameContext";
-import { CHARACTERS } from "../data/characters";
+import { AVAILABLE_NPCS, CHARACTERS, NPC_ICONS } from "../data/characters";
 import { CHAT_MESSAGES } from "../data/chatMessages";
 
 export default function NetworksPage() {
@@ -22,13 +22,35 @@ export default function NetworksPage() {
         role: "Automated System",
       };
     }
-    const char = CHARACTERS.find((c) => c.id === id);
-    return {
-      id,
-      name: char?.name || "Unknown Contact",
-      icon: char?.icon || "👤",
-      role: char?.role || "Crew",
-    };
+
+    // Check main crew
+    const mainChar = CHARACTERS.find((c) => c.id === id);
+    if (mainChar) {
+      return {
+        id,
+        name: mainChar.name,
+        icon: mainChar.icon,
+        role: mainChar.role,
+      };
+    }
+
+    // Check auxiliary NPCs
+    const npc = AVAILABLE_NPCS.find((c) => c.id === id);
+    if (npc) {
+      const iconKey = Object.keys(NPC_ICONS).find((k) => npc.role.includes(k));
+      const icon = iconKey
+        ? NPC_ICONS[iconKey as keyof typeof NPC_ICONS]
+        : "👤";
+      return { id, name: npc.name, icon, role: npc.role };
+    }
+
+    // Fallback for group chats or rogue IDs
+    const chatData = CHAT_MESSAGES[id];
+    if (chatData) {
+      return { id, name: chatData.sender, icon: "📱", role: "Group Chat" };
+    }
+
+    return { id, name: "Unknown Contact", icon: "👤", role: "Crew" };
   });
 
   const activeContact = availableContacts.find((c) => c.id === activeChat);
@@ -37,20 +59,79 @@ export default function NetworksPage() {
     Record<string, { sender: string; text: string }[]>
   >(() => JSON.parse(sessionStorage.getItem("minion_chats") || "{}"));
 
-  // Mocking standard Dialogue Choices for the Chat
+  // Dynamic mock choices built to respond to specific messages in CHAT_MESSAGES
   const [activeChoices, setActiveChoices] = useState<
     Record<string, { text: string; response: string; sideEffect?: string }[]>
   >({
-    sam: [
+    npc_sam: [
       {
         text: "I'm ready for my shift.",
         response:
           "Great. Click into the Phantom of the Opera callboard and select 'School' difficulty.",
+        sideEffect: "unlock_phantom",
       },
       {
         text: "What am I supposed to do?",
         response:
           "We need an extra set of hands on Phantom. Look for the poster on the productions page.",
+      },
+    ],
+    npc_zainab: [
+      {
+        text: "I've got some extra gaff tape for you.",
+        response:
+          "You are a literal lifesaver. Bring it to the quick-change booth!",
+      },
+      {
+        text: "Try rubbing soap on the stuck zipper.",
+        response: "Wait, that's actually a great trick. It worked! Thank you!",
+      },
+    ],
+    npc_elara: [
+      {
+        text: "Tech is standing by for blackout.",
+        response: "Copy that. Prepare to execute on my GO.",
+      },
+      {
+        text: "Set piece is clear. We are good to proceed.",
+        response: "Thank god. Releasing the hold. House lights going down.",
+      },
+    ],
+    npc_ben: [
+      {
+        text: "I didn't touch your gels, ask Props.",
+        response: "Typical. I'll go have a word with Maya.",
+      },
+      {
+        text: "Worklight coming up on stage left now.",
+        response: "Much appreciated. I can finally see my cable runs.",
+      },
+    ],
+    npc_casey: [
+      {
+        text: "I'll tape the comms packs to their belts.",
+        response: "Please do. We can't afford to lose another transmitter.",
+      },
+      {
+        text: "Lead definitely sounds muddy. Check the capsule?",
+        response:
+          "Good call. I think they sweat through the mic element again. Swapping it.",
+      },
+    ],
+    npc_director: [
+      {
+        text: "I found your script, it's on the SM desk.",
+        response: "Ah! The sacred texts! Thank you.",
+      },
+      {
+        text: "Working on making the lighting more 'moody'.",
+        response: "Yes! More shadows! Let the darkness speak!",
+      },
+    ],
+    group_tech_survivors: [
+      {
+        text: "I have the fabric scissors. They were left on the prop table.",
+        response: "Maya (Props): BRING THEM TO ME IMMEDIATELY.",
       },
     ],
   });
@@ -98,9 +179,8 @@ export default function NetworksPage() {
         return replyChats;
       });
 
-      // Handle side effects (like unlocking a level) if defined
       if (sideEffect === "unlock_phantom") {
-        // Here you would dispatch to your progress state if needed
+        // Handle side effects integration later
       }
     }, 1200);
   };
@@ -284,7 +364,7 @@ export default function NetworksPage() {
                       maxWidth: "80%",
                       fontFamily:
                         msg.sender === "You" ? "inherit" : "var(--font-mono)",
-                      fontSize: msg.sender !== "You" ? "0.95rem" : "1rem",
+                      fontSize: msg.sender === "You" ? "1rem" : "0.95rem",
                     }}
                   >
                     {msg.sender !== "You" && (
