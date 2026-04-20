@@ -15,101 +15,102 @@ export default function ProductionsListPage() {
   );
 
   return (
-    <div
-      className="page-container animate-blueprint"
-      style={{ paddingTop: "1rem" }}
-    >
+    <div className="page-container" style={{ paddingTop: "1rem" }}>
       <NavBar />
-      <SectionHeader
-        title="Active Productions"
-        subtitle="Select a show to view the callboard and pick your role."
-      />
 
-      <div
-        style={{
-          maxWidth: "1000px",
-          margin: "0 auto 2rem auto",
-          padding: "0 1rem",
-        }}
-      >
-        <input
-          type="text"
-          style={{
-            width: "100%",
-            padding: "1rem 1.5rem",
-            borderRadius: "8px",
-            background: "rgba(15, 23, 42, 0.8)",
-            border: "2px solid var(--bui-border)",
-            color: "white",
-            fontFamily: "var(--font-sketch)",
-            fontSize: "1.1rem",
-          }}
-          placeholder="Search callboards..."
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+      {/* Wrapper to isolate the animation from the NavBar */}
+      <div className="animate-blueprint">
+        <SectionHeader
+          title="Active Productions"
+          subtitle="Select a show to view the callboard and pick your role."
         />
-      </div>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
-          gap: "2rem",
-          margin: "0 auto",
-          padding: "0 1rem",
-          fontFamily: "var(--font-sketch)",
-        }}
-      >
-        {filtered.map((p, idx) => (
-          <HardwarePanel
-            key={p.id}
-            variant="clickable"
-            className="animate-pop hover-lift"
+        <div
+          style={{
+            maxWidth: "1000px",
+            margin: "0 auto 2rem auto",
+            padding: "0 1rem",
+          }}
+        >
+          <input
+            type="text"
             style={{
-              animationDelay: `${idx * 0.1}s`,
-              display: "flex",
-              flexDirection: "column",
-              padding: "2rem",
-              minWidth: 0,
               width: "100%",
-              boxSizing: "border-box",
+              padding: "1rem 1.5rem",
+              borderRadius: "8px",
+              background: "rgba(15, 23, 42, 0.8)",
+              border: "2px solid var(--bui-border)",
+              color: "white",
+              fontFamily: "var(--font-sketch)",
+              fontSize: "1.1rem",
             }}
-            onClick={() => navigate(`/productions/${p.id}`)}
-          >
-            <div
+            placeholder="Search callboards..."
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns:
+              "repeat(auto-fit, minmax(min(100%, 300px), 1fr))",
+            gap: "2rem",
+            margin: "0 auto",
+            padding: "0 1rem",
+            fontFamily: "var(--font-sketch)",
+          }}
+        >
+          {filtered.map((p, idx) => (
+            <HardwarePanel
+              key={p.id}
+              variant="clickable"
+              className="animate-pop hover-lift"
               style={{
-                fontSize: "3rem",
-                marginBottom: "1rem",
-                textAlign: "center",
+                animationDelay: `${idx * 0.1}s`,
+                display: "flex",
+                flexDirection: "column",
+                padding: "2rem",
+                minWidth: 0,
+                width: "100%",
+                boxSizing: "border-box",
               }}
+              onClick={() => navigate(`/productions/${p.id}`)}
             >
-              {p.poster}
-            </div>
-            <h2
-              style={{
-                fontFamily: "var(--font-sketch)",
-                fontSize: "1.8rem",
-                color: "var(--bui-fg-warning)",
-                marginBottom: "0.5rem",
-                textAlign: "center",
-              }}
-            >
-              {p.title}
-            </h2>
-            <p
-              style={{
-                fontSize: "1rem",
-                color: "var(--color-pencil-light)",
-                lineHeight: "1.6",
-                flex: 1,
-                textAlign: "center",
-              }}
-            >
-              {p.description}
-            </p>
-          </HardwarePanel>
-        ))}
+              <div
+                style={{
+                  fontSize: "3rem",
+                  marginBottom: "1rem",
+                  textAlign: "center",
+                }}
+              >
+                {p.poster}
+              </div>
+              <h2
+                style={{
+                  fontFamily: "var(--font-sketch)",
+                  fontSize: "1.8rem",
+                  color: "var(--bui-fg-warning)",
+                  marginBottom: "0.5rem",
+                  textAlign: "center",
+                }}
+              >
+                {p.title}
+              </h2>
+              <p
+                style={{
+                  fontSize: "1rem",
+                  color: "var(--color-pencil-light)",
+                  lineHeight: "1.6",
+                  flex: 1,
+                  textAlign: "center",
+                }}
+              >
+                {p.description}
+              </p>
+            </HardwarePanel>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useGame } from "../../context/GameContext";
 import SettingsPanel from "./SettingsPanel";
 
 const TABS = [
@@ -13,7 +14,10 @@ export default function NavBar() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const [showSettings, setShowSettings] = useState(false);
-  const [hasUnread, setHasUnread] = useState(false);
+  const { state } = useGame();
+
+  // Rely on global GameContext state instead of disconnected sessionStorage
+  const hasUnread = state?.unreadContacts && state.unreadContacts.length > 0;
 
   // Escape key closes modal (proper global handler)
   useEffect(() => {
@@ -28,16 +32,6 @@ export default function NavBar() {
     globalThis.addEventListener("keydown", onKeyDown);
     return () => globalThis.removeEventListener("keydown", onKeyDown);
   }, [showSettings]);
-
-  // Listen for custom event to update unread messages badge
-  useEffect(() => {
-    const checkUnread = () =>
-      setHasUnread(sessionStorage.getItem("unread_messages") === "true");
-    checkUnread();
-    globalThis.addEventListener("unread_messages_update", checkUnread);
-    return () =>
-      globalThis.removeEventListener("unread_messages_update", checkUnread);
-  }, []);
 
   return (
     <>

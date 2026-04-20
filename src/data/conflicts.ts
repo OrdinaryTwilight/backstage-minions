@@ -15,7 +15,7 @@ export const CONFLICTS: Conflict[] = [
         outcome: "resolved",
         pointDelta: 10,
         aftermathText:
-          "You find the watch being used as a paperweight for a sound plot. Sam hugs you. 'You're a lifesaver! I owe you a coffee—no, a whole bag of beans!'",
+          "You find the watch being used as a paperweight for a sound plot. Sam hugs you. 'You're a lifesaver! I owe you big time!'",
         sideEffect: "add_contact_sam",
       },
       {

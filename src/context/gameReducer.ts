@@ -107,6 +107,28 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "CLEAR_SESSION":
       return { ...state, session: null };
 
+    // --- NEW: Handle persistent contact state ---
+    case "ADD_CONTACT": {
+      // Prevent duplicates if they already have the contact
+      if (state.contacts.includes(action.contactId)) return state;
+      return {
+        ...state,
+        contacts: [...state.contacts, action.contactId],
+        // Automatically mark new contacts as unread to trigger the notification dot
+        unreadContacts: [...(state.unreadContacts || []), action.contactId],
+      };
+    }
+
+    case "MARK_CONTACT_READ": {
+      if (!state.unreadContacts?.includes(action.contactId)) return state;
+      return {
+        ...state,
+        unreadContacts: state.unreadContacts.filter(
+          (id) => id !== action.contactId,
+        ),
+      };
+    }
+
     default:
       return state;
   }

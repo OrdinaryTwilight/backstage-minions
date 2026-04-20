@@ -41,133 +41,138 @@ export default function SelectCharacterPage() {
     );
 
   return (
-    <div className="page-container animate-blueprint">
+    <div className="page-container">
       <NavBar />
 
-      <Button
-        onClick={() => navigate(`/productions/${productionId}`)}
-        style={{
-          marginBottom: "1.5rem",
-          minWidth: "auto",
-          border: "none",
-          background: "transparent",
-          fontFamily: "inherit",
-        }}
-      >
-        ‹ Back to Production
-      </Button>
-
-      <SectionHeader
-        title="Personnel Selection"
-        subtitle="Review specialist files for the upcoming rig."
-      />
-
-      <HardwarePanel
-        className="animate-pop"
-        style={{ textAlign: "center", padding: "2.5rem" }}
-        role="region"
-        aria-live="polite"
-        aria-label="Character profile"
-      >
-        {/* Character Icon with Flicker Effect */}
-        <div
-          className="animate-flicker"
-          style={{ fontSize: "5.5rem", marginBottom: "1rem" }}
-          aria-hidden="true"
-        >
-          {char.icon}
-        </div>
-
-        <h2
-          className="annotation-text"
-          style={{ fontSize: "1.8rem", margin: "0 0 0.5rem 0" }}
-        >
-          {char.name}
-        </h2>
-
-        <DepartmentBadge department={char.department} />
-
-        <p
-          className="console-screen"
+      {/* Wrapper to isolate the animation from the NavBar */}
+      <div className="animate-blueprint">
+        <Button
+          onClick={() => navigate(`/productions/${productionId}`)}
           style={{
-            margin: "2rem auto",
-            maxWidth: "550px",
-            fontStyle: "italic",
-            borderStyle: "dashed",
+            marginBottom: "1.5rem",
+            minWidth: "auto",
+            border: "none",
+            background: "transparent",
+            fontFamily: "inherit",
           }}
         >
-          "{char.bio}"
-        </p>
-
-        {/* Stats with dynamic fill animations */}
-        <div style={{ textAlign: "left", maxWidth: "400px", margin: "0 auto" }}>
-          <h3
-            className="annotation-text"
-            style={{ fontSize: "1rem", marginBottom: "1.5rem", opacity: 0.5 }}
-          >
-            Aptitude Diagnostics:
-          </h3>
-          <StatBar label="Technical" value={char.stats.technical} />
-          <StatBar label="Social" value={char.stats.social} />
-          <StatBar label="Stamina" value={char.stats.stamina} />
-        </div>
-      </HardwarePanel>
-
-      {/* Carousel Controls */}
-      <div
-        style={{
-          display: "flex",
-          gap: "1.5rem",
-          alignItems: "center",
-          justifyContent: "center",
-          margin: "2.5rem 0",
-        }}
-        aria-label="Character carousel navigation"
-      >
-        <Button
-          onClick={() =>
-            setIdx((idx - 1 + available.length) % available.length)
-          }
-          style={{ minWidth: "60px" }}
-          aria-label={`Previous character, currently viewing ${idx + 1} of ${available.length}`}
-        >
-          ‹
+          ‹ Back to Production
         </Button>
-        <div
-          className="annotation-text"
-          style={{ fontSize: "1.2rem" }}
+
+        <SectionHeader
+          title="Personnel Selection"
+          subtitle="Review specialist files for the upcoming rig."
+        />
+
+        <HardwarePanel
+          className="animate-pop"
+          style={{ textAlign: "center", padding: "2.5rem" }}
+          role="region"
           aria-live="polite"
-          aria-atomic="true"
+          aria-label="Character profile"
         >
-          Record {idx + 1} of {available.length}
+          {/* Character Icon with Flicker Effect */}
+          <div
+            className="animate-flicker"
+            style={{ fontSize: "5.5rem", marginBottom: "1rem" }}
+            aria-hidden="true"
+          >
+            {char.icon}
+          </div>
+
+          <h2
+            className="annotation-text"
+            style={{ fontSize: "1.8rem", margin: "0 0 0.5rem 0" }}
+          >
+            {char.name}
+          </h2>
+
+          <DepartmentBadge department={char.department} />
+
+          <p
+            className="console-screen"
+            style={{
+              margin: "2rem auto",
+              maxWidth: "550px",
+              fontStyle: "italic",
+              borderStyle: "dashed",
+            }}
+          >
+            "{char.bio}"
+          </p>
+
+          {/* Stats with dynamic fill animations */}
+          <div
+            style={{ textAlign: "left", maxWidth: "400px", margin: "0 auto" }}
+          >
+            <h3
+              className="annotation-text"
+              style={{ fontSize: "1rem", marginBottom: "1.5rem", opacity: 0.5 }}
+            >
+              Aptitude Diagnostics:
+            </h3>
+            <StatBar label="Technical" value={char.stats.technical} />
+            <StatBar label="Social" value={char.stats.social} />
+            <StatBar label="Stamina" value={char.stats.stamina} />
+          </div>
+        </HardwarePanel>
+
+        {/* Carousel Controls */}
+        <div
+          style={{
+            display: "flex",
+            gap: "1.5rem",
+            alignItems: "center",
+            justifyContent: "center",
+            margin: "2.5rem 0",
+          }}
+          aria-label="Character carousel navigation"
+        >
+          <Button
+            onClick={() =>
+              setIdx((idx - 1 + available.length) % available.length)
+            }
+            style={{ minWidth: "60px" }}
+            aria-label={`Previous character, currently viewing ${idx + 1} of ${available.length}`}
+          >
+            ‹
+          </Button>
+          <div
+            className="annotation-text"
+            style={{ fontSize: "1.2rem" }}
+            aria-live="polite"
+            aria-atomic="true"
+          >
+            Record {idx + 1} of {available.length}
+          </div>
+          <Button
+            onClick={() => setIdx((idx + 1) % available.length)}
+            style={{ minWidth: "60px" }}
+            aria-label={`Next character, currently viewing ${idx + 1} of ${available.length}`}
+          >
+            ›
+          </Button>
         </div>
+
+        {/* Pulsing Start Button */}
         <Button
-          onClick={() => setIdx((idx + 1) % available.length)}
-          style={{ minWidth: "60px" }}
-          aria-label={`Next character, currently viewing ${idx + 1} of ${available.length}`}
+          variant="success"
+          className="animate-pulse-go"
+          onClick={startGame}
+          style={{
+            width: "100%",
+            maxWidth: "600px",
+            margin: "0 auto",
+            display: "block",
+            height: "70px",
+            fontSize: "1.4rem",
+            fontFamily: "inherit",
+          }}
+          aria-label={`Sign contract and start show as ${char.name}`}
         >
-          ›
+          Start show as {char.name}
         </Button>
       </div>
-
-      {/* Pulsing Start Button */}
-      <Button
-        variant="success"
-        className="animate-pulse-go"
-        onClick={startGame}
-        style={{
-          width: "100%",
-          maxWidth: "600px",
-          margin: "0 auto",
-          display: "block",
-          height: "70px",
-          fontSize: "1.4rem",
-          fontFamily: "inherit",
-        }}
-        aria-label={`Sign contract and start show as ${char.name}`}
-      >
-        Start show as {char.name}
-      </Button>
     </div>
   );
 }

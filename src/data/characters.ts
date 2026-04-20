@@ -70,7 +70,7 @@ export const CHARACTERS: Character[] = [
     name: "Maya",
     role: "Properties Master",
     department: "props",
-    bio: "An expert in 'Theatrical Alchemy'—turning foam into iron and glue into gourmet meals. Maya has worked in every major house in the city and has a story for every scar on her work gloves.",
+    bio: "An expert in 'Theatrical Alchemy'... aka turning foam into iron and glue into gourmet meals. Maya has worked in every major house in the city and has a story for every scar on her work gloves.",
     icon: "⚒️",
     stats: { technical: 8, social: 9, stamina: 7 },
   },
@@ -227,7 +227,7 @@ export const AVAILABLE_NPCS = [
     dialogue: (dept?: string) => {
       const responses = {
         lighting:
-          "The lighting plot is missing three overhead washes. We're ten minutes from the designer arriving—make it happen.",
+          "The lighting plot is missing three overhead washes. We're ten minutes from the designer arriving — make it happen.",
         sound:
           "I'm hearing a 60Hz hum in the center cluster. If we don't find the ground loop now, it’s going to be a long night.",
         default:

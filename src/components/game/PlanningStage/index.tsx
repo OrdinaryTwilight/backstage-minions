@@ -259,7 +259,7 @@ export default function PlanningStage({
           <strong>{requirements.targetSpots} Spots</strong> and{" "}
           <strong>{requirements.targetWashes} Washes</strong>. Make sure we have
           a <strong>{requirements.requiredGobo.toUpperCase()}</strong> gobo
-          loaded for the dream sequence. Also, our dimmer racks are maxed out—do
+          loaded for the dream sequence. Also, our dimmer racks are maxed out: Do
           not exceed <strong>{requirements.maxFixtures} total fixtures</strong>
           ."
         </p>

@@ -1,3 +1,11 @@
+// src/data/chatMessages.ts
+
+export interface ChatChoice {
+  text: string;
+  response: string;
+  sideEffect?: string;
+}
+
 export const CHAT_MESSAGES: Record<
   string,
   { sender: string; messages: string[] }
@@ -89,4 +97,78 @@ export const CHAT_MESSAGES: Record<
       "Let's grab drinks after strike.",
     ],
   },
+};
+
+export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
+  npc_sam: [
+    {
+      text: "I'm ready for my shift.",
+      response:
+        "Great. Click into the Phantom of the Opera callboard and select 'School' difficulty.",
+      sideEffect: "unlock_phantom",
+    },
+    {
+      text: "What am I supposed to do?",
+      response:
+        "We need an extra set of hands on Phantom. Look for the poster on the productions page.",
+    },
+  ],
+  npc_zainab: [
+    {
+      text: "I've got some extra gaff tape for you.",
+      response:
+        "You are a literal lifesaver. Bring it to the quick-change booth!",
+    },
+    {
+      text: "Try rubbing soap on the stuck zipper.",
+      response: "Wait, that's actually a great trick. It worked! Thank you!",
+    },
+  ],
+  npc_elara: [
+    {
+      text: "Tech is standing by for blackout.",
+      response: "Copy that. Prepare to execute on my GO.",
+    },
+    {
+      text: "Set piece is clear. We are good to proceed.",
+      response: "Thank god. Releasing the hold. House lights going down.",
+    },
+  ],
+  npc_ben: [
+    {
+      text: "I didn't touch your gels, ask Props.",
+      response: "Typical. I'll go have a word with Maya.",
+    },
+    {
+      text: "Worklight coming up on stage left now.",
+      response: "Much appreciated. I can finally see my cable runs.",
+    },
+  ],
+  npc_casey: [
+    {
+      text: "I'll tape the comms packs to their belts.",
+      response: "Please do. We can't afford to lose another transmitter.",
+    },
+    {
+      text: "Lead definitely sounds muddy. Check the capsule?",
+      response:
+        "Good call. I think they sweat through the mic element again. Swapping it.",
+    },
+  ],
+  npc_director: [
+    {
+      text: "I found your script, it's on the SM desk.",
+      response: "Ah! The sacred texts! Thank you.",
+    },
+    {
+      text: "Working on making the lighting more 'moody'.",
+      response: "Yes! More shadows! Let the darkness speak!",
+    },
+  ],
+  group_tech_survivors: [
+    {
+      text: "I have the fabric scissors. They were left on the prop table.",
+      response: "Maya (Props): BRING THEM TO ME IMMEDIATELY.",
+    },
+  ],
 };
