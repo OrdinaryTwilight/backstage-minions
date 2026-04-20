@@ -1,15 +1,21 @@
 // src/context/gameReducer.ts
-import { GameAction, GameState } from "../types/game";
+import { GameAction, GameSession, GameState } from "../types/game";
 import {
   createNewSession,
   getNextConflict,
   updateCounter,
 } from "./reducerHelpers";
 
-export function gameReducer(state: GameState, action: GameAction): GameState {
-  // session is used in many cases, extracted for cleaner access
-  const session = state.session;
+/** Helper to reduce cognitive complexity by abstracting the session null-check */
+function withSession(
+  state: GameState,
+  updater: (session: GameSession) => GameSession,
+): GameState {
+  if (!state.session) return state;
+  return { ...state, session: updater(state.session) };
+}
 
+export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case "LOAD_SAVE":
       return { ...state, ...action.payload };
@@ -25,81 +31,79 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       };
 
     case "NEXT_STAGE":
-      if (!session) return state;
-      return {
-        ...state,
-        session: {
-          ...session,
-          currentStageIndex: session.currentStageIndex + 1,
-          activeConflict: getNextConflict(session),
-        },
-      };
+      return withSession(state, (session) => ({
+        ...session,
+        currentStageIndex: session.currentStageIndex + 1,
+        activeConflict: getNextConflict(session),
+      }));
 
     case "ADD_SCORE":
-      return {
-        ...state,
-        session: updateCounter(session, "score", action.delta),
-      };
+      return withSession(state, (session) =>
+        updateCounter(session, "score", action.delta),
+      );
 
-    case "CUE_HIT": {
-      // 1. Increment cues hit
-      const updatedSession = updateCounter(session, "cuesHit", 1);
-      // 2. Add points to the total score (e.g., 10 points per cue)
-      return {
-        ...state,
-        session: updateCounter(updatedSession, "score", 10),
-      };
-    }
+    case "CUE_HIT":
+      return withSession(state, (session) => {
+        // 1. Increment cues hit
+        const updatedSession = updateCounter(session, "cuesHit", 1);
+        // 2. Add points to the total score (e.g., 10 points per cue)
+        return updateCounter(updatedSession, "score", 10);
+      });
 
     case "CUE_MISSED":
-      return { ...state, session: updateCounter(session, "cuesMissed", 1) };
+      return withSession(state, (session) =>
+        updateCounter(session, "cuesMissed", 1),
+      );
 
     case "UPDATE_STRESS":
-      if (!session) return state;
-      return {
-        ...state,
-        session: {
-          ...session,
-          stress: Math.max(0, Math.min(100, session.stress + action.delta)),
-        },
-      };
+      return withSession(state, (session) => ({
+        ...session,
+        stress: Math.max(0, Math.min(100, session.stress + action.delta)),
+      }));
 
     case "RESOLVE_CONFLICT":
-      if (!session) return state;
-      return {
-        ...state,
-        session: {
-          ...session,
+      return withSession(state, (session) => {
+        // Apply the score earned from the selected dialogue outcome
+        const updatedSession = updateCounter(
+          session,
+          "score",
+          action.pointDelta,
+        );
+
+        return {
+          ...updatedSession,
           activeConflict: null,
-          conflictsSeen: [...session.conflictsSeen, action.conflictId],
-        },
-      };
+          conflictsSeen: [...updatedSession.conflictsSeen, action.conflictId],
+        };
+      });
+
     case "ADD_INVENTORY":
-      if (!session) return state;
-      return {
-        ...state,
-        session: { ...session, inventory: [...session.inventory, action.item] },
-      };
+      return withSession(state, (session) => ({
+        ...session,
+        inventory: [...session.inventory, action.item],
+      }));
 
     case "REMOVE_INVENTORY":
-      if (!session) return state;
-      return {
-        ...state,
-        session: {
-          ...session,
-          inventory: session.inventory.filter((i) => i !== action.item),
-        },
-      };
+      return withSession(state, (session) => ({
+        ...session,
+        inventory: session.inventory.filter((i) => i !== action.item),
+      }));
 
     case "COMPLETE_QUEST":
-      if (!session) return state;
-      return {
-        ...state,
-        session: {
-          ...session,
-          completedQuests: [...session.completedQuests, action.questId],
-        },
-      };
+      return withSession(state, (session) => {
+        // Award points for completing the overworld quest
+        const updatedSession = updateCounter(
+          session,
+          "score",
+          action.pointDelta,
+        );
+
+        return {
+          ...updatedSession,
+          completedQuests: [...updatedSession.completedQuests, action.questId],
+        };
+      });
+
     case "CLEAR_SESSION":
       return { ...state, session: null };
 

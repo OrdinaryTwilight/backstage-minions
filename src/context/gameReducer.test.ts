@@ -9,7 +9,6 @@ const initialState: GameState = {
   unlockedStories: [],
   contacts: [],
   unreadContacts: [],
-  inventory: [],
 };
 
 const mockSession: GameSession = {

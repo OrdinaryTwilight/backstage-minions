@@ -61,10 +61,9 @@ export const getNextConflict = (session: GameSession): Conflict | null => {
 
 /** Domain helper for session counters */
 export const updateCounter = (
-  session: GameSession | null,
+  session: GameSession,
   property: "score" | "cuesHit" | "cuesMissed",
   delta: number,
-): GameSession | null => {
-  if (!session) return null;
+): GameSession => {
   return { ...session, [property]: (session[property] || 0) + delta };
 };
