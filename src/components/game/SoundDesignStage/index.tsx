@@ -80,7 +80,17 @@ export default function SoundDesignStage({
   const isFullyPatched = validPaths.filter(Boolean).length >= 2;
 
   function submit() {
-    dispatch({ type: "ADD_SCORE", delta: 50 });
+    const validCount = validPaths.filter(Boolean).length;
+    const totalOuts = outputBuses.length;
+
+    // Dynamically scale maximum possible score based on the difficulty tier
+    let maxScore = 100;
+    if (difficulty === "community") maxScore = 120;
+    if (difficulty === "professional") maxScore = 150;
+
+    const finalScore = Math.floor((validCount / totalOuts) * maxScore);
+
+    dispatch({ type: "ADD_SCORE", delta: finalScore });
     setSubmitted(true);
   }
 
@@ -116,7 +126,7 @@ export default function SoundDesignStage({
                     return (
                       <Button
                         key={ch}
-                        variant={isPatched ? "success" : "default"} // FIX: Use variant instead of raw styles!
+                        variant={isPatched ? "success" : "default"}
                         onClick={() => handlePatch("inputs", src, ch)}
                         style={{ flex: "1 0 15%", fontSize: "0.8rem" }}
                       >

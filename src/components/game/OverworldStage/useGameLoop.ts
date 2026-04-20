@@ -135,8 +135,11 @@ export function useGameLoop({
 
   useEffect(() => {
     const spawnNpcs = () => {
-      // 1. Map AVAILABLE_NPCS to the internal NPC footprint
-      const mappedAvailableNPCs = AVAILABLE_NPCS.map((npc) => {
+      // 1. Map AVAILABLE_NPCS to the internal NPC footprint (Excluding non-human system contacts)
+      const mappedAvailableNPCs = AVAILABLE_NPCS.filter(
+        (npc) =>
+          npc.id !== "sys_comms" && !npc.role.toLowerCase().includes("system"),
+      ).map((npc) => {
         const iconKey = Object.keys(NPC_ICONS).find((k) =>
           npc.role.includes(k),
         );
@@ -157,23 +160,35 @@ export function useGameLoop({
         ...mappedAvailableNPCs,
       ];
 
-      // 3. Identify which NPCs MUST spawn based on inventory so you don't have to hunt for them
-      const forceSpawnIds: string[] = [];
+      // 3. Identify which NPCs MUST spawn based on inventory OR active quests
+      const forceSpawnIds = new Set<string>();
       const inv = JSON.parse(
         sessionStorage.getItem("minion_inventory") || "[]",
       );
-      if (inv.includes("Director's Script")) forceSpawnIds.push("npc_arthur");
-      if (inv.includes("Water Bottle")) forceSpawnIds.push("npc_madeline");
-      if (inv.includes("AA Batteries")) forceSpawnIds.push("char_casey");
-      if (inv.includes("Gaff Tape")) forceSpawnIds.push("char_alex");
-      if (inv.includes("Missing Prop Sword")) forceSpawnIds.push("npc_sam");
+
+      // If there are active quests, forcefully spawn the common quest-givers/targets to prevent dead-ends
+      if (activeQuests.length > 0) {
+        forceSpawnIds.add("npc_arthur");
+        forceSpawnIds.add("npc_sam");
+        forceSpawnIds.add("npc_madeline");
+        forceSpawnIds.add("char_maya");
+        forceSpawnIds.add("char_casey");
+        forceSpawnIds.add("char_alex");
+      }
+
+      if (inv.includes("Director's Script")) forceSpawnIds.add("npc_arthur");
+      if (inv.includes("Water Bottle")) forceSpawnIds.add("npc_madeline");
+      if (inv.includes("AA Batteries")) forceSpawnIds.add("char_casey");
+      if (inv.includes("Gaff Tape")) forceSpawnIds.add("char_alex");
+      if (inv.includes("Missing Prop Sword")) forceSpawnIds.add("npc_sam");
 
       // 4. Separate required vs random
+      const forceSpawnArray = new Set(Array.from(forceSpawnIds));
       const mustSpawn = baseAvailable.filter((npc) =>
-        forceSpawnIds.includes(npc.id),
+        forceSpawnArray.has(npc.id),
       );
       const shuffled = baseAvailable
-        .filter((npc) => !forceSpawnIds.includes(npc.id))
+        .filter((npc) => !forceSpawnArray.has(npc.id))
         .sort(() => 0.5 - Math.random());
 
       const randomCount = Math.max(0, 3 - mustSpawn.length);

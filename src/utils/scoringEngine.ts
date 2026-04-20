@@ -1,28 +1,48 @@
+import { GameSession } from "../types/game";
+
 /**
- * Calculates the 1-3 star rating for a completed level.
- * * @param totalCues Total number of cues in the level (if any)
- * @param cuesHit Number of cues successfully hit
- * @param currentScore Total generic points earned in the level
+ * Calculates the 1-3 star rating for a completed level based on the specific stages the player attempted.
+ * * @param session The active GameSession state
+ * @param totalCues Total number of cues in the level (if any)
  * @returns 1, 2, or 3 stars
  */
 export function calculateStars(
+  session: GameSession | null,
   totalCues: number,
-  cuesHit: number,
-  currentScore: number,
 ): number {
-  // If the stage relies on cues (Execution/Sound)
-  if (totalCues > 0) {
-    const hitRate = cuesHit / totalCues;
+  if (!session) return 1;
 
-    // Require BOTH a good hit rate AND a positive overall score to get 3 stars
-    // This prevents players from bombing quests but acing the board and getting 3 stars
-    if (hitRate >= 0.9 && currentScore >= 100) return 3;
-    if (hitRate >= 0.65 && currentScore >= 50) return 2;
-    return 1;
+  const { score, stages, cuesHit, difficulty } = session;
+
+  // 1. Calculate the theoretical maximum "Base Score" achievable by perfectly completing the required minigames
+  let maxBaseScore = 0;
+
+  if (stages.includes("planning")) maxBaseScore += 100;
+
+  if (stages.includes("sound_design")) {
+    maxBaseScore +=
+      difficulty === "professional"
+        ? 150
+        : difficulty === "community"
+          ? 120
+          : 100;
   }
 
-  // If the stage relies strictly on score (Planning/Equipment)
-  if (currentScore >= 100) return 3;
-  if (currentScore >= 50) return 2;
+  if (stages.includes("cue_execution")) maxBaseScore += totalCues * 10;
+
+  if (stages.includes("cable_coiling")) maxBaseScore += 100;
+
+  // Failsafe in case of empty stage arrays
+  if (maxBaseScore === 0) maxBaseScore = 100;
+
+  const hitRate = totalCues > 0 ? cuesHit / totalCues : 1;
+
+  // 3 STARS: Score Exceeds Base (Required doing Bonus Quests/Conflicts) + Excellent Execution
+  if (score > maxBaseScore && hitRate >= 0.8) return 3;
+
+  // 2 STARS: Achieved the vast majority of the base score objectives
+  if (score >= maxBaseScore * 0.8 && hitRate >= 0.6) return 2;
+
+  // 1 STAR: Bare minimum completion
   return 1;
 }

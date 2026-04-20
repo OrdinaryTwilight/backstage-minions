@@ -5,11 +5,10 @@ import { ZoneConfig } from "../../../data/types";
 import { OVERWORLD_MAPS } from "../../../data/zones";
 import { GameState } from "../../../types/game";
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_SIZE } from "./constants";
-import { DialogueState, FeedbackMessage, NPC } from "./types"; // Note: Removed DialogueState
+import { DialogueState, FeedbackMessage, NPC } from "./types";
 
 interface UseInteractionProps {
   activeZone: string | null;
-  // CHANGED: Tracks active NPC string instead of dialogue object
   activeNpcId: string | null;
   currentZones: Record<string, ZoneConfig>;
   npcs: NPC[];
@@ -49,7 +48,6 @@ function getDoorSpawnPosition(targetRoomId: string, currentRoomId: string) {
   if (entryDoorKey) {
     const door = targetRoomConfig[entryDoorKey];
     spawnX = door.x + door.w / 2 - PLAYER_SIZE / 2;
-    // If the door is at the top of the screen, spawn below it. Otherwise, spawn above it.
     spawnY =
       door.y < GAME_HEIGHT / 2
         ? door.y + door.h + 10
@@ -59,7 +57,6 @@ function getDoorSpawnPosition(targetRoomId: string, currentRoomId: string) {
   return { x: spawnX, y: spawnY };
 }
 
-// Extracted to handle doors and props
 function handleStaticZoneInteraction(
   staticZone: ZoneConfig,
   props: UseInteractionProps,
@@ -84,21 +81,7 @@ function handleStaticZoneInteraction(
     props.activeZone === props.targetZoneId &&
     props.currentRoom === "backstage"
   ) {
-    // Objective: Strike Skip Interceptor
-    if (props.targetZoneId === "wings" && Math.random() > 0.5) {
-      props.setActiveQuestDialogue({
-        speaker: "Senior Technician",
-        text: "Hey, take a breather. The locals have the strike handled tonight. Head straight to the SM desk and sign off.",
-        choices: [
-          {
-            id: "skip_strike_accept",
-            text: '"Copy that. Thanks for the help!"',
-          },
-        ],
-      });
-      return;
-    }
-
+    // Stage completed (triggers NEXT_STAGE in the reducer)
     props.onComplete();
     return;
   }
@@ -147,7 +130,7 @@ function handleStaticZoneInteraction(
 
 export function useInteraction(props: UseInteractionProps) {
   return useCallback(() => {
-    if (!props.activeZone) return; // We still need an active zone
+    if (!props.activeZone) return;
     props.setTargetPos(null);
 
     // If an interaction is already open, clear it to allow the override!

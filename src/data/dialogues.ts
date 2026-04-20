@@ -76,7 +76,7 @@ export const GENERIC_DEPARTMENT_TREE: DialogueTree = {
   },
 };
 
-// 2. SPECIFIC DIALOGUE: Custom storylines for key characters (like Zainab)
+// 2. SPECIFIC DIALOGUE: Custom storylines for key characters
 export const ZAINAB_WARDROBE_TREE: DialogueTree = {
   start: {
     id: "start",
@@ -85,9 +85,8 @@ export const ZAINAB_WARDROBE_TREE: DialogueTree = {
         text: "Finally! The lead's mic pack is pulling on their costume. We need a smaller pouch.",
       },
     ],
-    // Time-pressured choice example!
     timeLimitMs: 6000,
-    timeoutNodeId: "go_find", // If they don't answer in 6 seconds, default to this
+    timeoutNodeId: "go_find",
     choices: [
       {
         id: "c1",
@@ -123,6 +122,117 @@ export const ZAINAB_WARDROBE_TREE: DialogueTree = {
     id: "go_find",
     variants: [{ text: "Hurry up. We are holding for house open." }],
     choices: [{ id: "c1", text: "On it.", nextNodeId: "end" }],
+  },
+};
+
+export const BEN_LX_TREE: DialogueTree = {
+  start: {
+    id: "start",
+    variants: [
+      {
+        text: "Who touched my gels? I had them perfectly ordered by wavelength and now there's an R02 mixed in with the CTOs!",
+      },
+    ],
+    choices: [
+      {
+        id: "c1",
+        text: "Wasn't me. I stick to my own department.",
+        nextNodeId: "end",
+      },
+      {
+        id: "c2",
+        text: "Props might have borrowed some for a practical lamp.",
+        nextNodeId: "blame",
+      },
+    ],
+  },
+  blame: {
+    id: "blame",
+    variants: [
+      {
+        text: "Typical. They think optical physics is just arts and crafts. I'll go have a word with Maya.",
+      },
+    ],
+    choices: [{ id: "c1", text: "Good luck with that.", nextNodeId: "end" }],
+  },
+};
+
+export const MAYA_PROPS_TREE: DialogueTree = {
+  start: {
+    id: "start",
+    variants: [
+      {
+        text: "If you are here to ask to borrow my good fabric scissors, the answer is immediately and aggressively NO.",
+      },
+    ],
+    choices: [
+      { id: "c1", text: "I just wanted to say hi.", nextNodeId: "end" },
+      {
+        id: "c2",
+        text: "What if I need them for an absolute emergency?",
+        nextNodeId: "scissors",
+      },
+    ],
+  },
+  scissors: {
+    id: "scissors",
+    variants: [{ text: "Then use your teeth. The scissors are sacred." }],
+    choices: [
+      { id: "c1", text: "Understood loud and clear.", nextNodeId: "end" },
+    ],
+  },
+};
+
+export const CASEY_AUDIO_TREE: DialogueTree = {
+  start: {
+    id: "start",
+    variants: [
+      {
+        text: "I'm picking up massive RF interference on channel 4... is your phone in airplane mode?",
+      },
+    ],
+    choices: [
+      { id: "c1", text: "Yes, fully off.", nextNodeId: "end" },
+      { id: "c2", text: "Oops, let me turn that off.", nextNodeId: "oops" },
+    ],
+  },
+  oops: {
+    id: "oops",
+    variants: [
+      {
+        text: "Thank you. We can't afford a total signal dropout during the big solo.",
+      },
+    ],
+    choices: [{ id: "c1", text: "Won't happen again.", nextNodeId: "end" }],
+  },
+};
+
+export const ALEX_ME_TREE: DialogueTree = {
+  start: {
+    id: "start",
+    variants: [
+      {
+        text: "Circuit 4 on the first electric just tripped again. Did someone plug a kettle into the stage relays?",
+      },
+    ],
+    choices: [
+      { id: "c1", text: "Probably the actors brewing tea.", nextNodeId: "tea" },
+      {
+        id: "c2",
+        text: "I'll go check the distro rack.",
+        nextNodeId: "end",
+        pointDelta: 5,
+      },
+    ],
+  },
+  tea: {
+    id: "tea",
+    variants: [
+      {
+        text: "If I find chamomile leaves near my 20-amp breakers, I'm cutting the dressing room power entirely.",
+      },
+    ],
+    choices: [{ id: "c1", text: "A fair response.", nextNodeId: "end" }],
   },
 };
 
@@ -193,58 +303,11 @@ export const SM_EMERGENCY_TREE: DialogueTree = {
   },
 };
 
-export const LEO_FLY_TREE: DialogueTree = {
-  start: {
-    id: "start",
-    variants: [
-      {
-        text: "Hey ground-dweller. The fly line for the moon piece is feeling heavy. I think the counterweight arbor is unbalanced. Have you seen anyone mess with the stage weights?",
-      },
-    ],
-    choices: [
-      {
-        id: "c1",
-        text: "Yeah, Carpentry borrowed some weights to hold down a scenic flat.",
-        nextNodeId: "found_it",
-      },
-      {
-        id: "c2",
-        text: "No idea. Just pull harder?",
-        nextNodeId: "bad_advice",
-      },
-    ],
-  },
-  found_it: {
-    id: "found_it",
-    variants: [
-      {
-        text: "Those absolute termites. Go tell Dante I need my iron back before act two, or the moon isn't rising.",
-      },
-    ],
-    choices: [
-      {
-        id: "c1",
-        text: "I'll go wrangle the carpenters.",
-        nextNodeId: "end",
-        sideEffect: "start_weight_quest",
-      },
-    ],
-  },
-  bad_advice: {
-    id: "bad_advice",
-    variants: [
-      {
-        text: "Pull harder? It's physics, not a gym class. Forget it, I'll figure it out myself.",
-      },
-    ],
-    choices: [
-      { id: "c1", text: "Suit yourself.", nextNodeId: "end", pointDelta: -5 },
-    ],
-  },
-};
-
 export const DIALOGUE_REGISTRY: Record<string, DialogueTree> = {
   npc_zainab: ZAINAB_WARDROBE_TREE,
   npc_stage_manager_emergency: SM_EMERGENCY_TREE,
-  npc_leo: LEO_FLY_TREE,
+  char_ben: BEN_LX_TREE,
+  char_maya: MAYA_PROPS_TREE,
+  char_casey: CASEY_AUDIO_TREE,
+  char_alex: ALEX_ME_TREE,
 };

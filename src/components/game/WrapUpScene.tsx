@@ -31,7 +31,7 @@ export default function WrapUpScene({
   const cuesMissed = state.session?.cuesMissed || 0;
   const totalCues = cueSheet.length;
 
-  const stars = calculateStars(totalCues, cuesHit, score);
+  const stars = calculateStars(state.session, totalCues);
 
   const getResultColor = (starCount: number): string => {
     if (starCount >= 3) return "var(--bui-fg-success)";
@@ -65,9 +65,15 @@ export default function WrapUpScene({
         : "UNKNOWN";
       const prodTitle = prod?.title || "Unknown Production";
 
+      const completedQuests = state.session?.completedQuests || [];
+      const questText =
+        completedQuests.length > 0
+          ? ` Quests Completed: ${completedQuests.length}.`
+          : "";
+
       history["sys_comms"].push({
         sender: "System Alerts",
-        text: `POST-MORTEM REPORT [${prodTitle} - Tier: ${diffText}]: Hit ${cuesHit}/${totalCues} Cues. Final Score: ${score}. Rating: ${stars} Stars.`,
+        text: `[POST-MORTEM REPORT] ${prodTitle} - Tier: ${diffText}: Hit ${cuesHit}/${totalCues} Cues. Final Score: ${score}. Rating: ${stars} Stars.${questText}`,
       });
       sessionStorage.setItem("minion_chats", JSON.stringify(history));
       sessionStorage.setItem("unread_messages", "true");

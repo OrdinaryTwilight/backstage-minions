@@ -51,7 +51,7 @@ export default function PlanningStage({
       Math.floor(Math.random() * (max - min + 1)) + min;
 
     // Randomize the requested special gobo
-    const availableGobos = ["stars", "window"];
+    const availableGobos = ["stars", "window", "leaves", "fire"];
     const randomGobo =
       availableGobos[Math.floor(Math.random() * availableGobos.length)];
 
@@ -152,15 +152,11 @@ export default function PlanningStage({
   }
 
   const handleFinalize = () => {
-    // We cast grid to any here to bypass the strict LightPlotNode mapping since the reducer
-    // expects a slightly different internal structure, but handles it fine at runtime.
-    // In a future refactor, aligning the Reducer types to the Planner types would be ideal.
     dispatch({ type: "SET_PLOT_LIGHTS", lights: grid as any });
     dispatch({ type: "ADD_SCORE", delta: reportDetails?.score || 0 });
     onComplete();
   };
 
-  // Extracted to keep JSX Cognitive Complexity low
   const renderFeedbackPanel = () => {
     if (!reportDetails) return null;
 
@@ -168,7 +164,6 @@ export default function PlanningStage({
     let feedbackHeader = "";
     let feedbackText = "";
 
-    // Build a dynamic list of exactly what the player missed
     const issues: string[] = [];
     if (reportDetails.missingSpots > 0)
       issues.push(`Need ${reportDetails.missingSpots} more Spot(s)`);
@@ -182,7 +177,6 @@ export default function PlanningStage({
     const issuesText =
       issues.length > 0 ? `\n\n📝 SM NOTES: ${issues.join(" | ")}.` : "";
 
-    // Evaluate all score tiers
     if (reportDetails.score === 100) {
       feedbackHeader = "🏆 PERFECT CLEARANCE";
       feedbackText =
@@ -259,8 +253,9 @@ export default function PlanningStage({
           <strong>{requirements.targetSpots} Spots</strong> and{" "}
           <strong>{requirements.targetWashes} Washes</strong>. Make sure we have
           a <strong>{requirements.requiredGobo.toUpperCase()}</strong> gobo
-          loaded for the dream sequence. Also, our dimmer racks are maxed out: Do
-          not exceed <strong>{requirements.maxFixtures} total fixtures</strong>
+          loaded for the dream sequence. Also, our dimmer racks are maxed out:
+          Do not exceed{" "}
+          <strong>{requirements.maxFixtures} total fixtures</strong>
           ."
         </p>
       </HardwarePanel>
@@ -312,8 +307,8 @@ export default function PlanningStage({
           >
             Gobo Selection Matrix
           </h3>
-          <div style={{ display: "flex", gap: "1rem" }}>
-            {["none", "stars", "window"].map((gobo) => (
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            {["none", "stars", "window", "leaves", "fire"].map((gobo) => (
               <Button
                 key={gobo}
                 onClick={() => setSelectedGobo(gobo === "none" ? null : gobo)}

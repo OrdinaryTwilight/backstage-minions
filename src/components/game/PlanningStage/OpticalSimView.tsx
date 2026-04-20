@@ -94,7 +94,7 @@ export default function OpticalSimView({
                     transition: "all 0.3s ease",
                   }}
                 >
-                  {/* Add GoBo previews here */}
+                  {/* Dynamic GoBo previews using CSS patterns */}
                   {cell.gobo === "stars" && (
                     <div
                       style={{
@@ -114,6 +114,28 @@ export default function OpticalSimView({
                         inset: 0,
                         background:
                           "linear-gradient(90deg, transparent 40%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0.8) 60%, transparent 60%), linear-gradient(0deg, transparent 40%, rgba(0,0,0,0.8) 40%, rgba(0,0,0,0.8) 60%, transparent 60%)",
+                      }}
+                    />
+                  )}
+                  {cell.gobo === "leaves" && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        backgroundImage:
+                          "radial-gradient(circle at 20% 30%, rgba(0,0,0,0.8) 10%, transparent 20%), radial-gradient(circle at 75% 65%, rgba(0,0,0,0.8) 15%, transparent 25%), radial-gradient(circle at 50% 80%, rgba(0,0,0,0.6) 10%, transparent 20%)",
+                        mixBlendMode: "overlay",
+                      }}
+                    />
+                  )}
+                  {cell.gobo === "fire" && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        backgroundImage:
+                          "repeating-radial-gradient(circle at 50% 120%, transparent, transparent 3px, rgba(0,0,0,0.6) 4px, rgba(0,0,0,0.6) 7px)",
+                        mixBlendMode: "overlay",
                       }}
                     />
                   )}
