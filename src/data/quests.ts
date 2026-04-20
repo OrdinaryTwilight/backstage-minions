@@ -7,8 +7,9 @@ export interface QuestDefinition {
   pickupZone: string;
   pickupNpcName: string;
   pickupIcon: string;
-  targetNpcId?: string;
-  targetZoneId?: string;
+  // Enforcing that ALL quests must provide both pathways
+  targetNpcId: string;
+  targetZoneId: string;
   scoreReward: number;
   narrativeRef: keyof typeof NARRATIVE.quests;
 }
@@ -17,51 +18,55 @@ export const QUEST_REGISTRY: QuestDefinition[] = [
   {
     id: "actor_water",
     requiredItem: "Water Bottle",
-    pickupZone: "snackTable",
+    pickupZone: "snackTable", // Green Room
     pickupNpcName: "Craft Services",
     pickupIcon: "🍩",
-    targetNpcId: "npc_madeline",
+    targetNpcId: "npc_madeline", // Madeline (Lead Actor)
+    targetZoneId: "couch", // Green Room
     scoreReward: 20,
     narrativeRef: "water",
   },
   {
     id: "lx_tape",
     requiredItem: "Gaff Tape",
-    pickupZone: "propsTable",
-    pickupNpcName: "Maya (Props)",
+    pickupZone: "propsTable", // Backstage
+    pickupNpcName: "Props Table",
     pickupIcon: "⚒️",
-    targetZoneId: "lightBooth",
-    targetNpcId: "char_alex",
+    targetNpcId: "char_alex", // Alex (Master Electrician)
+    targetZoneId: "lightBooth", // Backstage
     scoreReward: 20,
     narrativeRef: "tape",
   },
   {
     id: "director_script",
     requiredItem: "Director's Script",
-    pickupZone: "stageManager",
+    pickupZone: "npc_stage_manager", // Backstage (NPC Interaction)
     pickupNpcName: "Alex P. (SM)",
     pickupIcon: "📋",
-    targetNpcId: "npc_arthur",
+    targetNpcId: "npc_arthur", // Arthur (Director)
+    targetZoneId: "orchestraPit", // Backstage
     scoreReward: 20,
     narrativeRef: "script",
   },
   {
     id: "audio_batteries",
     requiredItem: "AA Batteries",
-    pickupZone: "storage",
+    pickupZone: "storage", // Basement
     pickupNpcName: "Storage Bin",
     pickupIcon: "🔋",
-    targetNpcId: "char_casey",
+    targetNpcId: "char_casey", // Casey (Audio Systems)
+    targetZoneId: "soundBooth", // Backstage
     scoreReward: 20,
     narrativeRef: "batteries",
   },
   {
     id: "spike_stairs",
     requiredItem: "Glow Tape",
-    pickupZone: "propsTable",
-    pickupNpcName: "Maya (Props)",
-    pickupIcon: "⚒️",
-    targetZoneId: "wings",
+    pickupZone: "loadingDock", // Basement
+    pickupNpcName: "Road Case",
+    pickupIcon: "📦",
+    targetNpcId: "npc_sam", // Sam (Assistant Stage Manager)
+    targetZoneId: "wings", // Backstage
     scoreReward: 20,
     narrativeRef: "spikeTape",
   },

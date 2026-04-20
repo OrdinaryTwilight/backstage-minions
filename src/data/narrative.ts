@@ -84,58 +84,67 @@ export const NARRATIVE = {
   quests: {
     water: {
       pickupText:
-        "Just stale bagels left... but there is one fresh Water Bottle.",
+        "Just stale bagels left at Craft Services... but there is one fresh Water Bottle.",
       pickupAction: "Take Water Bottle",
       targetNeedText:
         "I can't go on stage like this... my throat is so dry. I need water...",
       targetThanksText:
         "Oh my gosh, water! My throat was so dry, I thought I'd die out there. Thank you so much!",
       giveAction: "Give Water Bottle (+20 pts)",
-      searchAction: "I'll see if Craft Services has any.",
+      searchAction: "I'll see if Craft Services has any in the Green Room.",
       feedbackAcquired: "Acquired: Water Bottle!",
       feedbackComplete: "Quest Complete! +20 Pts",
     },
     tape: {
       pickupText:
-        "Hey, since you're walking around... Can you bring this Gaff Tape to the LX Booth?",
+        "Hey, since you're walking around... Can you bring this Gaff Tape to Alex or drop it off at the LX Booth?",
       pickupAction: "Take Gaff Tape",
+      targetNeedText:
+        "I've got cables snaking everywhere and no gaff tape to secure them. This is a disaster waiting to happen.",
       targetThanksText:
         "Yes! Gaff tape! You just saved the show. Lock in, we're starting soon.",
-      giveAction: "Give Gaff Tape (+20 pts)",
+      giveAction: "Hand over Gaff Tape (+20 pts)",
+      searchAction: "I'll ask Props if they have a spare roll.",
       feedbackAcquired: "Acquired: Gaff Tape!",
       feedbackComplete: "Quest Complete! +20 Pts",
     },
     script: {
       pickupText:
-        "The Director left their script on my desk again. Can you run this to the Green Room before house opens?",
+        "The Director left their script on my desk again. Can you run this to Arthur or leave it at his setup in the Orchestra Pit?",
       pickupAction: "Take Director's Script",
       targetNeedText:
-        "I've completely lost my blocking notes... Have you seen my script?",
+        "I've completely lost my blocking notes... Have you seen my script anywhere?",
       targetThanksText:
         "Ah, my script! The SM found it? Excellent work, let's get ready for places.",
-      giveAction: "Give Script (+20 pts)",
-      searchAction: "I'll ask the SM.",
+      giveAction: "Return Script (+20 pts)",
+      searchAction: "I'll ask the SM if they've seen it.",
       ignoreAction: "Maybe later.",
       feedbackAcquired: "Acquired: Director's Script!",
       feedbackComplete: "Quest Complete! +20 Pts",
     },
     batteries: {
       pickupText:
-        "Audio is out of double-As and act two starts in 15. The ASM said there's a stash in the basement.",
-      pickupAction: "Find AA Batteries",
-      targetNeedText: "My mic pack keeps flashing red. Is that bad?",
+        "You rummage through the basement Storage Bin and find a sealed pack of AA Batteries.",
+      pickupAction: "Take AA Batteries",
+      targetNeedText:
+        "We are completely out of batteries at the sound booth. If my mics die, it's game over.",
       targetThanksText:
         "Oh, fresh batteries! You saved my solo. I owe you one.",
       giveAction: "Swap Batteries (+20 pts)",
-      searchAction: "Check the basement storage.",
+      searchAction: "I'll check the basement storage bin.",
       feedbackAcquired: "Acquired: 8-pack of AA Batteries!",
       feedbackComplete: "Quest Complete! Crisis Averted.",
     },
     spikeTape: {
       pickupText:
-        "The glow tape peeled off the main stair unit. Someone is going to break their neck in the dark.",
+        "You spot a fresh roll of Glow Tape sitting on an open road case at the loading dock.",
       pickupAction: "Grab Glow Tape",
+      targetNeedText:
+        "The glow tape peeled off the wings. Someone is going to break their neck in the dark. Have you seen the spare roll?",
+      targetThanksText:
+        "Good find! Let's get these spike marks laid down before the cast starts wandering around.",
       giveAction: "Re-spike stairs (+20 pts)",
+      searchAction: "I'll look around the loading dock.",
       feedbackAcquired: "Acquired: Roll of Glow Tape!",
       feedbackComplete: "Quest Complete! Stage is safe.",
     },

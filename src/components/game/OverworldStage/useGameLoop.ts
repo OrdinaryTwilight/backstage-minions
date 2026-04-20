@@ -5,6 +5,7 @@ import {
   CHARACTERS,
   NPC_ICONS,
 } from "../../../data/characters";
+import { QUEST_REGISTRY } from "../../../data/quests";
 import { ZoneConfig } from "../../../data/types";
 import {
   GAME_HEIGHT,
@@ -166,16 +167,15 @@ export function useGameLoop({
         sessionStorage.getItem("minion_inventory") || "[]",
       );
 
-      // If there are active quests, forcefully spawn the common quest-givers/targets to prevent dead-ends
-      if (activeQuests.length > 0) {
-        forceSpawnIds.add("npc_arthur");
-        forceSpawnIds.add("npc_sam");
-        forceSpawnIds.add("npc_madeline");
-        forceSpawnIds.add("char_maya");
-        forceSpawnIds.add("char_casey");
-        forceSpawnIds.add("char_alex");
-      }
+      // Dynamically extract and demand the targets of any active quests
+      const activeQuestDefs = QUEST_REGISTRY.filter((q) =>
+        activeQuests.includes(q.id),
+      );
+      activeQuestDefs.forEach((q) => {
+        if (q.targetNpcId) forceSpawnIds.add(q.targetNpcId);
+      });
 
+      // Maintain specific inventory-triggered spans just in case the quest isn't in 'active' state yet
       if (inv.includes("Director's Script")) forceSpawnIds.add("npc_arthur");
       if (inv.includes("Water Bottle")) forceSpawnIds.add("npc_madeline");
       if (inv.includes("AA Batteries")) forceSpawnIds.add("char_casey");

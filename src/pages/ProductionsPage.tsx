@@ -1,13 +1,12 @@
 import { useNavigate, useParams } from "react-router-dom";
-import Button from "../components/ui/Button";
 import NavBar from "../components/ui/NavBar";
-import { useGame } from "../context/GameContext"; // <-- Added back the context import
+import { useGame } from "../context/GameContext";
 import { PRODUCTIONS } from "../data/gameData";
 
 export default function ProductionsPage() {
   const { productionId } = useParams();
   const navigate = useNavigate();
-  const { state } = useGame(); // <-- Grab the global game state
+  const { state } = useGame();
 
   const production = PRODUCTIONS.find((p) => p.id === productionId);
 
@@ -17,12 +16,20 @@ export default function ProductionsPage() {
 
   const availableLevels = ["school", "community", "professional"] as const;
 
+  const handleSelectLevel = (levelKey: string) => {
+    sessionStorage.removeItem("minion_inventory");
+    sessionStorage.removeItem("minion_completed_quests");
+    sessionStorage.removeItem("minion_active_quests");
+    navigate(`/productions/${productionId}/difficulty/${levelKey}/character`);
+  };
+
   return (
     <div
       className="page-container animate-fade-in"
       style={{ paddingTop: "1rem" }}
     >
       <NavBar />
+
       <div
         style={{
           display: "flex",
@@ -43,9 +50,9 @@ export default function ProductionsPage() {
             position: "relative",
           }}
         >
-          {" "}
-          {/* Close Button added here */}
+          {/* Close Button */}
           <button
+            type="button"
             onClick={() => navigate("/productions")}
             aria-label="Close playbill and return to productions list"
             style={{
@@ -62,55 +69,53 @@ export default function ProductionsPage() {
           >
             ×
           </button>
-          {/* Blueprint Corner Brackets */}
-          <div
-            style={{
-              position: "absolute",
-              top: "10px",
-              left: "10px",
-              borderTop: "2px solid var(--bui-fg-warning)",
-              borderLeft: "2px solid var(--bui-fg-warning)",
-              width: "20px",
-              height: "20px",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              top: "10px",
-              right: "10px",
-              borderTop: "2px solid var(--bui-fg-warning)",
-              borderRight: "2px solid var(--bui-fg-warning)",
-              width: "20px",
-              height: "20px",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              bottom: "10px",
-              left: "10px",
-              borderBottom: "2px solid var(--bui-fg-warning)",
-              borderLeft: "2px solid var(--bui-fg-warning)",
-              width: "20px",
-              height: "20px",
-            }}
-          />
-          <div
-            style={{
-              position: "absolute",
-              bottom: "10px",
-              right: "10px",
-              borderBottom: "2px solid var(--bui-fg-warning)",
-              borderRight: "2px solid var(--bui-fg-warning)",
-              width: "20px",
-              height: "20px",
-            }}
-          />
+
+          {/* Decorative Corners */}
+          {["top-left", "top-right", "bottom-left", "bottom-right"].map(
+            (pos) => {
+              const baseStyle: React.CSSProperties = {
+                position: "absolute",
+                width: "20px",
+                height: "20px",
+              };
+
+              const styles: Record<string, React.CSSProperties> = {
+                "top-left": {
+                  top: "10px",
+                  left: "10px",
+                  borderTop: "2px solid var(--bui-fg-warning)",
+                  borderLeft: "2px solid var(--bui-fg-warning)",
+                },
+                "top-right": {
+                  top: "10px",
+                  right: "10px",
+                  borderTop: "2px solid var(--bui-fg-warning)",
+                  borderRight: "2px solid var(--bui-fg-warning)",
+                },
+                "bottom-left": {
+                  bottom: "10px",
+                  left: "10px",
+                  borderBottom: "2px solid var(--bui-fg-warning)",
+                  borderLeft: "2px solid var(--bui-fg-warning)",
+                },
+                "bottom-right": {
+                  bottom: "10px",
+                  right: "10px",
+                  borderBottom: "2px solid var(--bui-fg-warning)",
+                  borderRight: "2px solid var(--bui-fg-warning)",
+                },
+              };
+
+              return <div key={pos} style={{ ...baseStyle, ...styles[pos] }} />;
+            },
+          )}
+
+          {/* Header */}
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>
               {production.poster}
             </div>
+
             <h2
               style={{
                 fontFamily: "var(--font-mono)",
@@ -123,6 +128,7 @@ export default function ProductionsPage() {
             >
               Backstage Minions Presents
             </h2>
+
             <h1
               style={{
                 fontFamily: "var(--font-sketch)",
@@ -134,6 +140,7 @@ export default function ProductionsPage() {
             >
               {production.title}
             </h1>
+
             <p
               style={{
                 fontSize: "1.1rem",
@@ -147,6 +154,8 @@ export default function ProductionsPage() {
               {production.description}
             </p>
           </div>
+
+          {/* Levels */}
           <div
             style={{
               borderTop: "1px dashed var(--bui-border)",
@@ -166,40 +175,37 @@ export default function ProductionsPage() {
             </h3>
 
             <div
-              style={{ display: "flex", flexDirection: "column", gap: "1rem" }}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                gap: "1rem",
+              }}
             >
               {availableLevels.map((levelKey) => {
                 const levelData = production.levels[levelKey];
                 const isUnlocked = !!levelData;
 
-                // RESTORED: Safely look up the player's saved progress for this specific show and level
                 const stars =
-                  (productionId &&
-                    state.progress?.[`${productionId}_${levelKey}`]?.stars) ||
-                  0;
+                  state.progress?.[`${productionId}_${levelKey}`]?.stars || 0;
 
                 return (
                   <button
                     key={levelKey}
                     type="button"
                     disabled={!isUnlocked}
-                    onClick={() => {
-                      if (isUnlocked) {
-                        sessionStorage.removeItem("minion_inventory");
-                        sessionStorage.removeItem("minion_completed_quests");
-                        sessionStorage.removeItem("minion_active_quests");
-                        navigate(
-                          `/productions/${productionId}/difficulty/${levelKey}/character`,
-                        );
-                      }
-                    }}
+                    onClick={() => handleSelectLevel(levelKey)}
+                    aria-disabled={!isUnlocked}
                     style={{
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
                       padding: "1.25rem",
                       background: "rgba(0, 0, 0, 0.3)",
-                      border: `1px solid ${isUnlocked ? "var(--bui-border)" : "rgba(255,255,255,0.1)"}`,
+                      border: `1px solid ${
+                        isUnlocked
+                          ? "var(--bui-border)"
+                          : "rgba(255,255,255,0.1)"
+                      }`,
                       borderRadius: "8px",
                       opacity: isUnlocked ? 1 : 0.5,
                       cursor: isUnlocked ? "pointer" : "not-allowed",
@@ -219,7 +225,6 @@ export default function ProductionsPage() {
                         }}
                       >
                         {levelKey} Theater
-                        {/* RESTORED: Draw the stars right next to the title if they have any */}
                         {stars > 0 && (
                           <span
                             style={{
@@ -235,6 +240,7 @@ export default function ProductionsPage() {
                           </span>
                         )}
                       </h4>
+
                       <span
                         style={{
                           fontSize: "0.9rem",
@@ -247,16 +253,18 @@ export default function ProductionsPage() {
                           : "Production Locked"}
                       </span>
                     </div>
+
+                    {/* Visual only, not interactive */}
                     {isUnlocked && (
-                      <Button
-                        variant="accent"
+                      <span
+                        aria-hidden="true"
                         style={{
-                          pointerEvents: "none",
                           fontFamily: "var(--font-sketch)",
+                          color: "var(--bui-fg-warning)",
                         }}
                       >
                         Apply →
-                      </Button>
+                      </span>
                     )}
                   </button>
                 );
