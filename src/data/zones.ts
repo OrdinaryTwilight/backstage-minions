@@ -182,12 +182,12 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       y: 200,
       w: 150,
       h: 150,
-      label: "DIMMER RACK",
+      label: "DIMMER BEACH",
       color: "#800000",
       isSolid: true,
       dialogues: [
         {
-          speaker: "Dimmer Rack",
+          speaker: "Dimmer BEACH",
           text: "*Loud electrical humming noise that vibrates your teeth.*",
           choices: [{ id: "ok", text: "It's so warm..." }],
         },
