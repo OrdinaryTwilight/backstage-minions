@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Cue } from "../../data/gameData";
+import { Cue } from "../../types/game";
 
 interface CueStackProps {
   readonly cues: Cue[];
@@ -28,12 +28,12 @@ function CueStackComponent({
             <th style={{ textAlign: "right" }}>STATUS</th>
           </tr>
         </thead>
-        <tbody>
+        {/* FIX: Added ARIA live region so screen readers announce cue completions */}
+        <tbody aria-live="polite" aria-atomic="true">
           {cues.map((cue, idx) => {
             const result = cueResults[cue.id];
             const isCurrent = currentIndex === idx;
 
-            // Determine row-level flash class
             let flashClass = "";
             if (result)
               flashClass = result.hit ? "row-flash-hit" : "row-flash-miss";

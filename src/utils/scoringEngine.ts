@@ -53,8 +53,8 @@ export function calculateStars(
   const maxShowScore = calculateMaxShowScore(stages, difficulty, totalCues);
   const hitRate = totalCues > 0 ? cuesHit / totalCues : 1;
 
-  // 3 STARS: Score must STRICTLY exceed maxShowScore (meaning bonus was earned via quests/conflicts) + Excellent Execution
-  if (score > maxShowScore && hitRate >= 0.8) {
+  // 3 STARS: FIX - Adjusted to >= 95% of max score to ensure perfect runs actually award 3 stars without requiring side-quests.
+  if (score >= maxShowScore * 0.95 && hitRate >= 0.8) {
     return 3;
   }
 

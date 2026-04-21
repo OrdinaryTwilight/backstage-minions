@@ -1,7 +1,7 @@
 interface MasterControlProps {
   onGo: () => void;
   disabled: boolean;
-  style?: React.CSSProperties; // Add style support
+  style?: React.CSSProperties;
 }
 
 export default function MasterControl({
@@ -12,6 +12,7 @@ export default function MasterControl({
   return (
     <div style={{ textAlign: "center", margin: "2rem 0", ...style }}>
       <button
+        type="button" // FIX: Prevent accidental form submission reloads
         className={`btn-master-go animate-pulse-go`}
         onClick={onGo}
         disabled={disabled}

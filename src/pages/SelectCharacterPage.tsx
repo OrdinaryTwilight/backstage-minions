@@ -7,7 +7,7 @@ import NavBar from "../components/ui/NavBar";
 import SectionHeader from "../components/ui/SectionHeader";
 import StatBar from "../components/ui/StatBar";
 import { useGame } from "../context/GameContext";
-import { CHARACTERS, CUE_SHEETS } from "../data/gameData";
+import { CHARACTERS } from "../data/gameData";
 
 export default function SelectCharacterPage() {
   const { productionId, difficulty } = useParams<{
@@ -18,10 +18,7 @@ export default function SelectCharacterPage() {
   const { dispatch } = useGame();
   const [idx, setIdx] = useState(0);
 
-  // Data Safety: Ensure we have characters for the selected production
-  const available = CHARACTERS.filter(
-    (c) => productionId && CUE_SHEETS[productionId]?.[c.department],
-  );
+  const available = CHARACTERS;
   const char = available[idx];
 
   function startGame() {
@@ -44,8 +41,7 @@ export default function SelectCharacterPage() {
     <div className="page-container">
       <NavBar />
 
-      {/* Wrapper to isolate the animation from the NavBar */}
-      <div className="animate-blueprint">
+      <section className="animate-blueprint" aria-label="Character Selection">
         <Button
           onClick={() => navigate(`/productions/${productionId}`)}
           style={{
@@ -67,58 +63,58 @@ export default function SelectCharacterPage() {
         <HardwarePanel
           className="animate-pop"
           style={{ textAlign: "center", padding: "2.5rem" }}
-          role="region"
-          aria-live="polite"
-          aria-label="Character profile"
         >
-          {/* Character Icon with Flicker Effect */}
-          <div
-            className="animate-flicker"
-            style={{ fontSize: "5.5rem", marginBottom: "1rem" }}
-            aria-hidden="true"
-          >
-            {char.icon}
-          </div>
-
-          <h2
-            className="annotation-text"
-            style={{ fontSize: "1.8rem", margin: "0 0 0.5rem 0" }}
-          >
-            {char.name}
-          </h2>
-
-          <DepartmentBadge department={char.department} />
-
-          <p
-            className="console-screen"
-            style={{
-              margin: "2rem auto",
-              maxWidth: "550px",
-              fontStyle: "italic",
-              borderStyle: "dashed",
-            }}
-          >
-            "{char.bio}"
-          </p>
-
-          {/* Stats with dynamic fill animations */}
-          <div
-            style={{ textAlign: "left", maxWidth: "400px", margin: "0 auto" }}
-          >
-            <h3
-              className="annotation-text"
-              style={{ fontSize: "1rem", marginBottom: "1.5rem", opacity: 0.5 }}
+          <section aria-live="polite" aria-label="Character profile">
+            <div
+              className="animate-flicker"
+              style={{ fontSize: "5.5rem", marginBottom: "1rem" }}
+              aria-hidden="true"
             >
-              Aptitude Diagnostics:
-            </h3>
-            <StatBar label="Technical" value={char.stats.technical} />
-            <StatBar label="Social" value={char.stats.social} />
-            <StatBar label="Stamina" value={char.stats.stamina} />
-          </div>
+              {char.icon}
+            </div>
+
+            <h2
+              className="annotation-text"
+              style={{ fontSize: "1.8rem", margin: "0 0 0.5rem 0" }}
+            >
+              {char.name}
+            </h2>
+
+            <DepartmentBadge department={char.department} />
+
+            <p
+              className="console-screen"
+              style={{
+                margin: "2rem auto",
+                maxWidth: "550px",
+                fontStyle: "italic",
+                borderStyle: "dashed",
+              }}
+            >
+              "{char.bio}"
+            </p>
+
+            <div
+              style={{ textAlign: "left", maxWidth: "400px", margin: "0 auto" }}
+            >
+              <h3
+                className="annotation-text"
+                style={{
+                  fontSize: "1rem",
+                  marginBottom: "1.5rem",
+                  opacity: 0.5,
+                }}
+              >
+                Aptitude Diagnostics:
+              </h3>
+              <StatBar label="Technical" value={char.stats.technical} />
+              <StatBar label="Social" value={char.stats.social} />
+              <StatBar label="Stamina" value={char.stats.stamina} />
+            </div>
+          </section>
         </HardwarePanel>
 
-        {/* Carousel Controls */}
-        <div
+        <nav
           style={{
             display: "flex",
             gap: "1.5rem",
@@ -152,9 +148,8 @@ export default function SelectCharacterPage() {
           >
             ›
           </Button>
-        </div>
+        </nav>
 
-        {/* Pulsing Start Button */}
         <Button
           variant="success"
           className="animate-pulse-go"
@@ -172,7 +167,7 @@ export default function SelectCharacterPage() {
         >
           Start show as {char.name}
         </Button>
-      </div>
+      </section>
     </div>
   );
 }

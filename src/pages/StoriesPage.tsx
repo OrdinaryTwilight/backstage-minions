@@ -1,4 +1,3 @@
-// src/pages/StoriesPage.jsx
 import { useState } from "react";
 import HardwarePanel from "../components/ui/HardwarePanel";
 import NavBar from "../components/ui/NavBar";
@@ -20,8 +19,10 @@ export default function StoriesPage() {
     <div className="page-container">
       <NavBar />
 
-      {/* Wrapper for the animation so it doesn't break the Navbar */}
-      <div className="content-reveal">
+      <section
+        className="content-reveal"
+        aria-label="Stories and Technical Lore"
+      >
         <SectionHeader
           title="Technical Lore"
           subtitle="Deep dives into the technical theatre archives."
@@ -56,7 +57,10 @@ export default function StoriesPage() {
           </HardwarePanel>
         ) : (
           <>
-            <section style={{ marginBottom: "2.5rem" }}>
+            <section
+              style={{ marginBottom: "2.5rem" }}
+              aria-label="Available Records"
+            >
               <h2
                 className="annotation-text"
                 style={{ color: "var(--bui-fg-success)", marginBottom: "1rem" }}
@@ -87,7 +91,7 @@ export default function StoriesPage() {
               </div>
             </section>
 
-            <section>
+            <section aria-label="Classified Data">
               <h2
                 className="annotation-text"
                 style={{ opacity: 0.5, marginBottom: "1rem" }}
@@ -114,7 +118,7 @@ export default function StoriesPage() {
             </section>
           </>
         )}
-      </div>
+      </section>
     </div>
   );
 }

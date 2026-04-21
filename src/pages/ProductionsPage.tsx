@@ -30,12 +30,13 @@ export default function ProductionsPage() {
     >
       <NavBar />
 
-      <div
+      <section
         style={{
           display: "flex",
           justifyContent: "center",
           padding: "2rem 1rem",
         }}
+        aria-label="Production details and level selection"
       >
         <div
           className="animate-pop"
@@ -50,7 +51,6 @@ export default function ProductionsPage() {
             position: "relative",
           }}
         >
-          {/* Close Button */}
           <button
             type="button"
             onClick={() => navigate("/productions")}
@@ -70,7 +70,6 @@ export default function ProductionsPage() {
             ×
           </button>
 
-          {/* Decorative Corners */}
           {["top-left", "top-right", "bottom-left", "bottom-right"].map(
             (pos) => {
               const baseStyle: React.CSSProperties = {
@@ -110,7 +109,6 @@ export default function ProductionsPage() {
             },
           )}
 
-          {/* Header */}
           <div style={{ textAlign: "center", marginBottom: "3rem" }}>
             <div style={{ fontSize: "4rem", marginBottom: "1rem" }}>
               {production.poster}
@@ -155,7 +153,6 @@ export default function ProductionsPage() {
             </p>
           </div>
 
-          {/* Levels */}
           <div
             style={{
               borderTop: "1px dashed var(--bui-border)",
@@ -174,12 +171,13 @@ export default function ProductionsPage() {
               Callboard: Select Gig
             </h3>
 
-            <div
+            <nav
               style={{
                 display: "flex",
                 flexDirection: "column",
                 gap: "1rem",
               }}
+              aria-label="Level selection"
             >
               {availableLevels.map((levelKey) => {
                 const levelData = production.levels[levelKey];
@@ -254,7 +252,6 @@ export default function ProductionsPage() {
                       </span>
                     </div>
 
-                    {/* Visual only, not interactive */}
                     {isUnlocked && (
                       <span
                         aria-hidden="true"
@@ -269,10 +266,10 @@ export default function ProductionsPage() {
                   </button>
                 );
               })}
-            </div>
+            </nav>
           </div>
         </div>
-      </div>
+      </section>
     </div>
   );
 }

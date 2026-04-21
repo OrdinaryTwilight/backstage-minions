@@ -64,8 +64,9 @@ export function useLevelFlow(
 
   function handleDismissSkip() {
     setStrikeSkipMessage(null);
-    dispatch({ type: "NEXT_STAGE" }); // Skips the skipped stage
-    dispatch({ type: "NEXT_STAGE" }); // Moves to the stage after
+    setIsInOverworld(false); // FIX: Priority 44 - Prevent the Overworld soft-lock
+    dispatch({ type: "NEXT_STAGE" });
+    dispatch({ type: "NEXT_STAGE" });
   }
 
   function handleOverworldComplete() {

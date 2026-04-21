@@ -13,17 +13,19 @@ import OverworldStage from "../../components/game/OverworldStage";
 import PlanningStage from "../../components/game/PlanningStage";
 import SoundDesignStage from "../../components/game/SoundDesignStage";
 import WrapUpScene from "../../components/game/WrapUpScene";
+import Button from "../../components/ui/Button";
 
 // Extracted Sub-Components and Hooks
 import ShowControlNav from "./ShowControlNav";
 import { SkipChoice, useLevelFlow } from "./useLevelFlow";
 
+// FIX: Priority 43 - Corrected the key to match levelFlowEngine
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const STAGE_COMPONENTS: Record<string, any> = {
   equipment: EquipmentStage,
   planning: PlanningStage,
   sound_design: SoundDesignStage,
-  execution: CueExecutionStage,
+  cue_execution: CueExecutionStage,
   cable_coiling: CableCoilingStage,
   wrapup: WrapUpScene,
 };
@@ -46,15 +48,17 @@ export default function GameLevelPage() {
 
   if (!state.session) return <Navigate to="/" replace />;
 
-  const currentStageKey = state.session.stages[state.session.currentStageIndex];
-  const nextStageKey =
-    state.session.stages[state.session.currentStageIndex + 1];
+  // FIX: Priority 43 - Extract to constant to satisfy strict TS null-checks in callbacks
+  const session = state.session;
+
+  const currentStageKey = session.stages[session.currentStageIndex];
+  const nextStageKey = session.stages[session.currentStageIndex + 1];
   const ActiveStage = STAGE_COMPONENTS[currentStageKey];
 
-  if (state.session.activeConflict) {
+  if (session.activeConflict) {
     return (
       <ConflictMinigame
-        conflict={state.session.activeConflict}
+        conflict={session.activeConflict}
         onResolved={(choice: unknown) => {
           const resolvedChoice = choice as ConflictChoice & {
             contactId?: string;
@@ -62,7 +66,7 @@ export default function GameLevelPage() {
           dispatch({ type: "ADD_SCORE", delta: resolvedChoice.pointDelta });
           dispatch({
             type: "RESOLVE_CONFLICT",
-            conflictId: state.session?.activeConflict?.id ?? "",
+            conflictId: session.activeConflict?.id ?? "",
             pointDelta: resolvedChoice.pointDelta,
           });
           const contactToUnlock = resolvedChoice.contactId;
@@ -104,6 +108,69 @@ export default function GameLevelPage() {
             handleDismissSkip();
           }}
         />
+      </div>
+    );
+  }
+
+  // FIX: Priority 43 - Graceful fallback for departments missing cue sheets
+  if (
+    currentStageKey === "cue_execution" &&
+    (!departmentCues || departmentCues.length === 0)
+  ) {
+    return (
+      <div
+        style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+      >
+        <div
+          style={{
+            flex: 1,
+            paddingBottom: "80px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            className="page-container animate-pop"
+            style={{
+              textAlign: "center",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "2rem",
+            }}
+          >
+            <h2
+              style={{
+                color: "var(--bui-fg-warning)",
+                fontSize: "2rem",
+                fontFamily: "var(--font-sketch)",
+              }}
+            >
+              🚧 Under Construction 🚧
+            </h2>
+            <p
+              style={{
+                fontSize: "1.2rem",
+                color: "var(--color-pencil-light)",
+                maxWidth: "600px",
+                lineHeight: "1.6",
+              }}
+            >
+              The <strong>{char.department.toUpperCase()}</strong> department's
+              execution phase is currently being built in the shop. Check back
+              in a future update!
+            </p>
+            <Button
+              variant="accent"
+              onClick={handleStageAdvance}
+              style={{ padding: "1rem 2rem", fontSize: "1.2rem" }}
+            >
+              Skip to Post-Show →
+            </Button>
+          </div>
+        </div>
+        <ShowControlNav />
       </div>
     );
   }

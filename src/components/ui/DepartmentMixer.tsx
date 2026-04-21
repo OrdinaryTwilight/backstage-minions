@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import HardwarePanel from "./HardwarePanel";
 
 interface FaderTrackProps {
@@ -6,10 +5,10 @@ interface FaderTrackProps {
   color: string;
   onLevelChange: (level: number) => void;
   currentLevel: number;
-  masterLevel: number; // NEW
+  masterLevel: number;
   targetLevel?: number;
   isMaster?: boolean;
-  isMobile?: boolean; // NEW
+  isMobile?: boolean;
 }
 
 function FaderTrack({
@@ -22,31 +21,22 @@ function FaderTrack({
   isMaster = false,
   isMobile = false,
 }: Readonly<FaderTrackProps>) {
-  // Calculate the effective output (LED meter) based on physical position (currentLevel) and Master
+  // FIX: Priority 45 - Removed the 50fps JS flicker interval to save memory
   const effectiveLevel = isMaster
     ? currentLevel
     : currentLevel * (masterLevel / 100);
-  const [flicker, setFlicker] = useState(0);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setFlicker(Math.random() * (effectiveLevel / 10)); // Flicker based on output
-    }, 100);
-    return () => clearInterval(interval);
-  }, [effectiveLevel]);
 
   const target = isMaster ? 100 : targetLevel;
   const margin = 10;
   const isAcceptable = Math.abs(effectiveLevel - target) <= margin;
 
-  let barColor = "#eab308"; // Default Yellow
+  let barColor = "#eab308";
   if (isAcceptable) {
-    barColor = "#22c55e"; // Green
+    barColor = "#22c55e";
   } else if (effectiveLevel > target) {
-    barColor = "#ef4444"; // Red
+    barColor = "#ef4444";
   }
 
-  // Dynamic constraints so it fits perfectly on mobile or desktop
   const trackHeight = isMobile ? 140 : 220;
   const containerHeight = isMobile ? 220 : 350;
   const faderWidth = isMobile ? 45 : 70;
@@ -99,7 +89,7 @@ function FaderTrack({
             position: "absolute",
             bottom: 0,
             width: "100%",
-            height: `${Math.min(effectiveLevel + flicker, 100)}%`,
+            height: `${effectiveLevel}%`, // Perfectly smooth rendering
             background: barColor,
             transition: "height 0.1s ease, background 0.2s ease",
           }}
@@ -121,6 +111,7 @@ function FaderTrack({
           min="0"
           max="100"
           value={currentLevel}
+          aria-label={`${label} fader`}
           onChange={(e) => onLevelChange(Number.parseInt(e.target.value))}
           style={{
             position: "absolute",
@@ -173,7 +164,7 @@ interface DepartmentMixerProps {
   levels: number[];
   setLevels: (levels: number[]) => void;
   targetLevel?: number;
-  isMobile?: boolean; // NEW
+  isMobile?: boolean;
 }
 
 export default function DepartmentMixer({
