@@ -70,11 +70,34 @@ function VirtualJoystick({
 }: Readonly<{ triggerKey: (k: string, t: "keydown" | "keyup") => void }>) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [keyboardVector, setKeyboardVector] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
 
   const isDraggingRef = useRef(false);
   const baseRef = useRef<HTMLDivElement>(null);
   const center = useRef({ x: 0, y: 0 });
+
+  // Track synthetic keys activated by joystick drag
+  const activeDragKeys = useRef({ w: false, a: false, s: false, d: false });
+
+  // Translate joystick coordinates to key events
+  const updateJoystickKeys = useCallback(
+    (pos: { x: number; y: number }) => {
+      const threshold = 15; // Deadzone before movement registers
+      const newKeys = {
+        w: pos.y < -threshold,
+        s: pos.y > threshold,
+        a: pos.x < -threshold,
+        d: pos.x > threshold,
+      };
+
+      (["w", "a", "s", "d"] as const).forEach((k) => {
+        if (newKeys[k] !== activeDragKeys.current[k]) {
+          triggerKey(k, newKeys[k] ? "keydown" : "keyup");
+          activeDragKeys.current[k] = newKeys[k];
+        }
+      });
+    },
+    [triggerKey],
+  );
 
   /**
    * ============================
@@ -84,7 +107,6 @@ function VirtualJoystick({
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       isDraggingRef.current = true;
-      setIsDragging(true);
       e.currentTarget.setPointerCapture(e.pointerId);
 
       if (baseRef.current) {
@@ -102,8 +124,9 @@ function VirtualJoystick({
       );
 
       setPosition(pos);
+      updateJoystickKeys(pos);
     },
-    [],
+    [updateJoystickKeys],
   );
 
   const handlePointerMove = useCallback(
@@ -117,25 +140,25 @@ function VirtualJoystick({
       );
 
       setPosition(pos);
+      updateJoystickKeys(pos);
     },
-    [],
+    [updateJoystickKeys],
   );
 
   const handlePointerUp = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       isDraggingRef.current = false;
-      setIsDragging(false);
       e.currentTarget.releasePointerCapture(e.pointerId);
       setPosition({ x: 0, y: 0 });
+      updateJoystickKeys({ x: 0, y: 0 }); // Reset all keys to false
     },
-    [],
+    [updateJoystickKeys],
   );
 
   /**
    * ============================
    * Keyboard state (FIXED)
    * ============================
-   * Only updates state flags — NO vector math here
    */
   const pressed = useRef({ w: false, a: false, s: false, d: false });
 
@@ -163,12 +186,12 @@ function VirtualJoystick({
 
   /**
    * ============================
-   * RAF-driven keyboard vector (FIX)
+   * RAF-driven keyboard vector (OPTIMIZED)
    * ============================
-   * This removes ALL lag/sticking issues
    */
   useEffect(() => {
     let frame: number;
+    const prevVector = { x: 0, y: 0 }; // Cache to prevent continuous renders
 
     const animate = () => {
       const p = pressed.current;
@@ -187,10 +210,14 @@ function VirtualJoystick({
         dy /= len;
       }
 
-      setKeyboardVector({
-        x: dx * MAX_PULL,
-        y: dy * MAX_PULL,
-      });
+      const newX = dx * MAX_PULL;
+      const newY = dy * MAX_PULL;
+
+      if (newX !== prevVector.x || newY !== prevVector.y) {
+        setKeyboardVector({ x: newX, y: newY });
+        prevVector.x = newX;
+        prevVector.y = newY;
+      }
 
       frame = requestAnimationFrame(animate);
     };
@@ -218,8 +245,15 @@ function VirtualJoystick({
           <button
             key={k}
             type="button"
-            onKeyDown={() => triggerKey(k, "keydown")}
-            onKeyUp={() => triggerKey(k, "keyup")}
+            onPointerDown={() => triggerKey(k, "keydown")}
+            onPointerUp={() => triggerKey(k, "keyup")}
+            onPointerLeave={() => triggerKey(k, "keyup")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") triggerKey(k, "keydown");
+            }}
+            onKeyUp={(e) => {
+              if (e.key === "Enter" || e.key === " ") triggerKey(k, "keyup");
+            }}
           >
             Move {k.toUpperCase()}
           </button>
@@ -254,12 +288,16 @@ function VirtualJoystick({
         {/* Thumb */}
         <div
           style={{
+            boxSizing: "border-box",
             width: "50px",
             height: "50px",
             borderRadius: "50%",
             background: isActive
               ? "var(--bui-fg-warning)"
               : "rgba(255,255,255,0.3)",
+            border: isActive
+              ? "4px solid rgba(255,255,255,0.8)"
+              : "4px solid transparent",
 
             transform: `translate(${displayPosition.x}px, ${displayPosition.y}px) scale(${computeThumbScale(
               isDraggingRef.current,
@@ -268,7 +306,7 @@ function VirtualJoystick({
 
             transition: isDraggingRef.current
               ? "none"
-              : "transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275), background 0.2s ease",
+              : "transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275), background 0.2s ease, border 0.2s ease",
 
             position: "absolute",
 
