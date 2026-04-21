@@ -13,11 +13,9 @@ export default function CableCoilingStage({
 }>) {
   const { dispatch } = useGame();
 
-  // Use refs for lightning-fast, synchronous tracking independent of renders
   const coilsRef = useRef(0);
   const expectedNextRef = useRef<"OVER" | "UNDER">("OVER");
 
-  // UI State
   const [coils, setCoils] = useState(0);
   const [knots, setKnots] = useState(0);
   const [expectedNext, setExpectedNext] = useState<"OVER" | "UNDER">("OVER");
@@ -30,7 +28,6 @@ export default function CableCoilingStage({
     type: "neutral",
   });
 
-  // Difficulty scaling
   const getTargetCoils = (diff: string): number => {
     if (diff === "professional") return 12;
     if (diff === "community") return 8;
@@ -46,12 +43,20 @@ export default function CableCoilingStage({
   const TARGET_COILS = getTargetCoils(difficulty);
   const [timeLeft, setTimeLeft] = useState(getInitialTime(difficulty));
 
-  // Timer countdown
+  // FIXED: Removed timeLeft dependency to stop the interval from destroying itself every frame
   useEffect(() => {
-    if (isComplete || timeLeft <= 0) return;
-    const timer = setInterval(() => setTimeLeft((t) => t - 1), 1000);
+    if (isComplete) return;
+    const timer = setInterval(() => {
+      setTimeLeft((prevTime) => {
+        if (prevTime <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prevTime - 1;
+      });
+    }, 1000);
     return () => clearInterval(timer);
-  }, [isComplete, timeLeft]);
+  }, [isComplete]);
 
   // Timeout failsafe
   useEffect(() => {
@@ -72,9 +77,7 @@ export default function CableCoilingStage({
     (action: "OVER" | "UNDER") => {
       if (isComplete || timeLeft <= 0) return;
 
-      // Check against synchronous ref to prevent double-tap penalties
       if (action === expectedNextRef.current) {
-        // SUCCESS
         coilsRef.current += 1;
         const newCoils = coilsRef.current;
         const nextReq = action === "OVER" ? "UNDER" : "OVER";
@@ -100,11 +103,10 @@ export default function CableCoilingStage({
           setTimeout(() => onComplete(), 2000);
         }
       } else {
-        // FAIL
         setKnots((k) => k + 1);
-        coilsRef.current = Math.max(0, coilsRef.current - 1); // Lose a coil
+        coilsRef.current = Math.max(0, coilsRef.current - 1);
 
-        expectedNextRef.current = "OVER"; // Reset pattern logic
+        expectedNextRef.current = "OVER";
 
         setCoils(coilsRef.current);
         setExpectedNext("OVER");
@@ -119,7 +121,6 @@ export default function CableCoilingStage({
     [TARGET_COILS, isComplete, timeLeft, dispatch, onComplete],
   );
 
-  // Keyboard support for fast coiling
   useEffect(() => {
     if (isComplete || timeLeft <= 0) return;
 
@@ -192,6 +193,7 @@ export default function CableCoilingStage({
 
         {/* Feedback Display */}
         <div
+          aria-live="polite"
           style={{
             width: "100%",
             maxWidth: "500px",
@@ -211,7 +213,10 @@ export default function CableCoilingStage({
         </div>
 
         {/* Visual Cable Coil */}
-        <div style={{ position: "relative", width: "250px", height: "250px" }}>
+        <div
+          aria-hidden="true"
+          style={{ position: "relative", width: "250px", height: "250px" }}
+        >
           {Array.from({ length: coils }).map((_, i) => (
             <svg
               key={`coil-${coils}-${i}`}
@@ -297,6 +302,7 @@ export default function CableCoilingStage({
           }}
         >
           <button
+            type="button"
             onClick={() => handleAction("OVER")}
             disabled={isComplete || timeLeft <= 0}
             style={{
@@ -321,6 +327,7 @@ export default function CableCoilingStage({
           </button>
 
           <button
+            type="button"
             onClick={() => handleAction("UNDER")}
             disabled={isComplete || timeLeft <= 0}
             style={{

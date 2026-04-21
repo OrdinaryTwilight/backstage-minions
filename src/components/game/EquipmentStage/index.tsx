@@ -5,25 +5,27 @@ import ActiveLoadoutPanel from "./ActiveLoadoutPanel";
 import AvailableGearList from "./AvailableGearList";
 import { useEquipment } from "./useEquipment";
 
+// FIXED: Moved static object outside the component to prevent aggressive re-rendering
+const DEFAULT_CHAR: Character = {
+  id: "default",
+  name: "UNKNOWN",
+  role: "none",
+  department: "lighting",
+  bio: "Placeholder character",
+  icon: "👤",
+  stats: {
+    technical: 5,
+    social: 5,
+    stamina: 5,
+  },
+};
+
 interface EquipmentStageProps {
   readonly onComplete: () => void;
 }
 
 export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
   const { char, handleSelect } = useEquipment(onComplete);
-  const defaultChar: Character = {
-    id: "default",
-    name: "UNKNOWN",
-    role: "none",
-    department: "lighting", // Provide a default department
-    bio: "Placeholder character",
-    icon: "👤",
-    stats: {
-      technical: 5,
-      social: 5,
-      stamina: 5,
-    },
-  };
 
   return (
     <div
@@ -36,7 +38,7 @@ export default function EquipmentStage({ onComplete }: EquipmentStageProps) {
         helpText={getStageHelpText("equipment")}
       />
 
-      <ActiveLoadoutPanel char={char || defaultChar} />
+      <ActiveLoadoutPanel char={char || DEFAULT_CHAR} />
       <AvailableGearList handleSelect={handleSelect} />
     </div>
   );

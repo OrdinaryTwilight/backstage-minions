@@ -69,6 +69,11 @@ export function getShowPhase(
 ): "preShow" | "duringShow" | "postShow" {
   if (!session) return "preShow";
   const { stages, currentStageIndex } = session;
+
+  // FIX: If we have completed all stages, the show is definitely over.
+  // This prevents the array index out-of-bounds defaulting to preShow.
+  if (currentStageIndex >= stages.length) return "postShow";
+
   const currentStage = stages[currentStageIndex];
 
   if (currentStage === "wrapup" || currentStage === "cable_coiling")
@@ -104,7 +109,6 @@ function handleStaticZoneInteraction(
     return;
   }
 
-  // FIXED: Removed strict currentRoom === "backstage" check to allow progression globally
   if (props.activeZone === props.targetZoneId) {
     props.onComplete();
     return;

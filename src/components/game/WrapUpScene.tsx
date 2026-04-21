@@ -1,5 +1,4 @@
-// src/components/game/WrapUpScene.tsx
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGame } from "../../context/GameContext";
 import {
@@ -25,6 +24,9 @@ export default function WrapUpScene({
   const [phase, setPhase] = useState<"dialogue" | "report">("dialogue");
   const navigate = useNavigate();
 
+  // FIX: Guard ref to prevent duplicate chat message spam on re-renders
+  const reportSent = useRef(false);
+
   const char = CHARACTERS.find((c) => c.id === state.session?.characterId);
   const score = state.session?.score || 0;
   const cuesHit = state.session?.cuesHit || 0;
@@ -39,7 +41,6 @@ export default function WrapUpScene({
     return "var(--bui-fg-danger)";
   };
 
-  // Safe lookups for the text based on the star rating
   const detailedReviewText =
     POST_SHOW_REVIEWS.success[
       stars as keyof typeof POST_SHOW_REVIEWS.success
@@ -51,7 +52,7 @@ export default function WrapUpScene({
     ] || POST_SHOW_REVIEWS.short_header[0];
 
   useEffect(() => {
-    if (phase === "report") {
+    if (phase === "report" && !reportSent.current) {
       const history = JSON.parse(
         sessionStorage.getItem("minion_chats") || "{}",
       );
@@ -75,9 +76,12 @@ export default function WrapUpScene({
         sender: "System Alerts",
         text: `[POST-MORTEM REPORT] ${prodTitle} - Tier: ${diffText}: Hit ${cuesHit}/${totalCues} Cues. Final Score: ${score}. Rating: ${stars} Stars.${questText}`,
       });
+
       sessionStorage.setItem("minion_chats", JSON.stringify(history));
       sessionStorage.setItem("unread_messages", "true");
       globalThis.dispatchEvent(new Event("unread_messages_update"));
+
+      reportSent.current = true; // Lock the execution
     }
   }, [phase, cuesHit, totalCues, score, stars, state.session]);
 

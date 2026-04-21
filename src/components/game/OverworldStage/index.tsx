@@ -32,7 +32,6 @@ export default function OverworldStage({
     null,
   );
 
-  // Transition State
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [transitionTarget, setTransitionTarget] = useState<string | null>(null);
 
@@ -54,14 +53,12 @@ export default function OverworldStage({
     useQuests();
   const displayFeedback = questFeedback || feedbackMsg;
 
-  // Announce dynamic feedback to screen readers immediately
   useEffect(() => {
     if (displayFeedback?.text) {
       announce(displayFeedback.text);
     }
   }, [displayFeedback, announce]);
 
-  // Announce room transitions
   useEffect(() => {
     announce(`Entered ${formatRoomName(currentRoom)}`);
   }, [currentRoom, announce]);
@@ -74,21 +71,19 @@ export default function OverworldStage({
     department,
   );
 
-  // Wrap setCurrentRoom to handle the visual transition
   const handleRoomTransition = (newRoom: string) => {
     setTransitionTarget(newRoom);
     setIsTransitioning(true);
     setTimeout(() => {
       setCurrentRoom(newRoom);
       setIsTransitioning(false);
-    }, 400); // 400ms fade duration
+    }, 400);
   };
 
   const { pos, setPos, npcs, activeZone, bumpMsg } = useGameLoop({
     currentZones,
     currentRoom,
     charId,
-    // Disable movement input while transitioning
     input: isTransitioning
       ? { up: false, down: false, left: false, right: false }
       : { up, down, left, right },
@@ -185,7 +180,6 @@ export default function OverworldStage({
         </div>
 
         <div className="overworld-main">
-          {/* Transition overlay wrapping the MapViewport */}
           <div style={{ position: "relative", width: "100%" }}>
             <MapViewport
               currentRoom={currentRoom}
@@ -200,7 +194,6 @@ export default function OverworldStage({
               handleStageClick={handleStageClick}
             />
 
-            {/* Fade Overlay */}
             <div
               aria-hidden="true"
               style={{
@@ -251,10 +244,17 @@ export default function OverworldStage({
                 choices={activeQuestDialogue.choices}
                 icon={activeQuestDialogue.icon}
                 onChoice={(choice) => {
-                  const wasQuest = handleQuestChoice(choice.id, () =>
+                  const result = handleQuestChoice(choice.id, () =>
                     setActiveQuestDialogue(null),
                   );
-                  if (!wasQuest) setActiveQuestDialogue(null);
+
+                  // NEW: If the user chose to ignore the quest while targeting the main objective zone,
+                  // force the completion to trigger so they aren't soft-locked.
+                  if (result === "ignored" && activeZone === targetZoneId) {
+                    onComplete();
+                  } else if (result === "none") {
+                    setActiveQuestDialogue(null);
+                  }
                 }}
               />
             )}

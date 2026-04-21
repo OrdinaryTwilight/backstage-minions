@@ -17,6 +17,10 @@ export const TUTORIALS = [
     title: "Welcome to the Dark",
     steps: [
       {
+        speaker: "System Comms",
+        text: "Read the SM Notes carefully. You must place at least the required number of Spot and Wash fixtures without exceeding the maximum total limit. Additionally, you must apply the specified Gobo pattern to at least one placed fixture. Select 'Rigging' to place lights, or 'Gobo Insert' to apply patterns to existing lights.",
+      },
+      {
         speaker: "Senior Tech",
         text: "Listen up, newbie. The actors get the applause, but if we screw up, the show stops. Your job is to make sure nobody ever notices you're here.",
       },

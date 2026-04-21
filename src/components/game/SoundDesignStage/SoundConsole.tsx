@@ -114,14 +114,16 @@ export default function SoundConsole({
               >
                 {outputBuses.map((bus, index) => {
                   const isActive = patch.outputs[bus] === ch;
-
-                  // FIX: Extracted nested ternary
                   let btnBg = "#718096";
+
                   if (isActive) btnBg = index === 0 ? "#e53e3e" : "#d69e2e";
+                  if (isDead) btnBg = "#2d3748";
 
                   return (
                     <button
                       key={bus}
+                      type="button"
+                      disabled={isDead} // FIX: Prevents patching into dead channels
                       onClick={() => handlePatch("outputs", bus, ch)}
                       aria-label={`Route to ${bus}`}
                       style={{
@@ -129,11 +131,12 @@ export default function SoundConsole({
                         height: "18px",
                         borderRadius: "2px",
                         border: "none",
-                        cursor: "pointer",
+                        cursor: isDead ? "not-allowed" : "pointer",
                         background: btnBg,
                         boxShadow: isActive
                           ? "inset 0 2px 4px rgba(0,0,0,0.6)"
                           : "0 2px 4px rgba(0,0,0,0.4)",
+                        opacity: isDead ? 0.3 : 1,
                       }}
                     />
                   );
@@ -153,7 +156,8 @@ export default function SoundConsole({
                   type="range"
                   min="0"
                   max="100"
-                  value={channelLevels[ch]}
+                  disabled={isDead} // FIX: Locks the physical fader on dead channels
+                  value={isDead ? 0 : channelLevels[ch]}
                   onChange={(e) =>
                     setChannelLevels((prev) => ({
                       ...prev,
@@ -165,7 +169,8 @@ export default function SoundConsole({
                     direction: "rtl",
                     height: "90px",
                     width: "8px",
-                    cursor: "ns-resize",
+                    cursor: isDead ? "not-allowed" : "ns-resize",
+                    opacity: isDead ? 0.3 : 1,
                   }}
                 />
               </div>

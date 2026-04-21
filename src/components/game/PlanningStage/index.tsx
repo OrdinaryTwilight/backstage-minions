@@ -13,7 +13,6 @@ import SectionHeader from "../../ui/SectionHeader";
 import OpticalSimView from "./OpticalSimView";
 import PlotPlanView from "./PlotPlanView";
 
-// Explicit typing for the grid cells
 type GridCell = { typeId: string; gobo: string | null } | null;
 
 interface ReportDetails {
@@ -31,6 +30,7 @@ export default function PlanningStage({
 }>) {
   const { state, dispatch } = useGame();
 
+  const [activeTool, setActiveTool] = useState<"fixture" | "gobo">("fixture");
   const [selectedType, setSelectedType] = useState(LIGHT_TYPES[0].id);
   const [selectedGobo, setSelectedGobo] = useState<string | null>(null);
   const [grid, setGrid] = useState<GridCell[]>(() =>
@@ -42,15 +42,12 @@ export default function PlanningStage({
     null,
   );
 
-  // Dynamic requirements scaled by current level difficulty
   const difficulty = state.session?.difficulty || "school";
 
   const [requirements] = useState(() => {
-    // Helper to generate a random number within a range
     const getRandomInt = (min: number, max: number) =>
       Math.floor(Math.random() * (max - min + 1)) + min;
 
-    // Randomize the requested special gobo
     const availableGobos = ["stars", "window", "leaves", "fire"];
     const randomGobo =
       availableGobos[Math.floor(Math.random() * availableGobos.length)];
@@ -80,24 +77,27 @@ export default function PlanningStage({
       targetSpots: spots,
       targetWashes: washes,
       requiredGobo: randomGobo,
-      // Dynamically calculate max fixtures so the limit is always fair but tight
       maxFixtures: spots + washes + bonusFixtures,
     };
   });
 
-  function placeLight(i: number) {
+  function handleGridInteract(i: number) {
     if (submitted) return;
 
     setGrid((prevGrid) => {
       const newGrid = [...prevGrid];
       const currentCell = newGrid[i];
 
-      // If clicking exactly what is already there, remove it. Otherwise, place new light.
-      newGrid[i] =
-        currentCell?.typeId === selectedType &&
-        currentCell?.gobo === selectedGobo
-          ? null
-          : { typeId: selectedType, gobo: selectedGobo };
+      if (activeTool === "fixture") {
+        newGrid[i] =
+          currentCell?.typeId === selectedType
+            ? null
+            : { typeId: selectedType, gobo: currentCell?.gobo || null };
+      } else if (activeTool === "gobo") {
+        if (currentCell) {
+          newGrid[i] = { ...currentCell, gobo: selectedGobo };
+        }
+      }
 
       return newGrid;
     });
@@ -106,7 +106,6 @@ export default function PlanningStage({
   function submit() {
     let score = 0;
 
-    // Type guard to filter out nulls cleanly
     const placedLights = grid.filter(
       (cell): cell is Exclude<GridCell, null> => cell !== null,
     );
@@ -120,7 +119,6 @@ export default function PlanningStage({
       placedLights.length > 0 &&
       placedLights.length <= requirements.maxFixtures;
 
-    // Calculate proportional partial credit
     const spotScore = Math.floor(
       (Math.min(spots, requirements.targetSpots) / requirements.targetSpots) *
         30,
@@ -136,10 +134,8 @@ export default function PlanningStage({
     if (hasRequiredGobo) score += 20;
     if (withinLimit) score += 30;
 
-    // Failsafe: An empty stage is an automatic zero
     if (placedLights.length === 0) score = 0;
 
-    // Save the exact breakdown of what the player missed
     setReportDetails({
       score,
       missingSpots: Math.max(0, requirements.targetSpots - spots),
@@ -272,7 +268,7 @@ export default function PlanningStage({
           a <strong>{requirements.requiredGobo.toUpperCase()}</strong> gobo
           loaded for the dream sequence. Also, our dimmer racks are maxed out:
           Do not exceed <strong>{requirements.maxFixtures}</strong> total
-          fixtures ."
+          fixtures."
         </p>
       </HardwarePanel>
 
@@ -284,58 +280,186 @@ export default function PlanningStage({
           marginBottom: "2rem",
         }}
       >
-        <PlotPlanView grid={grid} placeLight={placeLight} />
+        <PlotPlanView grid={grid} placeLight={handleGridInteract} />
         <OpticalSimView grid={grid} />
       </div>
 
       <div className="animate-pop">
         <HardwarePanel style={{ borderTop: "2px solid var(--glass-border)" }}>
-          <h3
-            className="annotation-text"
-            style={{
-              fontSize: "0.8rem",
-              marginBottom: "1rem",
-              textTransform: "uppercase",
-              opacity: 0.8,
-            }}
-          >
-            Fixture Selection Matrix
-          </h3>
-          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-            {LIGHT_TYPES.map((l) => (
-              <Button
-                key={l.id}
-                onClick={() => setSelectedType(l.id)}
+          <div style={{ display: "flex", gap: "2rem", flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: "250px" }}>
+              <div
                 style={{
-                  flex: 1,
-                  minWidth: "150px",
-                  borderColor: selectedType === l.id ? l.color : "",
-                  background: selectedType === l.id ? `${l.color}11` : "",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  marginBottom: "1rem",
                 }}
               >
-                {l.icon} {l.label}
-              </Button>
-            ))}
-          </div>
-          <h3
-            className="annotation-text"
-            style={{ fontSize: "0.8rem", margin: "1rem 0", opacity: 0.8 }}
-          >
-            Gobo Selection Matrix
-          </h3>
-          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
-            {["none", "stars", "window", "leaves", "fire"].map((gobo) => (
-              <Button
-                key={gobo}
-                onClick={() => setSelectedGobo(gobo === "none" ? null : gobo)}
+                <input
+                  type="radio"
+                  id="tool-fixture"
+                  name="active-tool"
+                  checked={activeTool === "fixture"}
+                  onChange={() => setActiveTool("fixture")}
+                  style={{ accentColor: "var(--bui-fg-accent)" }}
+                />
+                <label
+                  htmlFor="tool-fixture"
+                  className="annotation-text"
+                  style={{
+                    fontSize: "0.9rem",
+                    textTransform: "uppercase",
+                    color:
+                      activeTool === "fixture"
+                        ? "var(--bui-fg-accent)"
+                        : "inherit",
+                    opacity: activeTool === "fixture" ? 1 : 0.6,
+                    cursor: "pointer",
+                  }}
+                >
+                  Step 1: Rigging Matrix
+                </label>
+              </div>
+
+              <div
+                role="group"
+                aria-labelledby="tool-fixture"
                 style={{
-                  borderColor:
-                    selectedGobo === gobo ? "var(--bui-fg-accent)" : "",
+                  display: "flex",
+                  gap: "1rem",
+                  flexWrap: "wrap",
+                  opacity: activeTool === "fixture" ? 1 : 0.4,
+                  pointerEvents: activeTool === "fixture" ? "auto" : "none",
                 }}
               >
-                {gobo.toUpperCase()}
-              </Button>
-            ))}
+                {LIGHT_TYPES.map((l) => {
+                  const isActive = selectedType === l.id;
+                  return (
+                    <Button
+                      key={l.id}
+                      type="button"
+                      aria-pressed={isActive}
+                      onClick={() => setSelectedType(l.id)}
+                      style={{
+                        flex: 1,
+                        borderColor: isActive ? l.color : "",
+                        background: isActive ? `${l.color}11` : "",
+                        position: "relative",
+                      }}
+                    >
+                      {l.icon} {l.label}
+                      {isActive && (
+                        <span
+                          aria-hidden="true"
+                          style={{
+                            position: "absolute",
+                            top: "4px",
+                            right: "8px",
+                            fontSize: "0.8rem",
+                          }}
+                        >
+                          ✓
+                        </span>
+                      )}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div
+              style={{
+                width: "1px",
+                background: "var(--glass-border)",
+                alignSelf: "stretch",
+              }}
+            />
+
+            <div style={{ flex: 1, minWidth: "250px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  marginBottom: "1rem",
+                }}
+              >
+                <input
+                  type="radio"
+                  id="tool-gobo"
+                  name="active-tool"
+                  checked={activeTool === "gobo"}
+                  onChange={() => setActiveTool("gobo")}
+                  style={{ accentColor: "var(--bui-fg-accent)" }}
+                />
+                <label
+                  htmlFor="tool-gobo"
+                  className="annotation-text"
+                  style={{
+                    fontSize: "0.9rem",
+                    textTransform: "uppercase",
+                    color:
+                      activeTool === "gobo"
+                        ? "var(--bui-fg-accent)"
+                        : "inherit",
+                    opacity: activeTool === "gobo" ? 1 : 0.6,
+                    cursor: "pointer",
+                  }}
+                >
+                  Step 2: Gobo Insert
+                </label>
+              </div>
+
+              <div
+                role="group"
+                aria-labelledby="tool-gobo"
+                style={{
+                  display: "flex",
+                  gap: "0.5rem",
+                  flexWrap: "wrap",
+                  opacity: activeTool === "gobo" ? 1 : 0.4,
+                  pointerEvents: activeTool === "gobo" ? "auto" : "none",
+                }}
+              >
+                {["none", "stars", "window", "leaves", "fire"].map((gobo) => {
+                  const isActive =
+                    selectedGobo === (gobo === "none" ? null : gobo);
+                  return (
+                    <Button
+                      key={gobo}
+                      type="button"
+                      aria-pressed={isActive}
+                      onClick={() =>
+                        setSelectedGobo(gobo === "none" ? null : gobo)
+                      }
+                      style={{
+                        flex: 1,
+                        padding: "0.5rem",
+                        borderColor: isActive ? "var(--bui-fg-accent)" : "",
+                        position: "relative",
+                      }}
+                    >
+                      {gobo.toUpperCase()}
+                      {isActive && (
+                        <span
+                          aria-hidden="true"
+                          style={{
+                            position: "absolute",
+                            top: "2px",
+                            right: "4px",
+                            fontSize: "0.6rem",
+                            color: "var(--bui-fg-accent)",
+                          }}
+                        >
+                          ✓
+                        </span>
+                      )}
+                    </Button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </HardwarePanel>
       </div>
@@ -345,6 +469,7 @@ export default function PlanningStage({
           renderFeedbackPanel()
         ) : (
           <Button
+            type="button"
             variant="success"
             onClick={submit}
             className="btn-xl"

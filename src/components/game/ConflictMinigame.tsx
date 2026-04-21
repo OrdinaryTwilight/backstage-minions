@@ -25,10 +25,14 @@ export default function ConflictMinigame({
   const shuffledChoices = useMemo(() => {
     const shuffled = [...conflict.choices];
 
+    // FIX: Replaced weak sum with a polynomial rolling hash to prevent anagram collisions
     let seed =
       conflict.id
         .split("")
-        .reduce((acc, char) => acc + (char.codePointAt(0) || 0), 0) || 0;
+        .reduce(
+          (acc, char) => (acc * 31 + (char.codePointAt(0) || 0)) % 233280,
+          0,
+        ) || 0;
 
     for (let i = shuffled.length - 1; i > 0; i--) {
       seed = (seed * 9301 + 49297) % 233280;
@@ -46,9 +50,9 @@ export default function ConflictMinigame({
 
     // Apply Stress Consequences based on explicit outcome
     if (choice.outcome === "escalated") {
-      dispatch({ type: "UPDATE_STRESS", delta: 25 }); // Severe stress penalty
+      dispatch({ type: "UPDATE_STRESS", delta: 25 });
     } else if (choice.outcome === "resolved") {
-      dispatch({ type: "UPDATE_STRESS", delta: -15 }); // Relief for handling it well
+      dispatch({ type: "UPDATE_STRESS", delta: -15 });
     }
 
     if (choice.sideEffect === "ally_gained") {
@@ -92,7 +96,6 @@ export default function ConflictMinigame({
                 RESULT: {selectedChoice.outcome.toUpperCase()}
               </h3>
 
-              {/* Visual Score and Stress Indicator */}
               <div style={{ display: "flex", gap: "1rem" }}>
                 <span
                   style={{

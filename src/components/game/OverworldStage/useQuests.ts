@@ -1,4 +1,3 @@
-// src/components/game/OverworldStage/useQuests.ts
 import { useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { NARRATIVE } from "../../../data/narrative";
@@ -12,11 +11,9 @@ export function useQuests() {
     isError: boolean;
   } | null>(null);
 
-  // Derive state directly from the global GameSession, defaulting to empty arrays
   const inventory = state.session?.inventory || [];
   const completedQuests = state.session?.completedQuests || [];
 
-  // Helper function to drastically reduce cognitive complexity
   const processSingleQuest = (
     quest: QuestDefinition,
     activeZone: string,
@@ -24,13 +21,12 @@ export function useQuests() {
   ): DialogueState | null => {
     if (completedQuests.includes(quest.id)) return null;
 
-    // Use a unified type assertion since we standardized narrative.ts
     const qText = NARRATIVE.quests[quest.narrativeRef] as Record<
       string,
       string
     >;
 
-    // 1. Check for Pickup
+    // 1. Check for Pickup (Static Zones)
     if (
       activeZone === quest.pickupZone &&
       !inventory.includes(quest.requiredItem)
@@ -43,7 +39,7 @@ export function useQuests() {
       };
     }
 
-    // 2. Check for Turn-in (Targeting either an NPC or a Zone)
+    // 2. Check for Turn-in (Targeting NPC OR Zone)
     const isTargetingNpc = activeNpc?.id === quest.targetNpcId;
     const isTargetingZone = activeZone === quest.targetZoneId;
 
@@ -51,23 +47,28 @@ export function useQuests() {
       const speakerName = activeNpc ? activeNpc.name : "System";
       const speakerIcon = activeNpc ? activeNpc.icon : "⚠️";
 
-      return inventory.includes(quest.requiredItem)
-        ? {
-            speaker: speakerName,
-            icon: speakerIcon,
-            text: qText.targetThanksText || "Issue resolved.",
-            choices: [
-              { id: `give_${quest.id}`, text: qText.giveAction || "Complete" },
-            ],
-          }
-        : {
-            speaker: speakerName,
-            icon: speakerIcon,
-            text: qText.targetNeedText || "Something is missing here.",
-            choices: [
-              { id: "ok", text: qText.searchAction || "I'll look around." },
-            ],
-          };
+      if (inventory.includes(quest.requiredItem)) {
+        return {
+          speaker: speakerName,
+          icon: speakerIcon,
+          text: qText.targetThanksText || "Issue resolved.",
+          choices: [
+            { id: `give_${quest.id}`, text: qText.giveAction || "Complete" },
+          ],
+        };
+      } else {
+        // Player doesn't have the item, but interacted with the target.
+        // Give them the option to back out or ignore the quest to continue main flow.
+        return {
+          speaker: speakerName,
+          icon: speakerIcon,
+          text: qText.targetNeedText || "Something is missing here.",
+          choices: [
+            { id: "ok", text: qText.searchAction || "I'll look around." },
+            { id: "ignore", text: "I don't have time for this." }, // Added ignore option
+          ],
+        };
+      }
     }
 
     return null;
@@ -84,8 +85,15 @@ export function useQuests() {
     return null;
   };
 
-  const handleQuestChoice = (choiceId: string, clearDialogue: () => void) => {
-    let wasQuest = false;
+  const handleQuestChoice = (
+    choiceId: string,
+    clearDialogue: () => void,
+  ): "quest_handled" | "ignored" | "none" => {
+    // Explicitly handle the new ignore action
+    if (choiceId === "ignore") {
+      clearDialogue();
+      return "ignored";
+    }
 
     if (choiceId === "skip_strike_accept") {
       dispatch({ type: "NEXT_STAGE" });
@@ -93,7 +101,9 @@ export function useQuests() {
         text: "Strike skipped. Time to head home.",
         isError: false,
       });
-      wasQuest = true;
+      clearDialogue();
+      setTimeout(() => setQuestFeedback(null), 2500);
+      return "quest_handled";
     }
 
     if (choiceId.startsWith("take_") || choiceId.startsWith("give_")) {
@@ -120,15 +130,18 @@ export function useQuests() {
           dispatch({ type: "ADD_SCORE", delta: quest.scoreReward });
           setQuestFeedback({ text: qText.feedbackComplete, isError: false });
         }
-        wasQuest = true;
+        clearDialogue();
+        setTimeout(() => setQuestFeedback(null), 2500);
+        return "quest_handled";
       }
     }
 
-    if (wasQuest) {
+    if (choiceId === "ok") {
       clearDialogue();
-      setTimeout(() => setQuestFeedback(null), 2500);
+      return "quest_handled";
     }
-    return wasQuest;
+
+    return "none";
   };
 
   return { inventory, checkQuestIntercept, handleQuestChoice, questFeedback };
