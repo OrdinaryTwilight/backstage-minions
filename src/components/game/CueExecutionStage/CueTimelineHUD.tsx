@@ -112,8 +112,7 @@ export default function CueTimelineHUD({
         )}
       </div>
 
-      <div
-        role="group"
+      <section
         aria-label="Cue Timeline"
         style={{
           position: "relative",
@@ -213,7 +212,7 @@ export default function CueTimelineHUD({
             </div>
           );
         })}
-      </div>
+      </section>
     </div>
   );
 }

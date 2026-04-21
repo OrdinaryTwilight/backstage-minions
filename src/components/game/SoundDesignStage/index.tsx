@@ -65,11 +65,7 @@ export default function SoundDesignStage({
     setDeadChannels(shuffled.slice(0, deadCount));
   }, [difficulty, consoleChannels]);
 
-  const handlePatch = (
-    type: "inputs" | "outputs",
-    source: string,
-    target: number,
-  ) => {
+  const handlePatch = (type: string, source: string, target: number) => {
     setPatch((prev) => {
       const isCurrentlyPatched = prev[type][source] === target;
       if (isCurrentlyPatched) {

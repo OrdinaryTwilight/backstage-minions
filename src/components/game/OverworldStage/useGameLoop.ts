@@ -132,6 +132,12 @@ export function useGameLoop({
     msg: string;
   } | null>(null);
 
+  /* Helper to get NPC icon */
+  const getNpcIcon = (npcRole: string): string => {
+    const iconKey = Object.keys(NPC_ICONS).find((k) => npcRole.includes(k));
+    return iconKey ? NPC_ICONS[iconKey as keyof typeof NPC_ICONS] : "👤";
+  };
+
   /* ---------------- SPAWN NPCS ---------------- */
 
   useEffect(() => {
@@ -141,12 +147,7 @@ export function useGameLoop({
         (npc) =>
           npc.id !== "sys_comms" && !npc.role.toLowerCase().includes("system"),
       ).map((npc) => {
-        const iconKey = Object.keys(NPC_ICONS).find((k) =>
-          npc.role.includes(k),
-        );
-        const icon = iconKey
-          ? NPC_ICONS[iconKey as keyof typeof NPC_ICONS]
-          : "👤";
+        const icon = getNpcIcon(npc.role);
         return {
           id: npc.id,
           name: npc.name,
