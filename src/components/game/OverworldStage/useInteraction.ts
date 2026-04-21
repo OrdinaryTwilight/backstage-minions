@@ -70,8 +70,6 @@ export function getShowPhase(
   if (!session) return "preShow";
   const { stages, currentStageIndex } = session;
 
-  // FIX: If we have completed all stages, the show is definitely over.
-  // This prevents the array index out-of-bounds defaulting to preShow.
   if (currentStageIndex >= stages.length) return "postShow";
 
   const currentStage = stages[currentStageIndex];

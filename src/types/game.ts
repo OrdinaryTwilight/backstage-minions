@@ -177,6 +177,7 @@ export interface GameSession {
 export interface LevelProgress {
   stars: number;
   completed: boolean;
+  score?: number;
 }
 
 /**

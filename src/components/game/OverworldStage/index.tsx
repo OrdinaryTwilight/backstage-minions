@@ -203,7 +203,7 @@ export default function OverworldStage({
                 opacity: isTransitioning ? 1 : 0,
                 transition: "opacity 0.3s ease-in-out",
                 pointerEvents: "none",
-                zIndex: 1000,
+                zIndex: 3000,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",

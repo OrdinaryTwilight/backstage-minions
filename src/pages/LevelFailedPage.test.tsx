@@ -115,7 +115,6 @@ describe("LevelFailedPage", () => {
       (btn) => btn.textContent === "Back to Home",
     );
 
-    // Fixed: Expecting 1 button, not 3
     expect(backBtn).toHaveLength(1);
 
     // Clicking should not throw even if context is missing

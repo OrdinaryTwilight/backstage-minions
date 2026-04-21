@@ -43,7 +43,7 @@ export default function AvailableGearList({
               tabIndex={0}
               onKeyDown={(e: React.KeyboardEvent<HTMLDivElement>) => {
                 if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault(); // FIX: Prevents browser scrolling on spacebar hit
+                  e.preventDefault();
                   handlePanelClick(pkg.id);
                 }
               }}

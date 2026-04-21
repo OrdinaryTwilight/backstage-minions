@@ -1,14 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGame } from "../../context/GameContext";
 import { Cue, Difficulty } from "../../types/game";
 import { calculateStars } from "../../utils/scoringEngine";
-
-export interface SkipChoice {
-  id: string;
-  text: string;
-  pointDelta: number;
-}
 
 export function useLevelFlow(
   productionId?: string,
@@ -19,15 +13,21 @@ export function useLevelFlow(
   const navigate = useNavigate();
 
   const [isInOverworld, setIsInOverworld] = useState(false);
-  const [strikeSkipMessage, setStrikeSkipMessage] = useState<{
-    speaker: string;
-    text: string;
-    choices: SkipChoice[];
-  } | null>(null);
+
+  useEffect(() => {
+    const session = state.session;
+    if (!session) return;
+
+    const currentStageKey = session.stages[session.currentStageIndex];
+    const noOverworldStages = ["wrapup"];
+
+    if (noOverworldStages.includes(currentStageKey) && isInOverworld) {
+      setIsInOverworld(false);
+    }
+  }, [state.session, isInOverworld]);
 
   function handleComplete() {
     const totalCues = departmentCues.length;
-
     const stars = calculateStars(state.session, totalCues);
 
     dispatch({
@@ -62,13 +62,6 @@ export function useLevelFlow(
     }
   }
 
-  function handleDismissSkip() {
-    setStrikeSkipMessage(null);
-    setIsInOverworld(false); // FIX: Priority 44 - Prevent the Overworld soft-lock
-    dispatch({ type: "NEXT_STAGE" });
-    dispatch({ type: "NEXT_STAGE" });
-  }
-
   function handleOverworldComplete() {
     const session = state.session;
     if (!session) return;
@@ -83,9 +76,7 @@ export function useLevelFlow(
 
   return {
     isInOverworld,
-    strikeSkipMessage,
     handleStageAdvance,
-    handleDismissSkip,
     handleOverworldComplete,
   };
 }

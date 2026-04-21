@@ -123,7 +123,7 @@ export default function SoundConsole({
                     <button
                       key={bus}
                       type="button"
-                      disabled={isDead} // FIX: Prevents patching into dead channels
+                      disabled={isDead} 
                       onClick={() => handlePatch("outputs", bus, ch)}
                       aria-label={`Route to ${bus}`}
                       style={{
@@ -156,7 +156,7 @@ export default function SoundConsole({
                   type="range"
                   min="0"
                   max="100"
-                  disabled={isDead} // FIX: Locks the physical fader on dead channels
+                  disabled={isDead}
                   value={isDead ? 0 : channelLevels[ch]}
                   onChange={(e) =>
                     setChannelLevels((prev) => ({

@@ -25,7 +25,6 @@ export default function ConflictMinigame({
   const shuffledChoices = useMemo(() => {
     const shuffled = [...conflict.choices];
 
-    // FIX: Replaced weak sum with a polynomial rolling hash to prevent anagram collisions
     let seed =
       conflict.id
         .split("")

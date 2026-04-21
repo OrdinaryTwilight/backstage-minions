@@ -5,7 +5,6 @@ import ActiveLoadoutPanel from "./ActiveLoadoutPanel";
 import AvailableGearList from "./AvailableGearList";
 import { useEquipment } from "./useEquipment";
 
-// FIXED: Moved static object outside the component to prevent aggressive re-rendering
 const DEFAULT_CHAR: Character = {
   id: "default",
   name: "UNKNOWN",

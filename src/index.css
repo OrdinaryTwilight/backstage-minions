@@ -124,6 +124,8 @@ body {
   font-size: calc(14px * var(--font-size-multiplier));
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  /* FIX: Prevent pull-to-refresh gesture on mobile browsers */
+  overscroll-behavior-y: none;
   background-image:
     radial-gradient(var(--color-pencil-light) 0.5px, transparent 0.5px),
     linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px);
@@ -140,9 +142,10 @@ body {
 
 #root {
   width: 100%;
-  max-width: 960px; /* Kept from your original */
+  max-width: 960px;
   margin: 0 auto;
-  min-height: 100vh;
+  /* FIX: Dynamic viewport height accounts for mobile URL bars */
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
 }

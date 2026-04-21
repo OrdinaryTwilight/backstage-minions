@@ -4,7 +4,6 @@ import { expect, vi } from "vitest";
 
 expect.extend(matchers);
 
-// Fix for environments where localStorage.clear might be missing or broken
 if (
   globalThis.window !== undefined &&
   (!globalThis.localStorage ||

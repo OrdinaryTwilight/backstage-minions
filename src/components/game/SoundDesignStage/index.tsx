@@ -94,7 +94,6 @@ export default function SoundDesignStage({
     );
   });
 
-  // FIX: Priority 28 - Dynamically check against the actual number of buses required
   const isFullyPatched =
     validPaths.filter(Boolean).length === outputBuses.length;
 
@@ -113,7 +112,6 @@ export default function SoundDesignStage({
     setSubmitted(true);
   }
 
-  // FIX: Added SM Parity for Sound Design
   const renderFeedbackPanel = () => {
     if (!reportDetails) return null;
     const { score, validCount, totalOuts } = reportDetails;

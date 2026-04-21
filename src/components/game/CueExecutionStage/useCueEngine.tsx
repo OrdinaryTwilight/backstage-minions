@@ -22,17 +22,12 @@ export function useCueEngine(
   const currentCue = cueSheet[currentIdx];
   const isLastCue = currentIdx >= cueSheet.length;
 
-  // FIXED: Priority 6 - Prevent NaN soft-lock on empty cue sheets
   const maxShowTime =
     cueSheet.length > 0
       ? (cueSheet[cueSheet.length - 1]?.targetMs || 10000) + 3000
       : 5000;
 
   const expiredRef = useRef(false);
-
-  // ==========================================
-  // FIXED: Priority 4 - Refs to prevent event listener thrashing
-  // ==========================================
   const elapsedMsRef = useRef(elapsedMs);
   const faderLevelsRef = useRef(faderLevels);
 
@@ -44,9 +39,6 @@ export function useCueEngine(
     faderLevelsRef.current = faderLevels;
   }, [faderLevels]);
 
-  // ==========================================
-  // FIXED: Priority 5 - Shared difficulty window logic
-  // ==========================================
   const difficultyMultiplierMap: Record<string, number> = {
     professional: 0.5,
     community: 0.75,
@@ -152,7 +144,6 @@ export function useCueEngine(
       return;
     }
 
-    // FIXED: Auto-fail now uses the synced, difficulty-adjusted window
     const expirationTime = currentCue.targetMs + effectiveWindowMs + 100;
 
     if (elapsedMs > expirationTime && !expiredRef.current) {

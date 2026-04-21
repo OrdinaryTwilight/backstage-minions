@@ -33,7 +33,6 @@ export default function DialogueBox<T extends BaseChoice>({
       setTimeLeftWidth(0);
     }, 50);
 
-    // FIXED: Actually enforce the timeout mechanically
     const actionTimer = setTimeout(() => {
       if (choices.length > 0) {
         // Auto-select the final choice to penalize inaction

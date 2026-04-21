@@ -12,7 +12,7 @@ export const CHAT_MESSAGES: Record<
 > = {
   sys_comms: {
     sender: "System Alerts",
-    messages: [], // FIX: Hardcoded alerts removed
+    messages: [],
   },
   npc_zainab: {
     sender: "Zainab (Wardrobe)",
@@ -23,7 +23,6 @@ export const CHAT_MESSAGES: Record<
     ],
   },
   npc_arthur: {
-    // FIX: ID corrected from npc_director to npc_arthur
     sender: "The Director",
     messages: [
       "Where is my script?!",
@@ -40,14 +39,12 @@ export const CHAT_MESSAGES: Record<
     ],
   },
   char_ben: {
-    // FIX: ID corrected from npc_ben to char_ben
     sender: "Ben (LX)",
-    messages: [], // FIX: Hardcoded messages removed
+    messages: [],
   },
   char_casey: {
-    // FIX: ID corrected from npc_casey to char_casey
     sender: "Casey (Audio)",
-    messages: [], // FIX: Hardcoded messages removed
+    messages: [], 
   },
 
   // --- GROUP CHATS ---
@@ -124,7 +121,6 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
     },
   ],
   char_ben: [
-    // FIX: ID corrected
     {
       text: "I didn't touch your gels, ask Props.",
       response: "Typical. I'll go have a word with Maya.",
@@ -135,7 +131,6 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
     },
   ],
   char_casey: [
-    // FIX: ID corrected
     {
       text: "I'll tape the comms packs to their belts.",
       response: "Please do. We can't afford to lose another transmitter.",
@@ -147,7 +142,6 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
     },
   ],
   npc_arthur: [
-    // FIX: ID corrected
     {
       text: "I found your script, it's on the SM desk.",
       response: "Ah! The sacred texts! Thank you.",

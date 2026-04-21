@@ -16,7 +16,6 @@ export default function LevelFailedPage() {
   };
 
   const handleTryAgain = () => {
-    // FIX: Must clear the orphaned session before trying to select a new level
     dispatch({ type: "CLEAR_SESSION" });
     sessionStorage.removeItem("minion_inventory");
     sessionStorage.removeItem("minion_completed_quests");

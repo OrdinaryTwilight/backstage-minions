@@ -5,7 +5,6 @@ import {
   updateCounter,
 } from "./reducerHelpers";
 
-/** Helper to reduce cognitive complexity by abstracting the session null-check */
 function withSession(
   state: GameState,
   updater: (session: GameSession) => GameSession,
@@ -43,9 +42,7 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "CUE_HIT":
       return withSession(state, (session) => {
-        // 1. Increment cues hit
         const updatedSession = updateCounter(session, "cuesHit", 1);
-        // 2. Add points to the total score (e.g., 10 points per cue)
         return updateCounter(updatedSession, "score", 10);
       });
 
@@ -65,7 +62,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "RESOLVE_CONFLICT":
       return withSession(state, (session) => {
-        // Apply the score earned from the selected dialogue outcome
         const updatedSession = updateCounter(
           session,
           "score",
@@ -93,7 +89,6 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
 
     case "COMPLETE_QUEST":
       return withSession(state, (session) => {
-        // Award points for completing the overworld quest
         const updatedSession = updateCounter(
           session,
           "score",
@@ -108,6 +103,38 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
           ),
         };
       });
+
+    case "COMPLETE_LEVEL": {
+      const progressKey = `${action.productionId}_${action.difficulty}`;
+      const existingRecord = state.progress?.[progressKey];
+
+      const newStars = Math.max(existingRecord?.stars || 0, action.stars || 0);
+      const newScore = Math.max(
+        existingRecord?.score || 0,
+        state.session?.score || 0,
+      );
+
+      const uniqueStories = Array.from(
+        new Set([
+          ...(state.unlockedStories || []),
+          ...(action.unlockedStories || []),
+        ]),
+      );
+
+      return {
+        ...state,
+        progress: {
+          ...state.progress,
+          [progressKey]: {
+            stars: newStars,
+            score: newScore,
+            completed: true,
+          },
+        },
+        unlockedStories: uniqueStories,
+        session: null, // Safely clear the session since the show is over
+      };
+    }
 
     case "CLEAR_SESSION":
       return { ...state, session: null };

@@ -24,7 +24,6 @@ export default function WrapUpScene({
   const [phase, setPhase] = useState<"dialogue" | "report">("dialogue");
   const navigate = useNavigate();
 
-  // FIX: Guard ref to prevent duplicate chat message spam on re-renders
   const reportSent = useRef(false);
 
   const char = CHARACTERS.find((c) => c.id === state.session?.characterId);

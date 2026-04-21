@@ -7,7 +7,6 @@ import { ConflictChoice } from "../../types/game";
 import CableCoilingStage from "../../components/game/CableCoilingStage";
 import ConflictMinigame from "../../components/game/ConflictMinigame";
 import CueExecutionStage from "../../components/game/CueExecutionStage";
-import DialogueBox from "../../components/game/DialogueBox";
 import EquipmentStage from "../../components/game/EquipmentStage";
 import OverworldStage from "../../components/game/OverworldStage";
 import PlanningStage from "../../components/game/PlanningStage";
@@ -17,9 +16,8 @@ import Button from "../../components/ui/Button";
 
 // Extracted Sub-Components and Hooks
 import ShowControlNav from "./ShowControlNav";
-import { SkipChoice, useLevelFlow } from "./useLevelFlow";
+import { useLevelFlow } from "./useLevelFlow";
 
-// FIX: Priority 43 - Corrected the key to match levelFlowEngine
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const STAGE_COMPONENTS: Record<string, any> = {
   equipment: EquipmentStage,
@@ -38,19 +36,12 @@ export default function GameLevelPage() {
     charId,
   );
 
-  const {
-    isInOverworld,
-    strikeSkipMessage,
-    handleStageAdvance,
-    handleDismissSkip,
-    handleOverworldComplete,
-  } = useLevelFlow(productionId, difficulty, departmentCues);
+  const { isInOverworld, handleStageAdvance, handleOverworldComplete } =
+    useLevelFlow(productionId, difficulty, departmentCues);
 
   if (!state.session) return <Navigate to="/" replace />;
 
-  // FIX: Priority 43 - Extract to constant to satisfy strict TS null-checks in callbacks
   const session = state.session;
-
   const currentStageKey = session.stages[session.currentStageIndex];
   const nextStageKey = session.stages[session.currentStageIndex + 1];
   const ActiveStage = STAGE_COMPONENTS[currentStageKey];
@@ -70,8 +61,9 @@ export default function GameLevelPage() {
             pointDelta: resolvedChoice.pointDelta,
           });
           const contactToUnlock = resolvedChoice.contactId;
-          if (contactToUnlock)
+          if (contactToUnlock) {
             dispatch({ type: "ADD_CONTACT", contactId: contactToUnlock });
+          }
         }}
       />
     );
@@ -88,90 +80,91 @@ export default function GameLevelPage() {
     );
   }
 
-  if (strikeSkipMessage) {
-    return (
+  let stageContent;
+
+  if (isInOverworld) {
+    stageContent = (
       <div
         className="page-container"
         style={{
           display: "flex",
-          alignItems: "center",
-          minHeight: "100vh",
+          justifyContent: "center",
+          alignItems: "flex-start",
           paddingTop: "var(--space-xl)",
+          minHeight: "100vh",
         }}
       >
-        <DialogueBox
-          speaker={strikeSkipMessage.speaker}
-          text={strikeSkipMessage.text}
-          choices={strikeSkipMessage.choices}
-          onChoice={(choice: SkipChoice) => {
-            dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
-            handleDismissSkip();
-          }}
+        <OverworldStage
+          onComplete={handleOverworldComplete}
+          department={char?.department}
+          charId={char?.id}
+          nextStageKey={nextStageKey}
         />
       </div>
     );
-  }
-
-  // FIX: Priority 43 - Graceful fallback for departments missing cue sheets
-  if (
+  } else if (
     currentStageKey === "cue_execution" &&
     (!departmentCues || departmentCues.length === 0)
   ) {
-    return (
+    stageContent = (
       <div
-        style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+        style={{
+          flex: 1,
+          paddingBottom: "80px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "80vh",
+        }}
       >
         <div
+          className="page-container animate-pop"
           style={{
-            flex: 1,
-            paddingBottom: "80px",
+            textAlign: "center",
             display: "flex",
-            justifyContent: "center",
+            flexDirection: "column",
             alignItems: "center",
+            gap: "2rem",
           }}
         >
-          <div
-            className="page-container animate-pop"
+          <h2
             style={{
-              textAlign: "center",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              gap: "2rem",
+              color: "var(--bui-fg-warning)",
+              fontSize: "2rem",
+              fontFamily: "var(--font-sketch)",
             }}
           >
-            <h2
-              style={{
-                color: "var(--bui-fg-warning)",
-                fontSize: "2rem",
-                fontFamily: "var(--font-sketch)",
-              }}
-            >
-              🚧 Under Construction 🚧
-            </h2>
-            <p
-              style={{
-                fontSize: "1.2rem",
-                color: "var(--color-pencil-light)",
-                maxWidth: "600px",
-                lineHeight: "1.6",
-              }}
-            >
-              The <strong>{char.department.toUpperCase()}</strong> department's
-              execution phase is currently being built in the shop. Check back
-              in a future update!
-            </p>
-            <Button
-              variant="accent"
-              onClick={handleStageAdvance}
-              style={{ padding: "1rem 2rem", fontSize: "1.2rem" }}
-            >
-              Skip to Post-Show →
-            </Button>
-          </div>
+            🚧 Under Construction 🚧
+          </h2>
+          <p
+            style={{
+              fontSize: "1.2rem",
+              color: "var(--color-pencil-light)",
+              maxWidth: "600px",
+              lineHeight: "1.6",
+            }}
+          >
+            The <strong>{char.department.toUpperCase()}</strong> department's
+            execution phase is currently being built in the shop. Check back in
+            a future update!
+          </p>
+          <Button
+            variant="accent"
+            onClick={handleStageAdvance}
+            style={{ padding: "1rem 2rem", fontSize: "1.2rem" }}
+          >
+            Skip to Post-Show →
+          </Button>
         </div>
-        <ShowControlNav />
       </div>
+    );
+  } else {
+    stageContent = (
+      <ActiveStage
+        cueSheet={departmentCues}
+        onComplete={handleStageAdvance}
+        difficulty={difficulty}
+      />
     );
   }
 
@@ -179,33 +172,7 @@ export default function GameLevelPage() {
     <div
       style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
     >
-      <div style={{ flex: 1, paddingBottom: "80px" }}>
-        {isInOverworld ? (
-          <div
-            className="page-container"
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "flex-start",
-              paddingTop: "var(--space-xl)",
-              minHeight: "100vh",
-            }}
-          >
-            <OverworldStage
-              onComplete={handleOverworldComplete}
-              department={char?.department}
-              charId={char?.id}
-              nextStageKey={nextStageKey}
-            />
-          </div>
-        ) : (
-          <ActiveStage
-            cueSheet={departmentCues}
-            onComplete={handleStageAdvance}
-            difficulty={difficulty}
-          />
-        )}
-      </div>
+      <div style={{ flex: 1, paddingBottom: "80px" }}>{stageContent}</div>
       <ShowControlNav />
     </div>
   );

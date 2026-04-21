@@ -1,64 +1,63 @@
-import { useEffect, useState } from "react";
-import { NARRATIVE } from "../../data/narrative";
+import "../../styles/animations.css";
 
-/**
- * Loading Spinner Component
- * Displays while lazy-loaded routes are being fetched
- */
-export function Spinner() {
-  const [textIndex, setTextIndex] = useState(() =>
-    Math.floor(Math.random() * NARRATIVE.bootSequence.length),
-  );
+interface SpinnerProps {
+  size?: "small" | "medium" | "large";
+  color?: string;
+  label?: string;
+}
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTextIndex((prev) => (prev + 1) % NARRATIVE.bootSequence.length);
-    }, 1200);
-    return () => clearInterval(interval);
-  }, []);
+export default function Spinner({
+  size = "medium",
+  color = "var(--bui-fg-warning)",
+  label = "Loading...",
+}: Readonly<SpinnerProps>) {
+  const sizeMap = {
+    small: "20px",
+    medium: "40px",
+    large: "60px",
+  };
+
+  const spinnerSize = sizeMap[size];
 
   return (
     <div
+      role="status"
+      aria-live="polite"
       style={{
-        display: "flex",
-        flexDirection: "column", // Stacks children vertically
-        alignItems: "center",
-        justifyContent: "center",
-        minHeight: "100vh",
-        background: "var(--bg)",
-        color: "var(--text)",
+        display: "inline-block",
+        width: spinnerSize,
+        height: spinnerSize,
+        position: "relative",
       }}
     >
-      {/* Existing Hourglass Spinner */}
+      {/* Visible animated spinner */}
       <div
+        className="animate-spin"
+        aria-hidden="true"
         style={{
-          fontSize: "2rem",
-          animation: "spin 1s linear infinite",
+          width: "100%",
+          height: "100%",
+          border: `3px solid rgba(255,255,255,0.1)`,
+          borderTopColor: color,
+          borderRadius: "50%",
+        }}
+      />
+
+      <span
+        style={{
+          position: "absolute",
+          width: "1px",
+          height: "1px",
+          padding: 0,
+          margin: "-1px",
+          overflow: "hidden",
+          clip: "rect(0,0,0,0)",
+          whiteSpace: "nowrap",
+          border: 0,
         }}
       >
-        ⏳
-      </div>
-
-      {/* Dynamic Narrative Text */}
-      <p
-        className="annotation-text animate-flicker"
-        style={{
-          marginTop: "1.5rem",
-          opacity: 0.8,
-          fontSize: "1.1rem",
-          fontFamily: "var(--font-sketch)",
-          color: "var(--bui-fg-info)",
-        }}
-      >
-        {NARRATIVE.bootSequence[textIndex]}
-      </p>
-
-      <style>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
+        {label}
+      </span>
     </div>
   );
 }

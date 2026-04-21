@@ -109,8 +109,6 @@ export default function NetworksPage() {
     ? getCombinedChat(activeContact.id)
     : [];
 
-  // FIX: Filter choices against the live chat history.
-  // If the player has sent this specific choice already, hide it. Leave the rest.
   const currentOptions =
     activeContact && CHAT_CHOICES[activeContact.id]
       ? CHAT_CHOICES[activeContact.id].filter(

@@ -8,7 +8,6 @@ export default function ShowControlNav() {
   const { dispatch } = useGame();
 
   const handleQuit = () => {
-    // FIX: Fully destroy the session state and wipe local storage caches
     dispatch({ type: "CLEAR_SESSION" });
     sessionStorage.removeItem("minion_inventory");
     sessionStorage.removeItem("minion_completed_quests");

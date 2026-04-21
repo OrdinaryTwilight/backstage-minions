@@ -1,32 +1,35 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 
-export function useKeyPress(targetKeys: string | string[]) {
+export function useKeyPress(targetKeys: string[]): boolean {
   const [keyPressed, setKeyPressed] = useState(false);
 
-  // Memoize the normalized keys array to maintain referential equality
-  const keys = useMemo(
-    () => (Array.isArray(targetKeys) ? targetKeys : [targetKeys]),
-    [targetKeys],
-  );
-
   useEffect(() => {
-    const downHandler = ({ key }: KeyboardEvent) => {
-      if (keys.map((k) => k.toLowerCase()).includes(key.toLowerCase()))
+    const downHandler = (e: KeyboardEvent) => {
+      if (targetKeys.includes(e.key)) {
         setKeyPressed(true);
+      }
     };
-    const upHandler = ({ key }: KeyboardEvent) => {
-      if (keys.map((k) => k.toLowerCase()).includes(key.toLowerCase()))
+
+    const upHandler = (e: KeyboardEvent) => {
+      if (targetKeys.includes(e.key)) {
         setKeyPressed(false);
+      }
+    };
+
+    const resetHandler = () => {
+      setKeyPressed(false);
     };
 
     globalThis.addEventListener("keydown", downHandler);
     globalThis.addEventListener("keyup", upHandler);
+    globalThis.addEventListener("blur", resetHandler);
 
     return () => {
       globalThis.removeEventListener("keydown", downHandler);
       globalThis.removeEventListener("keyup", upHandler);
+      globalThis.removeEventListener("blur", resetHandler);
     };
-  }, [keys]);
+  }, [targetKeys]);
 
   return keyPressed;
 }

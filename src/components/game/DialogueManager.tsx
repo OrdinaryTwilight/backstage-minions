@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useGame } from "../../context/GameContext";
 import {
   CHARACTERS,
@@ -20,19 +20,25 @@ export default function DialogueManager({
   const { state, dispatch } = useGame();
   const [currentNodeId, setCurrentNodeId] = useState<string>("start");
 
+  const isTransitioningRef = useRef(false);
+
   const targetNpc = CHARACTERS.find((c) => c.id === npcId);
   const tree: DialogueTree =
     DIALOGUE_REGISTRY[npcId] || GENERIC_DEPARTMENT_TREE;
   const currentNode = tree[currentNodeId];
 
-  // 2. TIMED CHOICES (Hook must run before early returns)
+  // Reset the interaction lock whenever the node successfully updates
+  useEffect(() => {
+    isTransitioningRef.current = false;
+  }, [currentNodeId]);
+
+  // 2. TIMED CHOICES
   useEffect(() => {
     if (!currentNode?.timeLimitMs || !currentNode?.timeoutNodeId) {
       return;
     }
 
     const timer = setTimeout(() => {
-      // Apply stress penalty for timing out
       dispatch({ type: "UPDATE_STRESS", delta: 10 });
       if (currentNode.timeoutNodeId) {
         setCurrentNodeId(currentNode.timeoutNodeId);
@@ -106,7 +112,7 @@ export default function DialogueManager({
     return true;
   });
 
-  // Failsafe: If all choices were hidden because you completed everything, provide an exit!
+  // Failsafe: If all choices were hidden, provide an exit!
   if (availableChoices.length === 0) {
     availableChoices.push({
       id: "auto_exit",
@@ -116,12 +122,17 @@ export default function DialogueManager({
   }
 
   const handleChoice = (choice: DialogueChoice) => {
+    if (isTransitioningRef.current) return;
+    isTransitioningRef.current = true;
+
     if (choice.pointDelta)
       dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
+
     if (choice.sideEffect === "ally_gained") {
       dispatch({ type: "ADD_CONTACT", contactId: targetNpc.id });
-      dispatch({ type: "UPDATE_AFFINITY", npcId: targetNpc.id, delta: 5 }); // Gain affinity!
+      dispatch({ type: "UPDATE_AFFINITY", npcId: targetNpc.id, delta: 5 });
     }
+
     if (choice.sideEffect === "stress_relieved")
       dispatch({ type: "UPDATE_STRESS", delta: -15 });
 

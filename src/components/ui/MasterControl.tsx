@@ -12,7 +12,7 @@ export default function MasterControl({
   return (
     <div style={{ textAlign: "center", margin: "2rem 0", ...style }}>
       <button
-        type="button" // FIX: Prevent accidental form submission reloads
+        type="button"
         className={`btn-master-go animate-pulse-go`}
         onClick={onGo}
         disabled={disabled}

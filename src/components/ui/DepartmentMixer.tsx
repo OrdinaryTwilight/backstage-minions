@@ -21,7 +21,6 @@ function FaderTrack({
   isMaster = false,
   isMobile = false,
 }: Readonly<FaderTrackProps>) {
-  // FIX: Priority 45 - Removed the 50fps JS flicker interval to save memory
   const effectiveLevel = isMaster
     ? currentLevel
     : currentLevel * (masterLevel / 100);

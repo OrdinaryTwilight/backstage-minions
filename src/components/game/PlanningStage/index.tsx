@@ -92,9 +92,16 @@ export default function PlanningStage({
         newGrid[i] =
           currentCell?.typeId === selectedType
             ? null
-            : { typeId: selectedType, gobo: currentCell?.gobo || null };
+            : {
+                typeId: selectedType,
+                gobo:
+                  selectedType === "spot" ? currentCell?.gobo || null : null,
+              };
       } else if (activeTool === "gobo") {
         if (currentCell) {
+          if (currentCell.typeId !== "spot" && selectedGobo !== null) {
+            return prevGrid; // Reject the action silently
+          }
           newGrid[i] = { ...currentCell, gobo: selectedGobo };
         }
       }
@@ -334,7 +341,10 @@ export default function PlanningStage({
                   margin: "0",
                 }}
               >
-                <legend id="tool-fixture" style={{ position: "absolute", left: "-10000px" }}>
+                <legend
+                  id="tool-fixture"
+                  style={{ position: "absolute", left: "-10000px" }}
+                >
                   Fixture Selection
                 </legend>
                 {LIGHT_TYPES.map((l) => {
@@ -427,7 +437,10 @@ export default function PlanningStage({
                   margin: "0",
                 }}
               >
-                <legend id="tool-gobo" style={{ position: "absolute", left: "-10000px" }}>
+                <legend
+                  id="tool-gobo"
+                  style={{ position: "absolute", left: "-10000px" }}
+                >
                   Gobo Selection
                 </legend>
                 {["none", "stars", "window", "leaves", "fire"].map((gobo) => {

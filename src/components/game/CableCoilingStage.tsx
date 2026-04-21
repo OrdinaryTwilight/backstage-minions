@@ -43,7 +43,6 @@ export default function CableCoilingStage({
   const TARGET_COILS = getTargetCoils(difficulty);
   const [timeLeft, setTimeLeft] = useState(getInitialTime(difficulty));
 
-  // FIXED: Removed timeLeft dependency to stop the interval from destroying itself every frame
   useEffect(() => {
     if (isComplete) return;
     const timer = setInterval(() => {
