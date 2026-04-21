@@ -125,6 +125,8 @@ export default function CableCoilingStage({
     if (isComplete || timeLeft <= 0) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.repeat) return;
+
       if (e.key === "ArrowLeft") {
         e.preventDefault();
         handleAction("OVER");

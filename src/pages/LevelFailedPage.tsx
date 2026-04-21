@@ -8,10 +8,22 @@ export default function LevelFailedPage() {
   const navigate = useNavigate();
 
   const handleBackToHome = () => {
-    // Dispatch the action to clear the session
     dispatch({ type: "CLEAR_SESSION" });
-    navigate("/"); // Navigate back to the home page
+    sessionStorage.removeItem("minion_inventory");
+    sessionStorage.removeItem("minion_completed_quests");
+    sessionStorage.removeItem("minion_chats");
+    navigate("/");
   };
+
+  const handleTryAgain = () => {
+    // FIX: Must clear the orphaned session before trying to select a new level
+    dispatch({ type: "CLEAR_SESSION" });
+    sessionStorage.removeItem("minion_inventory");
+    sessionStorage.removeItem("minion_completed_quests");
+    sessionStorage.removeItem("minion_chats");
+    navigate("/productions");
+  };
+
   const playerChar = CHARACTERS.find(
     (c) => c.id === state.session?.characterId,
   );
@@ -44,12 +56,14 @@ export default function LevelFailedPage() {
 
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         <button
-          onClick={() => navigate("/productions")}
+          type="button"
+          onClick={handleTryAgain}
           className="action-button btn-success"
         >
           Try Again
         </button>
         <button
+          type="button"
           onClick={handleBackToHome}
           className="action-button"
           style={{ background: "var(--surface2)", color: "white" }}

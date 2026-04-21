@@ -1,9 +1,21 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useGame } from "../../context/GameContext";
 
 export default function ShowControlNav() {
   const [showQuitConfirm, setShowQuitConfirm] = useState(false);
   const navigate = useNavigate();
+  const { dispatch } = useGame();
+
+  const handleQuit = () => {
+    // FIX: Fully destroy the session state and wipe local storage caches
+    dispatch({ type: "CLEAR_SESSION" });
+    sessionStorage.removeItem("minion_inventory");
+    sessionStorage.removeItem("minion_completed_quests");
+    sessionStorage.removeItem("minion_chats");
+    sessionStorage.removeItem("unread_messages");
+    navigate("/");
+  };
 
   return (
     <div
@@ -27,7 +39,8 @@ export default function ShowControlNav() {
             Abandon show?
           </span>
           <button
-            onClick={() => navigate("/")}
+            type="button"
+            onClick={handleQuit}
             style={{
               background: "var(--bui-fg-danger)",
               color: "#fff",
@@ -42,6 +55,7 @@ export default function ShowControlNav() {
             Yes, Quit
           </button>
           <button
+            type="button"
             onClick={() => setShowQuitConfirm(false)}
             style={{
               background: "#444",
@@ -58,6 +72,7 @@ export default function ShowControlNav() {
         </div>
       ) : (
         <button
+          type="button"
           onClick={() => setShowQuitConfirm(true)}
           style={{
             background: "transparent",

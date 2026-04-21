@@ -12,12 +12,7 @@ export const CHAT_MESSAGES: Record<
 > = {
   sys_comms: {
     sender: "System Alerts",
-    messages: [
-      "ALERT: Cue 12 is approaching. Stand by.",
-      "UPDATE: Cast is at 5 minutes to places.",
-      "WARNING: Audio spike detected on Channel 4.",
-      "REMINDER: Strike props after act 1.",
-    ],
+    messages: [], // FIX: Hardcoded alerts removed
   },
   npc_zainab: {
     sender: "Zainab (Wardrobe)",
@@ -27,7 +22,8 @@ export const CHAT_MESSAGES: Record<
       "Do we have any more gaff tape back there?",
     ],
   },
-  npc_director: {
+  npc_arthur: {
+    // FIX: ID corrected from npc_director to npc_arthur
     sender: "The Director",
     messages: [
       "Where is my script?!",
@@ -43,24 +39,17 @@ export const CHAT_MESSAGES: Record<
       "Hold the house! We have a set piece stuck.",
     ],
   },
-  npc_ben: {
+  char_ben: {
+    // FIX: ID corrected from npc_ben to char_ben
     sender: "Ben (LX)",
-    messages: [
-      "Who touched my gels?",
-      "Can we get a worklight on stage left? I can't see my cable run.",
-      "Just patched the new moving lights. Looking sharp.",
-      "Tell the actors to stop leaning on the booms.",
-    ],
+    messages: [], // FIX: Hardcoded messages removed
   },
-  npc_casey: {
+  char_casey: {
+    // FIX: ID corrected from npc_casey to char_casey
     sender: "Casey (Audio)",
-    messages: [
-      "Batteries are charged and mics are swept.",
-      "Can everyone please stop dropping the comms packs?",
-      "I'm picking up RF interference from someone's phone... turn them off!",
-      "Does the lead sound muddy to you, or is it just me?",
-    ],
+    messages: [], // FIX: Hardcoded messages removed
   },
+
   // --- GROUP CHATS ---
   group_tech_survivors: {
     sender: "📱 Group: Tech Survivors",
@@ -134,7 +123,8 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
       response: "Thank god. Releasing the hold. House lights going down.",
     },
   ],
-  npc_ben: [
+  char_ben: [
+    // FIX: ID corrected
     {
       text: "I didn't touch your gels, ask Props.",
       response: "Typical. I'll go have a word with Maya.",
@@ -144,7 +134,8 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
       response: "Much appreciated. I can finally see my cable runs.",
     },
   ],
-  npc_casey: [
+  char_casey: [
+    // FIX: ID corrected
     {
       text: "I'll tape the comms packs to their belts.",
       response: "Please do. We can't afford to lose another transmitter.",
@@ -155,7 +146,8 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
         "Good call. I think they sweat through the mic element again. Swapping it.",
     },
   ],
-  npc_director: [
+  npc_arthur: [
+    // FIX: ID corrected
     {
       text: "I found your script, it's on the SM desk.",
       response: "Ah! The sacred texts! Thank you.",

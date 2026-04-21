@@ -70,6 +70,7 @@ function VirtualJoystick({
 }: Readonly<{ triggerKey: (k: string, t: "keydown" | "keyup") => void }>) {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [keyboardVector, setKeyboardVector] = useState({ x: 0, y: 0 });
+  const [isDraggingState, setIsDraggingState] = useState(false);
 
   const isDraggingRef = useRef(false);
   const baseRef = useRef<HTMLDivElement>(null);
@@ -107,6 +108,7 @@ function VirtualJoystick({
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       isDraggingRef.current = true;
+      setIsDraggingState(true);
       e.currentTarget.setPointerCapture(e.pointerId);
 
       if (baseRef.current) {
@@ -148,6 +150,7 @@ function VirtualJoystick({
   const handlePointerUp = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       isDraggingRef.current = false;
+      setIsDraggingState(false);
       e.currentTarget.releasePointerCapture(e.pointerId);
       setPosition({ x: 0, y: 0 });
       updateJoystickKeys({ x: 0, y: 0 }); // Reset all keys to false
@@ -231,10 +234,10 @@ function VirtualJoystick({
    * Visual state
    * ============================
    */
-  const displayPosition = isDraggingRef.current ? position : keyboardVector;
+  const displayPosition = isDraggingState ? position : keyboardVector;
 
   const isActive =
-    isDraggingRef.current || keyboardVector.x !== 0 || keyboardVector.y !== 0;
+    isDraggingState || keyboardVector.x !== 0 || keyboardVector.y !== 0;
 
   return (
     <div style={{ position: "relative", touchAction: "none" }}>
@@ -300,11 +303,11 @@ function VirtualJoystick({
               : "4px solid transparent",
 
             transform: `translate(${displayPosition.x}px, ${displayPosition.y}px) scale(${computeThumbScale(
-              isDraggingRef.current,
+              isDraggingState,
               isActive,
             )})`,
 
-            transition: isDraggingRef.current
+            transition: isDraggingState
               ? "none"
               : "transform 0.2s cubic-bezier(0.175,0.885,0.32,1.275), background 0.2s ease, border 0.2s ease",
 

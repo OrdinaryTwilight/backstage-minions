@@ -28,8 +28,6 @@ export default function DialogueBox<T extends BaseChoice>({
   useEffect(() => {
     if (!timeLimitMs) return;
 
-    setTimeLeftWidth(100);
-
     // Animate the bar visually
     const animationTimer = setTimeout(() => {
       setTimeLeftWidth(0);

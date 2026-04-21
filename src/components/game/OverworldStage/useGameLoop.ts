@@ -197,10 +197,12 @@ export function useGameLoop({
       const spawned = toSpawn.map((npc) => {
         let x = 0;
         let y = 0;
+        let attempts = 0; // FIX: Safety counter
         do {
           x = Math.random() * (GAME_WIDTH - 200) + 100;
           y = Math.random() * (GAME_HEIGHT - 200) + 100;
-        } while (checkCollision(x, y, currentZones));
+          attempts++;
+        } while (checkCollision(x, y, currentZones) && attempts < 50);
 
         return {
           id: npc.id,

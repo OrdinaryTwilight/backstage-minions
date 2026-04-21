@@ -1,4 +1,3 @@
-// src/context/gameReducer.ts
 import { GameAction, GameSession, GameState } from "../types/game";
 import {
   createNewSession,
@@ -58,7 +57,10 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
     case "UPDATE_STRESS":
       return withSession(state, (session) => ({
         ...session,
-        stress: Math.max(0, Math.min(100, session.stress + action.delta)),
+        stress: Math.max(
+          0,
+          Math.min(100, session.stress + (action.delta || 0)),
+        ),
       }));
 
     case "RESOLVE_CONFLICT":
@@ -101,6 +103,9 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         return {
           ...updatedSession,
           completedQuests: [...updatedSession.completedQuests, action.questId],
+          activeQuests: updatedSession.activeQuests.filter(
+            (id) => id !== action.questId,
+          ),
         };
       });
 

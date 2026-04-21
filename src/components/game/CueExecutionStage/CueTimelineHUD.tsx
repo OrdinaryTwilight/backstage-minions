@@ -113,6 +113,8 @@ export default function CueTimelineHUD({
       </div>
 
       <div
+        role="group"
+        aria-label="Cue Timeline"
         style={{
           position: "relative",
           width: "100%",
@@ -140,21 +142,23 @@ export default function CueTimelineHUD({
           const leftPct = (cue.targetMs / maxShowTime) * 100;
           const windowWidthPct = ((cue.windowMs || 1000) / maxShowTime) * 100;
 
-          // Extract styles and conditions
           const cueBackground = isCurrent
             ? "rgba(251, 191, 36, 0.2)"
             : "transparent";
 
-          const circleSize = isCurrent ? "12px" : "8px";
-          let circleColor;
+          const circleSize = isCurrent ? "16px" : "14px";
+          let circleColor = "#555";
+          let statusLabel = "Pending";
+
           if (isPast) {
-            circleColor = cueResults[cue.id]?.hit
+            const isHit = cueResults[cue.id]?.hit;
+            circleColor = isHit
               ? "var(--bui-fg-success)"
               : "var(--bui-fg-danger)";
+            statusLabel = isHit ? "Hit" : "Missed";
           } else if (isCurrent) {
             circleColor = "var(--bui-fg-warning)";
-          } else {
-            circleColor = "#555";
+            statusLabel = "Active";
           }
 
           const borderStyle = isCurrent ? "2px solid #fff" : "none";
@@ -162,11 +166,10 @@ export default function CueTimelineHUD({
             ? "0 0 10px var(--bui-fg-warning)"
             : "none";
 
-          const widthStyle = `${windowWidthPct}vw`;
-
           return (
             <div
               key={cue.id}
+              aria-label={`Cue ${cue.id} - Status: ${statusLabel}`}
               style={{
                 position: "absolute",
                 left: `${leftPct}%`,
@@ -181,12 +184,14 @@ export default function CueTimelineHUD({
                   left: "50%",
                   top: "50%",
                   transform: "translate(-50%, -50%)",
-                  width: widthStyle,
+                  width: `${windowWidthPct}vw`,
                   maxWidth: "40px",
                   height: "20px",
                   background: cueBackground,
                 }}
               />
+
+              {/* FIX: Shape & text inside circle for colorblind accessibility */}
               <div
                 style={{
                   width: circleSize,
@@ -195,8 +200,16 @@ export default function CueTimelineHUD({
                   background: circleColor,
                   border: borderStyle,
                   boxShadow: boxShadow,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#000",
+                  fontSize: "10px",
+                  fontWeight: "bold",
                 }}
-              />
+              >
+                {isPast && (cueResults[cue.id]?.hit ? "✓" : "✕")}
+              </div>
             </div>
           );
         })}

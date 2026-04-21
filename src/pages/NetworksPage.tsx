@@ -4,7 +4,7 @@ import Button from "../components/ui/Button";
 import NavBar from "../components/ui/NavBar";
 import { useGame } from "../context/GameContext";
 import { AVAILABLE_NPCS, CHARACTERS, NPC_ICONS } from "../data/characters";
-import { CHAT_CHOICES, CHAT_MESSAGES, ChatChoice } from "../data/chatMessages";
+import { CHAT_CHOICES, CHAT_MESSAGES } from "../data/chatMessages";
 
 export default function NetworksPage() {
   const { state, dispatch } = useGame();
@@ -18,12 +18,11 @@ export default function NetworksPage() {
       return {
         id,
         name: "System Alerts",
-        icon: "🚨",
+        icon: "🤖",
         role: "Automated System",
       };
     }
 
-    // Check main crew
     const mainChar = CHARACTERS.find((c) => c.id === id);
     if (mainChar) {
       return {
@@ -34,7 +33,6 @@ export default function NetworksPage() {
       };
     }
 
-    // Check auxiliary NPCs
     const npc = AVAILABLE_NPCS.find((c) => c.id === id);
     if (npc) {
       const iconKey = Object.keys(NPC_ICONS).find((k) => npc.role.includes(k));
@@ -44,7 +42,6 @@ export default function NetworksPage() {
       return { id, name: npc.name, icon, role: npc.role };
     }
 
-    // Fallback for group chats or rogue IDs
     const chatData = CHAT_MESSAGES[id];
     if (chatData) {
       return { id, name: chatData.sender, icon: "📱", role: "Group Chat" };
@@ -59,12 +56,6 @@ export default function NetworksPage() {
     Record<string, { sender: string; text: string }[]>
   >(() => JSON.parse(sessionStorage.getItem("minion_chats") || "{}"));
 
-  // Dynamic mock choices built to respond to specific messages in CHAT_MESSAGES
-  const [activeChoices, setActiveChoices] = useState<
-    Record<string, ChatChoice[]>
-  >(() => ({ ...CHAT_CHOICES }));
-
-  // Clear unread dot for active chat
   useEffect(() => {
     if (activeChat && state.unreadContacts?.includes(activeChat)) {
       dispatch({ type: "MARK_CONTACT_READ", contactId: activeChat });
@@ -78,7 +69,6 @@ export default function NetworksPage() {
   ) => {
     if (!activeContact) return;
 
-    // 1. Add Player's Message
     const newMsg = { sender: "You", text: replyText };
     setSessionChats((prev) => {
       const updated = { ...prev };
@@ -88,13 +78,6 @@ export default function NetworksPage() {
       return updated;
     });
 
-    // 2. Clear choices once answered
-    setActiveChoices((prev) => {
-      const { [activeContact.id]: _, ...updated } = prev;
-      return updated;
-    });
-
-    // 3. Automated delayed response
     setTimeout(() => {
       setSessionChats((prev) => {
         const replyChats = { ...prev };
@@ -107,7 +90,7 @@ export default function NetworksPage() {
       });
 
       if (sideEffect === "unlock_phantom") {
-        // Handle side effects integration later
+        // Side effects handled globally elsewhere
       }
     }, 1200);
   };
@@ -125,7 +108,18 @@ export default function NetworksPage() {
   const currentMessages = activeContact
     ? getCombinedChat(activeContact.id)
     : [];
-  const currentOptions = activeContact ? activeChoices[activeContact.id] : [];
+
+  // FIX: Filter choices against the live chat history.
+  // If the player has sent this specific choice already, hide it. Leave the rest.
+  const currentOptions =
+    activeContact && CHAT_CHOICES[activeContact.id]
+      ? CHAT_CHOICES[activeContact.id].filter(
+          (choice) =>
+            !currentMessages.some(
+              (msg) => msg.sender === "You" && msg.text === choice.text,
+            ),
+        )
+      : [];
 
   return (
     <div
@@ -204,7 +198,6 @@ export default function NetworksPage() {
                     </div>
                   </div>
 
-                  {/* UNREAD DOT FOR DIRECTORY ITEM */}
                   {isUnread && (
                     <div
                       style={{

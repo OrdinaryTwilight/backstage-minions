@@ -322,17 +322,21 @@ export default function PlanningStage({
                 </label>
               </div>
 
-              <div
-                role="group"
-                aria-labelledby="tool-fixture"
+              <fieldset
                 style={{
                   display: "flex",
                   gap: "1rem",
                   flexWrap: "wrap",
                   opacity: activeTool === "fixture" ? 1 : 0.4,
                   pointerEvents: activeTool === "fixture" ? "auto" : "none",
+                  border: "none",
+                  padding: "0",
+                  margin: "0",
                 }}
               >
+                <legend id="tool-fixture" style={{ position: "absolute", left: "-10000px" }}>
+                  Fixture Selection
+                </legend>
                 {LIGHT_TYPES.map((l) => {
                   const isActive = selectedType === l.id;
                   return (
@@ -365,7 +369,7 @@ export default function PlanningStage({
                     </Button>
                   );
                 })}
-              </div>
+              </fieldset>
             </div>
 
             <div
@@ -411,17 +415,21 @@ export default function PlanningStage({
                 </label>
               </div>
 
-              <div
-                role="group"
-                aria-labelledby="tool-gobo"
+              <fieldset
                 style={{
                   display: "flex",
                   gap: "0.5rem",
                   flexWrap: "wrap",
                   opacity: activeTool === "gobo" ? 1 : 0.4,
                   pointerEvents: activeTool === "gobo" ? "auto" : "none",
+                  border: "none",
+                  padding: "0",
+                  margin: "0",
                 }}
               >
+                <legend id="tool-gobo" style={{ position: "absolute", left: "-10000px" }}>
+                  Gobo Selection
+                </legend>
                 {["none", "stars", "window", "leaves", "fire"].map((gobo) => {
                   const isActive =
                     selectedGobo === (gobo === "none" ? null : gobo);
@@ -458,7 +466,7 @@ export default function PlanningStage({
                     </Button>
                   );
                 })}
-              </div>
+              </fieldset>
             </div>
           </div>
         </HardwarePanel>

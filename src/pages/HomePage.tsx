@@ -5,13 +5,14 @@ import { useGame } from "../context/GameContext";
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const { state } = useGame();
+  const { state: gameState } = useGame();
 
   // Check if there are any unread messages for the notification dot
-  const hasUnread = state.unreadContacts && state.unreadContacts.length > 0;
+  const hasUnread =
+    gameState.unreadContacts && gameState.unreadContacts.length > 0;
 
   // Filter for levels where the player got a perfect 3 stars
-  const perfectScores = Object.entries(state.progress || {}).filter(
+  const perfectScores = Object.entries(gameState.progress || {}).filter(
     ([, prog]) => prog.stars === 3,
   );
 
