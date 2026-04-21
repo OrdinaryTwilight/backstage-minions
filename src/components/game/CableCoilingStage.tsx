@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useGame } from "../../context/GameContext";
 import { getStageHelpText } from "../../data/gameData";
 import HardwarePanel from "../ui/HardwarePanel";
@@ -12,6 +12,12 @@ export default function CableCoilingStage({
   difficulty?: string;
 }>) {
   const { dispatch } = useGame();
+
+  // Use refs for lightning-fast, synchronous tracking independent of renders
+  const coilsRef = useRef(0);
+  const expectedNextRef = useRef<"OVER" | "UNDER">("OVER");
+
+  // UI State
   const [coils, setCoils] = useState(0);
   const [knots, setKnots] = useState(0);
   const [expectedNext, setExpectedNext] = useState<"OVER" | "UNDER">("OVER");
@@ -50,14 +56,12 @@ export default function CableCoilingStage({
   // Timeout failsafe
   useEffect(() => {
     if (timeLeft <= 0 && !isComplete) {
-      // Move setState to within a callback to avoid cascading renders
       const timer = setTimeout(() => {
         setIsComplete(true);
         setFeedback({
           msg: "Time's up! The senior techs had to take over.",
           type: "error",
         });
-        // No completion or time bonus given, just move on
         setTimeout(() => onComplete(), 2500);
       }, 0);
       return () => clearTimeout(timer);
@@ -66,41 +70,53 @@ export default function CableCoilingStage({
 
   const handleAction = useCallback(
     (action: "OVER" | "UNDER") => {
-      if (action === expectedNext) {
-        // SUCCESS: Correct technique
-        const newCoils = coils + 1;
+      if (isComplete || timeLeft <= 0) return;
+
+      // Check against synchronous ref to prevent double-tap penalties
+      if (action === expectedNextRef.current) {
+        // SUCCESS
+        coilsRef.current += 1;
+        const newCoils = coilsRef.current;
+        const nextReq = action === "OVER" ? "UNDER" : "OVER";
+
+        expectedNextRef.current = nextReq;
+
         setCoils(newCoils);
-        setExpectedNext(action === "OVER" ? "UNDER" : "OVER");
+        setExpectedNext(nextReq);
         setFeedback({
-          msg: `Nice ${action}! Now go ${action === "OVER" ? "UNDER" : "OVER"}.`,
+          msg: `Nice ${action}! Now go ${nextReq}.`,
           type: "success",
         });
         dispatch({ type: "ADD_SCORE", delta: 5 });
 
         if (newCoils >= TARGET_COILS) {
           setIsComplete(true);
-          const timeBonus = timeLeft * 3; // Scale points by speed
+          const timeBonus = timeLeft * 3;
           setFeedback({
             msg: `Perfect coil! Time Bonus: +${timeBonus} pts`,
             type: "success",
           });
-          dispatch({ type: "ADD_SCORE", delta: 50 + timeBonus }); // Base + Speed bonus
+          dispatch({ type: "ADD_SCORE", delta: 50 + timeBonus });
           setTimeout(() => onComplete(), 2000);
         }
       } else {
-        // FAIL: Cable knots!
+        // FAIL
         setKnots((k) => k + 1);
-        setCoils((c) => Math.max(0, c - 1)); // PENALTY: Lose a coil to untangle
+        coilsRef.current = Math.max(0, coilsRef.current - 1); // Lose a coil
+
+        expectedNextRef.current = "OVER"; // Reset pattern logic
+
+        setCoils(coilsRef.current);
+        setExpectedNext("OVER");
+
         setFeedback({
           msg: `KNOTTED! You went ${action} twice. Untangling... (-1 Coil)`,
           type: "error",
         });
-        dispatch({ type: "ADD_SCORE", delta: -10 }); // Accuracy Penalty
-
-        setExpectedNext("OVER"); // Reset pattern logic
+        dispatch({ type: "ADD_SCORE", delta: -10 });
       }
     },
-    [expectedNext, coils, TARGET_COILS, timeLeft, dispatch, onComplete],
+    [TARGET_COILS, isComplete, timeLeft, dispatch, onComplete],
   );
 
   // Keyboard support for fast coiling
@@ -194,7 +210,7 @@ export default function CableCoilingStage({
           {feedback.msg}
         </div>
 
-        {/* Visual Cable Coil (Upgraded 3D Ellipse Drawing) */}
+        {/* Visual Cable Coil */}
         <div style={{ position: "relative", width: "250px", height: "250px" }}>
           {Array.from({ length: coils }).map((_, i) => (
             <svg
@@ -231,7 +247,6 @@ export default function CableCoilingStage({
             </svg>
           ))}
 
-          {/* Progress Text in the center */}
           <div
             style={{
               position: "absolute",

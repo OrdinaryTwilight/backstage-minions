@@ -211,7 +211,11 @@ export default function SoundDesignStage({
             color: isFullyPatched ? "#000" : "",
           }}
         >
-          {submitted ? "Verification Complete" : "Verify Signal Flow"}
+          {(() => {
+            if (submitted) return "Verification Complete";
+            if (isFullyPatched) return "Verify Signal Flow";
+            return "Submit Partial Patch";
+          })()}
         </Button>
       </div>
     </div>

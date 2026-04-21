@@ -164,6 +164,7 @@ export default function PlanningStage({
                 gridY: Math.floor(idx / PLOT_GRID_COLS),
                 intensity: 100,
                 color: undefined,
+                gobo: cell.gobo || undefined,
               }
             : null,
         )
@@ -266,13 +267,12 @@ export default function PlanningStage({
         </h3>
         <p style={{ fontFamily: "var(--font-sketch)" }}>
           "Director wants good coverage. We need at least{" "}
-          <strong>{requirements.targetSpots} Spots</strong> and{" "}
-          <strong>{requirements.targetWashes} Washes</strong>. Make sure we have
+          <strong>{requirements.targetSpots}</strong> Spots and{" "}
+          <strong>{requirements.targetWashes}</strong> Washes. Make sure we have
           a <strong>{requirements.requiredGobo.toUpperCase()}</strong> gobo
           loaded for the dream sequence. Also, our dimmer racks are maxed out:
-          Do not exceed{" "}
-          <strong>{requirements.maxFixtures} total fixtures</strong>
-          ."
+          Do not exceed <strong>{requirements.maxFixtures}</strong> total
+          fixtures ."
         </p>
       </HardwarePanel>
 

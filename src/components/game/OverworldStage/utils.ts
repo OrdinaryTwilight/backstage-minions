@@ -79,8 +79,8 @@ export const updateSingleNpc = (
       return {
         ...npc,
         isHidden: false,
-        x: 600,
-        y: 100 + Math.random() * 100,
+        x: GAME_WIDTH - 50, // Dynamically use GAME_WIDTH instead of hardcoded 600
+        y: Math.random() * (GAME_HEIGHT - 100) + 50,
         dx: -1,
         dy: Math.random() - 0.5,
       };
@@ -99,7 +99,8 @@ export const updateSingleNpc = (
   const nX = npc.x + stepX;
   const nY = npc.y + stepY;
 
-  if (nX > 650 && Math.random() < 0.01) {
+  // Dynamically use GAME_WIDTH to calculate hide trigger
+  if (nX > GAME_WIDTH - 50 && Math.random() < 0.01) {
     return {
       ...npc,
       isHidden: true,

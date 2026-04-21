@@ -24,7 +24,12 @@ export default function ConflictMinigame({
 
   const shuffledChoices = useMemo(() => {
     const shuffled = [...conflict.choices];
-    let seed = conflict.id.codePointAt(0) || 0;
+
+    let seed =
+      conflict.id
+        .split("")
+        .reduce((acc, char) => acc + (char.codePointAt(0) || 0), 0) || 0;
+
     for (let i = shuffled.length - 1; i > 0; i--) {
       seed = (seed * 9301 + 49297) % 233280;
       const j = Math.trunc((seed / 233280) * (i + 1));

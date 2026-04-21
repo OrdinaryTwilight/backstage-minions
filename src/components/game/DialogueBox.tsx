@@ -12,7 +12,7 @@ interface DialogueBoxProps<T extends BaseChoice> {
   readonly choices: T[];
   readonly onChoice: (choice: T) => void;
   readonly icon?: string;
-  readonly timeLimitMs?: number; // NEW
+  readonly timeLimitMs?: number;
 }
 
 export default function DialogueBox<T extends BaseChoice>({
@@ -27,12 +27,27 @@ export default function DialogueBox<T extends BaseChoice>({
 
   useEffect(() => {
     if (!timeLimitMs) return;
-    // Use requestAnimationFrame to let the DOM paint the 100% width, then trigger the shrink
-    const frame = requestAnimationFrame(() => {
-      requestAnimationFrame(() => setTimeLeftWidth(0));
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [timeLimitMs, text]); // Reset timer if text changes
+
+    setTimeLeftWidth(100);
+
+    // Animate the bar visually
+    const animationTimer = setTimeout(() => {
+      setTimeLeftWidth(0);
+    }, 50);
+
+    // FIXED: Actually enforce the timeout mechanically
+    const actionTimer = setTimeout(() => {
+      if (choices.length > 0) {
+        // Auto-select the final choice to penalize inaction
+        onChoice(choices[choices.length - 1]);
+      }
+    }, timeLimitMs);
+
+    return () => {
+      clearTimeout(animationTimer);
+      clearTimeout(actionTimer);
+    };
+  }, [timeLimitMs, text, choices, onChoice]);
 
   return (
     <div className="dialogue-box-container animate-pop">

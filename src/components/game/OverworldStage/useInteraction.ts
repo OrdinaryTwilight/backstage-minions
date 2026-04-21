@@ -44,11 +44,21 @@ function getDoorSpawnPosition(targetRoomId: string, currentRoomId: string) {
 
   if (entryDoorKey) {
     const door = targetRoomConfig[entryDoorKey];
-    spawnX = door.x + door.w / 2 - PLAYER_SIZE / 2;
-    spawnY =
-      door.y < GAME_HEIGHT / 2
-        ? door.y + door.h + 10
-        : door.y - PLAYER_SIZE - 10;
+    const isHorizontalWall = door.w >= door.h;
+
+    if (isHorizontalWall) {
+      spawnX = door.x + door.w / 2 - PLAYER_SIZE / 2;
+      spawnY =
+        door.y < GAME_HEIGHT / 2
+          ? door.y + door.h + 10
+          : door.y - PLAYER_SIZE - 10;
+    } else {
+      spawnY = door.y + door.h / 2 - PLAYER_SIZE / 2;
+      spawnX =
+        door.x < GAME_WIDTH / 2
+          ? door.x + door.w + 10
+          : door.x - PLAYER_SIZE - 10;
+    }
   }
 
   return { x: spawnX, y: spawnY };
@@ -80,11 +90,8 @@ function handleStaticZoneInteraction(
   if (staticZone.isDoor) {
     const { x, y } = getDoorSpawnPosition(staticZone.isDoor, props.currentRoom);
 
-    // Trigger the room transition wrapper
     props.setCurrentRoom(staticZone.isDoor);
 
-    // Wait for the fade out to complete before moving the player,
-    // so the teleport happens while the screen is black
     setTimeout(() => {
       props.setPos({ x, y });
     }, 200);
@@ -97,10 +104,8 @@ function handleStaticZoneInteraction(
     return;
   }
 
-  if (
-    props.activeZone === props.targetZoneId &&
-    props.currentRoom === "backstage"
-  ) {
+  // FIXED: Removed strict currentRoom === "backstage" check to allow progression globally
+  if (props.activeZone === props.targetZoneId) {
     props.onComplete();
     return;
   }

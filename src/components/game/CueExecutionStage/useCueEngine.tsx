@@ -21,26 +21,59 @@ export function useCueEngine(
 
   const currentCue = cueSheet[currentIdx];
   const isLastCue = currentIdx >= cueSheet.length;
-  const maxShowTime = (cueSheet[cueSheet.length - 1]?.targetMs || 10000) + 3000;
+
+  // FIXED: Priority 6 - Prevent NaN soft-lock on empty cue sheets
+  const maxShowTime =
+    cueSheet.length > 0
+      ? (cueSheet[cueSheet.length - 1]?.targetMs || 10000) + 3000
+      : 5000;
+
   const expiredRef = useRef(false);
+
+  // ==========================================
+  // FIXED: Priority 4 - Refs to prevent event listener thrashing
+  // ==========================================
+  const elapsedMsRef = useRef(elapsedMs);
+  const faderLevelsRef = useRef(faderLevels);
+
+  useEffect(() => {
+    elapsedMsRef.current = elapsedMs;
+  }, [elapsedMs]);
+
+  useEffect(() => {
+    faderLevelsRef.current = faderLevels;
+  }, [faderLevels]);
+
+  // ==========================================
+  // FIXED: Priority 5 - Shared difficulty window logic
+  // ==========================================
+  const difficultyMultiplierMap: Record<string, number> = {
+    professional: 0.5,
+    community: 0.75,
+  };
+  const difficultyMultiplier = difficultyMultiplierMap[difficulty] ?? 1;
+
+  const effectiveWindowMs = currentCue
+    ? (currentCue.windowMs || 1000) * difficultyMultiplier
+    : 1000;
 
   const handleGo = useCallback(
     (forceMiss = false) => {
-      if (isLastCue || !isReady) return;
+      if (isLastCue || !isReady || !currentCue) return;
 
-      const targetMs = currentCue?.targetMs || 0;
-      let difficultyMultiplier = 1;
-      if (difficulty === "community") difficultyMultiplier = 0.75;
-      if (difficulty === "professional") difficultyMultiplier = 0.5;
-      const windowMs = (currentCue?.windowMs || 1000) * difficultyMultiplier;
+      const targetMs = currentCue.targetMs || 0;
+      // Read from refs instead of state to avoid dependency updates
+      const currentElapsed = elapsedMsRef.current;
+      const currentFaders = faderLevelsRef.current;
 
-      const isTimedWell = Math.abs(elapsedMs - targetMs) <= windowMs;
-      const targetLevel = currentCue?.targetLevel || 80;
+      const isTimedWell =
+        Math.abs(currentElapsed - targetMs) <= effectiveWindowMs;
+      const targetLevel = currentCue.targetLevel || 80;
       const margin = 10;
 
       // MASTER FADER LOGIC: Master linearly scales the physical sub-faders
-      const masterValue = faderLevels[4] / 100;
-      const effectiveLevels = faderLevels
+      const masterValue = currentFaders[4] / 100;
+      const effectiveLevels = currentFaders
         .slice(0, 4)
         .map((l) => l * masterValue);
 
@@ -87,9 +120,7 @@ export function useCueEngine(
       isLastCue,
       isReady,
       currentCue,
-      elapsedMs,
-      difficulty,
-      faderLevels,
+      effectiveWindowMs,
       currentIdx,
       cueSheet.length,
       onComplete,
@@ -120,13 +151,15 @@ export function useCueEngine(
       expiredRef.current = false;
       return;
     }
-    const expirationTime =
-      currentCue.targetMs + (currentCue.windowMs || 1000) + 100;
+
+    // FIXED: Auto-fail now uses the synced, difficulty-adjusted window
+    const expirationTime = currentCue.targetMs + effectiveWindowMs + 100;
+
     if (elapsedMs > expirationTime && !expiredRef.current) {
       expiredRef.current = true;
       handleGo(true);
     }
-  }, [elapsedMs, currentCue, isLastCue, isReady, handleGo]);
+  }, [elapsedMs, currentCue, isLastCue, isReady, effectiveWindowMs, handleGo]);
 
   const handleReady = () => {
     setIsReady(true);
