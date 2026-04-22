@@ -7,7 +7,7 @@ function TestConsumer() {
   const { state } = useGame();
   return (
     <div data-testid="state-dump">
-      {state.contacts.includes("char_ben") ? "Has Ben" : "No Ben"}
+      {state.contacts.includes("char_shane") ? "Has Shane" : "No Shane"}
     </div>
   );
 }
@@ -42,7 +42,7 @@ describe("GameContext", () => {
     const mockSave = {
       progress: {},
       unlockedStories: [],
-      contacts: ["char_ben"],
+      contacts: ["char_shane"],
       unreadContacts: [],
     };
     getItemSpy.mockReturnValue(JSON.stringify(mockSave));
@@ -54,7 +54,7 @@ describe("GameContext", () => {
     );
 
     expect(getItemSpy).toHaveBeenCalledWith("a3_backstage_save");
-    expect(screen.getByTestId("state-dump").textContent).toBe("Has Ben");
+    expect(screen.getByTestId("state-dump").textContent).toBe("Has Shane");
   });
 
   it("saves state to localStorage (excluding session) when state changes", () => {
@@ -82,7 +82,7 @@ describe("GameContext", () => {
         </GameProvider>,
       ),
     ).not.toThrow();
-    // Default initial state contains "char_ben"
-    expect(screen.getByTestId("state-dump").textContent).toBe("Has Ben");
+    // Default initial state contains "char_shane"
+    expect(screen.getByTestId("state-dump").textContent).toBe("Has Shane");
   });
 });

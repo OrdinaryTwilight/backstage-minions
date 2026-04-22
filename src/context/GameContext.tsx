@@ -26,7 +26,7 @@ const LevelProgressSchema = z.object({
 const GameSaveSchema = z.object({
   progress: z.record(z.string(), LevelProgressSchema).catch({}),
   unlockedStories: z.array(z.string()).catch([]),
-  contacts: z.array(z.string()).catch(["char_ben", "char_casey", "sys_comms"]),
+  contacts: z.array(z.string()).catch(["char_shane", "char_wynn", "sys_comms"]),
   unreadContacts: z.array(z.string()).catch(["sys_comms"]),
 });
 
@@ -37,7 +37,7 @@ const initialState: GameState = {
   session: null,
   progress: {},
   unlockedStories: [],
-  contacts: ["char_ben", "char_casey", "sys_comms"],
+  contacts: ["char_shane", "char_wynn", "sys_comms"],
   unreadContacts: ["sys_comms"],
 };
 

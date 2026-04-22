@@ -9,8 +9,8 @@ vi.mock("../context/GameContext", () => ({
   useGame: vi.fn(() => ({
     state: {
       networks: [],
-      contacts: ["char_ben", "char_sam"],
-      unreadContacts: ["char_ben"],
+      contacts: ["char_shane", "char_sam"],
+      unreadContacts: ["char_shane"],
     },
     dispatch: vi.fn(),
   })),

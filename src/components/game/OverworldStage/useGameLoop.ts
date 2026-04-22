@@ -189,11 +189,11 @@ export function useGameLoop({
         if (q.targetNpcId) forceSpawnIds.add(q.targetNpcId);
       });
 
-      if (inv.includes("Director's Script")) forceSpawnIds.add("npc_arthur");
-      if (inv.includes("Water Bottle")) forceSpawnIds.add("npc_madeline");
-      if (inv.includes("AA Batteries")) forceSpawnIds.add("char_casey");
-      if (inv.includes("Gaff Tape")) forceSpawnIds.add("char_alex");
-      if (inv.includes("Missing Prop Sword")) forceSpawnIds.add("npc_sam");
+      if (inv.includes("Director's Script")) forceSpawnIds.add("npc_yg");
+      if (inv.includes("Water Bottle")) forceSpawnIds.add("npc_bethany");
+      if (inv.includes("AA Batteries")) forceSpawnIds.add("char_wynn");
+      if (inv.includes("Gaff Tape")) forceSpawnIds.add("char_nikki");
+      if (inv.includes("Missing Prop Sword")) forceSpawnIds.add("npc_des");
 
       const forceSpawnArray = new Set(Array.from(forceSpawnIds));
       const mustSpawn = baseAvailable.filter((npc) =>

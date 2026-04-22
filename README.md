@@ -1,65 +1,49 @@
-# backstage-minions
-
-Smol RPG where you're a backstage minion for a theatre production
-
 # 🎭 Backstage Minions
 
-**Welcome to the shadows.** Grab your headset, double-check your rig, and keep the show running at all costs. The cast gets the applause, but the crew holds the power (?)
+**Backstage Minions** is an interactive, web-based technical theatre and stage management simulator. Step into the shoes of a theatrical crew member and navigate the high-stakes, fast-paced world of live production.
 
-Backstage Minions is an interactive web-based theater management and technical crew simulator. Players take on the role of stagehands, sound designers, and stage managers, executing cues, managing equipment, and dealing with real-time backstage crises.
+From drafting lighting plots and patching sound consoles to untangling XLR cables and managing crew conflicts over the comms channel, this game tests your technical knowledge and your ability to perform under pressure.
 
-## 🚀 Features
+## ✨ Features
 
-- **Comms Network:** A dynamic in-game messaging system for NPC crew chatter, objectives, and tutorial onboarding.
-- **Production Roster:** Multiple levels (shows) ranging from school plays to massive professional productions.
-- **Cue Execution Engine:** A real-time timeline system where players must trigger Lighting, Sound, and Fly cues with precise timing.
-- **Equipment Loadouts:** Assemble the right gear for the gig. (You aren't fixing a parcan without a crescent wrench).
-- **Stress & Morale Tracking:** Keep the show running smoothly to maintain crew morale and prevent the director from throwing a tantrum.
+- **Lighting Plot Drafting:** Review Stage Manager notes and place Spotlights, Washes, and LEDs onto a rigging matrix while managing power limits and Gobo requirements.
+- **Sound Design & Signal Flow:** Route audio inputs to hardware channels, and patch channels to output buses without hitting "dead" hardware.
+- **Live Cue Execution:** Ride the faders and hit your cues on time using a responsive, scrolling cue timeline.
+- **Interactive Minigames:** Untangle and properly coil XLR cables before the truck leaves in the _Strike & Wrap_ stage.
+- **Crew Networking & Comms:** Chat with NPCs through a dynamic, simulated headset network.
+- **RPG Conflict Resolution:** Manage the stress of the production by making tough calls when crew members clash or equipment fails.
+- **Full WCAG Accessibility:** High-contrast modes, native screen-reader support via `aria-live` regions, and keyboard-navigable interfaces.
 
 ## 🛠️ Tech Stack
 
-- **Framework:** React 18 with TypeScript
-- **Routing:** React Router v6
-- **State Management:** React Context API + Reducers (`useReducer`)
-- **Styling:** CSS Modules / Custom Properties with a Blueprint/Terminal aesthetic
-- **Testing:** Vitest & React Testing Library
+- **Core:** React 18, TypeScript
 - **Build Tool:** Vite
+- **Styling:** CSS3 Variables (Full Light/Dark mode support)
+- **Code Quality:** ESLint, SonarQube, Prettier
 
-## 📦 Getting Started
+## 🚀 Quick Start
 
-### Prerequisites
-
-Make sure you have [Node.js](https://nodejs.org/) (v16+) and npm installed.
-
-### Installation
-
-1. Clone the repository:
-
-   ```bash
-   git clone [https://github.com/yourusername/backstage-minions.git](https://github.com/yourusername/backstage-minions.git)
+1. **Clone the repository:**
+   \`\`\`bash
+   git clone https://github.com/yourusername/backstage-minions.git
    cd backstage-minions
+   \`\`\`
 
-   Install dependencies:
-   ```
+2. **Install dependencies:**
+   \`\`\`bash
+   npm install
+   \`\`\`
 
-Bash
-npm install
-Start the development server:
+3. **Run the development server:**
+   \`\`\`bash
+   npm run dev
+   \`\`\`
 
-Bash
-npm run dev
-Open your browser and navigate to http://localhost:5173.
+4. **Build for production:**
+   \`\`\`bash
+   npm run build
+   \`\`\`
 
-Running Tests
-To run the Vitest test suite:
+## 📖 How to Play
 
-Bash
-npm run test
-🎮 How to Play
-Start on the Home Page and check your Comms for messages from ASM Sam.
-
-Navigate to the Productions Page and flip through the callboard posters.
-
-Select a production (Start with Phantom of the Opera - School Difficulty).
-
-Equip your gear, read the plot plans, and execute the show cues!
+Start a new session by selecting a Production and a Difficulty Tier (School, Community, or Professional). As you progress through the stages (`Load-In` -> `Planning` -> `Sound Map` -> `Rehearsal` -> `Live Show`), you will earn points for accuracy and lose points (and gain stress) for mistakes. Complete the show and review your final Star Rating in the Post-Mortem report!

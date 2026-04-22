@@ -21,7 +21,7 @@ export const QUEST_REGISTRY: QuestDefinition[] = [
     pickupZone: "snackTable", // Green Room
     pickupNpcName: "Craft Services",
     pickupIcon: "🍩",
-    targetNpcId: "npc_madeline", // Madeline (Lead Actor)
+    targetNpcId: "npc_bethany", // Bethany (Lead Actor)
     targetZoneId: "couch", // Green Room
     scoreReward: 20,
     narrativeRef: "water",
@@ -32,7 +32,7 @@ export const QUEST_REGISTRY: QuestDefinition[] = [
     pickupZone: "propsTable", // Backstage
     pickupNpcName: "Props Table",
     pickupIcon: "⚒️",
-    targetNpcId: "char_alex", // Alex (Master Electrician)
+    targetNpcId: "char_nikki", // Alex (Master Electrician)
     targetZoneId: "lightBooth", // Backstage
     scoreReward: 20,
     narrativeRef: "tape",
@@ -41,9 +41,9 @@ export const QUEST_REGISTRY: QuestDefinition[] = [
     id: "director_script",
     requiredItem: "Director's Script",
     pickupZone: "npc_stage_manager", // Backstage (NPC Interaction)
-    pickupNpcName: "Alex P. (SM)",
+    pickupNpcName: "Alex (SM)",
     pickupIcon: "📋",
-    targetNpcId: "npc_arthur", // Arthur (Director)
+    targetNpcId: "npc_yg", // YG (Director)
     targetZoneId: "orchestraPit", // Backstage
     scoreReward: 20,
     narrativeRef: "script",
@@ -54,7 +54,7 @@ export const QUEST_REGISTRY: QuestDefinition[] = [
     pickupZone: "storage", // Basement
     pickupNpcName: "Storage Bin",
     pickupIcon: "🔋",
-    targetNpcId: "char_casey", // Casey (Audio Systems)
+    targetNpcId: "char_wynn", // Wynn (Audio Systems)
     targetZoneId: "soundBooth", // Backstage
     scoreReward: 20,
     narrativeRef: "batteries",
@@ -65,7 +65,7 @@ export const QUEST_REGISTRY: QuestDefinition[] = [
     pickupZone: "loadingDock", // Basement
     pickupNpcName: "Road Case",
     pickupIcon: "📦",
-    targetNpcId: "npc_sam", // Sam (Assistant Stage Manager)
+    targetNpcId: "npc_des", // Des (Assistant Stage Manager)
     targetZoneId: "wings", // Backstage
     scoreReward: 20,
     narrativeRef: "spikeTape",

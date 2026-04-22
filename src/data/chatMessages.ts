@@ -22,7 +22,7 @@ export const CHAT_MESSAGES: Record<
       "Do we have any more gaff tape back there?",
     ],
   },
-  npc_arthur: {
+  npc_yg: {
     sender: "The Director",
     messages: [
       "Where is my script?!",
@@ -30,49 +30,49 @@ export const CHAT_MESSAGES: Record<
       "Great run today everyone, despite the tech issues.",
     ],
   },
-  npc_elara: {
-    sender: "Elara (SM)",
+  npc_jd: {
+    sender: "JD (Production Manager)",
     messages: [
       "Places in 5, people. Places in 5.",
       "Tech, are we ready for the blackout cue?",
       "Hold the house! We have a set piece stuck.",
     ],
   },
-  char_ben: {
-    sender: "Ben (LX)",
+  char_shane: {
+    sender: "Shane (LX)",
     messages: [],
   },
-  char_casey: {
-    sender: "Casey (Audio)",
-    messages: [], 
+  char_wynn: {
+    sender: "Wynn (Audio)",
+    messages: [],
   },
 
   // --- GROUP CHATS ---
   group_tech_survivors: {
     sender: "📱 Group: Tech Survivors",
     messages: [
-      "Maya (Props): Who took my good fabric scissors? I am not asking nicely.",
-      "Alex (LX): Check Wardrobe. They were looking for something to cut wire with earlier.",
-      "Maya (Props): IF THEY CUT WIRE WITH MY SCISSORS I WILL BURN THIS THEATRE DOWN.",
+      "Lia (Props): Who took my good fabric scissors? I am not asking nicely.",
+      "Nikki (LX): Check Wardrobe. They were looking for something to cut wire with earlier.",
+      "Lia (Props): IF THEY CUT WIRE WITH MY SCISSORS I WILL BURN THIS THEATRE DOWN.",
       "River (Video): Bring me a Red Bull if you pass the vending machine.",
     ],
   },
   group_official: {
     sender: "📱 OFFICIAL: Cast & Crew",
     messages: [
-      "Alex P. (SM): Call time is 6:00 PM. Not 6:05. If you are late, you are dead to me.",
+      "Alex (SM): Call time is 6:00 PM. Not 6:05. If you are late, you are dead to me.",
       "Zainab (Wardrobe): Cast, please stop eating Cheetos in costume. The stains are permanent.",
-      "Arthur (Director): Art cannot be bound by the hands of a clock, Alex.",
-      "Alex P. (SM): Art pays union fines when it goes into overtime, Arthur. 6:00 PM.",
+      "YG (Director): Art cannot be bound by the hands of a clock, Alex.",
+      "Alex (SM): Art pays union fines when it goes into overtime, YG. 6:00 PM.",
     ],
   },
   group_audio_only: {
     sender: "📱 Sound Dept (No LX Allowed)",
     messages: [
-      "Jordan (Sound): The lead singer just asked me to add more 'talent' to their monitor mix.",
-      "Casey (Audio): Just turn up the reverb and tell them you boosted the 'vibe' frequencies.",
+      "Young Zen (Sound): The lead singer just asked me to add more 'talent' to their monitor mix.",
+      "Wynn (Audio): Just turn up the reverb and tell them you boosted the 'vibe' frequencies.",
       "Sam (A1): Standard protocol. Did it work?",
-      "Jordan (Sound): Yes. They said it sounds 'much more authentic'. I hate it here.",
+      "Young Zen (Sound): Yes. They said it sounds 'much more authentic'. I hate it here.",
     ],
   },
   default: {
@@ -86,7 +86,7 @@ export const CHAT_MESSAGES: Record<
 };
 
 export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
-  npc_sam: [
+  npc_des: [
     {
       text: "I'm ready for my shift.",
       response:
@@ -110,7 +110,7 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
       response: "Wait, that's actually a great trick. It worked! Thank you!",
     },
   ],
-  npc_elara: [
+  npc_jd: [
     {
       text: "Tech is standing by for blackout.",
       response: "Copy that. Prepare to execute on my GO.",
@@ -120,17 +120,17 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
       response: "Thank god. Releasing the hold. House lights going down.",
     },
   ],
-  char_ben: [
+  char_shane: [
     {
       text: "I didn't touch your gels, ask Props.",
-      response: "Typical. I'll go have a word with Maya.",
+      response: "Typical. I'll go have a word with Lia.",
     },
     {
       text: "Worklight coming up on stage left now.",
       response: "Much appreciated. I can finally see my cable runs.",
     },
   ],
-  char_casey: [
+  char_wynn: [
     {
       text: "I'll tape the comms packs to their belts.",
       response: "Please do. We can't afford to lose another transmitter.",
@@ -141,7 +141,7 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
         "Good call. I think they sweat through the mic element again. Swapping it.",
     },
   ],
-  npc_arthur: [
+  npc_yg: [
     {
       text: "I found your script, it's on the SM desk.",
       response: "Ah! The sacred texts! Thank you.",
@@ -154,7 +154,7 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
   group_tech_survivors: [
     {
       text: "I have the fabric scissors. They were left on the prop table.",
-      response: "Maya (Props): BRING THEM TO ME IMMEDIATELY.",
+      response: "Lia (Props): BRING THEM TO ME IMMEDIATELY.",
     },
   ],
 };

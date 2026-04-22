@@ -57,7 +57,7 @@ export const STORIES: Story[] = [
   {
     id: "story_7",
     title: "The Phantom of the Adelphi",
-    content: `Every theatre has a ghost. Ours is named Arthur (no relation to the current director, though equally dramatic).\n\nThey say Arthur was a flyman in the 1920s who dropped a sandbag on a terrible lead tenor and was cursed to wander the grid forever. The truth? The 'footsteps' on the catwalks are just the thermal expansion of the old iron grid when the stage lights heat up.\n\nBut last year, during a blackout, the ghost light was found entirely unscrewed and placed neatly on the prompt desk. Nobody admitted to doing it. We leave a cup of terrible breakroom coffee out for Arthur on opening nights. Just in case.`,
+    content: `Every theatre has a ghost. Ours is named YG (no relation to the current director, though equally dramatic).\n\nThey say YG was a flyman in the 1920s who dropped a sandbag on a terrible lead tenor and was cursed to wander the grid forever. The truth? The 'footsteps' on the catwalks are just the thermal expansion of the old iron grid when the stage lights heat up.\n\nBut last year, during a blackout, the ghost light was found entirely unscrewed and placed neatly on the prompt desk. Nobody admitted to doing it. We leave a cup of terrible breakroom coffee out for YG on opening nights. Just in case.`,
     unlockedBy: {
       productionId: "prod_phantom_vengeance",
       difficulty: "professional",

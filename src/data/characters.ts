@@ -1,10 +1,27 @@
 import { Character } from "../types/game";
 
+// --- DYNAMIC PARSING UTILITIES ---
+export const resolveCharacterName = (id: string): string => {
+  const c =
+    CHARACTERS.find((c) => c.id === id) ||
+    AVAILABLE_NPCS.find((c) => c.id === id);
+  return c ? c.name : id;
+};
+
+// Replaces any instance of {char_id} in a string with the live character name
+export const parseDialogueTags = (text: string): string => {
+  if (!text) return text;
+  return text.replaceAll(/\{([^}]+)\}/g, (match, id) => {
+    const name = resolveCharacterName(id);
+    return name === id ? match : name;
+  });
+};
+
 // --- CHARACTERS ---
 export const CHARACTERS: Character[] = [
   {
-    id: "char_ben",
-    name: "Ben",
+    id: "char_shane",
+    name: "Shane",
     role: "Lighting Designer",
     department: "lighting",
     bio: "A seasoned designer who moved from architectural lighting to theatre. Prefers the company of their console over humans but has a hidden talent for networking during interval drinks.",
@@ -21,20 +38,20 @@ export const CHARACTERS: Character[] = [
     stats: { technical: 7, social: 8, stamina: 5 },
   },
   {
-    id: "char_alex",
-    name: "Alex",
+    id: "char_nikki",
+    name: "Nikki",
     role: "Master Electrician",
     department: "lighting",
-    bio: "The muscle and brains of the lighting crew. Alex has a background in electrical engineering and is more concerned with circuit loads than 'artistic vibes'.",
+    bio: "The muscle and brains of the lighting crew. Nikki has a background in electrical engineering and is more concerned with circuit loads than 'artistic vibes'.",
     icon: "👷",
     stats: { technical: 8, social: 5, stamina: 10 },
   },
   {
-    id: "char_jordan",
-    name: "Jordan",
+    id: "char_zen",
+    name: "Young Zen",
     role: "Sound Designer",
     department: "sound",
-    bio: "A perfectionist who transitioned from a career in studio production to live performance. Jordan spends hours EQing a single footstep and has little patience for mic-dropping divas.",
+    bio: "A perfectionist who transitioned from a career in studio production to live performance. Zen spends hours EQing a single footstep and has little patience for mic-dropping divas.",
     icon: "🎛️",
     stats: { technical: 8, social: 3, stamina: 6 },
   },
@@ -48,11 +65,11 @@ export const CHARACTERS: Character[] = [
     stats: { technical: 8, social: 7, stamina: 8 },
   },
   {
-    id: "char_casey",
-    name: "Casey",
+    id: "char_wynn",
+    name: "Wynn",
     role: "Audio Systems Engineer",
     department: "sound",
-    bio: "A wizard with digital protocols and signal routing. Casey is non-binary and spent years working on international festival tours before finding a home in the musical theatre world.",
+    bio: "A wizard with digital protocols and signal routing. Wynn spent years working on international festival tours before finding a home in the musical theatre world.",
     icon: "🧑🏻‍🚀",
     stats: { technical: 10, social: 5, stamina: 7 },
   },
@@ -66,11 +83,11 @@ export const CHARACTERS: Character[] = [
     stats: { technical: 10, social: 6, stamina: 4 },
   },
   {
-    id: "char_maya",
-    name: "Maya",
+    id: "char_lia",
+    name: "Lia",
     role: "Properties Master",
     department: "props",
-    bio: "An expert in 'Theatrical Alchemy'... aka turning foam into iron and glue into gourmet meals. Maya has worked in every major house in the city and has a story for every scar on her work gloves.",
+    bio: "An expert in 'Theatrical Alchemy'... aka turning foam into iron and glue into gourmet meals. Lia has worked in every major house in the city and has a story for every scar on her work gloves.",
     icon: "⚒️",
     stats: { technical: 8, social: 9, stamina: 7 },
   },
@@ -84,65 +101,65 @@ export const CHARACTERS: Character[] = [
     stats: { technical: 6, social: 5, stamina: 10 },
   },
   {
-    id: "char_tara",
-    name: "Tara",
+    id: "char_karishma",
+    name: "Karishma",
     role: "Lead Followspot",
     department: "lighting",
-    bio: "Operates Spot 1 from the catwalks. Subsists on sour candy and adrenaline. Tara knows every actor's blocking better than the director does and has an eerie ability to track a dancer in pitch darkness.",
+    bio: "Operates Spot 1 from the catwalks. Subsists on sour candy and adrenaline. Karishma knows every actor's blocking better than the director does and has an eerie ability to track a dancer in pitch darkness.",
     icon: "🔦",
     stats: { technical: 7, social: 6, stamina: 8 },
   },
   {
-    id: "char_dante",
-    name: "Dante",
+    id: "char_sylvester",
+    name: "Sylvester",
     role: "Master Carpenter",
     department: "scenic",
-    bio: "Loves sawdust more than oxygen. Dante is grumpy on the surface but will stay until 3 AM to make sure a stair unit is mathematically flawless and perfectly silent to walk on.",
+    bio: "Loves sawdust more than oxygen. Sylvester is grumpy on the surface but will stay until 3 AM to make sure a stair unit is mathematically flawless and perfectly silent to walk on.",
     icon: "🪚",
     stats: { technical: 9, social: 4, stamina: 9 },
   },
   {
-    id: "char_chloe",
-    name: "Chloe",
+    id: "char_angel",
+    name: "Angel",
     role: "Hair & Makeup Head",
     department: "wardrobe",
-    bio: "Part therapist, part artist. Chloe spends preshow gluing on wigs and talking actors off emotional ledges. Moves with terrifying speed during a 30-second quick change.",
+    bio: "Part therapist, part artist. Angel spends preshow gluing on wigs and talking actors off emotional ledges. Moves with terrifying speed during a 30-second quick change.",
     icon: "💄",
     stats: { technical: 7, social: 10, stamina: 6 },
   },
   {
-    id: "char_marcus",
-    name: "Marcus",
+    id: "char_richmond",
+    name: "Richmond",
     role: "House Manager",
     department: "foh",
-    bio: "The velvet rope between the chaos of backstage and the paying public. Marcus wears an impeccable suit, has a soothing voice, and can de-escalate a furious patron in under a minute.",
+    bio: "The velvet rope between the chaos of backstage and the paying public. Richmond wears an impeccable suit, has a soothing voice, and can de-escalate a furious patron in under a minute.",
     icon: "🎟️",
     stats: { technical: 3, social: 10, stamina: 7 },
   },
   {
-    id: "char_zoe",
-    name: "Zoe",
+    id: "char_jay",
+    name: "Jay",
     role: "A2 (Deck Audio)",
     department: "sound",
-    bio: "The unsung hero of the audio world. Zoe lives in the wings, wrangling sweating actors into mic belts and fixing snapped cables with surgical tape in total darkness.",
+    bio: "The unsung hero of the audio world. Jay lives in the wings, wrangling sweating actors into mic belts and fixing snapped cables with surgical tape in total darkness.",
     icon: "🎙️",
     stats: { technical: 8, social: 7, stamina: 9 },
   },
   {
-    id: "char_owen",
-    name: "Owen",
+    id: "char_shaun",
+    name: "Shaun",
     role: "Special Effects Tech",
     department: "props",
-    bio: "Licensed pyrotechnician and fog machine whisperer. Owen's eyebrows haven't fully grown back since the 'Macbeth Incident of 2019', but his dry ice waterfalls are legendary.",
+    bio: "Licensed pyrotechnician and fog machine whisperer. Shaun's eyebrows haven't fully grown back since the 'Macbeth Incident of 2019', but his dry ice waterfalls are legendary.",
     icon: "💨",
     stats: { technical: 9, social: 4, stamina: 5 },
   },
   {
-    id: "char_fiona",
-    name: "Fiona",
+    id: "char_jasper",
+    name: "Jasper",
     role: "Assistant Stage Manager",
     department: "management",
-    bio: "Armed with an iPad, three rolls of glow tape, and an encyclopedic knowledge of everyone's coffee order. Fiona is the connective tissue holding the deck together.",
+    bio: "Armed with an iPad, three rolls of glow tape, and an encyclopedic knowledge of everyone's coffee order. Jasper is the connective tissue holding the deck together.",
     icon: "📱",
     stats: { technical: 5, social: 9, stamina: 10 },
   },
@@ -181,12 +198,12 @@ export const AVAILABLE_NPCS = [
     }),
   },
   {
-    id: "npc_mateo",
-    name: "Mateo",
+    id: "npc_bryan",
+    name: "Bryan",
     role: "Head Rigger",
     color: "#f9a826",
     dialogue: (dept?: string) => ({
-      speaker: "Mateo (Rigging)",
+      speaker: "Bryan (Rigging)",
       text:
         dept === "lighting"
           ? "I just hung the new movers on the first electric. Safety cables are tight!"
@@ -202,12 +219,12 @@ export const AVAILABLE_NPCS = [
     }),
   },
   {
-    id: "npc_sam",
-    name: "Sam",
+    id: "npc_des",
+    name: "Des",
     role: "ASM",
     color: "#457b9d",
     dialogue: () => ({
-      speaker: "Sam (Assistant Stage Manager)",
+      speaker: "Des (Assistant Stage Manager)",
       text: "I'm looking for a missing prop sword... Have you seen a giant piece of foam painted silver?",
       choices: [
         {
@@ -220,8 +237,8 @@ export const AVAILABLE_NPCS = [
     }),
   },
   {
-    id: "npc_elara",
-    name: "Elara",
+    id: "npc_jd",
+    name: "JD",
     role: "Production Manager",
     color: "#8338ec",
     dialogue: (dept?: string) => {
@@ -234,7 +251,7 @@ export const AVAILABLE_NPCS = [
           "We’re behind schedule. Focus on the 'Must-Haves' and leave the 'Nice-to-Haves' for tomorrow.",
       };
       return {
-        speaker: "Elara (Production Manager)",
+        speaker: "JD (Production Manager)",
         text: responses[dept as keyof typeof responses] || responses.default,
         choices: [
           {
@@ -247,15 +264,15 @@ export const AVAILABLE_NPCS = [
             id: "reality",
             text: "We need more hands if you want it done safely.",
             pointDelta: 0,
-            contact: "char_alex",
+            contact: "char_nikki",
           },
         ],
       };
     },
   },
   {
-    id: "npc_arthur",
-    name: "Arthur",
+    id: "npc_yg",
+    name: "YG",
     role: "Director",
     color: "#ff0066",
     dialogue: (dept?: string) => {
@@ -268,7 +285,7 @@ export const AVAILABLE_NPCS = [
           "Why is everyone walking so loudly? The stage must be a sacred void before we begin.",
       };
       return {
-        speaker: "Arthur (Director)",
+        speaker: "YG (Director)",
         text: responses[dept as keyof typeof responses] || responses.default,
         choices: [
           {
@@ -288,30 +305,30 @@ export const AVAILABLE_NPCS = [
     },
   },
   {
-    id: "npc_madeline",
-    name: "Madeline",
+    id: "npc_bethany",
+    name: "Bethany",
     role: "Lead Actor",
     color: "#ffcc00",
     dialogue: () => ({
-      speaker: "Madeline (Lead)",
+      speaker: "Bethany (Lead)",
       text: "Is there an unnatural draft in here? My vocal cords are seizing up. And I can't find my specific honey-lemon tea.",
       choices: [
         {
           id: "tea",
           text: "I think Props has your tea. I'll call them.",
           pointDelta: 2,
-          contact: "char_maya",
+          contact: "char_lia",
         },
       ],
     }),
   },
   {
-    id: "npc_victor",
-    name: "Victor",
+    id: "npc_viola",
+    name: "Viola",
     role: "Music Director",
     color: "#3399ff",
     dialogue: () => ({
-      speaker: "Victor (MD)",
+      speaker: "Viola (MD)",
       text: "The pit monitor is picking up the click track. If the front row hears a metronome during the ballad, I'm walking out.",
       choices: [
         {
@@ -325,11 +342,11 @@ export const AVAILABLE_NPCS = [
   },
   {
     id: "npc_stage_manager",
-    name: "Alex P.",
+    name: "Alex",
     role: "Stage Manager",
     color: "#ffffff",
     dialogue: () => ({
-      speaker: "Alex P. (Stage Manager)",
+      speaker: "Alex (Stage Manager)",
       text: "Is the headset loop clear? We're 2 minutes from curtain.",
       choices: [
         { id: "copy", text: "Copy that.", pointDelta: 0, contact: null },

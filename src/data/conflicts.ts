@@ -1,13 +1,12 @@
-// src/data/conflicts.ts
 import { Conflict } from "../types/game";
 
 export const CONFLICTS: Conflict[] = [
   {
     id: "conf_the_vanishing_prop",
     trigger: "planning",
-    npc: "Sam (ASM)",
+    npc: "npc_des",
     description:
-      "Sam is frantically rummaging through a prop bin, hair disheveled. 'The lead's lucky pocket watch is gone! They refuse to go on stage without it, and the house opens in five minutes. I think I saw a stagehand take it to the sound booth for some reason... help me!'",
+      "{npc_des} is frantically rummaging through a prop bin, hair disheveled. 'The lead's lucky pocket watch is gone! They refuse to go on stage without it, and the house opens in five minutes. I think I saw a stagehand take it to the sound booth for some reason... help me!'",
     choices: [
       {
         id: "heroic_search",
@@ -15,8 +14,8 @@ export const CONFLICTS: Conflict[] = [
         outcome: "resolved",
         pointDelta: 10,
         aftermathText:
-          "You find the watch being used as a paperweight for a sound plot. Sam hugs you. 'You're a lifesaver! I owe you big time!'",
-        sideEffect: "add_contact_sam",
+          "You find the watch being used as a paperweight for a sound plot. {npc_des} hugs you. 'You're a lifesaver! I owe you big time!'",
+        sideEffect: "ally_gained",
       },
       {
         id: "harsh_truth",
@@ -24,16 +23,16 @@ export const CONFLICTS: Conflict[] = [
         outcome: "escalated",
         pointDelta: -15,
         aftermathText:
-          "Sam looks horrified. 'You can't say that to them! Now they're locked in their dressing room crying. This is a disaster.'",
+          "{npc_des} looks horrified. 'You can't say that to them! Now they're locked in their dressing room crying. This is a disaster.'",
       },
     ],
   },
   {
     id: "conf_the_aesthetic_clash",
     trigger: "rehearsal",
-    npc: "Zainab (Wardrobe)",
+    npc: "npc_zainab",
     description:
-      "Zainab blocks your path to the lighting console, arms crossed. 'I see what you're doing with those side-lights. That harsh blue is washing out the delicate lace on the protagonist’s cape! It looks like cheap plastic under your lights. You're ruining the vision!'",
+      "{npc_zainab} blocks your path to the lighting console, arms crossed. 'I see what you're doing with those side-lights. That harsh blue is washing out the delicate lace on the protagonist’s cape! It looks like cheap plastic under your lights. You're ruining the vision!'",
     choices: [
       {
         id: "artistic_compromise",
@@ -41,12 +40,12 @@ export const CONFLICTS: Conflict[] = [
         outcome: "resolved",
         pointDelta: 12,
         aftermathText:
-          "Zainab squinted at the stage, then nodded. '...It's acceptable. You actually have an eye for detail, don't you? Fine. Lavender it is.'",
-        sideEffect: "unlock_story_wardrobe",
+          "{npc_zainab} squinted at the stage, then nodded. '...It's acceptable. You actually have an eye for detail, don't you? Fine. Lavender it is.'",
+        sideEffect: "ally_gained",
       },
       {
         id: "tech_priority",
-        text: "The blue is for visibility, Zainab. People need to actually see the actors.",
+        text: "The blue is for visibility. People need to actually see the actors.",
         outcome: "neutral",
         pointDelta: 2,
         aftermathText:
@@ -57,9 +56,9 @@ export const CONFLICTS: Conflict[] = [
   {
     id: "conf_comms_etiquette",
     trigger: "execution",
-    npc: "Elara (Production Manager)",
+    npc: "npc_jd",
     description:
-      "Mid-show, Elara's voice crackles over your headset, sounding exhausted. 'Who is eating chips over an open mic? We're in the middle of a delicate soliloquy and all the Stage Manager can hear is CRUNCHING. Own up now.'",
+      "Mid-show, {npc_jd}'s voice crackles over your headset, sounding exhausted. 'Who is eating chips over an open mic? We're in the middle of a delicate soliloquy and all the Stage Manager can hear is CRUNCHING. Own up now.'",
     choices: [
       {
         id: "own_it",
@@ -67,7 +66,7 @@ export const CONFLICTS: Conflict[] = [
         outcome: "resolved",
         pointDelta: 5,
         aftermathText:
-          "Elara sighs. 'At least you're honest. Just... be more professional. We're a troupe, not a cafeteria.'",
+          "{npc_jd} sighs. 'At least you're honest. Just... be more professional. We're a troupe, not a cafeteria.'",
       },
       {
         id: "deflect",
@@ -75,16 +74,16 @@ export const CONFLICTS: Conflict[] = [
         outcome: "escalated",
         pointDelta: -10,
         aftermathText:
-          "The chip eating continues. Now the SM is yelling at the spot operators, and the whole crew is distracted. The vibes are officially rancid.",
+          "The chip eating continues. Now {npc_stage_manager} is yelling at the spot operators, and the whole crew is distracted. The vibes are officially rancid.",
       },
     ],
   },
   {
     id: "conf_the_gaffer_hoarder",
     trigger: "wrapup",
-    npc: "Mateo (Head Rigger)",
+    npc: "npc_bryan",
     description:
-      "Strike has begun, and everyone is out of gaffer tape. You see Mateo tucking a fresh roll into his personal bag. When you ask for some, he grunts. 'This is my personal stash. I’ve seen how you lot waste tape. Use tie-line or find your own.'",
+      "Strike has begun, and everyone is out of gaffer tape. You see {npc_bryan} tucking a fresh roll into his personal bag. When you ask for some, he grunts. 'This is my personal stash. I’ve seen how you lot waste tape. Use tie-line or find your own.'",
     choices: [
       {
         id: "the_bribe",
@@ -92,8 +91,8 @@ export const CONFLICTS: Conflict[] = [
         outcome: "resolved",
         pointDelta: 8,
         aftermathText:
-          "Mateo’s eyes light up. 'The one with the extra caffeine? Deal. Don't let the others see you using this.'",
-        sideEffect: "add_contact_mateo",
+          "{npc_bryan}’s eyes light up. 'The one with the extra caffeine? Deal. Don't let the others see you using this.'",
+        sideEffect: "ally_gained",
       },
       {
         id: "guilt_trip",
@@ -108,25 +107,25 @@ export const CONFLICTS: Conflict[] = [
   {
     id: "conf_the_rogue_director",
     trigger: "rehearsal",
-    npc: "Arthur (Director)",
+    npc: "npc_yg",
     description:
-      "Arthur walks up to your console during a tech run. 'I know we locked the cues, but what if right here, all the lights go completely red and we hear a massive heartbeat? It symbolizes their inner turmoil. Can you build that right now?'",
+      "{npc_yg} walks up to your console during a tech run. 'I know we locked the cues, but what if right here, all the lights go completely red and we hear a massive heartbeat? It symbolizes their inner turmoil. Can you build that right now?'",
     choices: [
       {
         id: "diplomatic_stall",
-        text: "That's a bold idea, Arthur. Let me build it in the blind and we'll look at it during notes, so we don't stop the run.",
+        text: "That's a bold idea. Let me build it in the blind and we'll look at it during notes, so we don't stop the run.",
         outcome: "resolved",
         pointDelta: 15,
         aftermathText:
-          "Arthur beams. 'Yes! Protect the momentum of the run! I love working with artists.' The SM gives you a thumbs up from the desk.",
+          "{npc_yg} beams. 'Yes! Protect the momentum of the run! I love working with artists.' {npc_stage_manager} gives you a thumbs up from the desk.",
       },
       {
         id: "hard_no",
-        text: "We are in a run. The SM controls the flow, not me. Talk to them.",
+        text: "We are in a run. The SM controls the flow, not me. Talk to {npc_stage_manager}.",
         outcome: "escalated",
         pointDelta: -5,
         aftermathText:
-          "Arthur scowls. 'You technicians have no soul.' He stomps over to the SM desk, halting the entire rehearsal to complain.",
+          "{npc_yg} scowls. 'You technicians have no soul.' He stomps over to the SM desk, halting the entire rehearsal to complain.",
       },
       {
         id: "do_it_live",
@@ -134,16 +133,16 @@ export const CONFLICTS: Conflict[] = [
         outcome: "neutral",
         pointDelta: 0,
         aftermathText:
-          "You throw up red lights. The actors are blinded and stop their lines. The SM yells at you on comms for changing cues unprompted.",
+          "You throw up red lights. The actors are blinded and stop their lines. {npc_stage_manager} yells at you on comms for changing cues unprompted.",
       },
     ],
   },
   {
     id: "conf_the_rf_nightmare",
     trigger: "planning",
-    npc: "Zoe (A2)",
+    npc: "char_jay",
     description:
-      "Zoe runs up to you with a handful of mic transmitters. 'The local TV station just fired up a new broadcast tower and it's stepping all over our RF frequencies. Half the cast mics sound like radio static!'",
+      "{char_jay} runs up to you with a handful of mic transmitters. 'The local TV station just fired up a new broadcast tower and it's stepping all over our RF frequencies. Half the cast mics sound like radio static!'",
     choices: [
       {
         id: "re_scan",
@@ -151,7 +150,7 @@ export const CONFLICTS: Conflict[] = [
         outcome: "resolved",
         pointDelta: 20,
         aftermathText:
-          "It takes 15 minutes, but you find clean airwaves. Zoe high-fives you. 'Clean audio is godliness.'",
+          "It takes 15 minutes, but you find clean airwaves. {char_jay} high-fives you. 'Clean audio is godliness.'",
       },
       {
         id: "turn_it_up",
@@ -166,17 +165,17 @@ export const CONFLICTS: Conflict[] = [
   {
     id: "conf_the_fly_rail_traffic",
     trigger: "execution",
-    npc: "Leo (Head Flyman)",
+    npc: "char_leo",
     description:
-      "You're on comms. Leo's deep voice comes over: 'Lighting, you hung the new moving head too far upstage. If I drop the Act 2 backdrop right now, it's going to snag on your fixture and tear the canvas.'",
+      "You're on comms. {char_leo}'s deep voice comes over: 'Lighting, you hung the new moving head too far upstage. If I drop the Act 2 backdrop right now, it's going to snag on your fixture and tear the canvas.'",
     choices: [
       {
         id: "compromise_fly",
-        text: "Understood. Leo, hold the drop halfway. I'll pan the fixture out of the way, then give you the clear.",
+        text: "Understood. Hold the drop halfway. I'll pan the fixture out of the way, then give you the clear.",
         outcome: "resolved",
         pointDelta: 15,
         aftermathText:
-          "'Copy that. Awaiting your clear,' Leo replies. You move the light, the drop comes in safely, and disaster is averted.",
+          "'Copy that. Awaiting your clear,' {char_leo} replies. You move the light, the drop comes in safely, and disaster is averted.",
       },
       {
         id: "blame_game",
@@ -184,16 +183,16 @@ export const CONFLICTS: Conflict[] = [
         outcome: "escalated",
         pointDelta: -25,
         aftermathText:
-          "Leo drops it. *RIIIP.* The sound of tearing canvas echoes through the house. Scenic is going to murder you.",
+          "{char_leo} drops it. *RIIIP.* The sound of tearing canvas echoes through the house. Scenic is going to murder you.",
       },
     ],
   },
   {
     id: "conf_the_quick_change",
     trigger: "execution",
-    npc: "Chloe (Hair & Makeup)",
+    npc: "char_angel",
     description:
-      "In the pitch-black wings, Chloe grabs your arm. 'The lead's wig is caught in their zipper! They are supposed to be on stage in twenty seconds! I need light, NOW!'",
+      "In the pitch-black wings, {char_angel} grabs your arm. 'The lead's wig is caught in their zipper! They are supposed to be on stage in twenty seconds! I need light, NOW!'",
     choices: [
       {
         id: "bite_light",
@@ -201,7 +200,7 @@ export const CONFLICTS: Conflict[] = [
         outcome: "resolved",
         pointDelta: 10,
         aftermathText:
-          "With your light, Chloe frees the wig. The actor sprints on stage precisely on cue. 'You're my hero,' Chloe whispers.",
+          "With your light, {char_angel} frees the wig. The actor sprints on stage precisely on cue. 'You're my hero,' she whispers.",
       },
       {
         id: "phone_light",
@@ -216,9 +215,9 @@ export const CONFLICTS: Conflict[] = [
   {
     id: "conf_front_of_house_delay",
     trigger: "execution",
-    npc: "Marcus (House Manager)",
+    npc: "char_richmond",
     description:
-      "Marcus pages you. 'We have a massive line at the women's restroom and a VIP patron who just spilled wine on their shirt. I need a five-minute hold on the start of Act 2.'",
+      "{char_richmond} pages you. 'We have a massive line at the women's restroom and a VIP patron who just spilled wine on their shirt. I need a five-minute hold on the start of Act 2.'",
     choices: [
       {
         id: "grant_hold",
@@ -226,11 +225,11 @@ export const CONFLICTS: Conflict[] = [
         outcome: "resolved",
         pointDelta: 10,
         aftermathText:
-          "The SM sighs but agrees. Marcus handles the VIP. The audience is seated calmly. Good communication.",
+          "The SM sighs but agrees. {char_richmond} handles the VIP. The audience is seated calmly. Good communication.",
       },
       {
         id: "push_forward",
-        text: "Tell Marcus: 'We are on a strict union clock. We are going in two minutes regardless.'",
+        text: "Tell FOH: 'We are on a strict union clock. We are going in two minutes regardless.'",
         outcome: "escalated",
         pointDelta: -10,
         aftermathText:

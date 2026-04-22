@@ -125,7 +125,7 @@ export const ZAINAB_WARDROBE_TREE: DialogueTree = {
   },
 };
 
-export const BEN_LX_TREE: DialogueTree = {
+export const SHANE_LX_TREE: DialogueTree = {
   start: {
     id: "start",
     variants: [
@@ -150,14 +150,14 @@ export const BEN_LX_TREE: DialogueTree = {
     id: "blame",
     variants: [
       {
-        text: "Typical. They think optical physics is just arts and crafts. I'll go have a word with Maya.",
+        text: "Typical. They think optical physics is just arts and crafts. I'll go have a word with Lia.",
       },
     ],
     choices: [{ id: "c1", text: "Good luck with that.", nextNodeId: "end" }],
   },
 };
 
-export const MAYA_PROPS_TREE: DialogueTree = {
+export const LIA_PROPS_TREE: DialogueTree = {
   start: {
     id: "start",
     variants: [
@@ -183,7 +183,7 @@ export const MAYA_PROPS_TREE: DialogueTree = {
   },
 };
 
-export const CASEY_AUDIO_TREE: DialogueTree = {
+export const WYNN_AUDIO_TREE: DialogueTree = {
   start: {
     id: "start",
     variants: [
@@ -207,7 +207,7 @@ export const CASEY_AUDIO_TREE: DialogueTree = {
   },
 };
 
-export const ALEX_ME_TREE: DialogueTree = {
+export const NIKI_ME_TREE: DialogueTree = {
   start: {
     id: "start",
     variants: [
@@ -306,8 +306,8 @@ export const SM_EMERGENCY_TREE: DialogueTree = {
 export const DIALOGUE_REGISTRY: Record<string, DialogueTree> = {
   npc_zainab: ZAINAB_WARDROBE_TREE,
   npc_stage_manager_emergency: SM_EMERGENCY_TREE,
-  char_ben: BEN_LX_TREE,
-  char_maya: MAYA_PROPS_TREE,
-  char_casey: CASEY_AUDIO_TREE,
-  char_alex: ALEX_ME_TREE,
+  char_shane: SHANE_LX_TREE,
+  char_lia: LIA_PROPS_TREE,
+  char_wynn: WYNN_AUDIO_TREE,
+  char_nikki: NIKI_ME_TREE,
 };

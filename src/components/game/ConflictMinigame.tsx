@@ -1,6 +1,12 @@
 import { useMemo, useState } from "react";
 import { useGame } from "../../context/GameContext";
-import { NPC_ICONS } from "../../data/gameData";
+import {
+  AVAILABLE_NPCS,
+  CHARACTERS,
+  NPC_ICONS,
+  parseDialogueTags,
+  resolveCharacterName,
+} from "../../data/characters";
 import { useAnnouncement } from "../../hooks/useAnnouncement";
 import { Conflict, ConflictChoice } from "../../types/game";
 import Button from "../ui/Button";
@@ -43,7 +49,6 @@ export default function ConflictMinigame({
 
   const handleChoice = (choice: ConflictChoice) => {
     dispatch({ type: "MARK_CONFLICT_SEEN", conflictId: conflict.id });
-
     dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
 
     if (choice.outcome === "escalated") {
@@ -56,9 +61,25 @@ export default function ConflictMinigame({
       dispatch({ type: "ADD_CONTACT", contactId: conflict.npc });
     }
 
-    announce(`Result: ${choice.outcome}. ${choice.aftermathText}`);
+    const parsedAftermath = parseDialogueTags(choice.aftermathText);
+    announce(`Result: ${choice.outcome}. ${parsedAftermath}`);
     setSelectedChoice(choice);
   };
+
+  const speakerName = resolveCharacterName(conflict.npc);
+
+  let speakerIcon = "👤";
+  const charMatch = CHARACTERS.find((c) => c.id === conflict.npc);
+  const npcMatch = AVAILABLE_NPCS.find((c) => c.id === conflict.npc);
+
+  if (charMatch) {
+    speakerIcon = charMatch.icon;
+  } else if (npcMatch) {
+    const iconKey = Object.keys(NPC_ICONS).find((k) =>
+      npcMatch.role.includes(k),
+    );
+    speakerIcon = iconKey ? NPC_ICONS[iconKey as keyof typeof NPC_ICONS] : "👤";
+  }
 
   return (
     <div
@@ -83,7 +104,6 @@ export default function ConflictMinigame({
                 gap: "1rem",
               }}
             >
-              {/* UX FIX: Priority 4 - Adding aria-live to ensure screen readers announce the result of the conflict immediately */}
               <h3
                 style={{
                   color:
@@ -98,7 +118,6 @@ export default function ConflictMinigame({
               </h3>
 
               <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-                {/* UX FIX: Priority 4 - Solid backgrounds with black text guarantees WCAG 1.4.3 Contrast Compliance */}
                 <span
                   style={{
                     background:
@@ -161,7 +180,7 @@ export default function ConflictMinigame({
                 border: "1px solid var(--glass-border)",
               }}
             >
-              {selectedChoice.aftermathText}
+              {parseDialogueTags(selectedChoice.aftermathText)}
             </article>
 
             <Button
@@ -183,9 +202,9 @@ export default function ConflictMinigame({
             }}
           >
             <DialogueBox<ConflictChoice>
-              speaker={conflict.npc}
-              icon={NPC_ICONS[conflict.npc as keyof typeof NPC_ICONS]}
-              text={conflict.description}
+              speaker={speakerName}
+              icon={speakerIcon}
+              text={parseDialogueTags(conflict.description)}
               choices={shuffledChoices}
               onChoice={handleChoice}
             />

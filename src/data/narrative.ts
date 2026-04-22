@@ -95,7 +95,7 @@ export const NARRATIVE = {
         speaker: "DIRECTOR",
         text: "Can we make it brighter? It feels sad. Can we add more yellow?",
       },
-      { speaker: "SM", text: "Arthur, please get off the technical channel." },
+      { speaker: "SM", text: "YG, please get off the technical channel." },
       {
         speaker: "FLY",
         text: "Standby to fly the chandelier. It's heavy today.",
@@ -133,7 +133,7 @@ export const NARRATIVE = {
     },
     tape: {
       pickupText:
-        "Hey, since you're walking around... Can you bring this Gaff Tape to Alex or drop it off at the LX Booth?",
+        "Hey, since you're walking around... Can you bring this Gaff Tape to Nikki or drop it off at the LX Booth?",
       pickupAction: "Take Gaff Tape",
       targetNeedText:
         "I've got cables snaking everywhere and no gaff tape to secure them. This is a disaster waiting to happen.",
@@ -146,7 +146,7 @@ export const NARRATIVE = {
     },
     script: {
       pickupText:
-        "The Director left their script on my desk again. Can you run this to Arthur or leave it at his setup in the Orchestra Pit?",
+        "The Director left their script on my desk again. Can you run this to YG or leave it at his setup in the Orchestra Pit?",
       pickupAction: "Take Director's Script",
       targetNeedText:
         "I've completely lost my blocking notes... Have you seen my script anywhere?",
@@ -186,7 +186,7 @@ export const NARRATIVE = {
     },
   },
   networks: {
-    char_ben: [
+    char_shane: [
       {
         sender: "npc",
         text: "Hey, did you grab the gel swatch book from the booth?",
