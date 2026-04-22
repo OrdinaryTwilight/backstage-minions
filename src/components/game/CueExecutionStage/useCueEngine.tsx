@@ -15,7 +15,7 @@ export function useCueEngine(
     Record<string, { hit: boolean }>
   >({});
   const [isReady, setIsReady] = useState(false);
-  const [isPaused, setIsPaused] = useState(false); // UX FIX: Game Clock Pause State
+  const [isPaused, setIsPaused] = useState(false);
   const [smMessage, setSmMessage] = useState(
     "Standby. Lock in your faders and tell me when you are ready.",
   );
@@ -39,7 +39,25 @@ export function useCueEngine(
     faderLevelsRef.current = faderLevels;
   }, [faderLevels]);
 
-  // UX FIX: Keyboard shortcut to Pause without UI clicks
+  // UX FIX: Listen for Global Pause Events from the Nav Bar
+  useEffect(() => {
+    const handleGlobalPause = () => setIsPaused(true);
+    const handleGlobalResume = () => {
+      if (isReady && !isLastCue) setIsPaused(false);
+    };
+
+    globalThis.addEventListener("global_pause_request", handleGlobalPause);
+    globalThis.addEventListener("global_resume_request", handleGlobalResume);
+
+    return () => {
+      globalThis.removeEventListener("global_pause_request", handleGlobalPause);
+      globalThis.removeEventListener(
+        "global_resume_request",
+        handleGlobalResume,
+      );
+    };
+  }, [isReady, isLastCue]);
+
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape" && isReady && !isLastCue)
@@ -127,7 +145,6 @@ export function useCueEngine(
     ],
   );
 
-  // Master Clock (Respects Pause State)
   useEffect(() => {
     if (isLastCue || !isReady || isPaused) return;
     const startTime = Date.now() - elapsedMs;
@@ -136,7 +153,7 @@ export function useCueEngine(
       50,
     );
     return () => clearInterval(interval);
-  }, [isLastCue, isReady, isPaused]); // Intentionally omitting elapsedMs so interval isn't recreated every tick
+  }, [isLastCue, isReady, isPaused]);
 
   useEffect(() => {
     expiredRef.current = false;

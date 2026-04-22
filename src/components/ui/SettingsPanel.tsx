@@ -207,8 +207,8 @@ export default function SettingsPanel({
                 updateSetting("theme", e.target.value as "dark" | "light")
               }
             >
-              <option value="dark">Blueprint Dark (Default)</option>
-              <option value="light">Paper Light</option>
+              <option value="dark">Dark Mode (Default)</option>
+              <option value="light">Light Mode</option>
             </select>
           </div>
 

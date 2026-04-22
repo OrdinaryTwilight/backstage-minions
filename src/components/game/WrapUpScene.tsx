@@ -20,7 +20,7 @@ interface WrapUpSceneProps {
 export default function WrapUpScene({
   cueSheet = [],
 }: Readonly<WrapUpSceneProps>) {
-  const { state } = useGame();
+  const { state, dispatch } = useGame();
   const [phase, setPhase] = useState<"dialogue" | "report">("dialogue");
   const navigate = useNavigate();
 
@@ -80,9 +80,20 @@ export default function WrapUpScene({
       sessionStorage.setItem("unread_messages", "true");
       globalThis.dispatchEvent(new Event("unread_messages_update"));
 
-      reportSent.current = true; // Lock the execution
+      reportSent.current = true;
     }
   }, [phase, cuesHit, totalCues, score, stars, state.session]);
+
+  const handleSignOut = () => {
+    sessionStorage.removeItem("minion_inventory");
+    sessionStorage.removeItem("minion_completed_quests");
+    sessionStorage.removeItem("minion_session");
+    sessionStorage.removeItem("minion_stages");
+
+    // FIX: Using the strict string literal required by GameAction
+    dispatch({ type: "CLEAR_SESSION" });
+    navigate("/");
+  };
 
   if (phase === "report") {
     return (
@@ -101,6 +112,7 @@ export default function WrapUpScene({
           }}
         >
           <div
+            aria-label={`Final Rating: ${stars} out of 3 stars`}
             style={{
               fontSize: "clamp(3rem, 10vw, 5rem)",
               marginBottom: "1rem",
@@ -113,6 +125,7 @@ export default function WrapUpScene({
               return (
                 <span
                   key={`star-${position}`}
+                  aria-hidden="true"
                   style={{
                     color: i < stars ? "var(--bui-fg-warning)" : "#333",
                     textShadow:
@@ -159,41 +172,83 @@ export default function WrapUpScene({
                 {WRAP_UP_UI_TEXT.score_label}
               </div>
             </div>
+
+            {/* UX FIX: Completely redesigned layout to prevent "5/3" confusion by explicitly separating Hit vs Missed counts */}
             {totalCues > 0 && (
-              <div>
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}
+              >
                 <div
-                  style={{
-                    fontSize: "clamp(2rem, 6vw, 2.5rem)",
-                    fontWeight: "bold",
-                    color:
-                      cuesMissed > 0
-                        ? "var(--bui-fg-danger)"
-                        : "var(--bui-fg-info)",
-                  }}
+                  style={{ display: "flex", alignItems: "center", gap: "1rem" }}
                 >
-                  {cuesHit}{" "}
-                  <span
+                  <div style={{ textAlign: "center" }}>
+                    <div
+                      style={{
+                        fontSize: "clamp(1.5rem, 4vw, 2.5rem)",
+                        color: "var(--bui-fg-success)",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {cuesHit}
+                    </div>
+                    <div
+                      className="annotation-text"
+                      style={{ fontSize: "0.8rem", opacity: 0.8 }}
+                    >
+                      HIT
+                    </div>
+                  </div>
+                  <div
                     style={{
-                      fontSize: "clamp(1rem, 3vw, 1.5rem)",
-                      opacity: 0.5,
+                      fontSize: "1.5rem",
+                      opacity: 0.3,
+                      fontWeight: "bold",
                     }}
                   >
-                    / {totalCues}
-                  </span>
+                    /
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <div
+                      style={{
+                        fontSize: "clamp(1.5rem, 4vw, 2.5rem)",
+                        color:
+                          cuesMissed > 0
+                            ? "var(--bui-fg-danger)"
+                            : "var(--color-pencil-light)",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {cuesMissed}
+                    </div>
+                    <div
+                      className="annotation-text"
+                      style={{ fontSize: "0.8rem", opacity: 0.8 }}
+                    >
+                      MISSED
+                    </div>
+                  </div>
                 </div>
-                <div className="annotation-text" style={{ opacity: 0.7 }}>
-                  {WRAP_UP_UI_TEXT.cues_label}
+                <div
+                  className="annotation-text"
+                  style={{
+                    opacity: 0.7,
+                    marginTop: "0.5rem",
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  TOTAL CUES: {totalCues}
                 </div>
               </div>
             )}
           </div>
 
           <Button
-            onClick={() => {
-              sessionStorage.removeItem("minion_inventory");
-              sessionStorage.removeItem("minion_completed_quests");
-              navigate("/");
-            }}
+            onClick={handleSignOut}
             className="btn-xl"
             style={{
               width: "100%",

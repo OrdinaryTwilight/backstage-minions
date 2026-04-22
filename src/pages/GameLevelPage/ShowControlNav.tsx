@@ -7,6 +7,18 @@ export default function ShowControlNav() {
   const navigate = useNavigate();
   const { dispatch } = useGame();
 
+  const handleAbandonClick = () => {
+    setShowQuitConfirm(true);
+    // UX FIX: Priority 4 - Broadcast a pause event so background minigames halt
+    globalThis.dispatchEvent(new Event("global_pause_request"));
+  };
+
+  const handleCancelAbandon = () => {
+    setShowQuitConfirm(false);
+    // UX FIX: Priority 4 - Broadcast resume event
+    globalThis.dispatchEvent(new Event("global_resume_request"));
+  };
+
   const handleQuit = () => {
     dispatch({ type: "CLEAR_SESSION" });
     sessionStorage.removeItem("minion_inventory");
@@ -55,7 +67,7 @@ export default function ShowControlNav() {
           </button>
           <button
             type="button"
-            onClick={() => setShowQuitConfirm(false)}
+            onClick={handleCancelAbandon}
             style={{
               background: "#444",
               color: "#fff",
@@ -72,7 +84,7 @@ export default function ShowControlNav() {
       ) : (
         <button
           type="button"
-          onClick={() => setShowQuitConfirm(true)}
+          onClick={handleAbandonClick}
           style={{
             background: "transparent",
             color: "var(--color-pencil-light)",

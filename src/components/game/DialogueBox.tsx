@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "../ui/Button";
 
 interface BaseChoice {
@@ -25,17 +25,23 @@ export default function DialogueBox<T extends BaseChoice>({
 }: DialogueBoxProps<T>) {
   const [timeLeftWidth, setTimeLeftWidth] = useState(100);
 
+  // UX/LOGIC FIX: Priority 3 - The 'isAnswered' ref prevents race conditions
+  // where the player clicks a choice at the exact moment the timer expires.
+  const isAnsweredRef = useRef(false);
+
   useEffect(() => {
+    isAnsweredRef.current = false;
+    setTimeLeftWidth(100);
+
     if (!timeLimitMs) return;
 
-    // Animate the bar visually
     const animationTimer = setTimeout(() => {
       setTimeLeftWidth(0);
     }, 50);
 
     const actionTimer = setTimeout(() => {
-      if (choices.length > 0) {
-        // Auto-select the final choice to penalize inaction
+      if (choices.length > 0 && !isAnsweredRef.current) {
+        isAnsweredRef.current = true;
         onChoice(choices[choices.length - 1]);
       }
     }, timeLimitMs);
@@ -46,10 +52,16 @@ export default function DialogueBox<T extends BaseChoice>({
     };
   }, [timeLimitMs, text, choices, onChoice]);
 
+  const handleChoiceClick = (choice: T) => {
+    if (isAnsweredRef.current) return;
+    isAnsweredRef.current = true;
+    onChoice(choice);
+  };
+
   return (
     <div className="dialogue-box-container animate-pop">
       {icon && (
-        <div className="dialogue-box-avatar">
+        <div className="dialogue-box-avatar" aria-hidden="true">
           <span className="text-4xl">{icon}</span>
         </div>
       )}
@@ -69,7 +81,7 @@ export default function DialogueBox<T extends BaseChoice>({
             <Button
               key={choice.id}
               variant="default"
-              onClick={() => onChoice(choice)}
+              onClick={() => handleChoiceClick(choice)}
               style={{
                 justifyContent: "flex-start",
                 textAlign: "left",
@@ -81,9 +93,10 @@ export default function DialogueBox<T extends BaseChoice>({
           ))}
         </div>
 
-        {/* TIME LIMIT PROGRESS BAR */}
         {timeLimitMs && (
           <div
+            role="timer"
+            aria-live="polite"
             style={{
               width: "100%",
               height: "6px",
@@ -93,7 +106,12 @@ export default function DialogueBox<T extends BaseChoice>({
               overflow: "hidden",
             }}
           >
+            <span className="sr-only">
+              Warning: You have a limited time to select a choice before one is
+              selected for you.
+            </span>
             <div
+              aria-hidden="true"
               style={{
                 height: "100%",
                 background: "var(--bui-fg-danger)",

@@ -1,10 +1,9 @@
 import { Navigate, useParams } from "react-router-dom";
 import { useGame } from "../../context/GameContext";
 import { useGameData } from "../../hooks/useGameData";
-import { ConflictChoice } from "../../types/game";
 
 // Components
-import CableCoilingStage from "../../components/game/CableCoilingStage";
+import CableCoilingStage from "../../components/game/CableCoilingStage/CableCoilingStage";
 import ConflictMinigame from "../../components/game/ConflictMinigame";
 import CueExecutionStage from "../../components/game/CueExecutionStage";
 import EquipmentStage from "../../components/game/EquipmentStage";
@@ -49,20 +48,12 @@ export default function GameLevelPage() {
     return (
       <ConflictMinigame
         conflict={session.activeConflict}
-        onResolved={(choice: unknown) => {
-          const resolvedChoice = choice as ConflictChoice & {
-            contactId?: string;
-          };
-          dispatch({ type: "ADD_SCORE", delta: resolvedChoice.pointDelta });
+        onResolved={() => {
           dispatch({
             type: "RESOLVE_CONFLICT",
             conflictId: session.activeConflict?.id ?? "",
-            pointDelta: resolvedChoice.pointDelta,
+            pointDelta: 0,
           });
-          const contactToUnlock = resolvedChoice.contactId;
-          if (contactToUnlock) {
-            dispatch({ type: "ADD_CONTACT", contactId: contactToUnlock });
-          }
         }}
       />
     );

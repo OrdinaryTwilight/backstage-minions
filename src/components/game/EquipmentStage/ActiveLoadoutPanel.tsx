@@ -1,3 +1,4 @@
+import { useGame } from "../../../context/GameContext";
 import { Character } from "../../../data/types";
 
 interface ActiveLoadoutPanelProps {
@@ -7,6 +8,17 @@ interface ActiveLoadoutPanelProps {
 export default function ActiveLoadoutPanel({
   char,
 }: Readonly<ActiveLoadoutPanelProps>) {
+  const { state } = useGame();
+
+  // UX FIX: Priority 3 - Dynamically adjust the RPG location text to preserve immersion
+  const difficulty = state.session?.difficulty || "school";
+  const locationMap: Record<string, string> = {
+    school: "WESTVIEW_HIGH_LOADING_DOCK",
+    community: "CIVIC_CENTER_ALLEYWAY",
+    professional: "GRAND_APOLLO_BAY_4",
+  };
+  const locationText = locationMap[difficulty];
+
   return (
     <div
       className="rpg-scene-header"
@@ -28,7 +40,7 @@ export default function ActiveLoadoutPanel({
           className="annotation-text"
           style={{ opacity: 0.5, fontSize: "0.7rem" }}
         >
-          LOCATION: WESTVIEW_LOADING_DOCK
+          LOCATION: {locationText}
         </p>
       </div>
     </div>

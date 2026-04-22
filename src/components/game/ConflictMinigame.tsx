@@ -44,10 +44,8 @@ export default function ConflictMinigame({
   const handleChoice = (choice: ConflictChoice) => {
     dispatch({ type: "MARK_CONFLICT_SEEN", conflictId: conflict.id });
 
-    // Apply Score
     dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });
 
-    // Apply Stress Consequences based on explicit outcome
     if (choice.outcome === "escalated") {
       dispatch({ type: "UPDATE_STRESS", delta: 25 });
     } else if (choice.outcome === "resolved") {
@@ -81,33 +79,37 @@ export default function ConflictMinigame({
                 justifyContent: "space-between",
                 alignItems: "center",
                 marginBottom: "1rem",
+                flexWrap: "wrap",
+                gap: "1rem",
               }}
             >
+              {/* UX FIX: Priority 4 - Adding aria-live to ensure screen readers announce the result of the conflict immediately */}
               <h3
                 style={{
                   color:
                     selectedChoice.outcome === "escalated"
                       ? "var(--bui-fg-danger)"
                       : "var(--bui-fg-success)",
+                  margin: 0,
                 }}
-                aria-live="polite"
+                aria-live="assertive"
               >
                 RESULT: {selectedChoice.outcome.toUpperCase()}
               </h3>
 
-              <div style={{ display: "flex", gap: "1rem" }}>
+              <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
+                {/* UX FIX: Priority 4 - Solid backgrounds with black text guarantees WCAG 1.4.3 Contrast Compliance */}
                 <span
                   style={{
                     background:
                       selectedChoice.pointDelta >= 0
-                        ? "rgba(46, 204, 113, 0.2)"
-                        : "rgba(231, 76, 60, 0.2)",
-                    padding: "0.25rem 0.75rem",
-                    borderRadius: "4px",
-                    color:
-                      selectedChoice.pointDelta >= 0
                         ? "var(--bui-fg-success)"
                         : "var(--bui-fg-danger)",
+                    padding: "0.25rem 0.75rem",
+                    borderRadius: "4px",
+                    color: "#000",
+                    fontWeight: "bold",
+                    fontSize: "0.85rem",
                   }}
                 >
                   {selectedChoice.pointDelta >= 0
@@ -115,25 +117,31 @@ export default function ConflictMinigame({
                     : selectedChoice.pointDelta}{" "}
                   PTS
                 </span>
+
                 {selectedChoice.outcome === "escalated" && (
                   <span
                     style={{
-                      background: "rgba(231, 76, 60, 0.2)",
+                      background: "var(--bui-fg-danger)",
                       padding: "0.25rem 0.75rem",
                       borderRadius: "4px",
-                      color: "var(--bui-fg-danger)",
+                      color: "#000",
+                      fontWeight: "bold",
+                      fontSize: "0.85rem",
                     }}
                   >
                     +25 STRESS
                   </span>
                 )}
+
                 {selectedChoice.outcome === "resolved" && (
                   <span
                     style={{
-                      background: "rgba(46, 204, 113, 0.2)",
+                      background: "var(--bui-fg-success)",
                       padding: "0.25rem 0.75rem",
                       borderRadius: "4px",
-                      color: "var(--bui-fg-success)",
+                      color: "#000",
+                      fontWeight: "bold",
+                      fontSize: "0.85rem",
                     }}
                   >
                     -15 STRESS

@@ -19,9 +19,24 @@ const srOnlyStyle: React.CSSProperties = {
   borderWidth: "0",
 };
 
-/**
- * Clamp joystick movement
- */
+// UX FIX: Priority 2 - Visible styles applied when the hidden elements are natively focused
+const srFocusVisibleStyle: React.CSSProperties = {
+  position: "static",
+  width: "auto",
+  height: "auto",
+  padding: "10px",
+  margin: "5px",
+  overflow: "visible",
+  clip: "auto",
+  whiteSpace: "normal",
+  border: "2px solid var(--bui-fg-warning)",
+  background: "#000",
+  color: "var(--bui-fg-warning)",
+  borderRadius: "4px",
+  fontWeight: "bold",
+  zIndex: 9999,
+};
+
 function calculateClampedPosition(
   clientX: number,
   clientY: number,
@@ -37,9 +52,6 @@ function calculateClampedPosition(
   return { x: dx * ratio, y: dy * ratio };
 }
 
-/**
- * Send synthetic key events to game system
- */
 function useVirtualKey() {
   return useCallback((key: string, type: "keydown" | "keyup") => {
     globalThis.dispatchEvent(
@@ -51,20 +63,12 @@ function useVirtualKey() {
   }, []);
 }
 
-/**
- * Utility for scaling thumb
- */
 function computeThumbScale(isDragging: boolean, isActive: boolean) {
   if (isDragging) return 1.1;
   if (isActive) return 1.05;
   return 1;
 }
 
-/**
- * ============================
- * Virtual Joystick
- * ============================
- */
 function VirtualJoystick({
   triggerKey,
 }: Readonly<{ triggerKey: (k: string, t: "keydown" | "keyup") => void }>) {
@@ -72,17 +76,18 @@ function VirtualJoystick({
   const [keyboardVector, setKeyboardVector] = useState({ x: 0, y: 0 });
   const [isDraggingState, setIsDraggingState] = useState(false);
 
+  // Track which hidden button currently has DOM focus
+  const [focusedKey, setFocusedKey] = useState<string | null>(null);
+
   const isDraggingRef = useRef(false);
   const baseRef = useRef<HTMLDivElement>(null);
   const center = useRef({ x: 0, y: 0 });
 
-  // Track synthetic keys activated by joystick drag
   const activeDragKeys = useRef({ w: false, a: false, s: false, d: false });
 
-  // Translate joystick coordinates to key events
   const updateJoystickKeys = useCallback(
     (pos: { x: number; y: number }) => {
-      const threshold = 15; // Deadzone before movement registers
+      const threshold = 15;
       const newKeys = {
         w: pos.y < -threshold,
         s: pos.y > threshold,
@@ -100,11 +105,6 @@ function VirtualJoystick({
     [triggerKey],
   );
 
-  /**
-   * ============================
-   * Pointer input (drag joystick)
-   * ============================
-   */
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       isDraggingRef.current = true;
@@ -153,16 +153,11 @@ function VirtualJoystick({
       setIsDraggingState(false);
       e.currentTarget.releasePointerCapture(e.pointerId);
       setPosition({ x: 0, y: 0 });
-      updateJoystickKeys({ x: 0, y: 0 }); // Reset all keys to false
+      updateJoystickKeys({ x: 0, y: 0 });
     },
     [updateJoystickKeys],
   );
 
-  /**
-   * ============================
-   * Keyboard state (FIXED)
-   * ============================
-   */
   const pressed = useRef({ w: false, a: false, s: false, d: false });
 
   useEffect(() => {
@@ -187,14 +182,9 @@ function VirtualJoystick({
     };
   }, []);
 
-  /**
-   * ============================
-   * RAF-driven keyboard vector (OPTIMIZED)
-   * ============================
-   */
   useEffect(() => {
     let frame: number;
-    const prevVector = { x: 0, y: 0 }; // Cache to prevent continuous renders
+    const prevVector = { x: 0, y: 0 };
 
     const animate = () => {
       const p = pressed.current;
@@ -229,11 +219,6 @@ function VirtualJoystick({
     return () => cancelAnimationFrame(frame);
   }, []);
 
-  /**
-   * ============================
-   * Visual state
-   * ============================
-   */
   const displayPosition = isDraggingState ? position : keyboardVector;
 
   const isActive =
@@ -241,13 +226,26 @@ function VirtualJoystick({
 
   return (
     <div style={{ position: "relative", touchAction: "none" }}>
-      {/* Accessibility fallback */}
-      <fieldset style={srOnlyStyle}>
-        <legend>Movement Controls</legend>
+      {/* UX FIX: Priority 2 - Accessibility fallback reveals itself on focus to prevent Tab-Traps */}
+      <fieldset
+        style={{
+          border: "none",
+          padding: 0,
+          margin: 0,
+          display: focusedKey ? "flex" : "block",
+          flexWrap: "wrap",
+          position: focusedKey ? "absolute" : "static",
+          bottom: "100%",
+          left: 0,
+        }}
+      >
+        <legend style={srOnlyStyle}>Movement Controls</legend>
         {(["w", "a", "s", "d"] as const).map((k) => (
           <button
             key={k}
             type="button"
+            onFocus={() => setFocusedKey(k)}
+            onBlur={() => setFocusedKey(null)}
             onPointerDown={() => triggerKey(k, "keydown")}
             onPointerUp={() => triggerKey(k, "keyup")}
             onPointerLeave={() => triggerKey(k, "keyup")}
@@ -257,13 +255,13 @@ function VirtualJoystick({
             onKeyUp={(e) => {
               if (e.key === "Enter" || e.key === " ") triggerKey(k, "keyup");
             }}
+            style={focusedKey === k ? srFocusVisibleStyle : srOnlyStyle}
           >
             Move {k.toUpperCase()}
           </button>
         ))}
       </fieldset>
 
-      {/* Base */}
       <div
         ref={baseRef}
         aria-hidden="true"
@@ -288,7 +286,6 @@ function VirtualJoystick({
           transition: "box-shadow 0.2s ease",
         }}
       >
-        {/* Thumb */}
         <div
           style={{
             boxSizing: "border-box",
@@ -328,11 +325,6 @@ function VirtualJoystick({
   );
 }
 
-/**
- * ============================
- * Main Component
- * ============================
- */
 export default function MobileControls({
   onInteract,
   activeZoneLabel,
@@ -366,7 +358,6 @@ export default function MobileControls({
           border: "4px solid rgba(255,255,255,0.8)",
           fontWeight: "bold",
           fontSize: "1.2rem",
-          fontFamily: "var(--font-mono)",
           boxShadow: activeZoneLabel
             ? "0 0 20px var(--bui-fg-warning)"
             : "inset 0 0 10px rgba(0,0,0,0.5)",

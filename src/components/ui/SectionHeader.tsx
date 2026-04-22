@@ -14,7 +14,13 @@ export default function SectionHeader({
   const [showHelp, setShowHelp] = useState(false);
 
   return (
-    <header style={{ marginBottom: "2rem", position: "relative" }}>
+    <header
+      style={{
+        marginBottom: "2rem",
+        position: "relative",
+        zIndex: showHelp ? 5000 : 1,
+      }}
+    >
       <div style={{ display: "flex", alignItems: "center" }}>
         <h1
           className="annotation-text"
@@ -27,6 +33,7 @@ export default function SectionHeader({
             className="help-trigger"
             onClick={() => setShowHelp(!showHelp)}
             title="Toggle Technical Manual"
+            aria-expanded={showHelp}
           >
             ?
           </button>
@@ -38,10 +45,29 @@ export default function SectionHeader({
       )}
 
       {showHelp && helpText && (
-        <div className="tooltip-overlay">
-          <b>OPERATIONAL MANUAL:</b>
-          {helpText}
-        </div>
+        <>
+          {/* Invisible backdrop to catch outside clicks */}
+          <div
+            style={{ position: "fixed", inset: 0, zIndex: 4999 }}
+            onClick={() => setShowHelp(false)}
+            aria-hidden="true"
+          />
+          <div
+            className="tooltip-overlay"
+            style={{
+              zIndex: 5000,
+              width: "100%",
+              maxWidth: "400px",
+              pointerEvents: "auto", // Allows text selection
+              position: "absolute",
+              top: "100%",
+              left: 0,
+            }}
+          >
+            <b>OPERATIONAL MANUAL:</b>
+            {helpText}
+          </div>
+        </>
       )}
     </header>
   );

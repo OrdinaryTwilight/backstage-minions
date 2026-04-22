@@ -4,6 +4,7 @@ import { CHARACTERS, OVERWORLD_MAPS } from "../../../data/gameData";
 import { useAnnouncement } from "../../../hooks/useAnnouncement";
 import { useKeyPress } from "../../../hooks/useKeyPress";
 import { getOverworldObjective } from "../../../utils/objectiveEngine";
+import SectionHeader from "../../ui/SectionHeader";
 import DialogueBox from "../DialogueBox";
 import DialogueManager from "../DialogueManager";
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_SIZE } from "./constants";
@@ -137,32 +138,12 @@ export default function OverworldStage({
   return (
     <div className="overworld-container">
       <AnnouncementRegion />
-
-      <div className="overworld-header">
-        <h2>CURRENT LOCATION: {formatRoomName(currentRoom).toUpperCase()}</h2>
-        <p>
-          <strong>{instructionText}</strong>
-        </p>
-        <button
-          className="help-trigger animate-pop"
-          aria-label="Controls Help"
-          onClick={() =>
-            setFeedbackMsg({
-              text: "CONTROLS: Use W, A, S, D or Arrows to move. Press E or Space to interact with glowing zones and characters.",
-              isError: false,
-            })
-          }
-          style={{
-            position: "absolute",
-            top: "1rem",
-            right: "1rem",
-            width: "36px",
-            height: "36px",
-            fontSize: "1.2rem",
-          }}
-        >
-          ?
-        </button>
+      <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+        <SectionHeader
+          title={`CURRENT LOCATION: ${formatRoomName(currentRoom).toUpperCase()}`}
+          subtitle={instructionText}
+          helpText="CONTROLS: Use W, A, S, D or the joystick to move. Press E or Space to interact with glowing zones and characters. If you get stuck, use the UNSTICK button."
+        />
       </div>
 
       <div className="overworld-layout">

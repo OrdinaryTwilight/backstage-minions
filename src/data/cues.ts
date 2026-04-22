@@ -15,15 +15,15 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
         label: "Chandelier Rise",
         targetMs: 21000,
         windowMs: 1000,
-        targetLevel: 90,
+        targetLevel: 100,
       },
       {
         id: "LQ 3",
-        label: "Blackout",
+        label: "Creepy Dim",
         targetMs: 36000,
         windowMs: 500,
-        targetLevel: 0,
-      },
+        targetLevel: 15,
+      }, // Volatile
     ],
     sound: [
       {
@@ -35,11 +35,11 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
       },
       {
         id: "SQ 2",
-        label: "Actor 1 Mic ON",
+        label: "Actor 1 Mic ON (Whisper)",
         targetMs: 24000,
         windowMs: 1000,
-        targetLevel: 75,
-      },
+        targetLevel: 35,
+      }, // Volatile
     ],
   },
   midsummer: {
@@ -53,11 +53,11 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
       },
       {
         id: "LQ 11",
-        label: "Moonlight Spot",
+        label: "Moonlight Spot (Dim)",
         targetMs: 35000,
         windowMs: 1000,
-        targetLevel: 40,
-      },
+        targetLevel: 25,
+      }, // Volatile
     ],
     sound: [
       {
@@ -131,8 +131,8 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
         label: "Banquo's Ghost Spot",
         targetMs: 36000,
         windowMs: 1500,
-        targetLevel: 60,
-      },
+        targetLevel: 45,
+      }, // Volatile
     ],
     sound: [
       {
@@ -151,14 +151,13 @@ export const CUE_SHEETS: Record<string, Record<string, Cue[]>> = {
       },
       {
         id: "SQ 32",
-        label: "Battle Drums",
+        label: "Battle Drums (Fade In)",
         targetMs: 45000,
         windowMs: 1000,
-        targetLevel: 85,
-      },
+        targetLevel: 65,
+      }, // Volatile
     ],
   },
-  // --- NEW PRODUCTIONS ADDED BELOW TO FIX PERSONNEL ERROR ---
   prod_hamlet_space: {
     lighting: [
       {

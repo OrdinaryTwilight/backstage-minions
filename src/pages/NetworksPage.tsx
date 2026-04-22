@@ -1,4 +1,3 @@
-// src/pages/NetworksPage.tsx
 import { useEffect, useState } from "react";
 import Button from "../components/ui/Button";
 import NavBar from "../components/ui/NavBar";
@@ -9,6 +8,7 @@ import { CHAT_CHOICES, CHAT_MESSAGES } from "../data/chatMessages";
 export default function NetworksPage() {
   const { state, dispatch } = useGame();
   const [activeChat, setActiveChat] = useState<string | null>("sys_comms");
+
   const safeContacts = Array.isArray(state.contacts) ? state.contacts : [];
   const availableContacts = [
     "sys_comms",
@@ -44,7 +44,7 @@ export default function NetworksPage() {
 
     const chatData = CHAT_MESSAGES[id];
     if (chatData) {
-      return { id, name: chatData.sender, icon: "📱", role: "Group Chat" };
+      return { id, name: chatData.sender, icon: "📢", role: "Group Chat" };
     }
 
     return { id, name: "Unknown Contact", icon: "👤", role: "Crew" };
@@ -88,10 +88,6 @@ export default function NetworksPage() {
         sessionStorage.setItem("minion_chats", JSON.stringify(replyChats));
         return replyChats;
       });
-
-      if (sideEffect === "unlock_phantom") {
-        // Side effects handled globally elsewhere
-      }
     }, 1200);
   };
 
@@ -119,14 +115,23 @@ export default function NetworksPage() {
         )
       : [];
 
+  // UX FIX: Priority 1 - Ensure fonts are explicit and backgrounds use semantic CSS variables
   return (
     <div
       className="page-container animate-fade-in"
-      style={{ paddingTop: "1rem", fontFamily: "var(--font-sketch)" }}
+      style={{ paddingTop: "1rem" }}
     >
       <NavBar />
-      <header style={{ marginBottom: "2rem", marginTop: "2rem" }}>
-        <h1 style={{ fontSize: "2.5rem" }}>Chat</h1>
+      <header
+        style={{
+          marginBottom: "2rem",
+          marginTop: "2rem",
+          fontFamily: "var(--font-sketch)",
+        }}
+      >
+        <h1 style={{ fontSize: "2.5rem", color: "var(--color-pencil-light)" }}>
+          Chat
+        </h1>
         <p style={{ color: "var(--color-pencil-light)", fontSize: "1.1rem" }}>
           Stay in touch with your crew. Quick replies only, we're on headset!
         </p>
@@ -142,25 +147,33 @@ export default function NetworksPage() {
         {/* SIDEBAR DIRECTORY */}
         <div
           style={{
-            background: "rgba(15, 23, 42, 0.8)",
+            background: "var(--color-surface-translucent)",
             borderRadius: "12px",
-            border: "1px solid var(--bui-border)",
+            border: "2px solid var(--glass-border)",
             overflow: "hidden",
           }}
         >
           <div
             style={{
               padding: "1rem",
-              background: "rgba(30, 41, 59, 0.9)",
-              borderBottom: "1px solid var(--bui-border)",
+              background: "var(--color-blueprint-bg)",
+              borderBottom: "1px solid var(--glass-border)",
             }}
           >
-            <h2 style={{ fontSize: "1.2rem" }}>Directory</h2>
+            <h2
+              style={{
+                fontSize: "1.2rem",
+                fontFamily: "var(--font-mono)",
+                color: "var(--color-pencil-light)",
+                margin: 0,
+              }}
+            >
+              Directory
+            </h2>
           </div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             {availableContacts.map((contact) => {
               const isUnread = state.unreadContacts?.includes(contact.id);
-
               return (
                 <button
                   key={contact.id}
@@ -172,30 +185,38 @@ export default function NetworksPage() {
                     padding: "1rem",
                     background:
                       activeChat === contact.id
-                        ? "rgba(30, 41, 59, 0.9)"
+                        ? "var(--color-blueprint-bg)"
                         : "transparent",
                     border: "none",
-                    borderBottom: "1px solid var(--bui-border)",
+                    borderBottom: "1px solid var(--glass-border)",
                     cursor: "pointer",
                     textAlign: "left",
-                    color: "inherit",
+                    color: "var(--color-pencil-light)",
                     width: "100%",
                     position: "relative",
                   }}
                 >
                   <span style={{ fontSize: "2rem" }}>{contact.icon}</span>
                   <div>
-                    <div style={{ fontWeight: "bold" }}>{contact.name}</div>
+                    <div
+                      style={{
+                        fontWeight: "bold",
+                        fontFamily: "var(--font-sketch)",
+                        fontSize: "1.1rem",
+                      }}
+                    >
+                      {contact.name}
+                    </div>
                     <div
                       style={{
                         fontSize: "0.9rem",
-                        color: "var(--color-pencil-light)",
+                        color: "var(--bui-fg-info)",
+                        fontFamily: "var(--font-mono)",
                       }}
                     >
                       {contact.role}
                     </div>
                   </div>
-
                   {isUnread && (
                     <div
                       style={{
@@ -220,9 +241,9 @@ export default function NetworksPage() {
         {/* CHAT WINDOW */}
         <div
           style={{
-            background: "rgba(15, 23, 42, 0.8)",
+            background: "var(--color-surface-translucent)",
             borderRadius: "12px",
-            border: "1px solid var(--bui-border)",
+            border: "2px solid var(--glass-border)",
             display: "flex",
             flexDirection: "column",
             height: "550px",
@@ -233,15 +254,24 @@ export default function NetworksPage() {
               <div
                 style={{
                   padding: "1rem",
-                  background: "rgba(30, 41, 59, 0.9)",
-                  borderBottom: "1px solid var(--bui-border)",
+                  background: "var(--color-blueprint-bg)",
+                  borderBottom: "1px solid var(--glass-border)",
                   display: "flex",
                   alignItems: "center",
                   gap: "1rem",
                 }}
               >
                 <span style={{ fontSize: "1.5rem" }}>{activeContact.icon}</span>
-                <h2 style={{ fontSize: "1.2rem" }}>{activeContact.name}</h2>
+                <h2
+                  style={{
+                    fontSize: "1.2rem",
+                    fontFamily: "var(--font-sketch)",
+                    color: "var(--color-pencil-light)",
+                    margin: 0,
+                  }}
+                >
+                  {activeContact.name}
+                </h2>
               </div>
 
               <div
@@ -260,6 +290,7 @@ export default function NetworksPage() {
                       textAlign: "center",
                       color: "var(--color-pencil-light)",
                       margin: "auto",
+                      fontFamily: "var(--font-mono)",
                     }}
                   >
                     No message history.
@@ -274,15 +305,20 @@ export default function NetworksPage() {
                       background:
                         msg.sender === "You"
                           ? "var(--bui-fg-info)"
-                          : "rgba(30, 41, 59, 0.9)",
-                      color: msg.sender === "You" ? "#000" : "inherit",
-                      fontWeight: msg.sender === "You" ? "bold" : "normal",
+                          : "var(--color-blueprint-bg)",
+                      color:
+                        msg.sender === "You"
+                          ? "#000"
+                          : "var(--color-pencil-light)",
                       padding: "0.8rem 1.2rem",
                       borderRadius: "12px",
                       maxWidth: "80%",
-                      fontFamily:
-                        msg.sender === "You" ? "inherit" : "var(--font-mono)",
-                      fontSize: msg.sender === "You" ? "1rem" : "0.95rem",
+                      fontFamily: "var(--font-mono)",
+                      fontSize: "0.95rem",
+                      border:
+                        msg.sender === "You"
+                          ? "none"
+                          : "1px solid var(--glass-border)",
                     }}
                   >
                     {msg.sender !== "You" && (
@@ -291,6 +327,7 @@ export default function NetworksPage() {
                           fontSize: "0.75rem",
                           opacity: 0.7,
                           marginBottom: "0.4rem",
+                          color: "var(--bui-fg-warning)",
                         }}
                       >
                         {msg.sender}
@@ -301,15 +338,14 @@ export default function NetworksPage() {
                 ))}
               </div>
 
-              {/* QUICK REPLIES / DIALOGUE CHOICES */}
               <div
                 style={{
                   padding: "1rem",
-                  borderTop: "1px solid var(--bui-border)",
+                  borderTop: "1px solid var(--glass-border)",
                   display: "flex",
                   flexDirection: "column",
                   gap: "0.5rem",
-                  background: "rgba(0,0,0,0.2)",
+                  background: "var(--color-blueprint-bg)",
                 }}
               >
                 {currentOptions && currentOptions.length > 0 ? (
@@ -337,9 +373,10 @@ export default function NetworksPage() {
                   <div
                     style={{
                       textAlign: "center",
-                      color: "var(--color-pencil-light)",
+                      color: "var(--bui-fg-warning)",
                       fontStyle: "italic",
                       fontSize: "0.9rem",
+                      fontFamily: "var(--font-mono)",
                     }}
                   >
                     {activeContact.id === "sys_comms"

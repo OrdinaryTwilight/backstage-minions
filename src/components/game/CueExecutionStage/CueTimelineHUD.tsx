@@ -70,7 +70,10 @@ export default function CueTimelineHUD({
           >
             SM COMMS
           </div>
+          {/* UX FIX: Priority 2 - aria-live="assertive" ensures blind players hear the SM's cue feedback immediately */}
           <div
+            aria-live="assertive"
+            aria-atomic="true"
             style={{
               color: "var(--color-pencil-light)",
               fontFamily: "var(--font-mono)",
@@ -112,23 +115,24 @@ export default function CueTimelineHUD({
         )}
       </div>
 
+      {/* UX FIX: Priority 1 - Container width constrained and overflow removed so edge circles aren't clipped */}
       <section
         aria-label="Cue Timeline"
         style={{
           position: "relative",
-          width: "100%",
+          width: "calc(100% - 30px)",
+          margin: "0 auto",
           height: "20px",
           background: "#222",
           borderRadius: "4px",
-          overflow: "hidden",
         }}
       >
         <div
           style={{
             position: "absolute",
             left: `${(elapsedMs / maxShowTime) * 100}%`,
-            top: 0,
-            bottom: 0,
+            top: "-5px",
+            bottom: "-5px",
             width: "3px",
             background: "var(--bui-fg-info)",
             zIndex: 10,
@@ -139,10 +143,11 @@ export default function CueTimelineHUD({
           const isPast = i < currentIdx;
           const isCurrent = i === currentIdx;
           const leftPct = (cue.targetMs / maxShowTime) * 100;
+          // UX FIX: Priority 1 - Changed from vw to % to map correctly to the timeline container width
           const windowWidthPct = ((cue.windowMs || 1000) / maxShowTime) * 100;
 
           const cueBackground = isCurrent
-            ? "rgba(251, 191, 36, 0.2)"
+            ? "rgba(251, 191, 36, 0.3)"
             : "transparent";
 
           const circleSize = isCurrent ? "16px" : "14px";
@@ -183,14 +188,14 @@ export default function CueTimelineHUD({
                   left: "50%",
                   top: "50%",
                   transform: "translate(-50%, -50%)",
-                  width: `${windowWidthPct}vw`,
-                  maxWidth: "40px",
-                  height: "20px",
+                  width: `${windowWidthPct}%`, // Fixed relative sizing
+                  minWidth: "20px",
+                  height: "24px",
                   background: cueBackground,
+                  borderRadius: "2px",
                 }}
               />
 
-              {/* FIX: Shape & text inside circle for colorblind accessibility */}
               <div
                 style={{
                   width: circleSize,
@@ -205,6 +210,8 @@ export default function CueTimelineHUD({
                   color: "#000",
                   fontSize: "10px",
                   fontWeight: "bold",
+                  position: "relative",
+                  zIndex: 2,
                 }}
               >
                 {isPast && (cueResults[cue.id]?.hit ? "✓" : "✕")}

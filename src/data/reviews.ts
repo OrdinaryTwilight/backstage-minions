@@ -30,7 +30,7 @@ export const POST_SHOW_REVIEWS = {
 export const WRAP_UP_UI_TEXT = {
   dialogue_title: "Stage Manager's Notes",
   dialogue_btn: "Read Show Report →",
-  report_title: "Daily Show Report",
+  report_title: "Show Report",
   report_subtitle:
     "The house is clear. The ghost light is on. Let's see how we did.",
   score_label: "Professionalism Score",

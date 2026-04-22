@@ -19,6 +19,7 @@ interface ReportDetails {
   score: number;
   missingSpots: number;
   missingWashes: number;
+  missingLeds: number; // TS FIX: Added missing property
   missingGobo: boolean;
   overLimit: boolean;
 }
@@ -53,23 +54,26 @@ export default function PlanningStage({
     const randomGobo =
       availableGobos[Math.floor(Math.random() * availableGobos.length)];
 
-    let spots, washes, bonusFixtures;
+    let spots, washes, leds, bonusFixtures;
 
     switch (difficulty) {
       case "professional":
-        spots = getRandomInt(5, 7);
-        washes = getRandomInt(3, 5);
+        spots = getRandomInt(4, 6);
+        washes = getRandomInt(2, 4);
+        leds = getRandomInt(2, 4);
         bonusFixtures = 3;
         break;
       case "community":
         spots = getRandomInt(3, 5);
-        washes = getRandomInt(2, 4);
+        washes = getRandomInt(1, 3);
+        leds = getRandomInt(1, 2);
         bonusFixtures = 3;
         break;
       case "school":
       default:
         spots = getRandomInt(2, 3);
         washes = getRandomInt(1, 2);
+        leds = 0; // Keep school simple
         bonusFixtures = 2;
         break;
     }
@@ -77,8 +81,9 @@ export default function PlanningStage({
     return {
       targetSpots: spots,
       targetWashes: washes,
+      targetLeds: leds,
       requiredGobo: randomGobo,
-      maxFixtures: spots + washes + bonusFixtures,
+      maxFixtures: spots + washes + leds + bonusFixtures,
     };
   });
 
@@ -122,6 +127,7 @@ export default function PlanningStage({
 
     const spots = placedLights.filter((l) => l.typeId === "spot").length;
     const washes = placedLights.filter((l) => l.typeId === "wash").length;
+    const leds = placedLights.filter((l) => l.typeId === "led").length;
     const hasRequiredGobo = placedLights.some(
       (l) => l.gobo === requirements.requiredGobo,
     );
@@ -129,18 +135,30 @@ export default function PlanningStage({
       placedLights.length > 0 &&
       placedLights.length <= requirements.maxFixtures;
 
+    // Distribute score blocks
     const spotScore = Math.floor(
       (Math.min(spots, requirements.targetSpots) / requirements.targetSpots) *
-        30,
+        20,
     );
     const washScore = Math.floor(
       (Math.min(washes, requirements.targetWashes) /
         requirements.targetWashes) *
-        20,
+        15,
     );
+
+    // Safely handle divisions by zero if school tier requires 0 leds
+    const ledScore =
+      requirements.targetLeds > 0
+        ? Math.floor(
+            (Math.min(leds, requirements.targetLeds) /
+              requirements.targetLeds) *
+              15,
+          )
+        : 15;
 
     score += spotScore;
     score += washScore;
+    score += ledScore;
     if (hasRequiredGobo) score += 20;
     if (withinLimit) score += 30;
 
@@ -150,6 +168,7 @@ export default function PlanningStage({
       score,
       missingSpots: Math.max(0, requirements.targetSpots - spots),
       missingWashes: Math.max(0, requirements.targetWashes - washes),
+      missingLeds: Math.max(0, requirements.targetLeds - leds),
       missingGobo: !hasRequiredGobo,
       overLimit: !withinLimit && placedLights.length > 0,
     });
@@ -192,6 +211,8 @@ export default function PlanningStage({
       issues.push(`Need ${reportDetails.missingSpots} more Spot(s)`);
     if (reportDetails.missingWashes > 0)
       issues.push(`Need ${reportDetails.missingWashes} more Wash(es)`);
+    if (reportDetails.missingLeds > 0)
+      issues.push(`Need ${reportDetails.missingLeds} more LED(s)`);
     if (reportDetails.missingGobo)
       issues.push(`Missing ${requirements.requiredGobo.toUpperCase()} gobo`);
     if (reportDetails.overLimit)
@@ -273,12 +294,12 @@ export default function PlanningStage({
         </h3>
         <p style={{ fontFamily: "var(--font-sketch)" }}>
           "Director wants good coverage. We need at least{" "}
-          <strong>{requirements.targetSpots}</strong> Spots and{" "}
-          <strong>{requirements.targetWashes}</strong> Washes. Make sure we have
-          a <strong>{requirements.requiredGobo.toUpperCase()}</strong> gobo
-          loaded for the dream sequence. Also, our dimmer racks are maxed out:
-          Do not exceed <strong>{requirements.maxFixtures}</strong> total
-          fixtures."
+          <strong>{requirements.targetSpots}</strong> Spots,{" "}
+          <strong>{requirements.targetWashes}</strong> Washes, and{" "}
+          <strong>{requirements.targetLeds}</strong> LEDs. Make sure we have a{" "}
+          <strong>{requirements.requiredGobo.toUpperCase()}</strong> gobo loaded
+          for the dream sequence. Also, our dimmer racks are maxed out: Do not
+          exceed <strong>{requirements.maxFixtures}</strong> total fixtures."
         </p>
       </HardwarePanel>
 
@@ -394,7 +415,6 @@ export default function PlanningStage({
             />
 
             <div style={{ flex: 1, minWidth: "250px" }}>
-              {/* UX FIX: Tooltip shares flex row with Header but sits on the right */}
               <div
                 style={{
                   display: "flex",
@@ -459,6 +479,7 @@ export default function PlanningStage({
                       background: "none",
                       padding: 0,
                       font: "inherit",
+                      color: "inherit",
                       borderBottom: "1px dotted var(--color-pencil-light)",
                     }}
                   >
