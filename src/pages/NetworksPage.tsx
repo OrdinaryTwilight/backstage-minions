@@ -2,36 +2,39 @@ import { useEffect, useState } from "react";
 import Button from "../components/ui/Button";
 import NavBar from "../components/ui/NavBar";
 import { useGame } from "../context/GameContext";
-import { AVAILABLE_NPCS, CHARACTERS, NPC_ICONS } from "../data/characters";
+import {
+  AVAILABLE_NPCS,
+  CHARACTERS,
+  NPC_ICONS,
+  parseDialogueTags,
+} from "../data/characters";
 import { CHAT_CHOICES, CHAT_MESSAGES } from "../data/chatMessages";
 
 export default function NetworksPage() {
   const { state, dispatch } = useGame();
   const [activeChat, setActiveChat] = useState<string | null>("sys_comms");
-
   const safeContacts = Array.isArray(state.contacts) ? state.contacts : [];
+
   const availableContacts = [
     "sys_comms",
     ...safeContacts.filter((id) => id !== "sys_comms"),
   ].map((id) => {
-    if (id === "sys_comms") {
+    if (id === "sys_comms")
       return {
         id,
         name: "System Alerts",
         icon: "🤖",
         role: "Automated System",
       };
-    }
 
     const mainChar = CHARACTERS.find((c) => c.id === id);
-    if (mainChar) {
+    if (mainChar)
       return {
         id,
         name: mainChar.name,
         icon: mainChar.icon,
         role: mainChar.role,
       };
-    }
 
     const npc = AVAILABLE_NPCS.find((c) => c.id === id);
     if (npc) {
@@ -43,9 +46,13 @@ export default function NetworksPage() {
     }
 
     const chatData = CHAT_MESSAGES[id];
-    if (chatData) {
-      return { id, name: chatData.sender, icon: "📢", role: "Group Chat" };
-    }
+    if (chatData)
+      return {
+        id,
+        name: parseDialogueTags(chatData.sender),
+        icon: "📢",
+        role: "Group Chat",
+      };
 
     return { id, name: "Unknown Contact", icon: "👤", role: "Crew" };
   });
@@ -62,11 +69,7 @@ export default function NetworksPage() {
     }
   }, [activeChat, state.unreadContacts, dispatch]);
 
-  const handleSendReply = (
-    replyText: string,
-    automatedResponse: string,
-    sideEffect?: string,
-  ) => {
+  const handleSendReply = (replyText: string, automatedResponse: string) => {
     if (!activeContact) return;
 
     const newMsg = { sender: "You", text: replyText };
@@ -94,8 +97,8 @@ export default function NetworksPage() {
   const getCombinedChat = (id: string) => {
     const staticChat =
       CHAT_MESSAGES[id]?.messages.map((m) => ({
-        sender: CHAT_MESSAGES[id].sender,
-        text: m,
+        sender: parseDialogueTags(CHAT_MESSAGES[id].sender),
+        text: parseDialogueTags(m),
       })) || [];
     const dynamicChat = sessionChats[id] || [];
     return [...staticChat, ...dynamicChat];
@@ -104,18 +107,18 @@ export default function NetworksPage() {
   const currentMessages = activeContact
     ? getCombinedChat(activeContact.id)
     : [];
-
   const currentOptions =
     activeContact && CHAT_CHOICES[activeContact.id]
       ? CHAT_CHOICES[activeContact.id].filter(
           (choice) =>
             !currentMessages.some(
-              (msg) => msg.sender === "You" && msg.text === choice.text,
+              (msg) =>
+                msg.sender === "You" &&
+                msg.text === parseDialogueTags(choice.text),
             ),
         )
       : [];
 
-  // UX FIX: Priority 1 - Ensure fonts are explicit and backgrounds use semantic CSS variables
   return (
     <div
       className="page-container animate-fade-in"
@@ -127,25 +130,20 @@ export default function NetworksPage() {
           marginBottom: "2rem",
           marginTop: "2rem",
           fontFamily: "var(--font-sketch)",
+          color: "var(--color-pencil-light)",
         }}
       >
-        <h1 style={{ fontSize: "2.5rem", color: "var(--color-pencil-light)" }}>
-          Chat
-        </h1>
-        <p style={{ color: "var(--color-pencil-light)", fontSize: "1.1rem" }}>
+        <h1 style={{ fontSize: "2.5rem", margin: 0 }}>Chat</h1>
+        <p style={{ fontSize: "1.1rem", opacity: 0.9 }}>
           Stay in touch with your crew. Quick replies only, we're on headset!
         </p>
       </header>
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-          gap: "2rem",
-        }}
-      >
+      {/* UX FIX: Priority 1 - Restored the networks-layout class to re-enable mobile media queries */}
+      <div className="networks-layout">
         {/* SIDEBAR DIRECTORY */}
         <div
+          className="contacts-sidebar"
           style={{
             background: "var(--color-surface-translucent)",
             borderRadius: "12px",
@@ -240,13 +238,11 @@ export default function NetworksPage() {
 
         {/* CHAT WINDOW */}
         <div
+          className="chat-terminal"
           style={{
             background: "var(--color-surface-translucent)",
             borderRadius: "12px",
             border: "2px solid var(--glass-border)",
-            display: "flex",
-            flexDirection: "column",
-            height: "550px",
           }}
         >
           {activeContact ? (
@@ -259,6 +255,7 @@ export default function NetworksPage() {
                   display: "flex",
                   alignItems: "center",
                   gap: "1rem",
+                  borderRadius: "10px 10px 0 0",
                 }}
               >
                 <span style={{ fontSize: "1.5rem" }}>{activeContact.icon}</span>
@@ -298,7 +295,7 @@ export default function NetworksPage() {
                 )}
                 {currentMessages.map((msg, i) => (
                   <div
-                    key={`msg-${msg.sender}-${i}`}
+                    key={`msg-${i}`}
                     style={{
                       alignSelf:
                         msg.sender === "You" ? "flex-end" : "flex-start",
@@ -346,6 +343,7 @@ export default function NetworksPage() {
                   flexDirection: "column",
                   gap: "0.5rem",
                   background: "var(--color-blueprint-bg)",
+                  borderRadius: "0 0 10px 10px",
                 }}
               >
                 {currentOptions && currentOptions.length > 0 ? (
@@ -354,9 +352,8 @@ export default function NetworksPage() {
                       key={choice.text}
                       onClick={() =>
                         handleSendReply(
-                          choice.text,
-                          choice.response,
-                          choice.sideEffect,
+                          parseDialogueTags(choice.text),
+                          parseDialogueTags(choice.response),
                         )
                       }
                       style={{
@@ -366,7 +363,7 @@ export default function NetworksPage() {
                         fontSize: "1rem",
                       }}
                     >
-                      {choice.text}
+                      {parseDialogueTags(choice.text)}
                     </Button>
                   ))
                 ) : (

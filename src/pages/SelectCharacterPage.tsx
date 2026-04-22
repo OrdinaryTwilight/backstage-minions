@@ -2,12 +2,11 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/ui/Button";
 import DepartmentBadge from "../components/ui/DepartmentBadge";
-import HardwarePanel from "../components/ui/HardwarePanel";
 import NavBar from "../components/ui/NavBar";
 import SectionHeader from "../components/ui/SectionHeader";
 import StatBar from "../components/ui/StatBar";
 import { useGame } from "../context/GameContext";
-import { CHARACTERS } from "../data/gameData";
+import { CHARACTERS } from "../data/characters";
 
 export default function SelectCharacterPage() {
   const { productionId, difficulty } = useParams<{
@@ -16,30 +15,124 @@ export default function SelectCharacterPage() {
   }>();
   const navigate = useNavigate();
   const { dispatch } = useGame();
-  const [idx, setIdx] = useState(0);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  const available = CHARACTERS;
-  const char = available[idx];
+  const selectedChar = CHARACTERS.find((c) => c.id === selectedId);
 
   function startGame() {
-    if (!productionId || !difficulty || !char) return;
+    if (!productionId || !difficulty || !selectedChar) return;
     dispatch({
       type: "START_SESSION",
       productionId,
       difficulty: difficulty as "school" | "community" | "professional",
-      characterId: char.id,
+      characterId: selectedChar.id,
     });
-    navigate(`/game/${productionId}/${difficulty}/${char.id}`);
+    navigate(`/game/${productionId}/${difficulty}/${selectedChar.id}`);
   }
 
-  if (!char)
-    return (
-      <div className="page-container animate-flicker">No Personnel Found</div>
-    );
-
   return (
-    <div className="page-container">
+    <div className="page-container" style={{ paddingBottom: "100px" }}>
       <NavBar />
+
+      <style>{`
+        .character-grid {
+          display: grid;
+          /* UX FIX: Priority 2 - Added min(100%, 260px) to prevent horizontal scroll on ultra-narrow phones */
+          grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+          gap: 1.5rem;
+          margin: 2rem 0;
+        }
+        
+        .char-card-button {
+          background: transparent;
+          border: none;
+          cursor: pointer;
+          width: 100%;
+          padding: 0;
+          text-align: inherit;
+          border-radius: 12px;
+          perspective: 1000px;
+        }
+
+        .char-card-button:focus-visible {
+          outline: 3px solid var(--bui-fg-info);
+          outline-offset: 4px;
+        }
+
+        .char-card-inner {
+          position: relative;
+          width: 100%;
+          height: 380px;
+          transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+          transform-style: preserve-3d;
+          border-radius: 12px;
+        }
+
+        .char-card-button.selected .char-card-inner {
+          transform: rotateY(180deg);
+        }
+
+        .char-card-front, .char-card-back {
+          position: absolute;
+          inset: 0;
+          backface-visibility: hidden;
+          border-radius: 12px;
+          background: var(--color-surface-translucent);
+          border: 2px solid var(--glass-border);
+          box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          transition: border-color 0.3s ease, box-shadow 0.3s ease;
+          color: var(--color-pencil-light);
+        }
+
+        .char-card-button.selected .char-card-front,
+        .char-card-button.selected .char-card-back {
+          border-color: var(--bui-fg-warning);
+          box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+        }
+
+        .char-card-button:hover:not(.selected) .char-card-front {
+          border-color: var(--bui-fg-info);
+        }
+
+        .char-card-front {
+          justify-content: center;
+          padding: 1.5rem;
+        }
+
+        .char-card-back {
+          transform: rotateY(180deg);
+          background: var(--color-blueprint-bg);
+          justify-content: flex-start;
+          padding: 1.5rem;
+          overflow-y: auto;
+        }
+        
+        .char-card-back::-webkit-scrollbar {
+          width: 4px;
+        }
+        .char-card-back::-webkit-scrollbar-thumb {
+          background: var(--glass-border);
+          border-radius: 4px;
+        }
+        
+        /* UX FIX: Priority 3 - Frosted glass mask for the sticky button */
+        .sticky-action-bar {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          padding: 1rem 1.5rem;
+          background: linear-gradient(to top, var(--color-bg) 60%, transparent);
+          backdrop-filter: blur(8px);
+          z-index: 100;
+          display: flex;
+          justify-content: center;
+          pointer-events: none; /* Let clicks pass through the gradient */
+        }
+      `}</style>
 
       <section className="animate-blueprint" aria-label="Character Selection">
         <Button
@@ -57,117 +150,143 @@ export default function SelectCharacterPage() {
 
         <SectionHeader
           title="Personnel Selection"
-          subtitle="Review specialist files for the upcoming rig."
+          subtitle="Select a specialist for the upcoming rig."
         />
 
-        <HardwarePanel
-          className="animate-pop"
-          style={{ textAlign: "center", padding: "2.5rem" }}
+        <div
+          className="character-grid"
+          role="radiogroup"
+          aria-label="Available Characters"
         >
-          <section aria-live="polite" aria-label="Character profile">
-            <div
-              className="animate-flicker"
-              style={{ fontSize: "5.5rem", marginBottom: "1rem" }}
-              aria-hidden="true"
-            >
-              {char.icon}
-            </div>
-
-            <h2
-              className="annotation-text"
-              style={{ fontSize: "1.8rem", margin: "0 0 0.5rem 0" }}
-            >
-              {char.name}
-            </h2>
-
-            <DepartmentBadge department={char.department} />
-
-            <p
-              className="console-screen"
-              style={{
-                margin: "2rem auto",
-                maxWidth: "550px",
-                fontStyle: "italic",
-                borderStyle: "dashed",
-              }}
-            >
-              "{char.bio}"
-            </p>
-
-            <div
-              style={{ textAlign: "left", maxWidth: "400px", margin: "0 auto" }}
-            >
-              <h3
-                className="annotation-text"
-                style={{
-                  fontSize: "1rem",
-                  marginBottom: "1.5rem",
-                  opacity: 0.5,
-                }}
+          {CHARACTERS.map((char) => {
+            const isSelected = selectedId === char.id;
+            return (
+              <button
+                key={char.id}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                className={`char-card-button animate-pop ${isSelected ? "selected" : ""}`}
+                onClick={() => setSelectedId(isSelected ? null : char.id)}
+                aria-label={`Select ${char.name}, ${char.role}`}
               >
-                Aptitude Diagnostics:
-              </h3>
-              <StatBar label="Technical" value={char.stats.technical} />
-              <StatBar label="Social" value={char.stats.social} />
-              <StatBar label="Stamina" value={char.stats.stamina} />
-            </div>
-          </section>
-        </HardwarePanel>
+                <div className="char-card-inner">
+                  {/* FRONT FACE: Name, Icon, Dept */}
+                  <div className="char-card-front">
+                    <div
+                      style={{ fontSize: "5rem", marginBottom: "1rem" }}
+                      aria-hidden="true"
+                    >
+                      {char.icon}
+                    </div>
+                    <h2
+                      className="annotation-text"
+                      style={{ fontSize: "1.8rem", margin: "0 0 0.5rem 0" }}
+                    >
+                      {char.name}
+                    </h2>
+                    <DepartmentBadge department={char.department} />
+                    <div
+                      style={{
+                        marginTop: "1rem",
+                        fontFamily: "var(--font-mono)",
+                        fontSize: "0.9rem",
+                        color: "var(--bui-fg-info)",
+                      }}
+                    >
+                      {char.role}
+                    </div>
+                  </div>
 
-        <nav
-          style={{
-            display: "flex",
-            gap: "1.5rem",
-            alignItems: "center",
-            justifyContent: "center",
-            margin: "2.5rem 0",
-          }}
-          aria-label="Character carousel navigation"
-        >
-          <Button
-            onClick={() =>
-              setIdx((idx - 1 + available.length) % available.length)
-            }
-            style={{ minWidth: "60px" }}
-            aria-label={`Previous character, currently viewing ${idx + 1} of ${available.length}`}
-          >
-            ‹
-          </Button>
-          <div
-            className="annotation-text"
-            style={{ fontSize: "1.2rem" }}
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            Record {idx + 1} of {available.length}
-          </div>
-          <Button
-            onClick={() => setIdx((idx + 1) % available.length)}
-            style={{ minWidth: "60px" }}
-            aria-label={`Next character, currently viewing ${idx + 1} of ${available.length}`}
-          >
-            ›
-          </Button>
-        </nav>
+                  {/* BACK FACE: Bio & Stats */}
+                  <div className="char-card-back">
+                    <h3
+                      className="annotation-text"
+                      style={{
+                        fontSize: "1.4rem",
+                        margin: "0 0 0.5rem 0",
+                        color: "var(--bui-fg-warning)",
+                      }}
+                    >
+                      {char.name}
+                    </h3>
+                    <p
+                      style={{
+                        fontSize: "0.85rem",
+                        fontStyle: "italic",
+                        opacity: 0.9,
+                        marginBottom: "1.5rem",
+                        lineHeight: "1.5",
+                      }}
+                    >
+                      "{char.bio}"
+                    </p>
 
+                    <div style={{ width: "100%", textAlign: "left" }}>
+                      <h4
+                        className="annotation-text"
+                        style={{
+                          fontSize: "0.9rem",
+                          marginBottom: "0.75rem",
+                          opacity: 0.6,
+                        }}
+                      >
+                        Aptitude Diagnostics:
+                      </h4>
+                      <div
+                        style={{
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: "0.5rem",
+                        }}
+                      >
+                        <StatBar
+                          label="Technical"
+                          value={char.stats.technical}
+                        />
+                        <StatBar label="Social" value={char.stats.social} />
+                        <StatBar label="Stamina" value={char.stats.stamina} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Sticky Action Bar */}
+      <div className="sticky-action-bar">
         <Button
-          variant="success"
-          className="animate-pulse-go"
+          variant={selectedChar ? "success" : "default"}
+          className={selectedChar ? "animate-pulse-go" : ""}
           onClick={startGame}
+          disabled={!selectedChar}
           style={{
             width: "100%",
             maxWidth: "600px",
-            margin: "0 auto",
-            display: "block",
             height: "70px",
             fontSize: "1.4rem",
             fontFamily: "inherit",
+            opacity: selectedChar ? 1 : 0.5,
+            cursor: selectedChar ? "pointer" : "not-allowed",
+            boxShadow: selectedChar ? "0 10px 30px rgba(0,0,0,0.5)" : "none",
+            transition: "all 0.3s ease",
+            pointerEvents:
+              "auto" /* Restore pointer events specifically for the button */,
           }}
-          aria-label={`Sign contract and start show as ${char.name}`}
+          aria-label={
+            selectedChar
+              ? `Sign contract and start show as ${selectedChar.name}`
+              : "Select Personnel to continue"
+          }
         >
-          Start show as {char.name}
+          {selectedChar
+            ? `Start show as ${selectedChar.name}`
+            : "Select Personnel"}
         </Button>
-      </section>
+      </div>
     </div>
   );
 }
