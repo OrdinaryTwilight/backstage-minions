@@ -137,34 +137,41 @@ export default function OverworldStage({
   return (
     <div className="overworld-container">
       <AnnouncementRegion />
+
       <div className="overworld-header">
         <h2>CURRENT LOCATION: {formatRoomName(currentRoom).toUpperCase()}</h2>
         <p>
           <strong>{instructionText}</strong>
         </p>
+        <button
+          className="help-trigger animate-pop"
+          aria-label="Controls Help"
+          onClick={() =>
+            setFeedbackMsg({
+              text: "CONTROLS: Use W, A, S, D or Arrows to move. Press E or Space to interact with glowing zones and characters.",
+              isError: false,
+            })
+          }
+          style={{
+            position: "absolute",
+            top: "1rem",
+            right: "1rem",
+            width: "36px",
+            height: "36px",
+            fontSize: "1.2rem",
+          }}
+        >
+          ?
+        </button>
       </div>
 
-      <button
-        className="help-btn animate-pop"
-        onClick={() =>
-          setFeedbackMsg({
-            text: "CONTROLS: Use W, A, S, D or Arrows to move. Press E or Space to interact with glowing zones and characters.",
-            isError: false,
-          })
-        }
-        style={{ position: "absolute", top: "1rem", right: "1rem" }}
-      >
-        ?
-      </button>
-
       <div className="overworld-layout">
-        <div className="overworld-sidebar">
+        <div className="overworld-column-left">
           <HeadsetHUD
             headsetOn={headsetOn}
             setHeadsetOn={setHeadsetOn}
             commsLog={commsLog}
           />
-
           <div className="overworld-inventory">
             <h3>🎒 INVENTORY</h3>
             {inventory.length === 0 ? (
@@ -179,7 +186,7 @@ export default function OverworldStage({
           </div>
         </div>
 
-        <div className="overworld-main">
+        <div className="overworld-column-center">
           <div style={{ position: "relative", width: "100%" }}>
             <MapViewport
               currentRoom={currentRoom}
@@ -192,6 +199,7 @@ export default function OverworldStage({
               feedbackMsg={displayFeedback?.text || null}
               bumpMsg={bumpMsg}
               handleStageClick={handleStageClick}
+              targetZoneId={targetZoneId}
             />
 
             <div
@@ -234,9 +242,39 @@ export default function OverworldStage({
                 : null
             }
           />
+
           <div
-            style={{ marginTop: "0.25rem", position: "relative", zIndex: 100 }}
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "1rem",
+            }}
           >
+            <button
+              onClick={() => {
+                setPos({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
+                setTargetPos(null);
+              }}
+              style={{
+                padding: "0.5rem 1rem",
+                background: "var(--bui-fg-danger)",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+                fontWeight: "bold",
+                fontSize: "0.8rem",
+                opacity: 0.8,
+              }}
+              title="Teleport to center of room if stuck inside a wall"
+            >
+              🚨 UNSTICK
+            </button>
+          </div>
+        </div>
+
+        <div className="overworld-column-right">
+          <div style={{ position: "relative", zIndex: 100 }}>
             {activeQuestDialogue && (
               <DialogueBox
                 speaker={activeQuestDialogue.speaker}
@@ -248,8 +286,6 @@ export default function OverworldStage({
                     setActiveQuestDialogue(null),
                   );
 
-                  // NEW: If the user chose to ignore the quest while targeting the main objective zone,
-                  // force the completion to trigger so they aren't soft-locked.
                   if (result === "ignored" && activeZone === targetZoneId) {
                     onComplete();
                   } else if (result === "none") {
@@ -290,27 +326,6 @@ export default function OverworldStage({
                 </button>
               )}
           </div>
-
-          <button
-            onClick={() => {
-              setPos({ x: GAME_WIDTH / 2, y: GAME_HEIGHT / 2 });
-              setTargetPos(null);
-            }}
-            style={{
-              padding: "0.5rem 1rem",
-              background: "var(--bui-fg-danger)",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontWeight: "bold",
-              fontSize: "0.8rem",
-              opacity: 0.8,
-            }}
-            title="Teleport to center of room if stuck inside a wall"
-          >
-            🚨 UNSTICK
-          </button>
         </div>
       </div>
     </div>

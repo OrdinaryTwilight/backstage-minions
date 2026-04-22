@@ -1,4 +1,5 @@
 import { ZoneConfig } from "../../../data/types";
+import { Character } from "../../../types/game";
 import { GAME_HEIGHT, GAME_WIDTH, PLAYER_SIZE } from "./constants";
 import { NPC } from "./types";
 
@@ -10,17 +11,27 @@ const DEPT_COLORS: Record<string, string> = {
   Director: "#a855f7",
 };
 
+// UX FIX: Maps vibrant backgrounds to safe foreground text colors for WCAG compliance
+const BADGE_TEXT_COLORS: Record<string, string> = {
+  "var(--bui-fg-warning)": "#000",
+  "var(--bui-fg-info)": "#000",
+  "var(--bui-fg-danger)": "#fff",
+  "#ec4899": "#fff",
+  "#a855f7": "#fff",
+};
+
 interface MapViewportProps {
-  currentRoom: string;
-  currentZones: Record<string, ZoneConfig>;
-  npcs: NPC[];
-  pos: { x: number; y: number };
-  playerChar: { icon?: string } | null | undefined;
-  activeZone: string | null;
-  activeNpcId: string | null;
-  feedbackMsg: string | null;
-  bumpMsg: { id: string; msg: string } | null;
-  handleStageClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  readonly currentRoom: string;
+  readonly currentZones: Record<string, ZoneConfig>;
+  readonly npcs: NPC[];
+  readonly pos: { x: number; y: number };
+  readonly playerChar: Character | undefined | null;
+  readonly activeZone: string | null;
+  readonly activeNpcId: string | null;
+  readonly feedbackMsg: string | null;
+  readonly bumpMsg: { id: string; msg: string } | null;
+  readonly handleStageClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  readonly targetZoneId: string | null;
 }
 
 export default function MapViewport({
@@ -30,9 +41,11 @@ export default function MapViewport({
   pos,
   playerChar,
   activeZone,
+  activeNpcId,
   bumpMsg,
   handleStageClick,
-}: Readonly<MapViewportProps>) {
+  targetZoneId,
+}: MapViewportProps) {
   return (
     <div
       style={{
@@ -40,177 +53,255 @@ export default function MapViewport({
         position: "relative",
         width: "100%",
         minWidth: "300px",
+        aspectRatio: `${GAME_WIDTH} / ${GAME_HEIGHT}`,
+        background: currentRoom === "backstage" ? "#1a1a2e" : "#1e293b",
+        border: "4px solid var(--glass-border)",
+        borderRadius: "var(--radius-md)",
+        overflow: "hidden",
+        boxShadow: "inset 0 0 50px rgba(0,0,0,0.8)",
       }}
     >
-      <button
-        onClick={handleStageClick}
-        aria-label="Interactive Map Area. Click or tap to move the character."
+      <div
         style={{
-          position: "relative",
-          width: "100%",
-          aspectRatio: "16/9",
-          background: currentRoom === "backstage" ? "#1a1a2e" : "#2d3748",
-          border: "4px solid #fff",
-          overflow: "hidden",
-          cursor: "crosshair",
-          padding: 0,
-          display: "block",
+          position: "absolute",
+          inset: 0,
+          opacity: 0.15,
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+          pointerEvents: "none",
         }}
-      >
-        {Object.entries(currentZones).map(([key, zone]) => {
-          const isActive = activeZone === key;
+      />
 
-          return (
-            <div
-              key={key}
+      <button
+        type="button"
+        aria-label={`Interactive map of ${currentRoom}`}
+        onClick={handleStageClick}
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "transparent",
+          border: "none",
+          cursor: "crosshair",
+          width: "100%",
+          height: "100%",
+          zIndex: 5,
+        }}
+      />
+
+      {Object.entries(currentZones).map(([key, zone]) => {
+        const isActive = key === activeZone;
+        const isTarget = key === targetZoneId;
+        const baseColor = zone.color || "var(--bui-fg-info)";
+        const activeTextColor = BADGE_TEXT_COLORS[baseColor] || "#000";
+
+        return (
+          <div
+            key={key}
+            style={{
+              position: "absolute",
+              left: `${(zone.x / GAME_WIDTH) * 100}%`,
+              top: `${(zone.y / GAME_HEIGHT) * 100}%`,
+              width: `${(zone.w / GAME_WIDTH) * 100}%`,
+              height: `${(zone.h / GAME_HEIGHT) * 100}%`,
+              background: isActive ? `${baseColor}55` : `${baseColor}33`,
+              border: isActive
+                ? `3px solid ${baseColor}`
+                : `1px solid ${baseColor}88`,
+              boxShadow: isActive
+                ? `0 0 20px ${baseColor}, inset 0 0 15px ${baseColor}`
+                : "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              textAlign: "center",
+              padding: "4px",
+              pointerEvents: "none",
+              transition: "all 0.2s ease",
+            }}
+          >
+            {/* UX FIX: Badges smoothly invert to solid colors when glowing, avoiding the dark slate clash */}
+            <span
               style={{
-                position: "absolute",
-                left: `${(zone.x / GAME_WIDTH) * 100}%`,
-                top: `${(zone.y / GAME_HEIGHT) * 100}%`,
-                width: `${(zone.w / GAME_WIDTH) * 100}%`,
-                height: `${(zone.h / GAME_HEIGHT) * 100}%`,
-                background: isActive ? zone.color : `${zone.color}99`, // Dim inactive zones slightly
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border: isActive
-                  ? "3px solid var(--bui-fg-warning)"
-                  : "1px solid rgba(255,255,255,0.15)",
-                boxSizing: "border-box",
+                fontFamily: "var(--font-sketch)",
+                fontWeight: "bold",
+                fontSize: isActive
+                  ? "clamp(0.85rem, 3vw, 1.2rem)"
+                  : "clamp(0.65rem, 2vw, 0.9rem)",
+                color: isActive ? activeTextColor : "#fff",
+                background: isActive ? baseColor : "rgba(0, 0, 0, 0.6)",
+                border: `1px solid ${isActive ? "transparent" : baseColor}`,
+                padding: "4px 8px",
+                borderRadius: "6px",
+                lineHeight: "1.2",
+                zIndex: isActive ? 10 : 1,
                 transition: "all 0.2s ease",
               }}
             >
-              <span
-                style={{
-                  fontFamily: "var(--font-sketch)",
-                  fontWeight: "bold",
-                  // Scale up slightly when active, but clamp the sizes so they remain readable
-                  fontSize: isActive
-                    ? "clamp(0.8rem, 3vw, 1.2rem)"
-                    : "clamp(0.6rem, 2vw, 0.9rem)",
-                  color: key === "spotTower" && isActive ? "#000" : "#fff",
-                  whiteSpace: "nowrap", // Force single line
-                  background: isActive ? "transparent" : "rgba(0, 0, 0, 0.13)", // Badge background for readability when overflowing
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                  textShadow:
-                    isActive && key !== "spotTower"
-                      ? "1px 1px 3px rgba(0, 0, 0, 0)"
-                      : "none",
-                  pointerEvents: "none", // Ensure the overflowing text doesn't intercept clicks meant for adjacent zones
-                  zIndex: isActive ? 10 : 1, // Bring active label to the front
-                  transition: "all 0.2s ease",
-                }}
-              >
-                {zone.label}
-              </span>
-            </div>
-          );
-        })}
+              {zone.label}
+            </span>
 
-        {npcs
-          .filter((n) => !n.isHidden)
-          .map((npc) => (
-            <div
-              key={npc.id}
-              style={{
-                position: "absolute",
-                left: `${(npc.x / GAME_WIDTH) * 100}%`,
-                top: `${(npc.y / GAME_HEIGHT) * 100}%`,
-                width: `${(PLAYER_SIZE / GAME_WIDTH) * 100}%`,
-                height: `${(PLAYER_SIZE / GAME_HEIGHT) * 100}%`,
-                background: "rgba(0,0,0,0.5)",
-                borderRadius: "50%",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                border:
-                  activeZone === npc.id
-                    ? "2px solid #fbbf24"
-                    : "1px solid #555",
-                fontSize: "20px",
-                transition: "all 0.1s linear",
-              }}
-            >
+            {isTarget && (
               <div
+                className="animate-ping"
+                aria-hidden="true"
                 style={{
                   position: "absolute",
-                  top: "-22px",
-                  fontFamily: "var(--font-mono)",
-                  fontSize: "12px",
+                  top: "-15px",
+                  width: "15px",
+                  height: "15px",
+                  borderRadius: "50%",
+                  background: "var(--bui-fg-warning)",
+                  boxShadow: "0 0 10px var(--bui-fg-warning)",
+                }}
+              />
+            )}
+          </div>
+        );
+      })}
+
+      {npcs.map((npc) => {
+        if (npc.isHidden) return null;
+        const isNpcActive = npc.id === activeNpcId;
+        const npcColor = DEPT_COLORS[npc.dept] || "var(--bui-fg-info)";
+        const activeTextColor = BADGE_TEXT_COLORS[npcColor] || "#000";
+
+        return (
+          <div
+            key={`npc-${npc.id}`}
+            style={{
+              position: "absolute",
+              left: `${(npc.x / GAME_WIDTH) * 100}%`,
+              top: `${(npc.y / GAME_HEIGHT) * 100}%`,
+              width: `${(PLAYER_SIZE / GAME_WIDTH) * 100}%`,
+              height: `${(PLAYER_SIZE / GAME_HEIGHT) * 100}%`,
+              background: "rgba(0,0,0,0.6)",
+              borderRadius: "50%",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              border: isNpcActive ? `3px solid ${npcColor}` : "2px solid #555",
+              boxShadow: isNpcActive
+                ? `0 0 20px ${npcColor}, inset 0 0 10px ${npcColor}`
+                : "none",
+              pointerEvents: "none",
+              transition: "all 0.1s linear",
+              zIndex: 10,
+            }}
+          >
+            <div
+              style={{
+                fontSize: "1.5rem",
+                transform: isNpcActive ? "scale(1.2)" : "scale(1)",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {npc.icon}
+            </div>
+
+            <div
+              style={{
+                position: "absolute",
+                top: "-22px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "12px",
+                fontWeight: "bold",
+                color: isNpcActive ? activeTextColor : npcColor,
+                whiteSpace: "nowrap",
+                textShadow: isNpcActive ? "none" : "1px 1px 2px #000",
+                background: isNpcActive ? npcColor : "rgba(0,0,0,0.8)",
+                padding: "2px 6px",
+                borderRadius: "4px",
+                marginTop: "4px",
+                transition: "all 0.2s ease",
+              }}
+            >
+              {npc.name}
+            </div>
+
+            {bumpMsg?.id === npc.id && (
+              <div
+                className="animate-pop"
+                style={{
+                  position: "absolute",
+                  top: "-42px",
+                  background: "white",
+                  color: "black",
+                  padding: "2px 6px",
+                  borderRadius: "4px",
+                  fontSize: "10px",
                   fontWeight: "bold",
-                  color: DEPT_COLORS[npc.dept] || "#fff",
                   whiteSpace: "nowrap",
-                  textShadow: "1px 1px 2px #000",
-                  background: "rgba(0,0,0,0.6)",
-                  padding: "1px 4px",
-                  borderRadius: "3px",
-                  pointerEvents: "none",
+                  zIndex: 100,
                 }}
               >
-                {npc.name}
+                {bumpMsg.msg}
               </div>
-              {npc.icon}
-              {bumpMsg?.id === npc.id && (
-                <span
-                  style={{
-                    position: "absolute",
-                    top: "-40px",
-                    background: "white",
-                    color: "black",
-                    padding: "2px 6px",
-                    borderRadius: "4px",
-                    fontSize: "10px",
-                    whiteSpace: "nowrap",
-                    zIndex: 200,
-                    pointerEvents: "none",
-                  }}
-                >
-                  {bumpMsg.msg}
-                </span>
-              )}
-            </div>
-          ))}
+            )}
+          </div>
+        );
+      })}
 
+      <div
+        style={{
+          position: "absolute",
+          left: `${(pos.x / GAME_WIDTH) * 100}%`,
+          top: `${(pos.y / GAME_HEIGHT) * 100}%`,
+          width: `${(PLAYER_SIZE / GAME_WIDTH) * 100}%`,
+          height: `${(PLAYER_SIZE / GAME_HEIGHT) * 100}%`,
+          background: "rgba(0,0,0,0.7)",
+          borderRadius: "50%",
+          border: "2px solid #06d6a0",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: "1.8rem",
+          pointerEvents: "none",
+          transition: "left 0.05s linear, top 0.05s linear",
+          zIndex: 20,
+          boxShadow: "0 4px 10px rgba(0,0,0,0.6)",
+        }}
+      >
         <div
           style={{
             position: "absolute",
-            left: `${(pos.x / GAME_WIDTH) * 100}%`,
-            top: `${(pos.y / GAME_HEIGHT) * 100}%`,
-            width: `${(PLAYER_SIZE / GAME_WIDTH) * 100}%`,
-            height: `${(PLAYER_SIZE / GAME_HEIGHT) * 100}%`,
-            background: "rgba(0,0,0,0.7)",
-            borderRadius: "50%",
-            border: "2px solid #06d6a0",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            fontSize: "20px",
-            zIndex: 100,
-            transition: "all 0.1s linear",
+            top: "-22px",
+            fontFamily: "var(--font-mono)",
+            fontSize: "12px",
+            fontWeight: "bold",
+            color: "#06d6a0",
+            whiteSpace: "nowrap",
+            textShadow: "1px 1px 2px #000",
+            background: "rgba(0,0,0,0.8)",
+            padding: "2px 6px",
+            borderRadius: "4px",
           }}
         >
+          YOU
+        </div>
+        {playerChar?.icon || "👤"}
+
+        {bumpMsg?.id === "player" && (
           <div
+            className="animate-pop"
             style={{
               position: "absolute",
-              top: "-22px",
-              fontFamily: "var(--font-mono)",
-              fontSize: "12px",
+              top: "-42px",
+              background: "var(--bui-fg-danger)",
+              color: "#fff",
+              padding: "2px 6px",
+              borderRadius: "4px",
+              fontSize: "10px",
               fontWeight: "bold",
-              color: "#06d6a0",
               whiteSpace: "nowrap",
-              textShadow: "1px 1px 2px #000",
-              background: "rgba(0,0,0,0.6)",
-              padding: "1px 4px",
-              borderRadius: "3px",
-              pointerEvents: "none",
+              boxShadow: "0 2px 5px rgba(0,0,0,0.5)",
             }}
           >
-            YOU
+            {bumpMsg.msg}
           </div>
-          {playerChar?.icon || "👤"}
-        </div>
-      </button>
+        )}
+      </div>
     </div>
   );
 }

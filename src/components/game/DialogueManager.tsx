@@ -81,7 +81,23 @@ export default function DialogueManager({
       return false;
     }) || currentNode.variants[0]; // Absolute fallback
 
-  const parsedText = activeVariant.text
+  let baseText = activeVariant.text;
+
+  // UX FIX: Dynamic Generic Fallback for High Stress. If the NPC doesn't have a unique stressful
+  // response, they will dynamically react to the player's panic rather than looping their generic intro.
+  const currentStress = state.session?.stress || 0;
+  const hasHighStressVariant = currentNode.variants.some(
+    (v) => v.condition === "high_stress",
+  );
+  if (
+    currentStress >= 75 &&
+    !hasHighStressVariant &&
+    currentNodeId === "start"
+  ) {
+    baseText = `(They look incredibly stressed out, barely holding it together.)\n\n"${baseText}"\n\n"We need to move faster, everything is falling apart!"`;
+  }
+
+  const parsedText = baseText
     .replace("{department}", targetNpc.department || "the deck")
     .replace("{role}", targetNpc.role || "crew");
 

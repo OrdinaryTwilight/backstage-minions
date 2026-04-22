@@ -6,13 +6,13 @@ import { GameProvider } from "./context/GameContext";
 import { VisualSettingsProvider } from "./context/VisualSettingsContext";
 
 // Eager load critical routes
-import Spinner from "./components/ui/Spinner";
 import "./index.css";
 import HomePage from "./pages/HomePage";
 import NetworksPage from "./pages/NetworksPage";
 import "./styles/animations.css";
 import "./styles/components.css";
 import "./styles/overworld.css";
+import Spinner from "./components/ui/Spinner";
 
 // Lazy load
 const ProductionsListPage = lazy(() => import("./pages/ProductionsListPage"));

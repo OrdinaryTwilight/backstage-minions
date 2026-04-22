@@ -21,9 +21,10 @@ function FaderTrack({
   isMaster = false,
   isMobile = false,
 }: Readonly<FaderTrackProps>) {
+  // UX FIX: Calculate exactly what output is hitting the console based on the Master throttle
   const effectiveLevel = isMaster
     ? currentLevel
-    : currentLevel * (masterLevel / 100);
+    : Math.round(currentLevel * (masterLevel / 100));
 
   const target = isMaster ? 100 : targetLevel;
   const margin = 10;
@@ -88,7 +89,7 @@ function FaderTrack({
             position: "absolute",
             bottom: 0,
             width: "100%",
-            height: `${effectiveLevel}%`, // Perfectly smooth rendering
+            height: `${effectiveLevel}%`,
             background: barColor,
             transition: "height 0.1s ease, background 0.2s ease",
           }}
@@ -144,6 +145,24 @@ function FaderTrack({
           }}
         />
       </div>
+
+      {/* UX FIX: Display Output to clarify multiplication math */}
+      {!isMaster && (
+        <div
+          style={{
+            fontSize: "0.6rem",
+            fontFamily: "var(--font-mono)",
+            color: "var(--bui-fg-success)",
+            background: "rgba(0,0,0,0.6)",
+            padding: "2px 4px",
+            borderRadius: "2px",
+            marginTop: "-4px",
+          }}
+        >
+          OUT: {effectiveLevel}
+        </div>
+      )}
+
       <span
         className="annotation-text"
         style={{

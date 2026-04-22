@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useGame } from "../../context/GameContext";
 import { getStageHelpText } from "../../data/gameData";
+import Button from "../ui/Button";
 import HardwarePanel from "../ui/HardwarePanel";
 import SectionHeader from "../ui/SectionHeader";
 
@@ -20,6 +21,7 @@ export default function CableCoilingStage({
   const [knots, setKnots] = useState(0);
   const [expectedNext, setExpectedNext] = useState<"OVER" | "UNDER">("OVER");
   const [isComplete, setIsComplete] = useState(false);
+  const [isPaused, setIsPaused] = useState(false); // UX FIX: Added Pause State
   const [feedback, setFeedback] = useState<{
     msg: string;
     type: "success" | "error" | "neutral";
@@ -44,7 +46,7 @@ export default function CableCoilingStage({
   const [timeLeft, setTimeLeft] = useState(getInitialTime(difficulty));
 
   useEffect(() => {
-    if (isComplete) return;
+    if (isComplete || isPaused) return; // Respect pause state
     const timer = setInterval(() => {
       setTimeLeft((prevTime) => {
         if (prevTime <= 1) {
@@ -55,11 +57,10 @@ export default function CableCoilingStage({
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [isComplete]);
+  }, [isComplete, isPaused]);
 
-  // Timeout failsafe
   useEffect(() => {
-    if (timeLeft <= 0 && !isComplete) {
+    if (timeLeft <= 0 && !isComplete && !isPaused) {
       const timer = setTimeout(() => {
         setIsComplete(true);
         setFeedback({
@@ -70,11 +71,21 @@ export default function CableCoilingStage({
       }, 0);
       return () => clearTimeout(timer);
     }
-  }, [timeLeft, isComplete, onComplete]);
+  }, [timeLeft, isComplete, isPaused, onComplete]);
+
+  // UX FIX: Keyboard Pause Handler
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !isComplete && timeLeft > 0)
+        setIsPaused((prev) => !prev);
+    };
+    globalThis.addEventListener("keydown", handleKey);
+    return () => globalThis.removeEventListener("keydown", handleKey);
+  }, [isComplete, timeLeft]);
 
   const handleAction = useCallback(
     (action: "OVER" | "UNDER") => {
-      if (isComplete || timeLeft <= 0) return;
+      if (isComplete || timeLeft <= 0 || isPaused) return;
 
       if (action === expectedNextRef.current) {
         coilsRef.current += 1;
@@ -117,11 +128,11 @@ export default function CableCoilingStage({
         dispatch({ type: "ADD_SCORE", delta: -10 });
       }
     },
-    [TARGET_COILS, isComplete, timeLeft, dispatch, onComplete],
+    [TARGET_COILS, isComplete, timeLeft, isPaused, dispatch, onComplete],
   );
 
   useEffect(() => {
-    if (isComplete || timeLeft <= 0) return;
+    if (isComplete || timeLeft <= 0 || isPaused) return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
@@ -137,7 +148,7 @@ export default function CableCoilingStage({
 
     globalThis.addEventListener("keydown", handleKeyDown);
     return () => globalThis.removeEventListener("keydown", handleKeyDown);
-  }, [handleAction, isComplete, timeLeft]);
+  }, [handleAction, isComplete, timeLeft, isPaused]);
 
   let feedbackBg = "rgba(56, 189, 248, 0.2)";
   let feedbackBorder = "var(--bui-fg-info)";
@@ -150,7 +161,58 @@ export default function CableCoilingStage({
   }
 
   return (
-    <div className="page-container animate-blueprint">
+    <div
+      className="page-container animate-blueprint"
+      style={{ position: "relative" }}
+    >
+      {/* UX FIX: PAUSE SYSTEM UI */}
+      <button
+        onClick={() => setIsPaused(true)}
+        style={{
+          position: "absolute",
+          top: "1rem",
+          right: "1rem",
+          zIndex: 2000,
+          background: "transparent",
+          border: "1px solid #fff",
+          color: "#fff",
+          cursor: "pointer",
+          padding: "4px 8px",
+          borderRadius: "4px",
+          fontFamily: "var(--font-sketch)",
+        }}
+      >
+        ⏸ PAUSE
+      </button>
+
+      {isPaused && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0,0,0,0.9)",
+            zIndex: 5000,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <h1
+            className="annotation-text"
+            style={{ fontSize: "3rem", color: "var(--bui-fg-warning)" }}
+          >
+            STRIKE PAUSED
+          </h1>
+          <p style={{ margin: "2rem 0", color: "#fff" }}>
+            Take a breather. The truck isn't leaving yet.
+          </p>
+          <Button onClick={() => setIsPaused(false)} variant="success">
+            RESUME COILING
+          </Button>
+        </div>
+      )}
+
       <SectionHeader
         title="Strike & Wrap"
         subtitle="Properly coil the XLR audio snake before the truck leaves."
@@ -164,6 +226,8 @@ export default function CableCoilingStage({
           alignItems: "center",
           gap: "2rem",
           marginTop: "1rem",
+          opacity: isPaused ? 0.3 : 1,
+          pointerEvents: isPaused ? "none" : "auto",
         }}
       >
         <div
@@ -188,7 +252,7 @@ export default function CableCoilingStage({
             className="annotation-text"
             style={{ fontSize: "1.5rem", color: "var(--bui-fg-warning)" }}
           >
-            TIER: {difficulty.toUpperCase()}
+            DIFFICULTY: {difficulty.toUpperCase()}
           </div>
         </div>
 
@@ -305,7 +369,7 @@ export default function CableCoilingStage({
           <button
             type="button"
             onClick={() => handleAction("OVER")}
-            disabled={isComplete || timeLeft <= 0}
+            disabled={isComplete || timeLeft <= 0 || isPaused}
             style={{
               flex: 1,
               padding: "1.5rem",
@@ -330,7 +394,7 @@ export default function CableCoilingStage({
           <button
             type="button"
             onClick={() => handleAction("UNDER")}
-            disabled={isComplete || timeLeft <= 0}
+            disabled={isComplete || timeLeft <= 0 || isPaused}
             style={{
               flex: 1,
               padding: "1.5rem",

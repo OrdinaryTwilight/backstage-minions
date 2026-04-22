@@ -1,4 +1,3 @@
-// src/components/game/OverworldStage/useGameLoop.ts
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AVAILABLE_NPCS,
@@ -73,10 +72,11 @@ function computeNextState(params: {
   if (checkCollision(newX, prevPos.y, currentZones)) newX = prevPos.x;
   if (checkCollision(prevPos.x, newY, currentZones)) newY = prevPos.y;
 
-  const isMoving = dx !== 0 || dy !== 0;
+  const isPlayerMoving = dx !== 0 || dy !== 0;
 
   let closestNpcId: string | null = null;
   let closestDist = Infinity;
+  let isNpcMovingIntoPlayer = false;
 
   const updatedNpcs = npcs.map((npc) => {
     const dist = Math.hypot(newX - npc.x, newY - npc.y);
@@ -84,21 +84,38 @@ function computeNextState(params: {
     if (dist < closestDist) {
       closestDist = dist;
       closestNpcId = npc.id;
+      isNpcMovingIntoPlayer = (npc.dx !== 0 || npc.dy !== 0) && dist < 32;
     }
 
     if (dist < 80) return npc;
 
-    return updateSingleNpc(npc, newX, newY, isMoving, currentZones);
+    return updateSingleNpc(npc, newX, newY, isPlayerMoving, currentZones);
   });
 
   const activeZone =
     findActiveStaticZone(newX, newY, currentZones) ||
     (closestNpcId && closestDist < 80 ? closestNpcId : null);
 
-  const bump =
-    closestNpcId && closestDist < 32 && isMoving && Math.random() < 0.05
-      ? { id: closestNpcId, msg: "Watch it!" }
-      : null;
+  // UX FIX: Two-way dynamic collision text
+  let bump = null;
+  if (
+    closestNpcId &&
+    closestDist < 32 &&
+    (isPlayerMoving || isNpcMovingIntoPlayer) &&
+    Math.random() < 0.05
+  ) {
+    const bumpLines = ["Watch it!", "Hey!", "Ouch!", "Careful!", "Excuse me!"];
+    const randomMsg = bumpLines[Math.floor(Math.random() * bumpLines.length)];
+
+    const bumpTarget =
+      !isPlayerMoving && isNpcMovingIntoPlayer
+        ? "player"
+        : Math.random() > 0.5
+          ? "player"
+          : closestNpcId;
+
+    bump = { id: bumpTarget, msg: randomMsg };
+  }
 
   return {
     pos: { x: newX, y: newY },
@@ -132,17 +149,15 @@ export function useGameLoop({
     msg: string;
   } | null>(null);
 
-  /* Helper to get NPC icon */
+  const isBumpActiveRef = useRef(false);
+
   const getNpcIcon = (npcRole: string): string => {
     const iconKey = Object.keys(NPC_ICONS).find((k) => npcRole.includes(k));
     return iconKey ? NPC_ICONS[iconKey as keyof typeof NPC_ICONS] : "👤";
   };
 
-  /* ---------------- SPAWN NPCS ---------------- */
-
   useEffect(() => {
     const spawnNpcs = () => {
-      // 1. Map AVAILABLE_NPCS to the internal NPC footprint (Excluding non-human system contacts)
       const mappedAvailableNPCs = AVAILABLE_NPCS.filter(
         (npc) =>
           npc.id !== "sys_comms" && !npc.role.toLowerCase().includes("system"),
@@ -156,19 +171,16 @@ export function useGameLoop({
         };
       });
 
-      // 2. Combine core crew and cast into the available pool
       const baseAvailable = [
         ...CHARACTERS.filter((c) => c.id !== charId),
         ...mappedAvailableNPCs,
       ];
 
-      // 3. Identify which NPCs MUST spawn based on inventory OR active quests
       const forceSpawnIds = new Set<string>();
       const inv = JSON.parse(
         sessionStorage.getItem("minion_inventory") || "[]",
       );
 
-      // Dynamically extract and demand the targets of any active quests
       const activeQuestDefs = QUEST_REGISTRY.filter((q) =>
         activeQuests.includes(q.id),
       );
@@ -176,14 +188,12 @@ export function useGameLoop({
         if (q.targetNpcId) forceSpawnIds.add(q.targetNpcId);
       });
 
-      // Maintain specific inventory-triggered spans just in case the quest isn't in 'active' state yet
       if (inv.includes("Director's Script")) forceSpawnIds.add("npc_arthur");
       if (inv.includes("Water Bottle")) forceSpawnIds.add("npc_madeline");
       if (inv.includes("AA Batteries")) forceSpawnIds.add("char_casey");
       if (inv.includes("Gaff Tape")) forceSpawnIds.add("char_alex");
       if (inv.includes("Missing Prop Sword")) forceSpawnIds.add("npc_sam");
 
-      // 4. Separate required vs random
       const forceSpawnArray = new Set(Array.from(forceSpawnIds));
       const mustSpawn = baseAvailable.filter((npc) =>
         forceSpawnArray.has(npc.id),
@@ -228,8 +238,6 @@ export function useGameLoop({
     });
   }, [charId, currentRoom, currentZones, activeQuests]);
 
-  /* ---------------- GAME LOOP ---------------- */
-
   const inputRef = useRef(input);
   const npcsRef = useRef(npcs);
   const targetPosRef = useRef(targetPos);
@@ -258,14 +266,18 @@ export function useGameLoop({
       setNpcs(result.npcs);
       setActiveZone(result.activeZone);
 
-      if (result.bump && !bumpMsg) {
+      if (result.bump && !isBumpActiveRef.current) {
+        isBumpActiveRef.current = true;
         setBumpMsg(result.bump);
-        setTimeout(() => setBumpMsg(null), 1500);
+        setTimeout(() => {
+          setBumpMsg(null);
+          isBumpActiveRef.current = false;
+        }, 1500);
       }
 
       return result.pos;
     },
-    [currentZones, setTargetPos, bumpMsg],
+    [currentZones, setTargetPos],
   );
 
   useEffect(() => {

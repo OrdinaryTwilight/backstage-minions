@@ -18,7 +18,6 @@ import Button from "../../components/ui/Button";
 import ShowControlNav from "./ShowControlNav";
 import { useLevelFlow } from "./useLevelFlow";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const STAGE_COMPONENTS: Record<string, any> = {
   equipment: EquipmentStage,
   planning: PlanningStage,

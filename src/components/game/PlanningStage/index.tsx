@@ -37,6 +37,7 @@ export default function PlanningStage({
     new Array(PLOT_GRID_ROWS * PLOT_GRID_COLS).fill(null),
   );
 
+  const [showGoboHelp, setShowGoboHelp] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [reportDetails, setReportDetails] = useState<ReportDetails | null>(
     null,
@@ -100,9 +101,11 @@ export default function PlanningStage({
       } else if (activeTool === "gobo") {
         if (currentCell) {
           if (currentCell.typeId !== "spot" && selectedGobo !== null) {
-            return prevGrid; // Reject the action silently
+            return prevGrid;
           }
           newGrid[i] = { ...currentCell, gobo: selectedGobo };
+        } else {
+          setActiveTool("fixture");
         }
       }
 
@@ -391,38 +394,90 @@ export default function PlanningStage({
             />
 
             <div style={{ flex: 1, minWidth: "250px" }}>
+              {/* UX FIX: Tooltip shares flex row with Header but sits on the right */}
               <div
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  gap: "0.5rem",
+                  justifyContent: "space-between",
                   marginBottom: "1rem",
+                  position: "relative",
+                  zIndex: 50,
                 }}
               >
-                <input
-                  type="radio"
-                  id="tool-gobo"
-                  name="active-tool"
-                  checked={activeTool === "gobo"}
-                  onChange={() => setActiveTool("gobo")}
-                  style={{ accentColor: "var(--bui-fg-accent)" }}
-                />
-                <label
-                  htmlFor="tool-gobo"
-                  className="annotation-text"
+                <div
                   style={{
-                    fontSize: "0.9rem",
-                    textTransform: "uppercase",
-                    color:
-                      activeTool === "gobo"
-                        ? "var(--bui-fg-accent)"
-                        : "inherit",
-                    opacity: activeTool === "gobo" ? 1 : 0.6,
-                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
                   }}
                 >
-                  Step 2: Gobo Insert
-                </label>
+                  <input
+                    type="radio"
+                    id="tool-gobo"
+                    name="active-tool"
+                    checked={activeTool === "gobo"}
+                    onChange={() => setActiveTool("gobo")}
+                    style={{ accentColor: "var(--bui-fg-accent)" }}
+                  />
+                  <label
+                    htmlFor="tool-gobo"
+                    className="annotation-text"
+                    style={{
+                      fontSize: "0.9rem",
+                      textTransform: "uppercase",
+                      color:
+                        activeTool === "gobo"
+                          ? "var(--bui-fg-accent)"
+                          : "inherit",
+                      opacity: activeTool === "gobo" ? 1 : 0.6,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Step 2: Gobo Insert
+                  </label>
+                </div>
+
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    fontStyle: "italic",
+                    opacity: 0.9,
+                  }}
+                >
+                  <span
+                    onMouseEnter={() => setShowGoboHelp(true)}
+                    onMouseLeave={() => setShowGoboHelp(false)}
+                    style={{
+                      cursor: "help",
+                      borderBottom: "1px dotted var(--color-pencil-light)",
+                    }}
+                    aria-describedby="gobo-tooltip"
+                  >
+                    What is a Gobo? 💡
+                  </span>
+
+                  {showGoboHelp && (
+                    <div
+                      id="gobo-tooltip"
+                      className="tooltip-overlay"
+                      role="tooltip"
+                      style={{
+                        opacity: 1,
+                        pointerEvents: "auto",
+                        top: "100%",
+                        right: "0",
+                        left: "auto",
+                        marginTop: "8px",
+                      }}
+                    >
+                      <b>GOBO (Go-Between Optics)</b>
+                      <br />A metal stencil placed inside a Spotlight fixture to
+                      project patterns (like windows, leaves, or stars) onto the
+                      stage.
+                    </div>
+                  )}
+                </div>
               </div>
 
               <fieldset

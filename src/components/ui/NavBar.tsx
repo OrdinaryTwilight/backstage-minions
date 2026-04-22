@@ -16,10 +16,9 @@ export default function NavBar() {
   const [showSettings, setShowSettings] = useState(false);
   const { state } = useGame();
 
-  // Rely on global GameContext state instead of disconnected sessionStorage
   const hasUnread = state?.unreadContacts && state.unreadContacts.length > 0;
+  const session = state?.session;
 
-  // Escape key closes modal (proper global handler)
   useEffect(() => {
     if (!showSettings) return;
 
@@ -35,42 +34,130 @@ export default function NavBar() {
 
   return (
     <>
-      <nav className="nav-bar">
-        {TABS.map((t) => (
+      <nav
+        className="nav-bar"
+        style={{
+          flexWrap: "wrap",
+          height: "auto",
+          minHeight: "70px",
+          padding: "0 1rem",
+        }}
+      >
+        {/* Navigation Tabs */}
+        <div
+          style={{ display: "flex", flex: 1, justifyContent: "space-around" }}
+        >
+          {TABS.map((t) => (
+            <button
+              key={t.path}
+              type="button"
+              onClick={() => navigate(t.path)}
+              className={`nav-item ${pathname === t.path ? "active" : ""}`}
+              style={{ position: "relative" }}
+            >
+              <span>{t.icon}</span>
+              <span>{t.label}</span>
+              {t.path === "/networks" && hasUnread && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: "0.5rem",
+                    right: "0.5rem",
+                    width: "10px",
+                    height: "10px",
+                    borderRadius: "50%",
+                    background: "var(--bui-fg-danger)",
+                  }}
+                />
+              )}
+            </button>
+          ))}
+
           <button
-            key={t.path}
             type="button"
-            onClick={() => navigate(t.path)}
-            className={`nav-item ${pathname === t.path ? "active" : ""}`}
-            style={{ position: "relative" }}
+            className="nav-item"
+            onClick={() => setShowSettings(true)}
+            aria-label="Open visual settings"
           >
-            <span>{t.icon}</span>
-            <span>{t.label}</span>
-            {t.path === "/networks" && hasUnread && (
+            <span>⚙️</span>
+            <span>Settings</span>
+          </button>
+        </div>
+
+        {session && (
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "1rem",
+              borderLeft: "1px solid var(--glass-border)",
+              paddingLeft: "1rem",
+              marginLeft: "0.5rem",
+            }}
+          >
+            <div
+              role="status"
+              aria-label={`Current Stress Level: ${session.stress} percent`}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-end",
+              }}
+            >
               <span
                 style={{
-                  position: "absolute",
-                  top: "0.5rem",
-                  right: "0.5rem",
-                  width: "10px",
-                  height: "10px",
-                  borderRadius: "50%",
-                  background: "var(--bui-fg-danger)",
+                  fontSize: "0.65rem",
+                  textTransform: "uppercase",
+                  fontFamily: "var(--font-mono)",
+                  fontWeight: "bold",
+                  color:
+                    session.stress >= 75
+                      ? "var(--bui-fg-danger)"
+                      : "var(--color-pencil-light)",
                 }}
-              />
-            )}
-          </button>
-        ))}
-
-        <button
-          type="button"
-          className="nav-item"
-          onClick={() => setShowSettings(true)}
-          aria-label="Open visual settings"
-        >
-          <span>⚙️</span>
-          <span>Settings</span>
-        </button>
+              >
+                Stress
+              </span>
+              <div
+                style={{
+                  width: "80px",
+                  height: "6px",
+                  background: "rgba(0,0,0,0.5)",
+                  borderRadius: "3px",
+                  overflow: "hidden",
+                  border: "1px solid var(--glass-border)",
+                  marginTop: "2px",
+                }}
+              >
+                <div
+                  style={{
+                    width: `${session.stress}%`,
+                    height: "100%",
+                    background:
+                      session.stress >= 75
+                        ? "var(--bui-fg-danger)"
+                        : session.stress >= 50
+                          ? "var(--bui-fg-warning)"
+                          : "var(--bui-fg-success)",
+                    transition: "width 0.3s ease, background 0.3s ease",
+                  }}
+                />
+              </div>
+            </div>
+            <div
+              role="status"
+              aria-label={`Current Score: ${session.score} points`}
+              style={{
+                fontFamily: "var(--font-mono)",
+                fontSize: "1rem",
+                fontWeight: "bold",
+                color: "var(--bui-fg-success)",
+              }}
+            >
+              {session.score}
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Settings Modal */}
@@ -85,7 +172,6 @@ export default function NavBar() {
             zIndex: 1000,
           }}
         >
-          {/* Backdrop (now a real button → fixes a11y warning) */}
           <button
             type="button"
             aria-label="Close settings overlay"
@@ -101,8 +187,6 @@ export default function NavBar() {
               cursor: "pointer",
             }}
           />
-
-          {/* Modal content */}
           <dialog
             open
             style={{

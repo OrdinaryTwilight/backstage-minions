@@ -15,6 +15,7 @@ export function useCueEngine(
     Record<string, { hit: boolean }>
   >({});
   const [isReady, setIsReady] = useState(false);
+  const [isPaused, setIsPaused] = useState(false); // UX FIX: Game Clock Pause State
   const [smMessage, setSmMessage] = useState(
     "Standby. Lock in your faders and tell me when you are ready.",
   );
@@ -34,27 +35,34 @@ export function useCueEngine(
   useEffect(() => {
     elapsedMsRef.current = elapsedMs;
   }, [elapsedMs]);
-
   useEffect(() => {
     faderLevelsRef.current = faderLevels;
   }, [faderLevels]);
+
+  // UX FIX: Keyboard shortcut to Pause without UI clicks
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isReady && !isLastCue)
+        setIsPaused((prev) => !prev);
+    };
+    globalThis.addEventListener("keydown", handleKey);
+    return () => globalThis.removeEventListener("keydown", handleKey);
+  }, [isReady, isLastCue]);
 
   const difficultyMultiplierMap: Record<string, number> = {
     professional: 0.5,
     community: 0.75,
   };
   const difficultyMultiplier = difficultyMultiplierMap[difficulty] ?? 1;
-
   const effectiveWindowMs = currentCue
     ? (currentCue.windowMs || 1000) * difficultyMultiplier
     : 1000;
 
   const handleGo = useCallback(
     (forceMiss = false) => {
-      if (isLastCue || !isReady || !currentCue) return;
+      if (isLastCue || !isReady || !currentCue || isPaused) return;
 
       const targetMs = currentCue.targetMs || 0;
-      // Read from refs instead of state to avoid dependency updates
       const currentElapsed = elapsedMsRef.current;
       const currentFaders = faderLevelsRef.current;
 
@@ -63,7 +71,6 @@ export function useCueEngine(
       const targetLevel = currentCue.targetLevel || 80;
       const margin = 10;
 
-      // MASTER FADER LOGIC: Master linearly scales the physical sub-faders
       const masterValue = currentFaders[4] / 100;
       const effectiveLevels = currentFaders
         .slice(0, 4)
@@ -72,7 +79,6 @@ export function useCueEngine(
       const acceptableChannels = effectiveLevels.filter(
         (l) => Math.abs(l - targetLevel) <= margin,
       ).length;
-
       const isAligned = acceptableChannels >= 2;
       const tooHigh = effectiveLevels.some((l) => l > targetLevel + margin);
       const isHit = !forceMiss && isAligned && isTimedWell;
@@ -111,6 +117,7 @@ export function useCueEngine(
     [
       isLastCue,
       isReady,
+      isPaused,
       currentCue,
       effectiveWindowMs,
       currentIdx,
@@ -120,37 +127,40 @@ export function useCueEngine(
     ],
   );
 
-  // Master Clock
+  // Master Clock (Respects Pause State)
   useEffect(() => {
-    if (isLastCue || !isReady) return;
+    if (isLastCue || !isReady || isPaused) return;
     const startTime = Date.now() - elapsedMs;
     const interval = setInterval(
       () => setElapsedMs(Date.now() - startTime),
       50,
     );
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isLastCue, isReady]);
+  }, [isLastCue, isReady, isPaused]); // Intentionally omitting elapsedMs so interval isn't recreated every tick
 
-  // Reset expired flag when cue changes
   useEffect(() => {
     expiredRef.current = false;
   }, [currentCue?.id]);
 
-  // Auto-fail logic
   useEffect(() => {
-    if (!currentCue || isLastCue || !isReady) {
+    if (!currentCue || isLastCue || !isReady || isPaused) {
       expiredRef.current = false;
       return;
     }
-
     const expirationTime = currentCue.targetMs + effectiveWindowMs + 100;
-
     if (elapsedMs > expirationTime && !expiredRef.current) {
       expiredRef.current = true;
       handleGo(true);
     }
-  }, [elapsedMs, currentCue, isLastCue, isReady, effectiveWindowMs, handleGo]);
+  }, [
+    elapsedMs,
+    currentCue,
+    isLastCue,
+    isReady,
+    isPaused,
+    effectiveWindowMs,
+    handleGo,
+  ]);
 
   const handleReady = () => {
     setIsReady(true);
@@ -164,6 +174,8 @@ export function useCueEngine(
     elapsedMs,
     cueResults,
     isReady,
+    isPaused,
+    setIsPaused,
     smMessage,
     currentCue,
     isLastCue,

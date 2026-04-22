@@ -31,16 +31,31 @@ export const findActiveStaticZone = (
   playerY: number,
   mapZones: Record<string, ZoneConfig>,
 ): string | null => {
+  let closestZone: string | null = null;
+  let minDistance = Infinity;
+
+  const pCenterX = playerX + PLAYER_SIZE / 2;
+  const pCenterY = playerY + PLAYER_SIZE / 2;
+
   for (const [key, zone] of Object.entries(mapZones)) {
     if (
       playerX < zone.x + zone.w + 20 &&
       playerX + PLAYER_SIZE > zone.x - 20 &&
       playerY < zone.y + zone.h + 20 &&
       playerY + PLAYER_SIZE > zone.y - 20
-    )
-      return key;
+    ) {
+      // UX FIX: Strict Proximity Prioritization for overlapping zones
+      const centerX = zone.x + zone.w / 2;
+      const centerY = zone.y + zone.h / 2;
+      const dist = Math.hypot(pCenterX - centerX, pCenterY - centerY);
+
+      if (dist < minDistance) {
+        minDistance = dist;
+        closestZone = key;
+      }
+    }
   }
-  return null;
+  return closestZone;
 };
 
 export const calculateMovementDelta = (
@@ -79,7 +94,7 @@ export const updateSingleNpc = (
       return {
         ...npc,
         isHidden: false,
-        x: GAME_WIDTH - 50, // Dynamically use GAME_WIDTH instead of hardcoded 600
+        x: GAME_WIDTH - 50,
         y: Math.random() * (GAME_HEIGHT - 100) + 50,
         dx: -1,
         dy: Math.random() - 0.5,
@@ -99,7 +114,6 @@ export const updateSingleNpc = (
   const nX = npc.x + stepX;
   const nY = npc.y + stepY;
 
-  // Dynamically use GAME_WIDTH to calculate hide trigger
   if (nX > GAME_WIDTH - 50 && Math.random() < 0.01) {
     return {
       ...npc,

@@ -1,63 +1,79 @@
+import { useEffect, useState } from "react";
 import "../../styles/animations.css";
 
+const BOOT_MESSAGES = [
+  "Reticulating splines...",
+  "Taping down cables...",
+  "Looking for the 10mm wrench...",
+  "Waking up the lighting console...",
+  "Telling the actors to quiet down...",
+  "Brewing more coffee...",
+  "Finding missing props...",
+  "Calibrating audio feedback...",
+  "Un-tangling the comms headsets...",
+];
+
 interface SpinnerProps {
-  size?: "small" | "medium" | "large";
-  color?: string;
   label?: string;
 }
 
-export default function Spinner({
-  size = "medium",
-  color = "var(--bui-fg-warning)",
-  label = "Loading...",
-}: Readonly<SpinnerProps>) {
-  const sizeMap = {
-    small: "20px",
-    medium: "40px",
-    large: "60px",
-  };
+export default function Spinner({ label }: Readonly<SpinnerProps>) {
+  const [msg, setMsg] = useState(BOOT_MESSAGES[0]);
 
-  const spinnerSize = sizeMap[size];
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setMsg(BOOT_MESSAGES[Math.floor(Math.random() * BOOT_MESSAGES.length)]);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div
       role="status"
       aria-live="polite"
       style={{
-        display: "inline-block",
-        width: spinnerSize,
-        height: spinnerSize,
-        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "1rem",
+        padding: "2rem",
+        width: "100%",
+        minHeight: "60vh" /* Centers vertically on the page */,
+        margin: "0 auto",
       }}
     >
-      {/* Visible animated spinner */}
       <div
-        className="animate-spin"
         aria-hidden="true"
         style={{
-          width: "100%",
-          height: "100%",
-          border: `3px solid rgba(255,255,255,0.1)`,
-          borderTopColor: color,
-          borderRadius: "50%",
-        }}
-      />
-
-      <span
-        style={{
-          position: "absolute",
-          width: "1px",
-          height: "1px",
-          padding: 0,
-          margin: "-1px",
-          overflow: "hidden",
-          clip: "rect(0,0,0,0)",
-          whiteSpace: "nowrap",
-          border: 0,
+          fontSize: "3rem",
+          display: "inline-block",
+          animation: "spin 2s linear infinite",
         }}
       >
-        {label}
-      </span>
+        ⏳
+      </div>
+
+      <div
+        style={{
+          fontFamily: "var(--font-mono)",
+          color: "var(--bui-fg-warning)",
+          fontSize: "1.1rem",
+          textAlign: "center",
+        }}
+        className="animate-pulse-go"
+      >
+        <span className="sr-only">Loading...</span>
+        <span aria-hidden="true">{label || msg}</span>
+      </div>
+
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          50% { transform: rotate(180deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   );
 }
