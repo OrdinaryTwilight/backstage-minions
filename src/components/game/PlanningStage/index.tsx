@@ -445,23 +445,31 @@ export default function PlanningStage({
                     opacity: 0.9,
                   }}
                 >
-                  <span
+                  <button
+                    type="button"
                     onMouseEnter={() => setShowGoboHelp(true)}
                     onMouseLeave={() => setShowGoboHelp(false)}
+                    onFocus={() => setShowGoboHelp(true)}
+                    onBlur={() => setShowGoboHelp(false)}
+                    aria-describedby="gobo-tooltip"
+                    aria-expanded={showGoboHelp}
                     style={{
                       cursor: "help",
+                      border: "none",
+                      background: "none",
+                      padding: 0,
+                      font: "inherit",
                       borderBottom: "1px dotted var(--color-pencil-light)",
                     }}
-                    aria-describedby="gobo-tooltip"
                   >
                     What is a Gobo? 💡
-                  </span>
+                  </button>
 
                   {showGoboHelp && (
                     <div
                       id="gobo-tooltip"
-                      className="tooltip-overlay"
                       role="tooltip"
+                      className="tooltip-overlay"
                       style={{
                         opacity: 1,
                         pointerEvents: "auto",
@@ -471,7 +479,7 @@ export default function PlanningStage({
                         marginTop: "8px",
                       }}
                     >
-                      <b>GOBO (Go-Between Optics)</b>
+                      <strong>GOBO (Go-Between Optics)</strong>
                       <br />A metal stencil placed inside a Spotlight fixture to
                       project patterns (like windows, leaves, or stars) onto the
                       stage.

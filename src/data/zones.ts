@@ -93,7 +93,7 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
     },
     doorGreenRoom: {
       x: 300,
-      y: 0,
+      y: 10,
       w: 200,
       h: 50,
       label: "GREEN ROOM 🚪",

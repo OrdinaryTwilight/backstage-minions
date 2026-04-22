@@ -366,6 +366,7 @@ export default function MobileControls({
           border: "4px solid rgba(255,255,255,0.8)",
           fontWeight: "bold",
           fontSize: "1.2rem",
+          fontFamily: "var(--font-mono)",
           boxShadow: activeZoneLabel
             ? "0 0 20px var(--bui-fg-warning)"
             : "inset 0 0 10px rgba(0,0,0,0.5)",

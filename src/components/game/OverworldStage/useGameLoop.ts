@@ -98,6 +98,7 @@ function computeNextState(params: {
 
   // UX FIX: Two-way dynamic collision text
   let bump = null;
+
   if (
     closestNpcId &&
     closestDist < 32 &&
@@ -107,12 +108,12 @@ function computeNextState(params: {
     const bumpLines = ["Watch it!", "Hey!", "Ouch!", "Careful!", "Excuse me!"];
     const randomMsg = bumpLines[Math.floor(Math.random() * bumpLines.length)];
 
-    const bumpTarget =
-      !isPlayerMoving && isNpcMovingIntoPlayer
-        ? "player"
-        : Math.random() > 0.5
-          ? "player"
-          : closestNpcId;
+    let bumpTarget;
+    if (!isPlayerMoving && isNpcMovingIntoPlayer) {
+      bumpTarget = "player";
+    } else {
+      bumpTarget = Math.random() > 0.5 ? "player" : closestNpcId;
+    }
 
     bump = { id: bumpTarget, msg: randomMsg };
   }

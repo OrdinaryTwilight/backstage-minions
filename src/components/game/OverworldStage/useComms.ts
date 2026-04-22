@@ -1,8 +1,10 @@
-// src/components/game/OverworldStage/useComms.ts
 import { useEffect, useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { NARRATIVE } from "../../../data/narrative";
 import { getShowPhase } from "./useInteraction";
+
+// Global counter ensures absolute uniqueness even if React double-invokes the hook
+let commsMessageId = 0;
 
 export function useComms() {
   const { state } = useGame();
@@ -19,14 +21,19 @@ export function useComms() {
       const phase = getShowPhase(state.session);
       const chatterPool = NARRATIVE.commsChatter[phase];
 
+      // FIX: Removed the redundant chatterPool.length === 0 check.
+      // TypeScript already knows the exact lengths of the statically defined arrays.
+      if (!chatterPool) return;
+
       const randomChatter =
         chatterPool[Math.floor(Math.random() * chatterPool.length)];
 
       setCommsLog((prev) => {
+        commsMessageId += 1;
         const newLog = [
           ...prev,
           {
-            id: Date.now(),
+            id: commsMessageId,
             speaker: randomChatter.speaker,
             text: randomChatter.text,
           },

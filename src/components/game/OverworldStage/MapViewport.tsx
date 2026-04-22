@@ -11,15 +11,6 @@ const DEPT_COLORS: Record<string, string> = {
   Director: "#a855f7",
 };
 
-// UX FIX: Maps vibrant backgrounds to safe foreground text colors for WCAG compliance
-const BADGE_TEXT_COLORS: Record<string, string> = {
-  "var(--bui-fg-warning)": "#000",
-  "var(--bui-fg-info)": "#000",
-  "var(--bui-fg-danger)": "#fff",
-  "#ec4899": "#fff",
-  "#a855f7": "#fff",
-};
-
 interface MapViewportProps {
   readonly currentRoom: string;
   readonly currentZones: Record<string, ZoneConfig>;
@@ -46,6 +37,11 @@ export default function MapViewport({
   handleStageClick,
   targetZoneId,
 }: MapViewportProps) {
+  // UX FIX: A robust 4-way shadow acts as a stroke to ensure text is highly legible
+  // without needing a solid, cluttered badge box behind it.
+  const textStrokeShadow =
+    "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 4px 8px rgba(0,0,0,0.8)";
+
   return (
     <div
       style={{
@@ -93,7 +89,6 @@ export default function MapViewport({
         const isActive = key === activeZone;
         const isTarget = key === targetZoneId;
         const baseColor = zone.color || "var(--bui-fg-info)";
-        const activeTextColor = BADGE_TEXT_COLORS[baseColor] || "#000";
 
         return (
           <div
@@ -104,58 +99,60 @@ export default function MapViewport({
               top: `${(zone.y / GAME_HEIGHT) * 100}%`,
               width: `${(zone.w / GAME_WIDTH) * 100}%`,
               height: `${(zone.h / GAME_HEIGHT) * 100}%`,
-              background: isActive ? `${baseColor}55` : `${baseColor}33`,
+              background: isActive ? `${baseColor}44` : `${baseColor}22`,
               border: isActive
                 ? `3px solid ${baseColor}`
-                : `1px solid ${baseColor}88`,
+                : `2px dashed ${baseColor}88`,
               boxShadow: isActive
-                ? `0 0 20px ${baseColor}, inset 0 0 15px ${baseColor}`
+                ? `0 0 30px 5px ${baseColor}, inset 0 0 30px ${baseColor}`
                 : "none",
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              textAlign: "center",
-              padding: "4px",
               pointerEvents: "none",
               transition: "all 0.2s ease",
+              zIndex: isActive ? 10 : 1,
             }}
           >
-            {/* UX FIX: Badges smoothly invert to solid colors when glowing, avoiding the dark slate clash */}
-            <span
+            {/* UX FIX: Placed the dot and text in a column flexbox so the dot perfectly centers over the text */}
+            <div
               style={{
-                fontFamily: "var(--font-sketch)",
-                fontWeight: "bold",
-                fontSize: isActive
-                  ? "clamp(0.85rem, 3vw, 1.2rem)"
-                  : "clamp(0.65rem, 2vw, 0.9rem)",
-                color: isActive ? activeTextColor : "#fff",
-                background: isActive ? baseColor : "rgba(0, 0, 0, 0.6)",
-                border: `1px solid ${isActive ? "transparent" : baseColor}`,
-                padding: "4px 8px",
-                borderRadius: "6px",
-                lineHeight: "1.2",
-                zIndex: isActive ? 10 : 1,
-                transition: "all 0.2s ease",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: "6px",
               }}
             >
-              {zone.label}
-            </span>
+              {isTarget && (
+                <div
+                  className="animate-ping"
+                  aria-hidden="true"
+                  style={{
+                    width: "14px",
+                    height: "14px",
+                    borderRadius: "50%",
+                    background: "var(--bui-fg-warning)",
+                    boxShadow: "0 0 10px var(--bui-fg-warning)",
+                  }}
+                />
+              )}
 
-            {isTarget && (
-              <div
-                className="animate-ping"
-                aria-hidden="true"
+              <span
                 style={{
-                  position: "absolute",
-                  top: "-15px",
-                  width: "15px",
-                  height: "15px",
-                  borderRadius: "50%",
-                  background: "var(--bui-fg-warning)",
-                  boxShadow: "0 0 10px var(--bui-fg-warning)",
+                  fontFamily: "var(--font-sketch)",
+                  fontWeight: "bold",
+                  fontSize: "clamp(0.75rem, 2.5vw, 1rem)", // UX FIX: Static size prevents screen wobble
+                  color: "#fff",
+                  textShadow: textStrokeShadow,
+                  textAlign: "center",
+                  lineHeight: "1.2",
+                  transition: "all 0.2s ease",
                 }}
-              />
-            )}
+              >
+                {zone.label}
+              </span>
+            </div>
           </div>
         );
       })}
@@ -164,7 +161,6 @@ export default function MapViewport({
         if (npc.isHidden) return null;
         const isNpcActive = npc.id === activeNpcId;
         const npcColor = DEPT_COLORS[npc.dept] || "var(--bui-fg-info)";
-        const activeTextColor = BADGE_TEXT_COLORS[npcColor] || "#000";
 
         return (
           <div
@@ -207,13 +203,9 @@ export default function MapViewport({
                 fontFamily: "var(--font-mono)",
                 fontSize: "12px",
                 fontWeight: "bold",
-                color: isNpcActive ? activeTextColor : npcColor,
+                color: npcColor,
+                textShadow: textStrokeShadow,
                 whiteSpace: "nowrap",
-                textShadow: isNpcActive ? "none" : "1px 1px 2px #000",
-                background: isNpcActive ? npcColor : "rgba(0,0,0,0.8)",
-                padding: "2px 6px",
-                borderRadius: "4px",
-                marginTop: "4px",
                 transition: "all 0.2s ease",
               }}
             >
@@ -234,6 +226,7 @@ export default function MapViewport({
                   fontWeight: "bold",
                   whiteSpace: "nowrap",
                   zIndex: 100,
+                  pointerEvents: "none",
                 }}
               >
                 {bumpMsg.msg}
@@ -272,10 +265,7 @@ export default function MapViewport({
             fontWeight: "bold",
             color: "#06d6a0",
             whiteSpace: "nowrap",
-            textShadow: "1px 1px 2px #000",
-            background: "rgba(0,0,0,0.8)",
-            padding: "2px 6px",
-            borderRadius: "4px",
+            textShadow: textStrokeShadow,
           }}
         >
           YOU
@@ -296,6 +286,7 @@ export default function MapViewport({
               fontWeight: "bold",
               whiteSpace: "nowrap",
               boxShadow: "0 2px 5px rgba(0,0,0,0.5)",
+              pointerEvents: "none",
             }}
           >
             {bumpMsg.msg}

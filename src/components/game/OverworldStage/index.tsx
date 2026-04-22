@@ -264,6 +264,7 @@ export default function OverworldStage({
                 cursor: "pointer",
                 fontWeight: "bold",
                 fontSize: "0.8rem",
+                fontFamily: "var(--font-mono)",
                 opacity: 0.8,
               }}
               title="Teleport to center of room if stuck inside a wall"

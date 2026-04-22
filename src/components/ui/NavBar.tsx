@@ -19,6 +19,20 @@ export default function NavBar() {
   const hasUnread = state?.unreadContacts && state.unreadContacts.length > 0;
   const session = state?.session;
 
+  const stress = session?.stress ?? 0;
+
+  let stressBarColor: string;
+  if (stress >= 75) {
+    stressBarColor = "var(--bui-fg-danger)";
+  } else if (stress >= 50) {
+    stressBarColor = "var(--bui-fg-warning)";
+  } else {
+    stressBarColor = "var(--bui-fg-success)";
+  }
+
+  const stressLabelColor =
+    stress >= 75 ? "var(--bui-fg-danger)" : "var(--color-pencil-light)";
+
   useEffect(() => {
     if (!showSettings) return;
 
@@ -95,9 +109,9 @@ export default function NavBar() {
               marginLeft: "0.5rem",
             }}
           >
-            <div
-              role="status"
-              aria-label={`Current Stress Level: ${session.stress} percent`}
+            {/* Stress */}
+            <output
+              aria-label={`Current Stress Level: ${stress} percent`}
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -110,10 +124,7 @@ export default function NavBar() {
                   textTransform: "uppercase",
                   fontFamily: "var(--font-mono)",
                   fontWeight: "bold",
-                  color:
-                    session.stress >= 75
-                      ? "var(--bui-fg-danger)"
-                      : "var(--color-pencil-light)",
+                  color: stressLabelColor,
                 }}
               >
                 Stress
@@ -131,21 +142,17 @@ export default function NavBar() {
               >
                 <div
                   style={{
-                    width: `${session.stress}%`,
+                    width: `${stress}%`,
                     height: "100%",
-                    background:
-                      session.stress >= 75
-                        ? "var(--bui-fg-danger)"
-                        : session.stress >= 50
-                          ? "var(--bui-fg-warning)"
-                          : "var(--bui-fg-success)",
+                    background: stressBarColor,
                     transition: "width 0.3s ease, background 0.3s ease",
                   }}
                 />
               </div>
-            </div>
-            <div
-              role="status"
+            </output>
+
+            {/* Score */}
+            <output
               aria-label={`Current Score: ${session.score} points`}
               style={{
                 fontFamily: "var(--font-mono)",
@@ -155,7 +162,7 @@ export default function NavBar() {
               }}
             >
               {session.score}
-            </div>
+            </output>
           </div>
         )}
       </nav>
