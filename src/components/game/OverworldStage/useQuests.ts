@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { NARRATIVE } from "../../../data/narrative";
 import { QUEST_REGISTRY, QuestDefinition } from "../../../data/quests";
+import { useAnnouncement } from "../../../hooks/useAnnouncement";
 import { DialogueState, NPC } from "./types";
 
 export function useQuests() {
@@ -13,6 +14,7 @@ export function useQuests() {
 
   const inventory = state.session?.inventory || [];
   const completedQuests = state.session?.completedQuests || [];
+  const { announce } = useAnnouncement(); // Used to trigger auditory/WCAG notifications
 
   const processSingleQuest = (
     quest: QuestDefinition,
@@ -65,7 +67,7 @@ export function useQuests() {
           text: qText.targetNeedText || "Something is missing here.",
           choices: [
             { id: "ok", text: qText.searchAction || "I'll look around." },
-            { id: "ignore", text: "I don't have time for this." }, // Added ignore option
+            { id: "ignore", text: "I don't have time for this." },
           ],
         };
       }
@@ -120,6 +122,7 @@ export function useQuests() {
         if (actionType === "take") {
           dispatch({ type: "ADD_INVENTORY", item: quest.requiredItem });
           setQuestFeedback({ text: qText.feedbackAcquired, isError: false });
+          announce(qText.feedbackAcquired); // Screen Reader / Global Announcement
         } else if (actionType === "give") {
           dispatch({ type: "REMOVE_INVENTORY", item: quest.requiredItem });
           dispatch({
@@ -127,9 +130,11 @@ export function useQuests() {
             questId: quest.id,
             pointDelta: 50,
           });
-          dispatch({ type: "ADD_SCORE", delta: quest.scoreReward });
+          dispatch({ type: "ADD_SCORE", delta: quest.scoreReward || 50 });
           setQuestFeedback({ text: qText.feedbackComplete, isError: false });
+          announce(qText.feedbackComplete); // Screen Reader / Global Announcement
         }
+
         clearDialogue();
         setTimeout(() => setQuestFeedback(null), 2500);
         return "quest_handled";

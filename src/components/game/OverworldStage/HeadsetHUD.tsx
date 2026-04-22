@@ -1,5 +1,5 @@
 import { useGame } from "../../../context/GameContext";
-import { CHARACTERS } from "../../../data/gameData";
+import { CHARACTERS, OVERWORLD_MAPS } from "../../../data/gameData";
 import { QUEST_REGISTRY } from "../../../data/quests";
 
 interface HeadsetHUDProps {
@@ -19,10 +19,17 @@ export default function HeadsetHUD({
   const activeQuests = state.session?.activeQuests || [];
   const inventory = state.session?.inventory || [];
 
+  const getZoneLabel = (zoneId: string) => {
+    for (const room of Object.values(OVERWORLD_MAPS)) {
+      if (room[zoneId]) return room[zoneId].label;
+    }
+    return "Location";
+  };
+
   return (
     <div
       style={{
-        width: "100%", // Adapts to parent column width
+        width: "100%",
         display: "flex",
         flexDirection: "column",
         gap: "10px",
@@ -81,20 +88,25 @@ export default function HeadsetHUD({
             [ ] Complete Department Tasks
           </li>
 
-          {/* UX FIX: Dynamic Inventory Checking for accurate task state reflection */}
           {activeQuests.map((id) => {
             const q = QUEST_REGISTRY.find((r) => r.id === id);
             if (!q) return null;
 
             const targetChar = CHARACTERS.find((c) => c.id === q.targetNpcId);
-            const targetName = targetChar ? targetChar.name : "Location";
+            const targetName = targetChar
+              ? targetChar.name
+              : getZoneLabel(q.targetZoneId);
             const hasItem = inventory.includes(q.requiredItem);
 
             let taskDesc = `Assist ${targetName}`;
             if (q.requiredItem) {
-              taskDesc = hasItem
-                ? `Give ${q.requiredItem} to ${targetName}`
-                : `Get ${q.requiredItem} from ${q.pickupNpcName}`;
+              if (hasItem) {
+                taskDesc = `Give ${q.requiredItem} to ${targetName}`;
+              } else if (q.pickupNpcName) {
+                taskDesc = `Get ${q.requiredItem} from ${q.pickupNpcName}`;
+              } else {
+                taskDesc = `Find ${q.requiredItem} for ${targetName}`;
+              }
             }
 
             return (
@@ -109,9 +121,11 @@ export default function HeadsetHUD({
             if (!q) return null;
 
             const targetChar = CHARACTERS.find((c) => c.id === q.targetNpcId);
-            const targetName = targetChar ? targetChar.name : "Location";
+            const targetName = targetChar
+              ? targetChar.name
+              : getZoneLabel(q.targetZoneId);
             const desc = q.requiredItem
-              ? `Given ${q.requiredItem} to ${targetName}`
+              ? `Gave ${q.requiredItem} to ${targetName}`
               : "Task Complete";
 
             return (
@@ -130,8 +144,18 @@ export default function HeadsetHUD({
         </ul>
       </div>
 
+      {/* UX FIX: Priority 2 - Constrain comms log to prevent Map crush on mobile devices */}
       {headsetOn && (
-        <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: "5px",
+            maxHeight: "180px",
+            overflowY: "auto",
+            paddingRight: "5px",
+          }}
+        >
           {commsLog.map((log, index) => {
             const speakerName = log.speaker || log.sender || "System";
             const key = log.id ?? index;

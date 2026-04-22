@@ -218,7 +218,25 @@ export default function CableCoilingStage({
         subtitle="Properly coil the XLR audio snake before the truck leaves."
         helpText={getStageHelpText("cable_coiling")}
       />
-
+      <div
+        className="page-container"
+        style={{
+          background: "rgba(0,0,0,0.3)",
+          padding: "12px",
+          borderRadius: "8px",
+          borderLeft: "4px solid var(--bui-fg-warning)",
+          fontSize: "0.85rem",
+          fontStyle: "italic",
+          marginBottom: "1rem",
+          maxWidth: "600px",
+          margin: "0 auto 1rem auto",
+        }}
+      >
+        <strong>Pro-Tip:</strong> Heavy cables have sensitive internal wiring.
+        Alternate between an <strong>"OVER"</strong> (normal loop) and an{" "}
+        <strong>"UNDER"</strong> (reverse twist loop) to prevent the wire from
+        tangling or breaking!
+      </div>
       <div
         style={{
           display: "flex",
