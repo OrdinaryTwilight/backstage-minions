@@ -32,14 +32,20 @@ const ID_MIGRATIONS: Record<string, string> = {
   npc_jd: "npc_elara",
 };
 
-const migrateIds = (ids: string[]) => ids.map((id) => ID_MIGRATIONS[id] || id);
+export const migrateIds = (ids: string[]) =>
+  ids.map((id) => ID_MIGRATIONS[id] || id);
 
 const LevelProgressSchema = z.object({
   stars: z.number().catch(0),
   completed: z.boolean().catch(false),
 });
 
-const GameSaveSchema = z.object({
+const ChatMessageSchema = z.object({
+  sender: z.string(),
+  text: z.string(),
+});
+
+export const GameSaveSchema = z.object({
   progress: z.record(z.string(), LevelProgressSchema).catch({}),
   unlockedStories: z.array(z.string()).catch([]),
   contacts: z
@@ -48,6 +54,7 @@ const GameSaveSchema = z.object({
   unreadContacts: z
     .array(z.string())
     .catch(["sys_comms", "group_official", "group_tech_survivors"]),
+  chatHistory: z.record(z.string(), z.array(ChatMessageSchema)).catch({}),
 });
 
 const initialState: GameState = {
@@ -56,6 +63,7 @@ const initialState: GameState = {
   unlockedStories: [],
   contacts: ["sys_comms", "group_official", "group_tech_survivors"],
   unreadContacts: ["sys_comms", "group_official", "group_tech_survivors"],
+  chatHistory: {}, // Start empty
 };
 
 interface GameContextType {

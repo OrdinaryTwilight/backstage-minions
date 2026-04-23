@@ -54,11 +54,6 @@ export default function WrapUpScene({
 
   useEffect(() => {
     if (phase === "report" && !reportSent.current) {
-      const history = JSON.parse(
-        sessionStorage.getItem("minion_chats") || "{}",
-      );
-      if (!history["sys_comms"]) history["sys_comms"] = [];
-
       const prod = PRODUCTIONS.find(
         (p) => p.id === state.session?.productionId,
       );
@@ -77,25 +72,20 @@ export default function WrapUpScene({
         ? `Operator: ${char.name} (${char.role})`
         : "Operator: Unknown";
 
-      history["sys_comms"].push({
-        sender: "System Alerts",
-        text: `[POST-MORTEM REPORT] ${prodTitle} - Tier: ${diffText} | ${opText}. Hit ${cuesHit}/${totalCues} Cues. Final Score: ${score}. Rating: ${stars} Stars.${questText}`,
+      dispatch({
+        type: "ADD_CHAT_MESSAGE",
+        contactId: "sys_comms",
+        message: {
+          sender: "System Alerts",
+          text: `[POST-MORTEM REPORT] ${prodTitle} - Tier: ${diffText} | ${opText}. Hit ${cuesHit}/${totalCues} Cues. Final Score: ${score}. Rating: ${stars} Stars.${questText}`,
+        },
       });
-
-      sessionStorage.setItem("minion_chats", JSON.stringify(history));
-      sessionStorage.setItem("unread_messages", "true");
-      globalThis.dispatchEvent(new Event("unread_messages_update"));
 
       reportSent.current = true;
     }
-  }, [phase, cuesHit, totalCues, score, stars, state.session, char]);
+  }, [phase, cuesHit, totalCues, score, stars, state.session, char, dispatch]);
 
   const handleSignOut = () => {
-    sessionStorage.removeItem("minion_inventory");
-    sessionStorage.removeItem("minion_completed_quests");
-    sessionStorage.removeItem("minion_session");
-    sessionStorage.removeItem("minion_stages");
-
     dispatch({ type: "CLEAR_SESSION" });
     navigate("/");
   };

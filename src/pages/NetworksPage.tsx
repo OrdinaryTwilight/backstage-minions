@@ -52,8 +52,6 @@ export default function NetworksPage() {
       }
 
       const chatData = CHAT_MESSAGES[id];
-      // Strictly assign group chats only if the ID implies it, preventing orphaned NPCs
-      // from turning into group chats
       if (chatData && id.startsWith("group_")) {
         return {
           id,
@@ -63,15 +61,11 @@ export default function NetworksPage() {
         };
       }
 
-      return null; // Return null for dead IDs so we can filter them out
+      return null;
     })
     .filter((c): c is NonNullable<typeof c> => c !== null);
 
   const activeContact = availableContacts.find((c) => c.id === activeChat);
-
-  const [sessionChats, setSessionChats] = useState<
-    Record<string, { sender: string; text: string }[]>
-  >(() => JSON.parse(sessionStorage.getItem("minion_chats") || "{}"));
 
   useEffect(() => {
     if (activeChat && state.unreadContacts?.includes(activeChat)) {
@@ -82,28 +76,23 @@ export default function NetworksPage() {
   const handleSendReply = (
     replyText: string,
     automatedResponse: string,
-    sideEffect?: string,
+    sideEffect?: string, // Safe to ignore if unused here, but kept for interface alignment
   ) => {
     if (!activeContact) return;
 
-    const newMsg = { sender: "You", text: replyText };
-    setSessionChats((prev) => {
-      const updated = { ...prev };
-      if (!updated[activeContact.id]) updated[activeContact.id] = [];
-      updated[activeContact.id] = [...updated[activeContact.id], newMsg];
-      sessionStorage.setItem("minion_chats", JSON.stringify(updated));
-      return updated;
+    // Dispatch the user's message directly to the persistent state
+    dispatch({
+      type: "ADD_CHAT_MESSAGE",
+      contactId: activeContact.id,
+      message: { sender: "You", text: replyText },
     });
 
     setTimeout(() => {
-      setSessionChats((prev) => {
-        const replyChats = { ...prev };
-        replyChats[activeContact.id] = [
-          ...replyChats[activeContact.id],
-          { sender: activeContact.name, text: automatedResponse },
-        ];
-        sessionStorage.setItem("minion_chats", JSON.stringify(replyChats));
-        return replyChats;
+      // Dispatch the automated reply directly to the persistent state
+      dispatch({
+        type: "ADD_CHAT_MESSAGE",
+        contactId: activeContact.id,
+        message: { sender: activeContact.name, text: automatedResponse },
       });
     }, 1200);
   };
@@ -114,7 +103,9 @@ export default function NetworksPage() {
         sender: parseDialogueTags(CHAT_MESSAGES[id].sender),
         text: parseDialogueTags(m),
       })) || [];
-    const dynamicChat = sessionChats[id] || [];
+
+    // Pull the dynamic, persistent chat directly from the global state!
+    const dynamicChat = state.chatHistory?.[id] || [];
     return [...staticChat, ...dynamicChat];
   };
 
@@ -167,7 +158,6 @@ export default function NetworksPage() {
         </p>
       </header>
 
-      {/* Restored the classname so components.css media queries can stack this on mobile! */}
       <div className="networks-layout">
         {/* SIDEBAR DIRECTORY */}
         <div

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { GameSaveSchema, migrateIds, useGame } from "../../context/GameContext";
 import { useVisualSettings } from "../../context/VisualSettingsContext";
 import Button from "./Button";
 
@@ -9,16 +10,20 @@ interface SettingsPanelProps {
 export default function SettingsPanel({
   onClose,
 }: Readonly<SettingsPanelProps>) {
+  const { state, dispatch } = useGame();
   const { settings, updateSetting, resetToDefaults } = useVisualSettings();
   const [showReset, setShowReset] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [ioFeedback, setIoFeedback] = useState<{
+    msg: string;
+    type: "success" | "error";
+  } | null>(null);
+
   // --- Strict A11y Fix: Global Event Listeners ---
-  // Instead of making the div a simulated button, we listen to the document
-  // to see if the user clicked completely outside the dialog box or hit Escape.
   useEffect(() => {
     const handleOutsideInteraction = (e: MouseEvent | TouchEvent) => {
-      // If the dialog exists and the click happened OUTSIDE of it, close it.
       if (dialogRef.current && !dialogRef.current.contains(e.target as Node)) {
         onClose?.();
       }
@@ -43,9 +48,83 @@ export default function SettingsPanel({
     };
   }, [onClose]);
 
+  // --- Data Management Logic ---
+  const handleErase = () => {
+    const confirm = globalThis.confirm(
+      "Are you absolutely sure? This will wipe all progress and contacts. This cannot be undone.",
+    );
+    if (confirm) {
+      dispatch({ type: "CLEAR_SESSION" });
+      localStorage.clear();
+      sessionStorage.clear();
+      globalThis.location.reload();
+    }
+  };
+
+  const handleExportSave = () => {
+    try {
+      const { session, ...persistentData } = state;
+      const jsonString = JSON.stringify(persistentData, null, 2);
+      const blob = new Blob([jsonString], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `backstage-minions-save-${new Date().toISOString().split("T")[0]}.json`;
+      a.click();
+
+      URL.revokeObjectURL(url);
+      setIoFeedback({
+        msg: "Save file exported successfully!",
+        type: "success",
+      });
+    } catch (err) {
+      console.error("Save export failed:", err);
+      setIoFeedback({ msg: "Failed to export save data.", type: "error" });
+    }
+  };
+
+  const handleImportSave = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      const validation = GameSaveSchema.safeParse(json);
+
+      if (validation.success) {
+        const loadedState = { ...validation.data };
+
+        if (loadedState.contacts)
+          loadedState.contacts = migrateIds(loadedState.contacts);
+        if (loadedState.unreadContacts)
+          loadedState.unreadContacts = migrateIds(loadedState.unreadContacts);
+
+        dispatch({ type: "CLEAR_SESSION" });
+        dispatch({ type: "LOAD_SAVE", payload: loadedState });
+
+        setIoFeedback({
+          msg: "Save loaded successfully! Game state restored.",
+          type: "success",
+        });
+      } else {
+        console.error("Save validation failed:", validation.error);
+        setIoFeedback({
+          msg: "Invalid or corrupted save file.",
+          type: "error",
+        });
+      }
+    } catch (error) {
+      console.error("Save import failed:", error);
+      setIoFeedback({ msg: "Failed to read save file format.", type: "error" });
+    }
+
+    e.target.value = "";
+  };
+
   return (
     <div
-      // Pure presentation overlay - no interactive props or roles here!
       style={{
         position: "fixed",
         top: 0,
@@ -349,7 +428,6 @@ export default function SettingsPanel({
             </select>
           </div>
         </div>
-
         {/* Action Buttons */}
         <div
           style={{
@@ -390,9 +468,88 @@ export default function SettingsPanel({
                 width: "100%",
               }}
             >
-              🔄 Reset to Defaults
+              🔄 Reset Visuals to Defaults
             </Button>
           )}
+        </div>
+
+        <hr style={{ borderColor: "var(--glass-border)", margin: "2rem 0" }} />
+
+        {/* DATA MANAGEMENT */}
+        <div>
+          <h3
+            className="annotation-text"
+            style={{ color: "var(--color-pencil-light)", marginBottom: "1rem" }}
+          >
+            Data Management
+          </h3>
+
+          <div aria-live="polite">
+            {ioFeedback && (
+              <div
+                style={{
+                  padding: "0.75rem",
+                  marginBottom: "1rem",
+                  borderRadius: "4px",
+                  fontSize: "0.9rem",
+                  fontWeight: "bold",
+                  textAlign: "center",
+                  background:
+                    ioFeedback.type === "success"
+                      ? "rgba(74, 222, 128, 0.2)"
+                      : "rgba(248, 113, 113, 0.2)",
+                  color:
+                    ioFeedback.type === "success"
+                      ? "var(--bui-fg-success)"
+                      : "var(--bui-fg-danger)",
+                  border: `1px solid ${ioFeedback.type === "success" ? "var(--bui-fg-success)" : "var(--bui-fg-danger)"}`,
+                }}
+              >
+                {ioFeedback.msg}
+              </div>
+            )}
+          </div>
+
+          <div
+            style={{
+              display: "flex",
+              gap: "1rem",
+              marginBottom: "1rem",
+              flexWrap: "wrap",
+            }}
+          >
+            <Button
+              variant="default"
+              onClick={handleExportSave}
+              style={{ flex: 1, padding: "0.5rem" }}
+            >
+              ↓ Download Save
+            </Button>
+            <Button
+              variant="default"
+              onClick={() => fileInputRef.current?.click()}
+              style={{ flex: 1, padding: "0.5rem" }}
+            >
+              ↑ Upload Save
+            </Button>
+
+            <input
+              type="file"
+              accept=".json"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleImportSave}
+              tabIndex={-1}
+            />
+          </div>
+
+          <Button
+            variant="danger"
+            onClick={handleErase}
+            style={{ width: "100%" }}
+          >
+            Erase All Progress
+          </Button>
         </div>
       </dialog>
     </div>

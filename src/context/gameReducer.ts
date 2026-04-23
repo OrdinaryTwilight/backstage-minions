@@ -158,6 +158,28 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
       };
     }
 
+    case "ADD_CHAT_MESSAGE": {
+      const { contactId, message } = action;
+      const history = state.chatHistory || {};
+      const contactHistory = history[contactId] || [];
+
+      const isFromPlayer = message.sender === "You";
+      let unreadContacts = state.unreadContacts || [];
+
+      if (!isFromPlayer && !unreadContacts.includes(contactId)) {
+        unreadContacts = [...unreadContacts, contactId];
+      }
+
+      return {
+        ...state,
+        chatHistory: {
+          ...history,
+          [contactId]: [...contactHistory, message],
+        },
+        unreadContacts,
+      };
+    }
+
     default:
       return state;
   }

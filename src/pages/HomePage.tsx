@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 import HardwarePanel from "../components/ui/HardwarePanel";
@@ -7,14 +8,25 @@ export default function HomePage() {
   const navigate = useNavigate();
   const { state: gameState } = useGame();
 
-  // Check if there are any unread messages for the notification dot
   const hasUnread =
     gameState.unreadContacts && gameState.unreadContacts.length > 0;
 
-  // Filter for levels where the player got a perfect 3 stars
   const perfectScores = Object.entries(gameState.progress || {}).filter(
     ([, prog]) => prog.stars === 3,
   );
+
+  // UX ADDITION: Career Stats calculation based on persistent progress
+  const { totalStars, totalShows } = useMemo(() => {
+    let stars = 0;
+    let shows = 0;
+    Object.values(gameState.progress || {}).forEach((prog) => {
+      stars += prog.stars;
+      if (prog.completed) shows += 1;
+    });
+    return { totalStars: stars, totalShows: shows };
+  }, [gameState.progress]);
+
+  const hasActiveSession = !!gameState.session;
 
   return (
     <div
@@ -85,9 +97,15 @@ export default function HomePage() {
                 fontFamily: "var(--font-sketch)",
                 fontSize: "1.25rem",
               }}
-              onClick={() => navigate("/productions")}
+              onClick={() =>
+                navigate(
+                  hasActiveSession
+                    ? `/game/${gameState.session?.productionId}/${gameState.session?.difficulty}/${gameState.session?.characterId}`
+                    : "/productions",
+                )
+              }
             >
-              Start Shift
+              {hasActiveSession ? "Resume Shift" : "Start Shift"}
             </Button>
             <div style={{ position: "relative" }}>
               <Button
@@ -100,7 +118,6 @@ export default function HomePage() {
               >
                 Check Comms
               </Button>
-              {/* UNREAD NOTIFICATION DOT */}
               {hasUnread && (
                 <span
                   className="absolute top-0 right-0 flex h-4 w-4"
@@ -114,57 +131,138 @@ export default function HomePage() {
           </div>
         </HardwarePanel>
 
-        {/* ACHIEVEMENTS / BADGES SECTION */}
-        {perfectScores.length > 0 && (
+        {/* CAREER STATS & ACHIEVEMENTS */}
+        {(totalShows > 0 || perfectScores.length > 0) && (
           <div
-            className="animate-pop"
             style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+              gap: "1.5rem",
               marginTop: "2rem",
-              background: "rgba(15, 23, 42, 0.8)",
-              border: "1px solid var(--bui-border)",
-              borderRadius: "12px",
-              padding: "1.5rem",
-              animationDelay: "0.5s",
             }}
           >
-            <h3
-              style={{
-                fontFamily: "var(--font-sketch)",
-                color: "var(--bui-fg-info)",
-                marginBottom: "1rem",
-              }}
-            >
-              Crew Commendations
-            </h3>
+            {/* Stats Panel */}
             <div
+              className="animate-pop"
               style={{
-                display: "flex",
-                gap: "1rem",
-                justifyContent: "center",
-                flexWrap: "wrap",
+                background: "rgba(15, 23, 42, 0.8)",
+                border: "1px solid var(--bui-border)",
+                borderRadius: "12px",
+                padding: "1.5rem",
+                animationDelay: "0.2s",
               }}
             >
-              {perfectScores.map(([levelId]) => (
-                <div
-                  key={levelId}
-                  title="Perfect Run!"
+              <h3
+                style={{
+                  fontFamily: "var(--font-sketch)",
+                  color: "var(--bui-fg-info)",
+                  marginBottom: "1rem",
+                }}
+              >
+                Career Stats
+              </h3>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-around",
+                  color: "var(--color-pencil-light)",
+                }}
+              >
+                <div>
+                  <div
+                    style={{
+                      fontSize: "2rem",
+                      fontWeight: "bold",
+                      color: "#fff",
+                    }}
+                  >
+                    {totalShows}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      opacity: 0.7,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Shows Wrapped
+                  </div>
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: "2rem",
+                      fontWeight: "bold",
+                      color: "var(--bui-fg-warning)",
+                    }}
+                  >
+                    {totalStars}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.8rem",
+                      opacity: 0.7,
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    Total Stars
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Commendations Panel */}
+            {perfectScores.length > 0 && (
+              <div
+                className="animate-pop"
+                style={{
+                  background: "rgba(15, 23, 42, 0.8)",
+                  border: "1px solid var(--bui-border)",
+                  borderRadius: "12px",
+                  padding: "1.5rem",
+                  animationDelay: "0.5s",
+                }}
+              >
+                <h3
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: "50px",
-                    height: "50px",
-                    background: "rgba(251, 191, 36, 0.1)",
-                    border: "2px solid var(--bui-fg-warning)",
-                    borderRadius: "50%",
-                    fontSize: "1.5rem",
-                    boxShadow: "0 0 10px rgba(251, 191, 36, 0.3)",
+                    fontFamily: "var(--font-sketch)",
+                    color: "var(--bui-fg-info)",
+                    marginBottom: "1rem",
                   }}
                 >
-                  ⭐
+                  Crew Commendations
+                </h3>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "0.5rem",
+                    justifyContent: "center",
+                    flexWrap: "wrap",
+                  }}
+                >
+                  {perfectScores.map(([levelId]) => (
+                    <div
+                      key={levelId}
+                      title="Perfect Run!"
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: "40px",
+                        height: "40px",
+                        background: "rgba(251, 191, 36, 0.1)",
+                        border: "2px solid var(--bui-fg-warning)",
+                        borderRadius: "50%",
+                        fontSize: "1.2rem",
+                        boxShadow: "0 0 10px rgba(251, 191, 36, 0.3)",
+                      }}
+                    >
+                      ⭐
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         )}
       </div>

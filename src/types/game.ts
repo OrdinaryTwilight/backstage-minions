@@ -190,6 +190,7 @@ export interface GameState {
   unlockedStories: string[];
   contacts: string[];
   unreadContacts: string[];
+  chatHistory: Record<string, { sender: string; text: string }[]>;
 }
 
 // ============================================================================
@@ -255,6 +256,11 @@ export type GameAction =
   | { type: "CLEAR_SESSION" }
   | { type: "ADD_CONTACT"; contactId: string }
   | { type: "MARK_CONTACT_READ"; contactId: string }
+  | {
+      type: "ADD_CHAT_MESSAGE";
+      contactId: string;
+      message: { sender: string; text: string };
+    }
   | { type: "ADD_QUEST"; questId: string }
   | { type: "UPDATE_STRESS"; delta: number }
   | { type: "UPDATE_AFFINITY"; npcId: string; delta: number }
