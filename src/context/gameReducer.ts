@@ -1,3 +1,20 @@
+/**
+ * @file Game State Reducer
+ * @description Pure reducer function that processes all game state mutations.
+ * Handles all game actions: session management, scoring, conflicts, inventory, and chat.
+ * 
+ * Game Action Categories:
+ * - **Session Management**: START_SESSION, NEXT_STAGE, CLEAR_SESSION
+ * - **Scoring & Performance**: ADD_SCORE, CUE_HIT, CUE_MISSED, RESOLVE_CONFLICT, COMPLETE_LEVEL
+ * - **Inventory & Items**: ADD_INVENTORY, REMOVE_INVENTORY, ADD_GEAR (equipment)
+ * - **Progression**: COMPLETE_QUEST, UPDATE_STRESS
+ * - **Social**: ADD_CONTACT, MARK_CONTACT_READ, ADD_CHAT_MESSAGE
+ * - **Persistence**: LOAD_SAVE
+ * 
+ * Core Principle: All mutations return new state objects (immutable pattern).
+ * The withSession helper ensures session-scoped updates are properly nested.
+ */
+
 import { GameAction, GameSession, GameState } from "../types/game";
 import {
   createNewSession,
@@ -5,6 +22,14 @@ import {
   updateCounter,
 } from "./reducerHelpers";
 
+/**
+ * Helper function to apply mutations only to the active game session.
+ * Ensures session updates don't accidentally mutate other state branches.
+ * 
+ * @param state - Current game state
+ * @param updater - Function that receives session and returns updated session
+ * @returns New game state with updated session (or unchanged if no active session)
+ */
 function withSession(
   state: GameState,
   updater: (session: GameSession) => GameSession,
@@ -12,6 +37,15 @@ function withSession(
   if (!state.session) return state;
   return { ...state, session: updater(state.session) };
 }
+
+/**
+ * Game state reducer - processes all game actions and returns updated state.
+ * This is the single source of truth for how state changes in response to events.
+ * 
+ * @param state - Current game state
+ * @param action - Action describing what state change to apply
+ * @returns New game state after applying action
+ */
 
 export function gameReducer(state: GameState, action: GameAction): GameState {
   switch (action.type) {

@@ -1,3 +1,17 @@
+/**
+ * @file Overworld Map Configuration
+ * @description Defines theater layout zones for navigation puzzle stages.
+ * 
+ * Zone System:
+ * - **OVERWORLD_MAPS**: Different theater layouts (backstage, green room, etc.)
+ * - **Zone Coordinates**: Interactive areas players navigate to
+ * - **Departments**: Zones linked to character departments
+ * - **Collision**: Solid zones block player movement
+ * 
+ * The overworld stage uses these zones to create a spatial navigation puzzle.
+ * Players must navigate to specific zones to progress through the show.
+ */
+
 import { ZoneConfig } from "./gameData";
 
 export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {

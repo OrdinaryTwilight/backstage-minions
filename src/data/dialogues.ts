@@ -1,3 +1,17 @@
+/**
+ * @file NPC Dialogue Trees
+ * @description Branching dialogue conversations for all NPCs.
+ * 
+ * Dialogue Architecture:
+ * - **Dialogue Trees**: Maps of conversation nodes for each NPC
+ * - **Variants**: Different text based on game state (stress, affinity, stage)
+ * - **Generic Fallback**: GENERIC_DEPARTMENT_TREE used for NPCs without custom dialogue
+ * - **Branching**: Player choices lead to different conversation paths
+ * 
+ * Each NPC has their own dialogue tree unless they fall back to the generic tree.
+ * Dialogues are context-aware and change based on game state.
+ */
+
 // src/data/dialogues.ts
 import { DialogueTree } from "../types/dialogue";
 

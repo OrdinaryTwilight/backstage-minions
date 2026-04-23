@@ -1,3 +1,16 @@
+/**
+ * @file Game State Management Context
+ * @description Provides centralized state management for the entire game.
+ * Manages persistent game progress (save/load), active game sessions, and UI state.
+ * Uses React Context + Reducer pattern with localStorage/sessionStorage for data persistence.
+ * 
+ * Game Flow:
+ * - Persistent state: level progress, character unlocks, chat history (localStorage)
+ * - Session state: current run data, score, conflicts, stress levels (sessionStorage)
+ * - On load: migrates old save data IDs, injects new contacts into existing saves
+ * - On change: auto-saves state with 1s debounce
+ */
+
 import {
   createContext,
   ReactNode,
@@ -10,11 +23,16 @@ import { z } from "zod";
 import { GameAction, GameState } from "../types/game";
 import { gameReducer } from "./gameReducer";
 
+/** LocalStorage key for persistent progress (levels, contacts, chat history) */
 const LOCAL_STORAGE_KEY = "a3_backstage_save";
+/** SessionStorage key for active game session (current run, score, conflicts) */
 const SESSION_STORAGE_KEY = "a3_backstage_active_run";
 
-// --- MIGRATION MAP ---
-// Silently converts old IDs from previous saves into the new ID system.
+/**
+ * Migration map for backward compatibility with old save files.
+ * Silently converts deprecated character/NPC IDs from previous versions to current IDs.
+ * This ensures players' old saves continue to work after character roster updates.
+ */
 const ID_MIGRATIONS: Record<string, string> = {
   char_ben: "char_shane",
   char_alex: "char_wynn",
@@ -32,6 +50,11 @@ const ID_MIGRATIONS: Record<string, string> = {
   npc_jd: "npc_elara",
 };
 
+/**
+ * Migrates old character/NPC IDs to current IDs for save data compatibility.
+ * @param ids - Array of IDs from old save file
+ * @returns Array of migrated IDs (old IDs converted, unchanged IDs passed through)
+ */
 export const migrateIds = (ids: string[]) =>
   ids.map((id) => ID_MIGRATIONS[id] || id);
 
@@ -66,13 +89,32 @@ const initialState: GameState = {
   chatHistory: {}, // Start empty
 };
 
+/** Type definition for the Game Context value */
 interface GameContextType {
+  /** Current complete game state (progress, session, chat history, etc.) */
   state: GameState;
+  /** Dispatch function to trigger state updates via gameReducer */
   dispatch: React.Dispatch<GameAction>;
 }
 
+/** React Context for game state - use useGame() hook to access */
 export const GameContext = createContext<GameContextType | null>(null);
 
+/**
+ * GameProvider Component
+ * Wraps the app with game state context. Initializes state from storage and auto-saves on changes.
+ * 
+ * Responsibilities:
+ * - Load saved progress from localStorage (if exists)
+ * - Load active session from sessionStorage (if exists)
+ * - Migrate old save data to current format
+ * - Auto-save state changes (with debounce)
+ * - Inject new default contacts into existing saves
+ * 
+ * @param props - React component props
+ * @param props.children - Child components that will access game state via useGame()
+ * @returns Provider component wrapping children with game context
+ */
 export function GameProvider({ children }: { readonly children: ReactNode }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
@@ -165,6 +207,16 @@ export function GameProvider({ children }: { readonly children: ReactNode }) {
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;
 }
 
+/**
+ * Custom hook to access game state and dispatch within any component.
+ * Must be used inside a GameProvider.
+ * 
+ * @returns Object with current state and dispatch function
+ * @throws Error if used outside of GameProvider
+ * @example
+ * const { state, dispatch } = useGame();
+ * dispatch({ type: 'START_SESSION', productionId: 'prod_1', ... });
+ */
 export function useGame(): GameContextType {
   const context = useContext(GameContext);
   if (!context) throw new Error("useGame must be used within a GameProvider");

@@ -1,3 +1,23 @@
+/**
+ * @file Dialogue Manager Component
+ * @description Manages branching dialogue trees with NPCs, including state-based responses and side effects.
+ * 
+ * Dialogue System Overview:
+ * - Branching dialogue with multiple conversation threads (dialogue trees)
+ * - State-aware responses: different dialogue based on stress level, affinity, stage, inventory
+ * - Timed choices: some dialogue options have time limits that trigger auto-responses
+ * - Side effects: dialogue choices can trigger quests, unlock contacts, modify affinity, add inventory
+ * - Dynamic fallbacks: if NPC lacks specific variant (e.g., high-stress response), system generates one
+ * 
+ * Node Structure:
+ * - Each dialogue tree has nodes (start, middle, end)
+ * - Each node has variants (dialogue text for different states)
+ * - Each variant has choices (player responses leading to next nodes)
+ * - Choices can have conditions: required inventory, point changes, side effects
+ * 
+ * @component
+ */
+
 import { useEffect, useRef, useState } from "react";
 import { useGame } from "../../context/GameContext";
 import {
@@ -9,9 +29,17 @@ import { DialogueChoice, DialogueTree } from "../../types/dialogue";
 import DialogueBox from "./DialogueBox";
 
 interface DialogueManagerProps {
+  /** ID of the NPC to have dialogue with */
   readonly npcId: string;
+  /** Callback when dialogue ends (player exits conversation) */
   readonly onClose: () => void;
 }
+
+/**
+ * DialogueManager Component
+ * Manages dialogue state and renders appropriate dialogue nodes and player choices.
+ * Handles variant selection based on game state (stress, affinity, stage, inventory).
+ */
 
 export default function DialogueManager({
   npcId,
@@ -33,6 +61,8 @@ export default function DialogueManager({
   }, [currentNodeId]);
 
   // 2. TIMED CHOICES
+  // Some dialogue nodes have time limits - if player doesn't choose quickly,
+  // stress increases and auto-transition to timeout node (simulates NPC frustration)
   useEffect(() => {
     if (!currentNode?.timeLimitMs || !currentNode?.timeoutNodeId) {
       return;
@@ -51,7 +81,9 @@ export default function DialogueManager({
   // Guard clause after hooks
   if (!targetNpc || !currentNode) return null;
 
-  // 1. RESOLVE VARIANTS BASED ON STATE
+  // 1. VARIANT RESOLUTION BASED ON STATE
+  // Dialogue changes based on stress, affinity, and current stage.
+  // Selects appropriate variant matching current conditions, falls back to default variant.
   const activeVariant =
     currentNode.variants.find((variant) => {
       if (!variant.condition) return true; // Default fallback
@@ -101,6 +133,13 @@ export default function DialogueManager({
     .replace("{department}", targetNpc.department || "the deck")
     .replace("{role}", targetNpc.role || "crew");
 
+  /**
+   * Filter available choices based on preconditions:
+   * - Required inventory (player must have item to see choice)
+   * - Quest state (prevent re-triggering completed quests or already-active quests)
+   * - Contact state (prevent re-gaining same ally)
+   * Provides automatic exit if no choices are available (failsafe).
+   */
   const availableChoices = currentNode.choices.filter((choice) => {
     const currentInventory = state.session?.inventory || [];
 

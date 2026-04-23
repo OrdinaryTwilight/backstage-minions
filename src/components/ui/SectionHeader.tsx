@@ -1,3 +1,16 @@
+/**
+ * @file Section Header Component
+ * @description Page section header with title, subtitle, and optional help text.
+ * Used on pages to introduce sections and provide context.
+ * 
+ * Features:
+ * - Title and subtitle display
+ * - Optional help text toggle button
+ * - Consistent styling across pages
+ * 
+ * @component
+ */
+
 import { useState } from "react";
 
 interface SectionHeaderProps {

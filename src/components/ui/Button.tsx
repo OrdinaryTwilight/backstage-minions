@@ -1,5 +1,23 @@
+/**
+ * @file Button Component
+ * @description Reusable button component with multiple visual variants.
+ * Used throughout the game for actions, navigation, and player choices.
+ * 
+ * Variants:
+ * - **default**: Standard gray button (secondary actions)
+ * - **success**: Green button for positive/confirm actions
+ * - **danger**: Red button for destructive/warning actions
+ * - **accent**: Yellow button for primary/important actions
+ * 
+ * @component
+ */
+
 import React from "react";
 
+/**
+ * Button Component Props
+ * Extends standard HTML button attributes with additional variant styling.
+ */
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: "default" | "success" | "danger" | "accent";
 }

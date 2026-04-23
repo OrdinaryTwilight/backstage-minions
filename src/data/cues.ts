@@ -1,3 +1,21 @@
+/**
+ * @file Cue Sheets Data
+ * @description Technical cue timing data for each production and department.
+ * 
+ * Cue System:
+ * - **Cues**: Specific technical operations (lighting, sound, fly effects) at precise times
+ * - **Cue Sheets**: Production-specific timing data organized by department
+ * - **Departments**: Lighting, Sound, Scenic, Stage Management each have unique cues
+ * - **Cue Execution**: Players must hit cues within their timing window (+/- tolerance)
+ * 
+ * Cue Mechanics:
+ * - `targetMs`: Ideal time to execute cue (from start of show)
+ * - `windowMs`: Acceptable timing tolerance (player must be within ±windowMs/2)
+ * - `targetLevel`: Optional intensity level (0-100) for fader alignment
+ * 
+ * Example: A cue with targetMs=5000, windowMs=2000 can be hit anytime from 4000-6000ms.
+ */
+
 import { Cue } from "../types/game";
 
 const DEFAULT_SCENIC_CUES: Cue[] = [

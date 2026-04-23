@@ -1,3 +1,20 @@
+/**
+ * @file Comms Terminal Component
+ * @description Displays simulated radio/headset chatter during gameplay.
+ * Shows realistic backstage communication that reinforces theater atmosphere.
+ * 
+ * Functionality:
+ * - Cycles through pool of pre-written radio messages
+ * - New message every 8 seconds
+ * - Keeps last 4 messages in buffer
+ * - Low opacity to not distract from main gameplay
+ * 
+ * Atmospheric Element: Provides ambient sound designer/stage manager dialogue
+ * to enhance immersion in the theater setting.
+ * 
+ * @component
+ */
+
 import { useEffect, useState } from 'react';
 
 interface Chatter {

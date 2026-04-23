@@ -1,3 +1,26 @@
+/**
+ * @file Root App Component
+ * @description Main application component with routing and global providers.
+ * 
+ * App Architecture:
+ * - **Router**: React Router for SPA navigation between pages
+ * - **Providers**: GameProvider (state), VisualSettingsProvider (UI preferences)
+ * - **Analytics**: Vercel Analytics and Speed Insights for monitoring
+ * - **Code Splitting**: Lazy loading for most pages to improve initial load time
+ * - **Eager Loaded**: Critical pages (Home, Networks) for fast initial render
+ * - **Styling**: Global styles, animations, components, overworld CSS
+ * 
+ * Routes:
+ * - /: HomePage
+ * - /productions: ProductionsListPage
+ * - /networks: NetworksPage
+ * - /stories: StoriesPage
+ * - /productions/:id: ProductionsPage (difficulty selection)
+ * - /productions/:id/:difficulty: SelectCharacterPage
+ * - /game/:id/:difficulty/:character: GameLevelPage
+ * - /failed: LevelFailedPage
+ */
+
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import { Suspense, lazy } from "react";

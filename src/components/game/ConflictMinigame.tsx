@@ -1,3 +1,21 @@
+/**
+ * @file Conflict Minigame Component
+ * @description Displays conflict resolution UI where players make dialogue choices with story/gameplay consequences.
+ * 
+ * Conflict System Overview:
+ * Conflicts are story moments that interrupt gameplay, allowing player choice with real consequences.
+ * Each conflict shows an NPC's dialogue and presents 3 shuffled response options.
+ * 
+ * Mechanics:
+ * - **Shuffled Choices**: Choices are deterministically shuffled (seeded by conflictId) so every playthrough varies
+ * - **Stress Impact**: Escalated outcomes +25 stress, Resolved outcomes -15 stress
+ * - **Score Impact**: Player choices award/deduct points (affects final star rating)
+ * - **Side Effects**: Some choices unlock new contacts or trigger special events
+ * - **Outcome Types**: "resolved" (good), "neutral" (ok), "escalated" (bad)
+ * 
+ * @component
+ */
+
 import { useMemo, useState } from "react";
 import { useGame } from "../../context/GameContext";
 import {
@@ -14,9 +32,17 @@ import HardwarePanel from "../ui/HardwarePanel";
 import DialogueBox from "./DialogueBox";
 
 interface ConflictMinigameProps {
+  /** The conflict scenario to display and resolve */
   readonly conflict: Conflict;
+  /** Callback fired when player selects a choice - passes the outcome type */
   readonly onResolved: (outcome: string) => void;
 }
+
+/**
+ * ConflictMinigame Component
+ * Renders a conflict scenario with NPC dialogue and player response choices.
+ * Applies consequences to game state (score, stress, contacts) and fires announcement feedback.
+ */
 
 export default function ConflictMinigame({
   conflict,
@@ -31,6 +57,8 @@ export default function ConflictMinigame({
   const shuffledChoices = useMemo(() => {
     const shuffled = [...conflict.choices];
 
+    // Deterministic shuffle: seed PRNG with conflict ID so same conflict always
+    // presents choices in same order, but different conflicts vary order
     let seed =
       conflict.id
         .split("")
@@ -47,6 +75,11 @@ export default function ConflictMinigame({
     return shuffled;
   }, [conflict.choices, conflict.id]);
 
+  /**
+   * Handle player selecting a response choice.
+   * Updates game state: score, stress, contacts (if applicable).
+   * Announces outcome to player, displays aftermath text, enables continue button.
+   */
   const handleChoice = (choice: ConflictChoice) => {
     dispatch({ type: "MARK_CONFLICT_SEEN", conflictId: conflict.id });
     dispatch({ type: "ADD_SCORE", delta: choice.pointDelta });

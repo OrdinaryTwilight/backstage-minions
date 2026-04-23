@@ -1,7 +1,42 @@
+/**
+ * @file Scoring Engine
+ * @description Calculates level performance and star ratings based on session data.
+ * 
+ * Star Rating System:
+ * - **3 Stars**: Excellent performance (score ≥95% max, cue hit rate ≥80%)
+ * - **2 Stars**: Good performance (score ≥70% max, cue hit rate ≥60%)
+ * - **1 Star**: Completed level (any score/hit rate)
+ * 
+ * Score Calculation:
+ * - Base score from minigame performance (planning, sound_design, stage_management, scenic, wardrobe)
+ * - Bonus points from cue hits in cue_execution stage (10 points per hit)
+ * - Bonus points from cable_coiling strike stage
+ * - Penalties/bonuses from conflict resolution choices
+ * - Quest completion bonuses
+ * 
+ * Design Note: Cable coiling is pure bonus - players who skip it aren't locked out of 3 stars.
+ */
+
 import { GameSession } from "../types/game";
 
 /**
- * Calculates the theoretical maximum "Base Score" achievable by perfectly completing only the required minigames.
+ * Calculates the theoretical maximum achievable score for a perfect run.
+ * Used as baseline to determine star thresholds (95% for 3-star, 70% for 2-star).
+ * 
+ * Score Composition:
+ * - Planning: +100 (if department is lighting)
+ * - Sound Design: +100-150 depending on difficulty
+ * - Cue Execution: +10 per base fader cue
+ * - Stage Management: +50
+ * - Scenic: +200
+ * - Wardrobe: +120-300 depending on difficulty
+ * 
+ * Note: Cable coiling intentionally excluded - it's pure bonus, not required.
+ * 
+ * @param stages - Array of stage keys in this session
+ * @param difficulty - Game difficulty (affects sound/wardrobe scoring)
+ * @param baseFaderCues - Number of base cues in cue_execution stage
+ * @returns Maximum possible score for this session
  */
 function calculateMaxShowScore(
   stages: string[],
@@ -44,7 +79,21 @@ function calculateMaxShowScore(
 }
 
 /**
- * Calculates the 1-3 star rating for a completed level.
+ * Determines 1-3 star rating based on session performance.
+ * 
+ * Rating Logic:
+ * - **3 Stars** (excellent): Score ≥95% of max AND cue hit rate ≥80%
+ * - **2 Stars** (good): Score ≥70% of max AND cue hit rate ≥60%
+ * - **1 Star** (completed): Any other completion
+ * - **No rating**: Null/invalid session returns 1 star
+ * 
+ * @param session - Completed game session with score and cue statistics
+ * @param baseFaderCues - Number of base fader cues in cue_execution
+ * @param totalCues - Total cues attempted (base + dynamic)
+ * @returns Star rating (1, 2, or 3)
+ * @example
+ * const stars = calculateStars(session, 5, 8);
+ * // Returns 2 if score >= 70% and hit rate >= 60%
  */
 export function calculateStars(
   session: GameSession | null,

@@ -1,3 +1,19 @@
+/**
+ * @file Visual Settings Context
+ * @description Accessibility settings for font size, contrast, color blindness, motion, theme.
+ * 
+ * Visual Settings Options:
+ * - **Font Size**: small, medium, large, extra-large
+ * - **Contrast Mode**: normal, high (for accessibility)
+ * - **Color Blind Mode**: none, protanopia, deuteranopia, tritanopia
+ * - **Motion Preference**: reduced, full (respects prefers-reduced-motion)
+ * - **Font Family**: system, opendyslexic (dyslexia-friendly font)
+ * - **Theme**: dark, light
+ * 
+ * All settings persist to localStorage and apply globally via CSS custom properties.
+ * Enables players to customize experience for accessibility needs.
+ */
+
 import {
   createContext,
   ReactNode,

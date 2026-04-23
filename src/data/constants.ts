@@ -1,3 +1,15 @@
+/**
+ * @file Game Constants & Configuration
+ * @description Central configuration for game mechanics, difficulty settings, and stage definitions.
+ * 
+ * Configuration Topics:
+ * - **Stage Types**: Different game stages (equipment, planning, sound_design, etc.)
+ * - **Difficulty Levels**: school, community, professional with different lives and scoring
+ * - **Difficulty Multipliers**: How difficulty affects cue windows and thresholds
+ * - **Departments**: Theater departments represented in the game
+ * - **UI Labels**: Display names for all game stages
+ */
+
 export type GameStage =
   | "equipment"
   | "planning"
@@ -18,7 +30,7 @@ export type Department =
   | "foh"
   | "management";
 
-/** Core Game Progression Order */
+/** Core Game Progression Order - stages appear in this sequence */
 export const STAGE_ORDER: GameStage[] = [
   "equipment",
   "planning",

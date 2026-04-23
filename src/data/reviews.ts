@@ -1,3 +1,17 @@
+/**
+ * @file Post-Show Reviews & Feedback
+ * @description Performance review text and scoring feedback.
+ * 
+ * Review System:
+ * - **Star Ratings**: 1-4 stars based on session performance
+ * - **Success Text**: Post-show review dialogue (varies by performance level)
+ * - **Failure Text**: Specific failure scenarios for each department
+ * - **UI Text**: Labels and button text for wrap-up scene
+ * 
+ * Narrative: Reviews provide narrative closure and feedback to player about their performance.
+ * Failure scenarios explain what went wrong specifically to help player learn.
+ */
+
 export const POST_SHOW_REVIEWS = {
   success: {
     4: "A truly transcendent run. The director cried, the cues were impossibly tight, and not a single piece of gaff tape peeled. The holy grail of live theatre. The SM bought pizza for the whole crew.",

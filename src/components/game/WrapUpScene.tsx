@@ -1,3 +1,22 @@
+/**
+ * @file Wrap-Up Scene Component
+ * @description Final stage after all gameplay, displays performance review and level completion.
+ * 
+ * Wrap-Up Flow:
+ * 1. **Dialogue Phase**: NPC provides post-show dialogue based on performance
+ * 2. **Report Phase**: Show performance statistics (score, cues, stars)
+ * 3. **Completion**: Save session, unlock new content, return to main menu
+ * 
+ * Responsibilities:
+ * - Calculate final star rating from session data
+ * - Display performance review text (varies by star count)
+ * - Save completion data to persistent progress
+ * - Unlock new character stories/production levels based on performance
+ * - Persist chat history and contacts
+ * 
+ * @component
+ */
+
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGame } from "../../context/GameContext";

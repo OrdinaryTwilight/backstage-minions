@@ -1,3 +1,22 @@
+/**
+ * @file Character Selection Page
+ * @description Allows player to select a playable character before starting a level.
+ * 
+ * Gameplay:
+ * - Player sees all available characters with their stats and bios
+ * - Character selection determines: department, difficulty modifier, dialogue availability
+ * - Each character has unique technical, social, and stamina stats
+ * - Selecting a character initializes a new game session
+ * - Redirects to game level page to begin gameplay
+ * 
+ * Character Stats Impact:
+ * - **Technical**: Affects cue window difficulty multiplier
+ * - **Social**: Affects dialogue branching and affinity gains
+ * - **Stamina**: Affects stress resilience and max stress capacity
+ * 
+ * @page
+ */
+
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Button from "../components/ui/Button";

@@ -1,3 +1,21 @@
+/**
+ * @file Dialogue Box Component
+ * @description Generic dialogue display with speaker, text, and player choice options.
+ * Generic component used for both NPC dialogues and conflict resolutions.
+ * 
+ * Features:
+ * - **Speaker name and icon**: NPC identification
+ * - **Dialogue text**: The dialogue message
+ * - **Choice buttons**: Player response options
+ * - **Optional timer**: Timed choices with visual countdown
+ * - **Race condition protection**: Prevents simultaneous click+timer expiration bugs
+ * 
+ * Generic component design: Works with any choice type (DialogueChoice, ConflictChoice)
+ * Uses TypeScript generics to maintain type safety for different choice types.
+ * 
+ * @component
+ */
+
 import { useEffect, useRef, useState } from "react";
 import Button from "../ui/Button";
 

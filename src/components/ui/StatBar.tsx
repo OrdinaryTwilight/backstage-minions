@@ -1,3 +1,14 @@
+/**
+ * @file Stat Bar Component
+ * @description Displays character stat values as labeled progress bars.
+ * Shows numeric values and visual representation of stat ranges (e.g., 7/10).
+ * Used for character selection to show character strengths/weaknesses.
+ * 
+ * Includes semantic HTML progress element for accessibility (screen reader support).
+ * 
+ * @component
+ */
+
 interface StatBarProps {
   label: string;
   value: number;

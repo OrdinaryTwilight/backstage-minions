@@ -1,3 +1,18 @@
+/**
+ * @file Hardware Panel Component
+ * @description Reusable panel component styled as hardware interface.
+ * Creates consistent "tech hardware" visual theme throughout the game.
+ * 
+ * Variants:
+ * - **default**: Standard panel background with border
+ * - **clickable**: Interactive panel with hover effects
+ * - **locked**: Disabled state for unavailable options
+ * 
+ * Styling: Uses CSS variables for consistent theming (glass-morphism, borders, etc.)
+ * 
+ * @component
+ */
+
 import React from "react";
 
 interface BaseProps {

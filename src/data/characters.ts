@@ -1,6 +1,32 @@
+/**
+ * @file Characters & NPC Data
+ * @description Defines all playable characters, NPCs, and character-related utilities.
+ * 
+ * Character System:
+ * - **Playable Characters** (10): Players select one at game start, affects department and stat-based difficulty
+ * - **NPCs** (non-playable): Side characters for dialogue and conflicts
+ * - **Available NPCs**: Subset of NPCs with explicit dialogue trees
+ * 
+ * Character Stats (0-10 scale):
+ * - **Technical**: Ability with equipment (affects failure thresholds in minigames)
+ * - **Social**: Communication skill (affects dialogue choices and affinity)
+ * - **Stamina**: Stress resistance (affects max stress capacity)
+ * 
+ * Utility Functions:
+ * - `resolveCharacterName`: Convert ID to display name
+ * - `parseDialogueTags`: Replace {char_id} tags with live character names
+ */
+
 import { Character } from "../types/game";
 
 // --- DYNAMIC PARSING UTILITIES ---
+/**
+ * Resolves a character or NPC ID to their display name.
+ * Searches both CHARACTERS and AVAILABLE_NPCS arrays.
+ * 
+ * @param id - Character or NPC ID
+ * @returns Display name, or original ID if not found
+ */
 export const resolveCharacterName = (id: string): string => {
   const c =
     CHARACTERS.find((c) => c.id === id) ||
@@ -8,7 +34,16 @@ export const resolveCharacterName = (id: string): string => {
   return c ? c.name : id;
 };
 
-// Replaces any instance of {char_id} in a string with the live character name
+/**
+ * Parses dialogue text and replaces {char_id} placeholders with live character names.
+ * Used in dialogue and conflict text to personalize messages dynamically.
+ * 
+ * @param text - Text containing {char_id} placeholders
+ * @returns Text with placeholders replaced by character names
+ * @example
+ * parseDialogueTags("Help {char_shane} with the rig!") 
+ * // Returns: "Help Shane with the rig!"
+ */
 export const parseDialogueTags = (text: string): string => {
   if (!text) return text;
   return text.replaceAll(/\{([^}]+)\}/g, (match, id) => {
@@ -18,6 +53,11 @@ export const parseDialogueTags = (text: string): string => {
 };
 
 // --- CHARACTERS ---
+/**
+ * All playable characters in the game.
+ * Each character represents a different theater department with unique stats and department-specific gameplay.
+ * Player selects one character at game start, which determines available minigames and difficulty.
+ */
 export const CHARACTERS: Character[] = [
   {
     id: "char_shane",

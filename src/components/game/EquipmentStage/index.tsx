@@ -1,3 +1,22 @@
+/**
+ * @file Equipment Stage (Gear Selection)
+ * @description Opening stage where players select equipment package.
+ * Equipment choice affects difficulty multiplier for entire session.
+ * 
+ * Equipment Packages:
+ * - **Budget Surplus**: Harder (0.8x multiplier, narrower cue windows)
+ * - **Standard Rental**: Normal difficulty (1.0x multiplier)
+ * - **Premium State-of-the-Art**: Easier (1.2x multiplier, wider cue windows)
+ * 
+ * Mechanics:
+ * - Display selected character's loadout
+ * - Show available gear packages
+ * - Set difficulty multiplier before main show begins
+ * - Cost/benefit trade-off encourages strategy
+ * 
+ * @component
+ */
+
 import { getStageHelpText } from "../../../data/gameData";
 import { Character } from "../../../types/game";
 import SectionHeader from "../../ui/SectionHeader";

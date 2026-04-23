@@ -1,3 +1,20 @@
+/**
+ * @file Game Tutorials & Onboarding
+ * @description Tutorial sequences and stage-specific instructions.
+ * 
+ * Tutorial System:
+ * - **Stage Instructions**: Brief how-to text for each game stage
+ * - **Tutorial Sequences**: Multi-step dialogue-based tutorials
+ * - **Onboarding**: Guided introduction to game mechanics
+ * - **Speaker Roles**: System messages, NPCs providing context and instruction
+ * 
+ * Tutorials teach players about:
+ * - Character stats and their mechanical effects
+ * - How to complete each stage's minigame
+ * - Theater terminology and context
+ * - Stress management and decision-making
+ */
+
 export const STAGE_INSTRUCTIONS = {
   cable_coiling:
     "Grab the cable and use the buttons/W and D keys to coil it with the over-under method. Alternate directions to avoid twists!",

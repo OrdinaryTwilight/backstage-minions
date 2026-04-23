@@ -1,3 +1,19 @@
+/**
+ * @file Quests & Side Objectives
+ * @description Side missions players can complete for bonus score.
+ * 
+ * Quest System:
+ * - **Quest Chain**: Pick up item from source location → deliver to target NPC
+ * - **Mechanics**: Affects score, inventory, and NPC affinity
+ * - **Rewards**: Bonus points (+20) and relationship building
+ * - **Integration**: Can be triggered by dialogue choices or encountered during gameplay
+ * 
+ * Examples:
+ * - Get water bottle from craft services, deliver to lead actor
+ * - Pick up gaff tape, deliver to master electrician
+ * - Fetch director's script from SM, deliver to director
+ */
+
 // src/data/quests.ts
 import { NARRATIVE } from "./narrative";
 

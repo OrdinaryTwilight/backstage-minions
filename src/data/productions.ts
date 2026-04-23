@@ -1,6 +1,26 @@
+/**
+ * @file Productions & Venues Data
+ * @description Game content: theatrical productions and performance venues.
+ * 
+ * Production System:
+ * - **Productions**: Game levels with multiple difficulty variants (school/community/professional)
+ * - **Venues**: Specific theater locations representing difficulty progression
+ * - **Level Progression**: Each production has 3 difficulty tiers with different venues
+ * 
+ * Story Element: Venues and productions represent a career progression from high school
+ * drama through community theater to professional broadway stages.
+ * 
+ * Each production is unlocked based on performance in lower difficulty versions.
+ */
+
 import { Production, Venue } from "../types/game";
 
 // --- VENUES ---
+/**
+ * Theater venues representing difficulty levels.
+ * Each venue has unique technical requirements and thematic flavor.
+ * Used as story setting and mechanical context for productions.
+ */
 export const VENUES: Record<string, Venue> = {
   high_school: {
     name: "Westview High Auditorium",
@@ -30,6 +50,11 @@ export const VENUES: Record<string, Venue> = {
 };
 
 // --- PRODUCTIONS ---
+/**
+ * All theatrical productions available in the game.
+ * Each production represents a different play with unique mechanics and story.
+ * Players unlock higher difficulty variants by performing well on lower difficulties.
+ */
 export const PRODUCTIONS: Production[] = [
   {
     id: "phantom",
