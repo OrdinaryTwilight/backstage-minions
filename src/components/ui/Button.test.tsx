@@ -1,3 +1,10 @@
+/**
+ * @file Button Component Tests
+ * @description Unit tests for reusable Button component.
+ * Tests rendering, variants, disabled state, click handlers.
+ * Uses Vitest and React Testing Library.
+ */
+
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import Button from "./Button";

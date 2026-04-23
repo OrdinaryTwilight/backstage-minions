@@ -1,3 +1,10 @@
+/**
+ * @file GameContext Tests
+ * @description Unit tests for game state management and persistence.
+ * Tests state loading, save migration, session management.
+ * Uses Vitest and React Testing Library.
+ */
+
 // src/context/GameContext.test.tsx
 import { render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

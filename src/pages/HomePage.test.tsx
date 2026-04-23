@@ -1,3 +1,10 @@
+/**
+ * @file HomePage Tests
+ * @description Unit tests for HomePage component.
+ * Tests home page rendering, career stats display, and navigation.
+ * Uses Vitest and React Testing Library.
+ */
+
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";

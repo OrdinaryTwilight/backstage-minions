@@ -1,4 +1,13 @@
 /**
+ * @file Game Type Re-exports
+ * @description Re-exports game type definitions from types/game.ts.
+ * Allows data module to import types without circular dependencies.
+ *
+ * All game-wide type definitions are in src/types/game.ts
+ * This file just re-exports them for convenience.
+ */
+
+/**
  * StatBlock - Represents character statistics
  */
 export interface StatBlock {

@@ -1,3 +1,32 @@
+/**
+ * @file Overworld Stage (Navigation Puzzle)
+ * @description Free-roam navigation stage between minigames and story moments.
+ * Players navigate theater backstage areas to reach objectives.
+ *
+ * Stage Mechanics:
+ * - **Player Movement**: WASD or arrow keys to move character
+ * - **Objective**: Navigate to specific zone to advance to next stage
+ * - **NPCs**: Interact with NPCs for dialogue and quests
+ * - **Quests**: Side objectives to pick up/deliver items
+ * - **Conflicts**: Random story encounters during navigation
+ * - **Comms**: Background radio chatter and instructions
+ *
+ * Theater Locations (Zones):
+ * - Light Booth, Sound Booth (department-specific)
+ * - Green Room (actor area)
+ * - Backstage (props, rigging)
+ * - Stage Wings
+ * - SM Desk (stage manager)
+ *
+ * Physics:
+ * - Collision detection with solid objects
+ * - Mobile-friendly with touch controls
+ * - Keyboard support for desktop
+ * - Headset HUD shows directions and time
+ *
+ * @component
+ */
+
 import { useEffect, useRef, useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { CHARACTERS, OVERWORLD_MAPS } from "../../../data/gameData";

@@ -1,3 +1,23 @@
+/**
+ * @file Sound Design Stage (Audio Patch/Mixing)
+ * @description Audio console management and mixing minigame for sound department.
+ * Players route audio inputs to outputs and set mixing levels.
+ *
+ * Stage Mechanics:
+ * - **Audio Routing**: Connect inputs to outputs (audio patching)
+ * - **Channel Levels**: Adjust faders to correct levels for each channel
+ * - **Console Config**: Realistic audio console layout with sends/receives
+ * - **Scoring**: Accuracy of mix affects score
+ * - **Real-time Feedback**: Visual indication of proper levels
+ *
+ * Difficulty Affects:
+ * - Number of channels to manage
+ * - Number of required output connections
+ * - Precision needed for level matching
+ *
+ * @component
+ */
+
 import { useEffect, useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { getStageHelpText, SOUND_CONSOLE_CONFIG } from "../../../data/gameData";
