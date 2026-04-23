@@ -8,6 +8,7 @@ interface FaderTrackProps {
   masterLevel: number;
   targetLevel?: number;
   isMaster?: boolean;
+  showTargetHint?: boolean;
   isMobile?: boolean;
 }
 
@@ -19,9 +20,9 @@ function FaderTrack({
   masterLevel,
   targetLevel = 80,
   isMaster = false,
+  showTargetHint = false,
   isMobile = false,
 }: Readonly<FaderTrackProps>) {
-  // UX FIX: Calculate exactly what output is hitting the console based on the Master throttle
   const effectiveLevel = isMaster
     ? currentLevel
     : Math.round(currentLevel * (masterLevel / 100));
@@ -106,6 +107,25 @@ function FaderTrack({
           borderRadius: "3px",
         }}
       >
+        {/* UX FIX: Visual hint fades in smoothly based on the showTargetHint state */}
+        {!isMaster && (
+          <div
+            style={{
+              position: "absolute",
+              bottom: `${target}%`,
+              left: "50%",
+              transform: "translate(-50%, 50%)",
+              width: "14px",
+              height: "20%",
+              border: "2px dashed var(--bui-fg-success)",
+              borderRadius: "4px",
+              zIndex: 1,
+              opacity: showTargetHint ? 1 : 0,
+              transition: "opacity 0.3s ease",
+            }}
+          />
+        )}
+
         <input
           type="range"
           min="0"
@@ -142,11 +162,11 @@ function FaderTrack({
             transform: "translate(-50%, 50%)",
             pointerEvents: "none",
             boxShadow: "0 4px 8px rgba(0,0,0,0.5)",
+            zIndex: 15,
           }}
         />
       </div>
 
-      {/* UX FIX: Display Output to clarify multiplication math */}
       {!isMaster && (
         <div
           style={{
@@ -157,6 +177,7 @@ function FaderTrack({
             padding: "2px 4px",
             borderRadius: "2px",
             marginTop: "-4px",
+            zIndex: 20,
           }}
         >
           OUT: {effectiveLevel}
@@ -181,7 +202,8 @@ interface DepartmentMixerProps {
   department?: string;
   levels: number[];
   setLevels: (levels: number[]) => void;
-  targetLevel?: number;
+  targetLevels?: number[];
+  showTargetHint?: boolean;
   isMobile?: boolean;
 }
 
@@ -189,7 +211,8 @@ export default function DepartmentMixer({
   department,
   levels,
   setLevels,
-  targetLevel,
+  targetLevels = [80, 80, 80, 80],
+  showTargetHint = false,
   isMobile = false,
 }: Readonly<DepartmentMixerProps>) {
   const channels =
@@ -214,7 +237,8 @@ export default function DepartmentMixer({
           color="var(--color-architect-blue)"
           currentLevel={levels[i]}
           masterLevel={levels[4]}
-          targetLevel={targetLevel}
+          targetLevel={targetLevels[i]}
+          showTargetHint={showTargetHint} // Receives the fade-in trigger
           isMobile={isMobile}
           onLevelChange={(val) => {
             const newLevels = [...levels];

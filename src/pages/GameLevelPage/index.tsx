@@ -13,7 +13,7 @@ import SoundDesignStage from "../../components/game/SoundDesignStage";
 import WrapUpScene from "../../components/game/WrapUpScene";
 import Button from "../../components/ui/Button";
 
-// UX FIX: Priority 1 - Import the new stages
+// UX FIX: Restored the imports for the new stages!
 import FlySystemExecution from "../../components/game/ScenicStage/FlySystemExecution";
 import CallboardPuzzle from "../../components/game/StageManagementStage/CallboardPuzzle";
 import WardrobeStage from "../../components/game/WardrobeStage";
@@ -22,6 +22,7 @@ import WardrobeStage from "../../components/game/WardrobeStage";
 import ShowControlNav from "./ShowControlNav";
 import { useLevelFlow } from "./useLevelFlow";
 
+// UX FIX: Added the new stages back into the routing dictionary
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const STAGE_COMPONENTS: Record<string, any> = {
   equipment: EquipmentStage,
@@ -29,9 +30,9 @@ const STAGE_COMPONENTS: Record<string, any> = {
   sound_design: SoundDesignStage,
   cue_execution: CueExecutionStage,
   cable_coiling: CableCoilingStage,
-  stage_management: CallboardPuzzle, // Wired!
-  scenic: FlySystemExecution, // Wired!
-  wardrobe: WardrobeStage, // Wired!
+  stage_management: CallboardPuzzle,
+  scenic: FlySystemExecution,
+  wardrobe: WardrobeStage,
   wrapup: WrapUpScene,
 };
 

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useGame } from "../../../context/GameContext";
 import { CHARACTERS, getStageHelpText } from "../../../data/gameData";
 import { Cue } from "../../../data/types";
@@ -38,21 +38,77 @@ export default function CueExecutionStage({
     isReady,
     smMessage,
     currentCue,
+    currentTargets,
+    isCueImminent,
     isLastCue,
     maxShowTime,
     handleGo,
     handleReady,
   } = useCueEngine(cueSheet, onComplete, difficulty);
 
+  // Generates the labels for the specific character's department
+  const channelNames = useMemo(
+    () =>
+      char?.department === "lighting"
+        ? ["WASH", "CYC", "SPOT", "KEYS"]
+        : ["VOX", "PIT", "SFX", "BAND"],
+    [char?.department],
+  );
+
+  // UX FIX: Renders a clean 2x2 grid explicitly detailing the channels and their levels
+  const targetDisplay = useMemo(() => {
+    if (isLastCue) return <span style={{ fontSize: "1.8rem" }}>--</span>;
+    if (currentTargets.every((t) => t === 0))
+      return <span style={{ fontSize: "1.8rem" }}>0%</span>;
+    if (currentTargets.every((t) => t === currentTargets[0]))
+      return <span style={{ fontSize: "1.8rem" }}>{currentTargets[0]}%</span>;
+
+    return (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "1fr 1fr",
+          gap: "6px",
+          fontSize: "0.85rem",
+          textAlign: "left",
+        }}
+      >
+        {currentTargets.map((t, i) => (
+          <div
+            key={channelNames[i]}
+            style={{
+              background: "rgba(0,0,0,0.5)",
+              padding: "4px 8px",
+              borderRadius: "4px",
+              border: "1px solid #444",
+            }}
+          >
+            <span style={{ opacity: 0.7, fontFamily: "var(--font-mono)" }}>
+              {channelNames[i]}:
+            </span>{" "}
+            <strong style={{ color: "#fff" }}>{t}%</strong>
+          </div>
+        ))}
+      </div>
+    );
+  }, [isLastCue, currentTargets, channelNames]);
+
+  // Audio/Accessibility string for screen readers
+  const screenReaderTargetText = useMemo(() => {
+    if (currentTargets.every((t) => t === currentTargets[0]))
+      return `${currentTargets[0]} percent`;
+    return "Mixed levels. Check console.";
+  }, [currentTargets]);
+
   useEffect(() => {
     if (isLastCue) {
       announce("Show complete. All stop.");
     } else if (currentCue) {
       announce(
-        `Standby ${currentCue.id}. Target intensity ${currentCue.targetLevel || 80} percent.`,
+        `Standby ${currentCue.id}. Target intensity ${screenReaderTargetText}.`,
       );
     }
-  }, [currentCue, isLastCue, announce]);
+  }, [currentCue, isLastCue, screenReaderTargetText, announce]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -61,7 +117,6 @@ export default function CueExecutionStage({
         handleGo(false);
       }
     };
-
     globalThis.addEventListener("keydown", handler);
     return () => globalThis.removeEventListener("keydown", handler);
   }, [handleGo, isReady, isLastCue]);
@@ -78,18 +133,12 @@ export default function CueExecutionStage({
     >
       <AnnouncementRegion />
 
-      {/* =========================
-          HEADER
-      ========================== */}
       <SectionHeader
         title="Booth Operations"
-        subtitle="It's show time! Execute cues accurately to keep the production running smoothly."
+        subtitle="It's show time! Balance your channel faders and use the Master fader to scale your output!"
         helpText={getStageHelpText("cue_execution")}
       />
 
-      {/* =========================
-          STICKY HUD
-      ========================== */}
       <div
         style={{
           position: "sticky",
@@ -110,9 +159,6 @@ export default function CueExecutionStage({
         />
       </div>
 
-      {/* =========================
-          MAIN CONTENT
-      ========================== */}
       <div
         className="desktop-two-column"
         style={{
@@ -150,17 +196,26 @@ export default function CueExecutionStage({
                     : currentCue?.label?.toUpperCase() || "STANDBY"}
                 </div>
               </div>
-              <div style={{ textAlign: "right" }}>
+              <div
+                style={{
+                  textAlign: "right",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "flex-end",
+                }}
+              >
                 <span
                   className="annotation-text"
-                  style={{ fontSize: "0.7rem", opacity: 0.5 }}
+                  style={{
+                    fontSize: "0.7rem",
+                    opacity: 0.5,
+                    marginBottom: "0.5rem",
+                  }}
                 >
                   TARGET INTENSITY
                 </span>
-                <div
-                  style={{ fontSize: "1.8rem", color: "var(--bui-fg-warning)" }}
-                >
-                  {isLastCue ? "--" : `${currentCue?.targetLevel || 80}%`}
+                <div style={{ color: "var(--bui-fg-warning)" }}>
+                  {targetDisplay}
                 </div>
               </div>
             </div>
@@ -177,7 +232,8 @@ export default function CueExecutionStage({
               department={char?.department}
               levels={faderLevels}
               setLevels={setFaderLevels}
-              targetLevel={currentCue?.targetLevel || 80}
+              targetLevels={currentTargets}
+              showTargetHint={isCueImminent} // Passes the fade-in trigger!
             />
             <div style={{ marginTop: "2rem" }}>
               <MasterControl

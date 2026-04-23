@@ -1,6 +1,27 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useGame } from "../../../context/GameContext";
 import { Cue } from "../../../data/types";
+
+const getTargetsForCue = (cue: Cue | undefined): number[] => {
+  if (!cue) return [80, 80, 80, 80];
+  if (cue.targetLevel === 0) return [0, 0, 0, 0];
+
+  const seed = cue.id
+    .split("")
+    .reduce((a, c) => a + (c.codePointAt(0) ?? 0), 0);
+
+  const random = (s: number) => {
+    const x = Math.sin(s) * 10000;
+    return x - Math.floor(x);
+  };
+
+  return [
+    cue.targetLevel ?? 80,
+    Math.floor(random(seed + 1) * 18 + 2) * 5,
+    Math.floor(random(seed + 2) * 18 + 2) * 5,
+    Math.floor(random(seed + 3) * 18 + 2) * 5,
+  ];
+};
 
 export function useCueEngine(
   cueSheet: Cue[],
@@ -23,6 +44,11 @@ export function useCueEngine(
   const currentCue = cueSheet[currentIdx];
   const isLastCue = currentIdx >= cueSheet.length;
 
+  const currentTargets = useMemo(
+    () => getTargetsForCue(currentCue),
+    [currentCue],
+  );
+
   const maxShowTime =
     cueSheet.length > 0
       ? (cueSheet[cueSheet.length - 1]?.targetMs || 10000) + 3000
@@ -32,6 +58,10 @@ export function useCueEngine(
   const elapsedMsRef = useRef(elapsedMs);
   const faderLevelsRef = useRef(faderLevels);
 
+  // UX FIX: Calculate if the cue is 4 seconds away from being due
+  const isCueImminent =
+    !!currentCue && (currentCue.targetMs || 0) - elapsedMs <= 4000;
+
   useEffect(() => {
     elapsedMsRef.current = elapsedMs;
   }, [elapsedMs]);
@@ -39,7 +69,6 @@ export function useCueEngine(
     faderLevelsRef.current = faderLevels;
   }, [faderLevels]);
 
-  // UX FIX: Listen for Global Pause Events from the Nav Bar
   useEffect(() => {
     const handleGlobalPause = () => setIsPaused(true);
     const handleGlobalResume = () => {
@@ -86,7 +115,6 @@ export function useCueEngine(
 
       const isTimedWell =
         Math.abs(currentElapsed - targetMs) <= effectiveWindowMs;
-      const targetLevel = currentCue.targetLevel || 80;
       const margin = 10;
 
       const masterValue = currentFaders[4] / 100;
@@ -94,11 +122,22 @@ export function useCueEngine(
         .slice(0, 4)
         .map((l) => l * masterValue);
 
-      const acceptableChannels = effectiveLevels.filter(
-        (l) => Math.abs(l - targetLevel) <= margin,
-      ).length;
-      const isAligned = acceptableChannels >= 2;
-      const tooHigh = effectiveLevels.some((l) => l > targetLevel + margin);
+      let acceptableChannels = 0;
+      let tooHigh = false;
+      let tooLow = false;
+
+      effectiveLevels.forEach((level, i) => {
+        const target = currentTargets[i];
+        if (Math.abs(level - target) <= margin) {
+          acceptableChannels++;
+        } else if (level > target + margin) {
+          tooHigh = true;
+        } else {
+          tooLow = true;
+        }
+      });
+
+      const isAligned = acceptableChannels >= 3;
       const isHit = !forceMiss && isAligned && isTimedWell;
 
       setCueResults((prev) => ({ ...prev, [currentCue.id]: { hit: isHit } }));
@@ -113,9 +152,13 @@ export function useCueEngine(
           setSmMessage(`You missed ${currentCue.id}! Pay attention! (-10 pts)`);
         else if (!isTimedWell)
           setSmMessage(`Timing is way off on ${currentCue.id}! (-10 pts)`);
+        else if (tooHigh && tooLow)
+          setSmMessage(
+            `Mix is a mess on ${currentCue.id}! Some levels are too hot, others too quiet! (-10 pts)`,
+          );
         else if (tooHigh)
           setSmMessage(
-            `Whoa, levels are way too high for ${currentCue.id}! (-10 pts)`,
+            `Whoa, some channels are way too hot for ${currentCue.id}! (-10 pts)`,
           );
         else
           setSmMessage(
@@ -137,6 +180,7 @@ export function useCueEngine(
       isReady,
       isPaused,
       currentCue,
+      currentTargets,
       effectiveWindowMs,
       currentIdx,
       cueSheet.length,
@@ -147,12 +191,16 @@ export function useCueEngine(
 
   useEffect(() => {
     if (isLastCue || !isReady || isPaused) return;
+    let animationFrameId: number;
     const startTime = Date.now() - elapsedMs;
-    const interval = setInterval(
-      () => setElapsedMs(Date.now() - startTime),
-      50,
-    );
-    return () => clearInterval(interval);
+
+    const tick = () => {
+      setElapsedMs(Date.now() - startTime);
+      animationFrameId = requestAnimationFrame(tick);
+    };
+
+    animationFrameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animationFrameId);
   }, [isLastCue, isReady, isPaused]);
 
   useEffect(() => {
@@ -195,6 +243,8 @@ export function useCueEngine(
     setIsPaused,
     smMessage,
     currentCue,
+    currentTargets,
+    isCueImminent,
     isLastCue,
     maxShowTime,
     handleGo,
