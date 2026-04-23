@@ -21,7 +21,7 @@ export const CHAT_MESSAGES: Record<
     ],
   },
   npc_yg: {
-    sender: "The Director",
+    sender: "{npc_yg} (Director)",
     messages: [
       "Where is my script?!",
       "I need the lighting to be more... moody. Can we do moody?",
@@ -43,14 +43,45 @@ export const CHAT_MESSAGES: Record<
       "Has anyone seen my glow tape?",
     ],
   },
-  char_shane: {
-    sender: "{char_shane} (LX)",
-    messages: [],
+  npc_bryan: {
+    sender: "{npc_bryan} (Head Rigger)",
+    messages: [
+      "I swear to god if someone touches my rigging line...",
+      "The motors on the first electric are running hot.",
+      "Lunch in 10 minutes or I'm calling the union.",
+    ],
   },
-  char_wynn: {
-    sender: "{char_wynn} (Audio)",
-    messages: [],
+  char_jay: {
+    sender: "{char_jay} (A2)",
+    messages: [
+      "Actor 3 just walked past me carrying an open cup of coffee near their mic pack.",
+      "I am out of surgical tape. Send help.",
+    ],
   },
+  char_leo: {
+    sender: "{char_leo} (Head Flyman)",
+    messages: [
+      "Weight is secured. Waiting for the go.",
+      "Tell the lighting designer their new mover is blocking my drop.",
+    ],
+  },
+  char_angel: {
+    sender: "{char_angel} (Hair & Makeup)",
+    messages: [
+      "The lead is crying again. I need 5 minutes to fix the mascara.",
+      "Whoever is using spirit gum to stick cables to the floor needs to stop.",
+    ],
+  },
+  char_richmond: {
+    sender: "{char_richmond} (House Manager)",
+    messages: [
+      "Lobby is clear. Ready to close the doors.",
+      "We have a medical emergency in row K. Holding the show.",
+      "Why is there a cast member trying to buy snacks at my concession stand?",
+    ],
+  },
+  char_shane: { sender: "{char_shane} (LX)", messages: [] },
+  char_wynn: { sender: "{char_wynn} (Audio)", messages: [] },
 
   // --- GROUP CHATS ---
   group_tech_survivors: {
@@ -71,48 +102,25 @@ export const CHAT_MESSAGES: Record<
       "{npc_des} (SM): Art pays union fines when it goes into overtime, {npc_yg}. 6:00 PM.",
     ],
   },
-  group_audio_only: {
-    sender: "📱 Sound Dept (No LX Allowed)",
-    messages: [
-      "{char_zen} (Sound): The lead singer just asked me to add more 'talent' to their monitor mix.",
-      "{char_wynn} (Audio): Just turn up the reverb and tell them you boosted the 'vibe' frequencies.",
-      "{char_sam} (A1): Standard protocol. Did it work?",
-      "{char_zen} (Sound): Yes. They said it sounds 'much more authentic'. I hate it here.",
-    ],
-  },
-  default: {
-    sender: "Crew Member",
-    messages: [
-      "Hey, are you free to help move a flat?",
-      "Is the comms channel supposed to be buzzing?",
-      "Let's grab drinks after strike.",
-    ],
-  },
 };
 
+// Expanded the interactive choices for the new characters
 export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
   npc_des: [
     {
       text: "I'm ready for my shift.",
-      response:
-        "Great. Click into the Phantom of the Opera callboard and select 'School' difficulty.",
+      response: "Great. Verify your equipment and standby.",
       sideEffect: "unlock_phantom",
     },
     {
       text: "What am I supposed to do?",
-      response:
-        "We need an extra set of hands on Phantom. Look for the poster on the productions page.",
+      response: "Look at the callboard, we have a show to run.",
     },
   ],
   npc_zainab: [
     {
       text: "I've got some extra gaff tape for you.",
-      response:
-        "You are a literal lifesaver. Bring it to the quick-change booth!",
-    },
-    {
-      text: "Try rubbing soap on the stuck zipper.",
-      response: "Wait, that's actually a great trick. It worked! Thank you!",
+      response: "You are a literal lifesaver. Bring it to the booth!",
     },
   ],
   npc_elara: [
@@ -120,46 +128,48 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
       text: "Tech is standing by for blackout.",
       response: "Copy that. Prepare to execute on my GO.",
     },
-    {
-      text: "Set piece is clear. We are good to proceed.",
-      response: "Thank god. Releasing the hold. House lights going down.",
-    },
   ],
-  char_shane: [
+  npc_bryan: [
     {
-      text: "I didn't touch your gels, ask Props.",
-      response: "Typical. I'll go have a word with {char_lia}.",
+      text: "I'll grab you a sandwich from catering.",
+      response: "Make it two and I'll owe you a favor.",
     },
     {
-      text: "Worklight coming up on stage left now.",
-      response: "Much appreciated. I can finally see my cable runs.",
-    },
-  ],
-  char_wynn: [
-    {
-      text: "I'll tape the comms packs to their belts.",
-      response: "Please do. We can't afford to lose another transmitter.",
-    },
-    {
-      text: "Lead definitely sounds muddy. Check the capsule?",
+      text: "Motors look fine from the booth.",
       response:
-        "Good call. I think they sweat through the mic element again. Swapping it.",
+        "You can't feel the heat from the booth. I'm keeping an eye on it.",
     },
   ],
-  npc_yg: [
+  char_jay: [
     {
-      text: "I found your script, it's on the SM desk.",
-      response: "Ah! The sacred texts! Thank you.",
+      text: "Take my extra roll of tape.",
+      response: "I'm naming my firstborn after you.",
     },
     {
-      text: "Working on making the lighting more 'moody'.",
-      response: "Yes! More shadows! Let the darkness speak!",
+      text: "Tell Actor 3 to dump the coffee.",
+      response: "I did. They looked at me like I was speaking Greek.",
     },
   ],
-  group_tech_survivors: [
+  char_leo: [
     {
-      text: "I have the fabric scissors. They were left on the prop table.",
-      response: "{char_lia} (Props): BRING THEM TO ME IMMEDIATELY.",
+      text: "Moving the light now, you have clearance.",
+      response: "Copy. Scenery is dropping.",
+    },
+  ],
+  char_angel: [
+    {
+      text: "Need me to stall the SM?",
+      response: "Please. Just give me two minutes for the setting spray.",
+    },
+  ],
+  char_richmond: [
+    {
+      text: "Holding the show for medical. Keep us posted.",
+      response: "Copy. Medics are en route.",
+    },
+    {
+      text: "Send the actor back stage immediately.",
+      response: "I'm physically shoving them through the stage door now.",
     },
   ],
 };
