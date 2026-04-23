@@ -11,6 +11,7 @@ interface SoundConsoleProps {
   setChannelLevels: React.Dispatch<
     React.SetStateAction<Record<number, number>>
   >;
+  submitted: boolean;
 }
 
 export default function SoundConsole({
@@ -21,6 +22,7 @@ export default function SoundConsole({
   handlePatch,
   channelLevels,
   setChannelLevels,
+  submitted,
 }: Readonly<SoundConsoleProps>) {
   return (
     <HardwarePanel
@@ -31,7 +33,6 @@ export default function SoundConsole({
         borderRadius: "8px",
       }}
     >
-      {/* Header */}
       <h3
         className="annotation-text"
         style={{ marginBottom: "0.5rem", color: "#e2e8f0" }}
@@ -39,7 +40,6 @@ export default function SoundConsole({
         🎛️ Output Routing
       </h3>
 
-      {/* Instructions */}
       <p
         style={{
           fontSize: "0.8rem",
@@ -50,10 +50,9 @@ export default function SoundConsole({
         }}
       >
         Route Inputs to Channels. Route Channels to Buses. Push Faders above 0.
-        Avoid Dead Channels!
+        Watch out for dead channels!
       </p>
 
-      {/* Channel Strip Area */}
       <fieldset
         aria-label="Audio mixing console channels"
         style={{
@@ -70,7 +69,6 @@ export default function SoundConsole({
         {consoleChannels.map((ch) => {
           const isDead = deadChannels.includes(ch);
 
-          // Determine which input is routed into this channel
           const inputSource = Object.keys(patch.inputs).find(
             (src) => patch.inputs[src] === ch,
           );
@@ -80,6 +78,7 @@ export default function SoundConsole({
               key={ch}
               ch={ch}
               isDead={isDead}
+              submitted={submitted}
               inputSource={inputSource}
               outputBuses={outputBuses}
               patch={patch}

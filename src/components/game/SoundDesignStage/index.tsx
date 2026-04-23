@@ -73,9 +73,6 @@ export default function SoundDesignStage({
         return { ...prev, [type]: rest as Record<string, number> };
       }
 
-      // UX/LOGIC FIX: Priority 1
-      // Inputs are exclusive (1 Mic = 1 Channel).
-      // Outputs are NON-exclusive (1 Channel can feed Mains, Monitors, AND Subs).
       let cleanedType = prev[type];
 
       if (type === "inputs") {
@@ -219,6 +216,9 @@ export default function SoundDesignStage({
                     const isPatched = patch.inputs[src] === ch;
                     const isDead = deadChannels.includes(ch);
 
+                    // UX FIX: Only reveal that the channel is dead AFTER they hit verify
+                    const isDeadReveal = isDead && submitted;
+
                     return (
                       <Button
                         key={ch}
@@ -228,12 +228,16 @@ export default function SoundDesignStage({
                         style={{
                           flex: "1 0 15%",
                           fontSize: "0.8rem",
-                          opacity: isDead ? 0.3 : 1,
-                          textDecoration: isDead ? "line-through" : "none",
+                          opacity: isDeadReveal ? 0.3 : 1,
+                          textDecoration: isDeadReveal
+                            ? "line-through"
+                            : "none",
                         }}
-                        disabled={submitted || isDead}
+                        disabled={submitted}
                         title={
-                          isDead ? "Channel is Dead" : `Route to Channel ${ch}`
+                          isDeadReveal
+                            ? "Channel is Dead"
+                            : `Route to Channel ${ch}`
                         }
                       >
                         CH {ch}
@@ -258,6 +262,7 @@ export default function SoundDesignStage({
             handlePatch={handlePatch}
             channelLevels={channelLevels}
             setChannelLevels={setChannelLevels}
+            submitted={submitted}
           />
         </div>
       </div>

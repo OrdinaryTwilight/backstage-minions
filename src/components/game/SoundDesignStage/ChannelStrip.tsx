@@ -1,6 +1,7 @@
 interface ChannelStripProps {
   ch: number;
   isDead: boolean;
+  submitted: boolean;
   inputSource?: string;
   outputBuses: string[];
   patch: Record<string, Record<string, number>>;
@@ -12,6 +13,7 @@ interface ChannelStripProps {
 export default function ChannelStrip({
   ch,
   isDead,
+  submitted,
   inputSource,
   outputBuses,
   patch,
@@ -19,9 +21,11 @@ export default function ChannelStrip({
   level,
   setLevel,
 }: Readonly<ChannelStripProps>) {
-  // ✅ Extracted logic (fixes Sonar warning)
+  // UX FIX: Only visually reveal that the channel is dead during the verification phase
+  const isDeadReveal = isDead && submitted;
+
   let scribbleText: string;
-  if (isDead) {
+  if (isDeadReveal) {
     scribbleText = "DEAD";
   } else if (inputSource) {
     scribbleText = inputSource.substring(0, 8);
@@ -30,7 +34,7 @@ export default function ChannelStrip({
   }
 
   const scribbleColor =
-    inputSource && !isDead ? "var(--bui-fg-success)" : "#555";
+    inputSource && !isDeadReveal ? "var(--bui-fg-success)" : "#555";
 
   return (
     <div
@@ -40,10 +44,12 @@ export default function ChannelStrip({
         flexDirection: "column",
         alignItems: "center",
         width: "55px",
-        background: isDead ? "#3b2121" : "#2d3748",
+        background: isDeadReveal ? "#3b2121" : "#2d3748",
         padding: "10px 4px",
         borderRadius: "4px",
-        border: isDead ? "2px solid var(--bui-fg-danger)" : "1px solid #4a5568",
+        border: isDeadReveal
+          ? "2px solid var(--bui-fg-danger)"
+          : "1px solid #4a5568",
       }}
     >
       {/* Scribble Strip */}
@@ -80,7 +86,7 @@ export default function ChannelStrip({
           fontSize: "0.7rem",
           fontWeight: "bold",
           marginBottom: "10px",
-          color: isDead ? "var(--bui-fg-danger)" : "#fff",
+          color: isDeadReveal ? "var(--bui-fg-danger)" : "#fff",
         }}
       >
         CH {ch}
@@ -103,7 +109,7 @@ export default function ChannelStrip({
           if (isActive) {
             btnBg = index === 0 ? "#e53e3e" : "#d69e2e";
           }
-          if (isDead) {
+          if (isDeadReveal) {
             btnBg = "#2d3748";
           }
 
@@ -111,7 +117,7 @@ export default function ChannelStrip({
             <button
               key={bus}
               type="button"
-              disabled={isDead}
+              disabled={submitted}
               onClick={() => handlePatch("outputs", bus, ch)}
               aria-pressed={isActive}
               aria-label={`Route to ${bus}`}
@@ -121,12 +127,12 @@ export default function ChannelStrip({
                 height: "18px",
                 borderRadius: "2px",
                 border: isActive ? "2px solid #fff" : "1px solid transparent",
-                cursor: isDead ? "not-allowed" : "pointer",
+                cursor: submitted ? "not-allowed" : "pointer",
                 background: btnBg,
                 boxShadow: isActive
                   ? "inset 0 2px 4px rgba(0,0,0,0.6), 0 0 5px rgba(255,255,255,0.5)"
                   : "0 2px 4px rgba(0,0,0,0.4)",
-                opacity: isDead ? 0.3 : 1,
+                opacity: isDeadReveal ? 0.3 : 1,
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -163,8 +169,8 @@ export default function ChannelStrip({
           type="range"
           min="0"
           max="100"
-          disabled={isDead}
-          value={isDead ? 0 : level}
+          disabled={submitted}
+          value={level}
           aria-label={`Channel ${ch} Volume`}
           onChange={(e) => setLevel(Number.parseInt(e.target.value))}
           style={{
@@ -172,8 +178,8 @@ export default function ChannelStrip({
             direction: "rtl",
             height: "90px",
             width: "8px",
-            cursor: isDead ? "not-allowed" : "ns-resize",
-            opacity: isDead ? 0.3 : 1,
+            cursor: submitted ? "not-allowed" : "ns-resize",
+            opacity: isDeadReveal ? 0.3 : 1,
           }}
         />
       </div>
