@@ -13,49 +13,59 @@ import { CHAT_CHOICES, CHAT_MESSAGES } from "../data/chatMessages";
 export default function NetworksPage() {
   const { state, dispatch } = useGame();
   const [activeChat, setActiveChat] = useState<string | null>("sys_comms");
+
   const safeContacts = Array.isArray(state.contacts) ? state.contacts : [];
 
   const availableContacts = [
     "sys_comms",
     ...safeContacts.filter((id) => id !== "sys_comms"),
-  ].map((id) => {
-    if (id === "sys_comms")
-      return {
-        id,
-        name: "System Alerts",
-        icon: "🤖",
-        role: "Automated System",
-      };
+  ]
+    .map((id) => {
+      if (id === "sys_comms") {
+        return {
+          id,
+          name: "System Alerts",
+          icon: "🤖",
+          role: "Automated System",
+        };
+      }
 
-    const mainChar = CHARACTERS.find((c) => c.id === id);
-    if (mainChar)
-      return {
-        id,
-        name: mainChar.name,
-        icon: mainChar.icon,
-        role: mainChar.role,
-      };
+      const mainChar = CHARACTERS.find((c) => c.id === id);
+      if (mainChar) {
+        return {
+          id,
+          name: mainChar.name,
+          icon: mainChar.icon,
+          role: mainChar.role,
+        };
+      }
 
-    const npc = AVAILABLE_NPCS.find((c) => c.id === id);
-    if (npc) {
-      const iconKey = Object.keys(NPC_ICONS).find((k) => npc.role.includes(k));
-      const icon = iconKey
-        ? NPC_ICONS[iconKey as keyof typeof NPC_ICONS]
-        : "👤";
-      return { id, name: npc.name, icon, role: npc.role };
-    }
+      const npc = AVAILABLE_NPCS.find((c) => c.id === id);
+      if (npc) {
+        const iconKey = Object.keys(NPC_ICONS).find((k) =>
+          npc.role.includes(k),
+        );
+        const icon = iconKey
+          ? NPC_ICONS[iconKey as keyof typeof NPC_ICONS]
+          : "👤";
+        return { id, name: npc.name, icon, role: npc.role };
+      }
 
-    const chatData = CHAT_MESSAGES[id];
-    if (chatData)
-      return {
-        id,
-        name: parseDialogueTags(chatData.sender),
-        icon: "📢",
-        role: "Group Chat",
-      };
+      const chatData = CHAT_MESSAGES[id];
+      // Strictly assign group chats only if the ID implies it, preventing orphaned NPCs
+      // from turning into group chats
+      if (chatData && id.startsWith("group_")) {
+        return {
+          id,
+          name: parseDialogueTags(chatData.sender),
+          icon: "📢",
+          role: "Group Chat",
+        };
+      }
 
-    return { id, name: "Unknown Contact", icon: "👤", role: "Crew" };
-  });
+      return null; // Return null for dead IDs so we can filter them out
+    })
+    .filter((c): c is NonNullable<typeof c> => c !== null);
 
   const activeContact = availableContacts.find((c) => c.id === activeChat);
 
@@ -69,7 +79,11 @@ export default function NetworksPage() {
     }
   }, [activeChat, state.unreadContacts, dispatch]);
 
-  const handleSendReply = (replyText: string, automatedResponse: string) => {
+  const handleSendReply = (
+    replyText: string,
+    automatedResponse: string,
+    sideEffect?: string,
+  ) => {
     if (!activeContact) return;
 
     const newMsg = { sender: "You", text: replyText };
@@ -107,6 +121,7 @@ export default function NetworksPage() {
   const currentMessages = activeContact
     ? getCombinedChat(activeContact.id)
     : [];
+
   const currentOptions =
     activeContact && CHAT_CHOICES[activeContact.id]
       ? CHAT_CHOICES[activeContact.id].filter(
@@ -130,16 +145,29 @@ export default function NetworksPage() {
           marginBottom: "2rem",
           marginTop: "2rem",
           fontFamily: "var(--font-sketch)",
-          color: "var(--color-pencil-light)",
         }}
       >
-        <h1 style={{ fontSize: "2.5rem", margin: 0 }}>Chat</h1>
-        <p style={{ fontSize: "1.1rem", opacity: 0.9 }}>
+        <h1
+          style={{
+            fontSize: "2.5rem",
+            color: "var(--color-pencil-light)",
+            margin: 0,
+          }}
+        >
+          Chat
+        </h1>
+        <p
+          style={{
+            color: "var(--color-pencil-light)",
+            fontSize: "1.1rem",
+            opacity: 0.9,
+          }}
+        >
           Stay in touch with your crew. Quick replies only, we're on headset!
         </p>
       </header>
 
-      {/* UX FIX: Priority 1 - Restored the networks-layout class to re-enable mobile media queries */}
+      {/* Restored the classname so components.css media queries can stack this on mobile! */}
       <div className="networks-layout">
         {/* SIDEBAR DIRECTORY */}
         <div
@@ -149,6 +177,8 @@ export default function NetworksPage() {
             borderRadius: "12px",
             border: "2px solid var(--glass-border)",
             overflow: "hidden",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           <div
@@ -169,7 +199,15 @@ export default function NetworksPage() {
               Directory
             </h2>
           </div>
-          <div style={{ display: "flex", flexDirection: "column" }}>
+
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              overflowY: "auto",
+            }}
+          >
             {availableContacts.map((contact) => {
               const isUnread = state.unreadContacts?.includes(contact.id);
               return (
@@ -243,6 +281,8 @@ export default function NetworksPage() {
             background: "var(--color-surface-translucent)",
             borderRadius: "12px",
             border: "2px solid var(--glass-border)",
+            display: "flex",
+            flexDirection: "column",
           }}
         >
           {activeContact ? (
@@ -295,7 +335,7 @@ export default function NetworksPage() {
                 )}
                 {currentMessages.map((msg, i) => (
                   <div
-                    key={`msg-${i}`}
+                    key={`msg-${msg.sender}-${i}`}
                     style={{
                       alignSelf:
                         msg.sender === "You" ? "flex-end" : "flex-start",
@@ -354,6 +394,7 @@ export default function NetworksPage() {
                         handleSendReply(
                           parseDialogueTags(choice.text),
                           parseDialogueTags(choice.response),
+                          choice.sideEffect,
                         )
                       }
                       style={{

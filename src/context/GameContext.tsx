@@ -13,11 +13,27 @@ import { gameReducer } from "./gameReducer";
 const LOCAL_STORAGE_KEY = "a3_backstage_save";
 const SESSION_STORAGE_KEY = "a3_backstage_active_run";
 
-// ----------------------------------------------------------------------------
-// 1. Zod Schemas for Validation
-// Using .catch() ensures that if a specific property is missing from an older
-// save file, it recovers gracefully using defaults instead of wiping the save.
-// ----------------------------------------------------------------------------
+// --- MIGRATION MAP ---
+// Silently converts old IDs from previous saves into the new ID system.
+const ID_MIGRATIONS: Record<string, string> = {
+  char_ben: "char_shane",
+  char_alex: "char_wynn",
+  char_jordan: "char_zen",
+  char_maya: "char_lia",
+  char_tara: "char_karishma",
+  char_dante: "char_sylvester",
+  char_chloe: "char_angel",
+  char_marcus: "char_richmond",
+  char_zoe: "char_jay",
+  char_owen: "char_shaun",
+  char_fiona: "char_jasper",
+  npc_mateo: "npc_bryan",
+  npc_arthur: "npc_yg",
+  npc_jd: "npc_elara",
+};
+
+const migrateIds = (ids: string[]) => ids.map((id) => ID_MIGRATIONS[id] || id);
+
 const LevelProgressSchema = z.object({
   stars: z.number().catch(0),
   completed: z.boolean().catch(false),
@@ -26,19 +42,20 @@ const LevelProgressSchema = z.object({
 const GameSaveSchema = z.object({
   progress: z.record(z.string(), LevelProgressSchema).catch({}),
   unlockedStories: z.array(z.string()).catch([]),
-  contacts: z.array(z.string()).catch(["char_shane", "char_wynn", "sys_comms"]),
-  unreadContacts: z.array(z.string()).catch(["sys_comms"]),
+  contacts: z
+    .array(z.string())
+    .catch(["sys_comms", "group_official", "group_tech_survivors"]),
+  unreadContacts: z
+    .array(z.string())
+    .catch(["sys_comms", "group_official", "group_tech_survivors"]),
 });
 
-// ----------------------------------------------------------------------------
-// 2. Initial State & Context Setup
-// ----------------------------------------------------------------------------
 const initialState: GameState = {
   session: null,
   progress: {},
   unlockedStories: [],
-  contacts: ["char_shane", "char_wynn", "sys_comms"],
-  unreadContacts: ["sys_comms"],
+  contacts: ["sys_comms", "group_official", "group_tech_survivors"],
+  unreadContacts: ["sys_comms", "group_official", "group_tech_survivors"],
 };
 
 interface GameContextType {
@@ -48,18 +65,13 @@ interface GameContextType {
 
 export const GameContext = createContext<GameContextType | null>(null);
 
-// ----------------------------------------------------------------------------
-// 3. Provider Component
-// ----------------------------------------------------------------------------
 export function GameProvider({ children }: { readonly children: ReactNode }) {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
-  // --- MOUNT: Load & Validate Save Data ---
   useEffect(() => {
     try {
       let loadedState: Partial<GameState> = {};
 
-      // 1. Load Career Progress (Local Storage)
       const localString = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (localString) {
         const parsedJson = JSON.parse(localString);
@@ -67,20 +79,47 @@ export function GameProvider({ children }: { readonly children: ReactNode }) {
 
         if (validation.success) {
           loadedState = { ...validation.data };
+
+          if (loadedState.contacts) {
+            // Keep track of the raw loaded contacts to know if we are injecting new ones
+            const oldContacts = new Set(loadedState.contacts);
+
+            // 1. Apply ID Migrations
+            loadedState.contacts = migrateIds(loadedState.contacts);
+
+            loadedState.unreadContacts ??= [];
+            loadedState.unreadContacts = migrateIds(loadedState.unreadContacts);
+
+            // 2. UX/LOGIC FIX: Retroactively inject the new default group chats into existing saves!
+            const defaultContacts = [
+              "sys_comms",
+              "group_official",
+              "group_tech_survivors",
+            ];
+
+            defaultContacts.forEach((c) => {
+              if (!loadedState.contacts!.includes(c)) {
+                loadedState.contacts!.push(c);
+              }
+              // If they didn't have it in their old save, give them a notification dot for it!
+              if (
+                !oldContacts.has(c) &&
+                !loadedState.unreadContacts!.includes(c)
+              ) {
+                loadedState.unreadContacts!.push(c);
+              }
+            });
+          }
         } else {
           console.warn("Save file root structure is invalid. Starting fresh.");
         }
       }
 
-      // 2. Load Active Run (Session Storage)
       const sessionString = sessionStorage.getItem(SESSION_STORAGE_KEY);
       if (sessionString) {
-        // Ephemeral data doesn't strictly need Zod validation since it clears on tab close,
-        // but wrapping it in try/catch prevents a corrupted string from crashing the load.
         loadedState.session = JSON.parse(sessionString);
       }
 
-      // 3. Dispatch Combined State
       if (Object.keys(loadedState).length > 0) {
         dispatch({ type: "LOAD_SAVE", payload: loadedState });
       }
@@ -89,23 +128,18 @@ export function GameProvider({ children }: { readonly children: ReactNode }) {
     }
   }, []);
 
-  // --- UPDATE: Debounced Persistent Saving ---
   useEffect(() => {
     const handler = setTimeout(() => {
       const { session, ...persistentState } = state;
 
       try {
-        // 1. Save Career Progress
         localStorage.setItem(
           LOCAL_STORAGE_KEY,
           JSON.stringify(persistentState),
         );
-
-        // 2. Save Active Run
         if (session) {
           sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
         } else {
-          // Clean up session storage if the session was cleared (e.g., returning to main menu)
           sessionStorage.removeItem(SESSION_STORAGE_KEY);
         }
       } catch (error) {

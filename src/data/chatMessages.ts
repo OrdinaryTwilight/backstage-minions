@@ -1,5 +1,3 @@
-// src/data/chatMessages.ts
-
 export interface ChatChoice {
   text: string;
   response: string;
@@ -15,7 +13,7 @@ export const CHAT_MESSAGES: Record<
     messages: [],
   },
   npc_zainab: {
-    sender: "Zainab (Wardrobe)",
+    sender: "{npc_zainab} (Wardrobe)",
     messages: [
       "Thanks for the mic pouch earlier! Lifesaver.",
       "The lead's zipper is stuck. I'm panicking.",
@@ -30,20 +28,27 @@ export const CHAT_MESSAGES: Record<
       "Great run today everyone, despite the tech issues.",
     ],
   },
-  npc_jd: {
-    sender: "JD (Production Manager)",
+  npc_elara: {
+    sender: "{npc_elara} (Production Manager)",
     messages: [
       "Places in 5, people. Places in 5.",
       "Tech, are we ready for the blackout cue?",
       "Hold the house! We have a set piece stuck.",
     ],
   },
+  npc_des: {
+    sender: "{npc_des} (Stage Manager)",
+    messages: [
+      "Standby all departments. House is at half.",
+      "Has anyone seen my glow tape?",
+    ],
+  },
   char_shane: {
-    sender: "Shane (LX)",
+    sender: "{char_shane} (LX)",
     messages: [],
   },
   char_wynn: {
-    sender: "Wynn (Audio)",
+    sender: "{char_wynn} (Audio)",
     messages: [],
   },
 
@@ -51,28 +56,28 @@ export const CHAT_MESSAGES: Record<
   group_tech_survivors: {
     sender: "📱 Group: Tech Survivors",
     messages: [
-      "Lia (Props): Who took my good fabric scissors? I am not asking nicely.",
-      "Nikki (LX): Check Wardrobe. They were looking for something to cut wire with earlier.",
-      "Lia (Props): IF THEY CUT WIRE WITH MY SCISSORS I WILL BURN THIS THEATRE DOWN.",
-      "River (Video): Bring me a Red Bull if you pass the vending machine.",
+      "{char_lia} (Props): Who took my good fabric scissors? I am not asking nicely.",
+      "{char_niki} (Audio): Check Wardrobe. They were looking for something to cut wire with earlier.",
+      "{char_lia} (Props): IF THEY CUT WIRE WITH MY SCISSORS I WILL BURN THIS THEATRE DOWN.",
+      "{char_river} (Video): Bring me a Red Bull if you pass the vending machine.",
     ],
   },
   group_official: {
     sender: "📱 OFFICIAL: Cast & Crew",
     messages: [
-      "Alex (SM): Call time is 6:00 PM. Not 6:05. If you are late, you are dead to me.",
-      "Zainab (Wardrobe): Cast, please stop eating Cheetos in costume. The stains are permanent.",
-      "YG (Director): Art cannot be bound by the hands of a clock, Alex.",
-      "Alex (SM): Art pays union fines when it goes into overtime, YG. 6:00 PM.",
+      "{npc_des} (SM): Call time is 6:00 PM. Not 6:05. If you are late, you are dead to me.",
+      "{npc_zainab} (Wardrobe): Cast, please stop eating Cheetos in costume. The stains are permanent.",
+      "{npc_yg} (Director): Art cannot be bound by the hands of a clock.",
+      "{npc_des} (SM): Art pays union fines when it goes into overtime, {npc_yg}. 6:00 PM.",
     ],
   },
   group_audio_only: {
     sender: "📱 Sound Dept (No LX Allowed)",
     messages: [
-      "Young Zen (Sound): The lead singer just asked me to add more 'talent' to their monitor mix.",
-      "Wynn (Audio): Just turn up the reverb and tell them you boosted the 'vibe' frequencies.",
-      "Sam (A1): Standard protocol. Did it work?",
-      "Young Zen (Sound): Yes. They said it sounds 'much more authentic'. I hate it here.",
+      "{char_zen} (Sound): The lead singer just asked me to add more 'talent' to their monitor mix.",
+      "{char_wynn} (Audio): Just turn up the reverb and tell them you boosted the 'vibe' frequencies.",
+      "{char_sam} (A1): Standard protocol. Did it work?",
+      "{char_zen} (Sound): Yes. They said it sounds 'much more authentic'. I hate it here.",
     ],
   },
   default: {
@@ -110,7 +115,7 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
       response: "Wait, that's actually a great trick. It worked! Thank you!",
     },
   ],
-  npc_jd: [
+  npc_elara: [
     {
       text: "Tech is standing by for blackout.",
       response: "Copy that. Prepare to execute on my GO.",
@@ -123,7 +128,7 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
   char_shane: [
     {
       text: "I didn't touch your gels, ask Props.",
-      response: "Typical. I'll go have a word with Lia.",
+      response: "Typical. I'll go have a word with {char_lia}.",
     },
     {
       text: "Worklight coming up on stage left now.",
@@ -154,7 +159,7 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
   group_tech_survivors: [
     {
       text: "I have the fabric scissors. They were left on the prop table.",
-      response: "Lia (Props): BRING THEM TO ME IMMEDIATELY.",
+      response: "{char_lia} (Props): BRING THEM TO ME IMMEDIATELY.",
     },
   ],
 };

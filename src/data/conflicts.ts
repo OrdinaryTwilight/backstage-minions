@@ -56,9 +56,9 @@ export const CONFLICTS: Conflict[] = [
   {
     id: "conf_comms_etiquette",
     trigger: "execution",
-    npc: "npc_jd",
+    npc: "npc_elara",
     description:
-      "Mid-show, {npc_jd}'s voice crackles over your headset, sounding exhausted. 'Who is eating chips over an open mic? We're in the middle of a delicate soliloquy and all the Stage Manager can hear is CRUNCHING. Own up now.'",
+      "Mid-show, {npc_elara}'s voice crackles over your headset, sounding exhausted. 'Who is eating chips over an open mic? We're in the middle of a delicate soliloquy and all the Stage Manager can hear is CRUNCHING. Own up now.'",
     choices: [
       {
         id: "own_it",
@@ -66,7 +66,8 @@ export const CONFLICTS: Conflict[] = [
         outcome: "resolved",
         pointDelta: 5,
         aftermathText:
-          "{npc_jd} sighs. 'At least you're honest. Just... be more professional. We're a troupe, not a cafeteria.'",
+          "{npc_elara} sighs. 'At least you're honest. Just... be more professional. We're a troupe, not a cafeteria.'",
+        sideEffect: "ally_gained", // Added Ally
       },
       {
         id: "deflect",
@@ -118,6 +119,7 @@ export const CONFLICTS: Conflict[] = [
         pointDelta: 15,
         aftermathText:
           "{npc_yg} beams. 'Yes! Protect the momentum of the run! I love working with artists.' {npc_stage_manager} gives you a thumbs up from the desk.",
+        sideEffect: "ally_gained", // Added Ally
       },
       {
         id: "hard_no",
@@ -151,6 +153,7 @@ export const CONFLICTS: Conflict[] = [
         pointDelta: 20,
         aftermathText:
           "It takes 15 minutes, but you find clean airwaves. {char_jay} high-fives you. 'Clean audio is godliness.'",
+        sideEffect: "ally_gained", // Added Ally
       },
       {
         id: "turn_it_up",
@@ -176,6 +179,7 @@ export const CONFLICTS: Conflict[] = [
         pointDelta: 15,
         aftermathText:
           "'Copy that. Awaiting your clear,' {char_leo} replies. You move the light, the drop comes in safely, and disaster is averted.",
+        sideEffect: "ally_gained", // Added Ally
       },
       {
         id: "blame_game",
@@ -201,6 +205,7 @@ export const CONFLICTS: Conflict[] = [
         pointDelta: 10,
         aftermathText:
           "With your light, {char_angel} frees the wig. The actor sprints on stage precisely on cue. 'You're my hero,' she whispers.",
+        sideEffect: "ally_gained", // Added Ally
       },
       {
         id: "phone_light",
@@ -226,6 +231,7 @@ export const CONFLICTS: Conflict[] = [
         pointDelta: 10,
         aftermathText:
           "The SM sighs but agrees. {char_richmond} handles the VIP. The audience is seated calmly. Good communication.",
+        sideEffect: "ally_gained", // Added Ally
       },
       {
         id: "push_forward",
