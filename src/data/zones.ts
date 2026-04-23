@@ -164,6 +164,26 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
         },
       ],
     },
+    callboard: {
+      x: 400,
+      y: 50,
+      w: 120,
+      h: 60,
+      label: "CALLBOARD",
+      color: "#9a031e",
+      isSolid: true,
+      targetDept: "management",
+    },
+    wardrobeDept: {
+      x: 50,
+      y: 250,
+      w: 150,
+      h: 100,
+      label: "WARDROBE",
+      color: "#e63946",
+      isSolid: true,
+      targetDept: "wardrobe",
+    },
   },
 
   basement: {
@@ -209,7 +229,6 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
         },
       ],
     },
-    // NEW ZONE: Required for the audio_batteries quest
     storage: {
       x: 350,
       y: 50,
@@ -238,6 +257,16 @@ export const OVERWORLD_MAPS: Record<string, Record<string, ZoneConfig>> = {
       color: "#1A1A1A",
       isSolid: false,
       isDoor: "backstage",
+    },
+    flyRail: {
+      x: 50,
+      y: 50,
+      w: 70,
+      h: 150,
+      label: "FLY RAIL",
+      color: "#f9a826",
+      isSolid: true,
+      targetDept: "scenic",
     },
     spotTower: {
       x: 200,

@@ -27,13 +27,19 @@ export function useLevelFlow(
   }, [state.session, isInOverworld]);
 
   function handleComplete() {
-    const totalCues = departmentCues.length;
-    const stars = calculateStars(state.session, totalCues);
+    const session = state.session;
+
+    const baseFaderCues = departmentCues.length;
+    const cuesHit = session?.cuesHit ?? 0;
+    const cuesMissed = session?.cuesMissed ?? 0;
+    const totalCues = Math.max(baseFaderCues, cuesHit + cuesMissed);
+
+    const stars = calculateStars(session, baseFaderCues, totalCues);
 
     dispatch({
       type: "COMPLETE_LEVEL",
-      productionId: productionId || "",
-      difficulty: (difficulty || "school") as Difficulty,
+      productionId: productionId ?? "",
+      difficulty: (difficulty ?? "school") as Difficulty,
       stars,
       unlockedStories: [],
     });
@@ -47,16 +53,9 @@ export function useLevelFlow(
 
     const currentIdx = session.currentStageIndex;
     const currentStageKey = session.stages[currentIdx];
-    const noOverworldStages = ["wrapup"];
 
     if (currentStageKey === "wrapup") {
       handleComplete();
-    } else if (noOverworldStages.includes(currentStageKey)) {
-      if (currentIdx < session.stages.length - 1) {
-        dispatch({ type: "NEXT_STAGE" });
-      } else {
-        handleComplete();
-      }
     } else {
       setIsInOverworld(true);
     }

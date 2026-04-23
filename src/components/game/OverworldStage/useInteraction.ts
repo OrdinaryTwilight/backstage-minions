@@ -108,6 +108,16 @@ function handleStaticZoneInteraction(
   }
 
   if (props.activeZone === props.targetZoneId) {
+    if (props.targetZoneId === "wings" && Math.random() > 0.5) {
+      props.setActiveQuestDialogue({
+        speaker: "Senior Tech",
+        icon: "🍻",
+        text: "Hey! We actually have enough hands to wrap the cables today. You're off the hook. Go sign out with the SM!",
+        choices: [{ id: "skip_strike_accept", text: "Head to Wrap-Up" }],
+      });
+      return;
+    }
+
     props.onComplete();
     return;
   }

@@ -30,9 +30,11 @@ export default function WrapUpScene({
   const score = state.session?.score || 0;
   const cuesHit = state.session?.cuesHit || 0;
   const cuesMissed = state.session?.cuesMissed || 0;
-  const totalCues = cueSheet.length;
 
-  const stars = calculateStars(state.session, totalCues);
+  const baseFaderCues = cueSheet.length;
+  const totalCues = Math.max(baseFaderCues, cuesHit + cuesMissed);
+
+  const stars = calculateStars(state.session, baseFaderCues, totalCues);
 
   const getResultColor = (starCount: number): string => {
     if (starCount >= 3) return "var(--bui-fg-success)";
@@ -71,9 +73,13 @@ export default function WrapUpScene({
           ? ` Quests Completed: ${completedQuests.length}.`
           : "";
 
+      const opText = char
+        ? `Operator: ${char.name} (${char.role})`
+        : "Operator: Unknown";
+
       history["sys_comms"].push({
         sender: "System Alerts",
-        text: `[POST-MORTEM REPORT] ${prodTitle} - Tier: ${diffText}: Hit ${cuesHit}/${totalCues} Cues. Final Score: ${score}. Rating: ${stars} Stars.${questText}`,
+        text: `[POST-MORTEM REPORT] ${prodTitle} - Tier: ${diffText} | ${opText}. Hit ${cuesHit}/${totalCues} Cues. Final Score: ${score}. Rating: ${stars} Stars.${questText}`,
       });
 
       sessionStorage.setItem("minion_chats", JSON.stringify(history));
@@ -82,7 +88,7 @@ export default function WrapUpScene({
 
       reportSent.current = true;
     }
-  }, [phase, cuesHit, totalCues, score, stars, state.session]);
+  }, [phase, cuesHit, totalCues, score, stars, state.session, char]);
 
   const handleSignOut = () => {
     sessionStorage.removeItem("minion_inventory");
@@ -90,7 +96,6 @@ export default function WrapUpScene({
     sessionStorage.removeItem("minion_session");
     sessionStorage.removeItem("minion_stages");
 
-    // FIX: Using the strict string literal required by GameAction
     dispatch({ type: "CLEAR_SESSION" });
     navigate("/");
   };

@@ -5,22 +5,23 @@ export function generateStageSequence(department: string): string[] {
   // 1. Every session starts by picking equipment at the loading dock
   const sequence: string[] = ["equipment"];
 
-  // 2. Department-specific Pre-Show prep
+  // 2. Department-specific Pre-Show prep and Main Event
   if (department === "lighting") {
-    sequence.push("planning");
+    sequence.push("planning", "cue_execution");
   } else if (department === "sound") {
-    sequence.push("sound_design");
+    sequence.push("sound_design", "cue_execution");
+  } else if (department === "management") {
+    sequence.push("stage_management", "cue_execution"); // Route to execution!
+  } else if (department === "scenic") {
+    sequence.push("scenic", "cue_execution"); // Route to execution!
+  } else if (department === "wardrobe") {
+    sequence.push("wardrobe"); // Wardrobe is packed with 2 stages already
   } else {
-    // TODO: Add specific prep stages for remaining departments
-    // e.g., if (department === "video") sequence.push("projection_mapping");
-    // e.g., if (department === "wardrobe") sequence.push("quick_change_prep");
+    sequence.push("cue_execution");
   }
 
-  // 3. The main event
-  // TODO: "cue_execution" is currently pushed globally for all departments.
-  // Non-console departments (Props, Wardrobe) may need a completely different
-  // main stage key like "track_execution" or "backstage_management" in the future.
-  sequence.push("cue_execution", "cable_coiling", "wrapup");
+  // 3. Post-show
+  sequence.push("cable_coiling", "wrapup");
 
   return sequence;
 }

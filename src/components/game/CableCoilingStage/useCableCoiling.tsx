@@ -157,10 +157,13 @@ export function useCableCoiling(difficulty: string, onComplete: () => void) {
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.repeat) return;
-      if (e.key === "ArrowLeft") {
+
+      const key = e.key.toLowerCase();
+
+      if (key === "arrowleft" || key === "a" || key === "w") {
         e.preventDefault();
         handleAction("OVER");
-      } else if (e.key === "ArrowRight") {
+      } else if (key === "arrowright" || key === "d") {
         e.preventDefault();
         handleAction("UNDER");
       }

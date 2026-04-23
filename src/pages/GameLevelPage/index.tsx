@@ -13,16 +13,25 @@ import SoundDesignStage from "../../components/game/SoundDesignStage";
 import WrapUpScene from "../../components/game/WrapUpScene";
 import Button from "../../components/ui/Button";
 
+// UX FIX: Priority 1 - Import the new stages
+import FlySystemExecution from "../../components/game/ScenicStage/FlySystemExecution";
+import CallboardPuzzle from "../../components/game/StageManagementStage/CallboardPuzzle";
+import WardrobeStage from "../../components/game/WardrobeStage";
+
 // Extracted Sub-Components and Hooks
 import ShowControlNav from "./ShowControlNav";
 import { useLevelFlow } from "./useLevelFlow";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const STAGE_COMPONENTS: Record<string, any> = {
   equipment: EquipmentStage,
   planning: PlanningStage,
   sound_design: SoundDesignStage,
   cue_execution: CueExecutionStage,
   cable_coiling: CableCoilingStage,
+  stage_management: CallboardPuzzle, // Wired!
+  scenic: FlySystemExecution, // Wired!
+  wardrobe: WardrobeStage, // Wired!
   wrapup: WrapUpScene,
 };
 
