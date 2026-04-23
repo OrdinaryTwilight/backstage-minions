@@ -38,7 +38,7 @@ export default function AvailableGearList({
             <HardwarePanel
               key={pkg.id}
               style={{
-                padding: 0, // Remove padding so the button can stretch 100%
+                padding: 0,
                 borderColor: isHighlighted
                   ? "var(--bui-fg-warning)"
                   : undefined,
@@ -50,13 +50,11 @@ export default function AvailableGearList({
                 overflow: "hidden",
               }}
             >
-              {/* UX FIX: Priority 4 - Use a native button inside the panel to guarantee perfect WCAG 
-                  keyboard accessibility and satisfy SonarQube/ESLint interaction rules */}
               <button
                 type="button"
                 onClick={() => handlePanelClick(pkg.id)}
                 aria-pressed={isHighlighted}
-                aria-label={`Select ${pkg.label} Package. Bonus: ${pkg.bonus} points`}
+                aria-label={`Select ${pkg.label} Package. Hit Window: ${pkg.multiplier}x. Bonus: ${pkg.bonus} points`}
                 style={{
                   width: "100%",
                   height: "100%",
@@ -90,20 +88,48 @@ export default function AvailableGearList({
                 >
                   {pkg.description}
                 </p>
+
+                {/* UX FIX: Translate multiplier and bonus into legible terms */}
                 <div
                   style={{
-                    fontSize: "0.8rem",
+                    fontSize: "0.85rem",
                     color: "var(--bui-fg-info)",
-                    textTransform: "uppercase",
                     fontFamily: "var(--font-mono)",
+                    background: "rgba(0,0,0,0.3)",
+                    padding: "0.5rem",
+                    borderRadius: "4px",
                   }}
                 >
-                  Bonus: {pkg.bonus > 0 ? `+${pkg.bonus}` : pkg.bonus} pts
+                  <strong>Hit Window:</strong> {pkg.multiplier}x <br />
+                  <strong>Score Bonus:</strong>{" "}
+                  {pkg.bonus > 0 ? `+${pkg.bonus}` : pkg.bonus} pts
                 </div>
               </button>
             </HardwarePanel>
           );
         })}
+      </div>
+
+      {/* UX FIX: Explain exactly what the stats above mean to a new player */}
+      <div
+        style={{
+          marginTop: "1.5rem",
+          padding: "1rem",
+          background: "rgba(56, 189, 248, 0.1)",
+          border: "1px dashed var(--bui-fg-info)",
+          borderRadius: "8px",
+          fontSize: "0.85rem",
+          color: "var(--color-pencil-light)",
+          fontFamily: "var(--font-mono)",
+          maxWidth: "600px",
+          textAlign: "center",
+        }}
+      >
+        💡 <strong>GEAR GUIDE:</strong> <br />
+        <strong>Hit Window</strong> affects timing precision (Higher = Easier to
+        hit cues).
+        <br />
+        <strong>Score Bonus</strong> adds or subtracts from your final rating.
       </div>
 
       <Button

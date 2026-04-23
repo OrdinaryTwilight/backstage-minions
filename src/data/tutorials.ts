@@ -91,8 +91,6 @@ export const TUTORIALS = [
   },
 ];
 
-// Add this to the bottom of src/data/tutorials.ts
-
 export const STAGE_TUTORIAL_MAP: Record<string, string> = {
   equipment: "tut_the_quick_fix",
   planning: "tut_welcome_to_hell",
@@ -105,20 +103,9 @@ export const STAGE_TUTORIAL_MAP: Record<string, string> = {
 export function getStageHelpText(
   stageKey: keyof typeof STAGE_INSTRUCTIONS,
 ): string {
-  // 1. Get the quick instruction
-  let combinedText = STAGE_INSTRUCTIONS[stageKey] || "";
-
-  // 2. Find the mapped narrative tutorial
-  const tutorialId = STAGE_TUTORIAL_MAP[stageKey];
-  const tutorial = TUTORIALS.find((t) => t.id === tutorialId);
-
-  // 3. Append the narrative text if it exists
-  if (tutorial) {
-    combinedText += `\n\n--- VETERAN'S NOTES: ${tutorial.title.toUpperCase()} ---\n`;
-    tutorial.steps.forEach((step) => {
-      combinedText += `[${step.speaker}]: "${step.text}"\n`;
-    });
-  }
-
-  return combinedText;
+  // UX FIX: Simply return the mechanical instructions.
+  // We no longer append the lore paragraphs here to prevent wall-of-text panic.
+  return (
+    STAGE_INSTRUCTIONS[stageKey] || "Complete the required tasks to proceed."
+  );
 }

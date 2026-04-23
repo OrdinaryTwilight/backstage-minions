@@ -19,7 +19,7 @@ interface MapViewportProps {
   readonly playerChar: Character | undefined | null;
   readonly activeZone: string | null;
   readonly activeNpcId: string | null;
-  readonly feedbackMsg: string | null;
+  // SONAR FIX S6767: Removed unused 'feedbackMsg' prop
   readonly bumpMsg: { id: string; msg: string } | null;
   readonly handleStageClick: (e: React.MouseEvent<HTMLButtonElement>) => void;
   readonly targetZoneId: string | null;
@@ -37,8 +37,6 @@ export default function MapViewport({
   handleStageClick,
   targetZoneId,
 }: MapViewportProps) {
-  // UX FIX: A robust 4-way shadow acts as a stroke to ensure text is highly legible
-  // without needing a solid, cluttered badge box behind it.
   const textStrokeShadow =
     "1px 1px 0 #000, -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 0 4px 8px rgba(0,0,0,0.8)";
 
@@ -90,6 +88,27 @@ export default function MapViewport({
         const isTarget = key === targetZoneId;
         const baseColor = zone.color || "var(--bui-fg-info)";
 
+        // SONAR FIX S3358: Extracted nested ternaries into independent conditional statements
+        // Default styling (inactive)
+        let currentBackground = `${baseColor}22`;
+        let currentBorder = `2px dashed ${baseColor}88`;
+        let currentBoxShadow = "none";
+        let currentZIndex = 1;
+
+        if (isTarget) {
+          // Target zone styling overrides
+          currentBackground = `${baseColor}66`;
+          currentBorder = `3px solid var(--bui-fg-warning)`;
+          currentBoxShadow = `0 0 30px 5px var(--bui-fg-warning), inset 0 0 20px var(--bui-fg-warning)`;
+          currentZIndex = 15;
+        } else if (isActive) {
+          // Active (hovered/clicked) zone styling overrides
+          currentBackground = `${baseColor}44`;
+          currentBorder = `3px solid ${baseColor}`;
+          currentBoxShadow = `0 0 30px 5px ${baseColor}, inset 0 0 30px ${baseColor}`;
+          currentZIndex = 10;
+        }
+
         return (
           <div
             key={key}
@@ -99,23 +118,18 @@ export default function MapViewport({
               top: `${(zone.y / GAME_HEIGHT) * 100}%`,
               width: `${(zone.w / GAME_WIDTH) * 100}%`,
               height: `${(zone.h / GAME_HEIGHT) * 100}%`,
-              background: isActive ? `${baseColor}44` : `${baseColor}22`,
-              border: isActive
-                ? `3px solid ${baseColor}`
-                : `2px dashed ${baseColor}88`,
-              boxShadow: isActive
-                ? `0 0 30px 5px ${baseColor}, inset 0 0 30px ${baseColor}`
-                : "none",
+              background: currentBackground,
+              border: currentBorder,
+              boxShadow: currentBoxShadow,
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
               pointerEvents: "none",
               transition: "all 0.2s ease",
-              zIndex: isActive ? 10 : 1,
+              zIndex: currentZIndex,
             }}
           >
-            {/* UX FIX: Placed the dot and text in a column flexbox so the dot perfectly centers over the text */}
             <div
               style={{
                 display: "flex",
@@ -142,7 +156,7 @@ export default function MapViewport({
                 style={{
                   fontFamily: "var(--font-sketch)",
                   fontWeight: "bold",
-                  fontSize: "clamp(0.75rem, 2.5vw, 1rem)", // UX FIX: Static size prevents screen wobble
+                  fontSize: "clamp(0.75rem, 2.5vw, 1rem)",
                   color: "#fff",
                   textShadow: textStrokeShadow,
                   textAlign: "center",
