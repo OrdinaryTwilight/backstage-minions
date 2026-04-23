@@ -15,15 +15,10 @@
 
 import { Conflict } from "../types/game";
 
-/**
- * All possible conflicts in the game.
- * Conflicts are randomly selected during gameplay based on current stage.
- * Each conflict has NPC dialogue and 2-3 player response options.
- */
 export const CONFLICTS: Conflict[] = [
   {
     id: "conf_the_vanishing_prop",
-    trigger: "planning",
+    trigger: "equipment",
     npc: "npc_des",
     description:
       "{npc_des} is frantically rummaging through a prop bin, hair disheveled. 'The lead's lucky pocket watch is gone! They refuse to go on stage without it, and the house opens in five minutes. I think I saw a stagehand take it to the sound booth for some reason... help me!'",
@@ -49,7 +44,7 @@ export const CONFLICTS: Conflict[] = [
   },
   {
     id: "conf_the_aesthetic_clash",
-    trigger: "rehearsal",
+    trigger: "planning",
     npc: "npc_zainab",
     description:
       "{npc_zainab} blocks your path to the lighting console, arms crossed. 'I see what you're doing with those side-lights. That harsh blue is washing out the delicate lace on the protagonist’s cape! It looks like cheap plastic under your lights. You're ruining the vision!'",
@@ -75,7 +70,7 @@ export const CONFLICTS: Conflict[] = [
   },
   {
     id: "conf_comms_etiquette",
-    trigger: "execution",
+    trigger: "cue_execution",
     npc: "npc_elara",
     description:
       "Mid-show, {npc_elara}'s voice crackles over your headset, sounding exhausted. 'Who is eating chips over an open mic? We're in the middle of a delicate soliloquy and all the Stage Manager can hear is CRUNCHING. Own up now.'",
@@ -87,7 +82,7 @@ export const CONFLICTS: Conflict[] = [
         pointDelta: 5,
         aftermathText:
           "{npc_elara} sighs. 'At least you're honest. Just... be more professional. We're a troupe, not a cafeteria.'",
-        sideEffect: "ally_gained", // Added Ally
+        sideEffect: "ally_gained",
       },
       {
         id: "deflect",
@@ -101,7 +96,7 @@ export const CONFLICTS: Conflict[] = [
   },
   {
     id: "conf_the_gaffer_hoarder",
-    trigger: "wrapup",
+    trigger: "cable_coiling",
     npc: "npc_bryan",
     description:
       "Strike has begun, and everyone is out of gaffer tape. You see {npc_bryan} tucking a fresh roll into his personal bag. When you ask for some, he grunts. 'This is my personal stash. I’ve seen how you lot waste tape. Use tie-line or find your own.'",
@@ -127,7 +122,7 @@ export const CONFLICTS: Conflict[] = [
   },
   {
     id: "conf_the_rogue_director",
-    trigger: "rehearsal",
+    trigger: "cue_execution",
     npc: "npc_yg",
     description:
       "{npc_yg} walks up to your console during a tech run. 'I know we locked the cues, but what if right here, all the lights go completely red and we hear a massive heartbeat? It symbolizes their inner turmoil. Can you build that right now?'",
@@ -139,7 +134,7 @@ export const CONFLICTS: Conflict[] = [
         pointDelta: 15,
         aftermathText:
           "{npc_yg} beams. 'Yes! Protect the momentum of the run! I love working with artists.' {npc_stage_manager} gives you a thumbs up from the desk.",
-        sideEffect: "ally_gained", // Added Ally
+        sideEffect: "ally_gained",
       },
       {
         id: "hard_no",
@@ -161,7 +156,7 @@ export const CONFLICTS: Conflict[] = [
   },
   {
     id: "conf_the_rf_nightmare",
-    trigger: "planning",
+    trigger: "sound_design",
     npc: "char_jay",
     description:
       "{char_jay} runs up to you with a handful of mic transmitters. 'The local TV station just fired up a new broadcast tower and it's stepping all over our RF frequencies. Half the cast mics sound like radio static!'",
@@ -173,7 +168,7 @@ export const CONFLICTS: Conflict[] = [
         pointDelta: 20,
         aftermathText:
           "It takes 15 minutes, but you find clean airwaves. {char_jay} high-fives you. 'Clean audio is godliness.'",
-        sideEffect: "ally_gained", // Added Ally
+        sideEffect: "ally_gained",
       },
       {
         id: "turn_it_up",
@@ -187,7 +182,7 @@ export const CONFLICTS: Conflict[] = [
   },
   {
     id: "conf_the_fly_rail_traffic",
-    trigger: "execution",
+    trigger: "scenic",
     npc: "char_leo",
     description:
       "You're on comms. {char_leo}'s deep voice comes over: 'Lighting, you hung the new moving head too far upstage. If I drop the Act 2 backdrop right now, it's going to snag on your fixture and tear the canvas.'",
@@ -199,7 +194,7 @@ export const CONFLICTS: Conflict[] = [
         pointDelta: 15,
         aftermathText:
           "'Copy that. Awaiting your clear,' {char_leo} replies. You move the light, the drop comes in safely, and disaster is averted.",
-        sideEffect: "ally_gained", // Added Ally
+        sideEffect: "ally_gained",
       },
       {
         id: "blame_game",
@@ -213,7 +208,7 @@ export const CONFLICTS: Conflict[] = [
   },
   {
     id: "conf_the_quick_change",
-    trigger: "execution",
+    trigger: "wardrobe",
     npc: "char_angel",
     description:
       "In the pitch-black wings, {char_angel} grabs your arm. 'The lead's wig is caught in their zipper! They are supposed to be on stage in twenty seconds! I need light, NOW!'",
@@ -225,7 +220,7 @@ export const CONFLICTS: Conflict[] = [
         pointDelta: 10,
         aftermathText:
           "With your light, {char_angel} frees the wig. The actor sprints on stage precisely on cue. 'You're my hero,' she whispers.",
-        sideEffect: "ally_gained", // Added Ally
+        sideEffect: "ally_gained",
       },
       {
         id: "phone_light",
@@ -239,7 +234,7 @@ export const CONFLICTS: Conflict[] = [
   },
   {
     id: "conf_front_of_house_delay",
-    trigger: "execution",
+    trigger: "stage_management",
     npc: "char_richmond",
     description:
       "{char_richmond} pages you. 'We have a massive line at the women's restroom and a VIP patron who just spilled wine on their shirt. I need a five-minute hold on the start of Act 2.'",
@@ -251,7 +246,7 @@ export const CONFLICTS: Conflict[] = [
         pointDelta: 10,
         aftermathText:
           "The SM sighs but agrees. {char_richmond} handles the VIP. The audience is seated calmly. Good communication.",
-        sideEffect: "ally_gained", // Added Ally
+        sideEffect: "ally_gained",
       },
       {
         id: "push_forward",
