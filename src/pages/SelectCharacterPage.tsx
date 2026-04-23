@@ -31,7 +31,7 @@ export default function SelectCharacterPage() {
   }
 
   return (
-    <div className="page-container" style={{ paddingBottom: "100px" }}>
+    <div className="page-container" style={{ paddingBottom: "180px" }}>
       <NavBar />
 
       <style>{`
@@ -118,15 +118,12 @@ export default function SelectCharacterPage() {
           border-radius: 4px;
         }
         
-        /* UX FIX: Priority 3 - Frosted glass mask for the sticky button */
         .sticky-action-bar {
           position: fixed;
-          bottom: 0;
+          bottom: 80px;
           left: 0;
           right: 0;
           padding: 1rem 1.5rem;
-          background: linear-gradient(to top, var(--color-bg) 60%, transparent);
-          backdrop-filter: blur(8px);
           z-index: 100;
           display: flex;
           justify-content: center;
