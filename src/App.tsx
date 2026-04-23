@@ -45,6 +45,7 @@ const SelectCharacterPage = lazy(() => import("./pages/SelectCharacterPage"));
 const GameLevelPage = lazy(() => import("./pages/GameLevelPage"));
 const LevelFailedPage = lazy(() => import("./pages/LevelFailedPage"));
 const StoriesPage = lazy(() => import("./pages/StoriesPage"));
+const IntroPage = lazy(() => import("./pages/IntroPage"));
 
 function App() {
   return (
@@ -53,6 +54,14 @@ function App() {
         <Router>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route
+              path="/intro"
+              element={
+                <Suspense fallback={<Spinner />}>
+                  <IntroPage />
+                </Suspense>
+              }
+            />
 
             <Route
               path="/productions"

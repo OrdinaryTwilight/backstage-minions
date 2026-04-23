@@ -78,6 +78,7 @@ export const GameSaveSchema = z.object({
     .array(z.string())
     .catch(["sys_comms", "group_official", "group_tech_survivors"]),
   chatHistory: z.record(z.string(), z.array(ChatMessageSchema)).catch({}),
+  hasSeenIntro: z.boolean().catch(false),
 });
 
 const initialState: GameState = {
@@ -86,7 +87,8 @@ const initialState: GameState = {
   unlockedStories: [],
   contacts: ["sys_comms", "group_official", "group_tech_survivors"],
   unreadContacts: ["sys_comms", "group_official", "group_tech_survivors"],
-  chatHistory: {}, // Start empty
+  chatHistory: {},
+  hasSeenIntro: false,
 };
 
 /** Type definition for the Game Context value */

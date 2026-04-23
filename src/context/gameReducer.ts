@@ -62,6 +62,13 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         ),
       };
 
+    case "MARK_INTRO_SEEN": {
+      return {
+        ...state,
+        hasSeenIntro: true,
+      };
+    }
+
     case "NEXT_STAGE":
       return withSession(state, (session) => ({
         ...session,

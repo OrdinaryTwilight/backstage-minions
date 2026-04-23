@@ -117,13 +117,17 @@ export default function HomePage() {
                 fontFamily: "var(--font-sketch)",
                 fontSize: "1.25rem",
               }}
-              onClick={() =>
-                navigate(
-                  hasActiveSession
-                    ? `/game/${gameState.session?.productionId}/${gameState.session?.difficulty}/${gameState.session?.characterId}`
-                    : "/productions",
-                )
-              }
+              onClick={() => {
+                if (hasActiveSession) {
+                  navigate(
+                    `/game/${gameState.session?.productionId}/${gameState.session?.difficulty}/${gameState.session?.characterId}`,
+                  );
+                } else if (gameState.hasSeenIntro) {
+                  navigate("/productions"); // Route veterans straight to the list
+                } else {
+                  navigate("/intro");
+                }
+              }}
             >
               {hasActiveSession ? "Resume Shift" : "Start Shift"}
             </Button>

@@ -191,6 +191,7 @@ export interface GameState {
   contacts: string[];
   unreadContacts: string[];
   chatHistory: Record<string, { sender: string; text: string }[]>;
+  hasSeenIntro: boolean; // NEW: Tracks if the player has seen the intro
 }
 
 // ============================================================================
@@ -237,6 +238,7 @@ export type GameAction =
       difficulty: Difficulty;
       characterId: string;
     }
+  | { type: "MARK_INTRO_SEEN" }export const GameSaveSchema
   | { type: "SET_GEAR"; gearId: string }
   | { type: "NEXT_STAGE" }
   | { type: "ADD_SCORE"; delta: number }
