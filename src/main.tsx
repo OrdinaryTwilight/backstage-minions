@@ -1,7 +1,7 @@
 /**
  * @file React Application Entry Point
  * @description Mounts React app into DOM and initializes React 18 root.
- * 
+ *
  * Sets up:
  * - React StrictMode for development warnings
  * - DOM root mounting

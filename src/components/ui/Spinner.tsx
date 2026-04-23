@@ -2,16 +2,16 @@
  * @file Spinner / Loading Component
  * @description Loading animation with atmospheric theater-themed boot messages.
  * Shown while code-splitting components load or during async operations.
- * 
+ *
  * Features:
  * - **Animated spinner**: CSS-based animation
  * - **Boot messages**: Rotating theater-themed loading messages
  * - **Updates every 2 seconds**: Randomized messages to show progress
  * - **Themetic**: Messages maintain theater atmosphere (gaffer jokes, etc.)
- * 
+ *
  * Example messages: "Reticulating splines...", "Looking for the 10mm wrench..."
  * Humor helps make loading feel less like waiting.
- * 
+ *
  * @component
  */
 

@@ -1,26 +1,26 @@
 /**
  * @file Planning Stage (Lighting/Rigging Prep Minigame)
  * @description Pre-show planning stage where lighting designers position lights and gobos.
- * 
+ *
  * Stage Mechanics:
  * - **Grid Placement**: Position light fixtures in a 5x3 grid layout
  * - **Fixture Types**: Spot, Wash, LED Par lights with different properties
  * - **Gobo Patterns**: Apply gobo patterns to fixtures
  * - **Requirements**: Must meet minimum requirements without exceeding limits
  * - **Scoring**: Accuracy of rig design affects final score
- * 
+ *
  * Gameplay Loop:
  * 1. View requirements (minimum spots/washes, gobo requirements)
  * 2. Place fixtures on grid using PlotPlanView
  * 3. Apply gobo patterns as needed
  * 4. View optical simulation (OpticalSimView) to see result
  * 5. Submit plan and get score report
- * 
+ *
  * Difficulty Affects:
  * - Number of required fixtures
  * - Number of different gobo patterns needed
  * - Grid size and placement complexity
- * 
+ *
  * @component
  */
 

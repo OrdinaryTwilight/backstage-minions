@@ -1,17 +1,17 @@
 /**
  * @file Networks / Comms Page (Social Features)
  * @description NPC communication and chat system interface.
- * 
+ *
  * Social Features:
  * - **Contacts List**: All NPCs with unlocked conversations
  * - **Chat History**: Persistent message threads with each contact
  * - **Chat Choices**: Player responses affecting affinity and story
  * - **Unread Indicator**: Dot shows new messages from NPCs
  * - **System Alerts**: Game notifications channel
- * 
+ *
  * Story Context: Players can read past conversations and send new messages
  * to NPCs, building relationships outside of gameplay.
- * 
+ *
  * @page
  */
 

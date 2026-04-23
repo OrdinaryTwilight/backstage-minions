@@ -1,13 +1,13 @@
 /**
  * @file Achievements & Badges System
  * @description Achievement definitions for skill-based challenges.
- * 
+ *
  * Achievement Categories:
  * - **Cues**: Perfect timing challenges ("Ghost Light" - 100% perfect cues)
  * - **Social**: Relationship and dialogue challenges ("Gaffer God" - find items)
  * - **Stamina**: Stress management challenges
  * - **Secret**: Hidden easter eggs and special challenges
- * 
+ *
  * Currently defined but not fully integrated into gameplay.
  * Framework for future expansion of progression systems.
  */

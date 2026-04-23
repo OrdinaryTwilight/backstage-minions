@@ -1,18 +1,18 @@
 /**
  * @file Stories Page (Technical Lore)
  * @description Browse unlocked narrative stories about theater culture and mechanics.
- * 
+ *
  * Stories are unlocked through gameplay achievement:
  * - Complete productions with minimum star ratings
  * - Read educational narratives about theater traditions
  * - Discover "why" mechanics work the way they do
- * 
+ *
  * Example stories:
  * - "The All-Black Uniform" (theater invisibility tradition)
  * - "The God Voice" (stage manager authority)
  * - "The Ghost Light" (theater superstition and safety)
  * - "The Architecture of Sound" (audio engineering concepts)
- * 
+ *
  * @page
  */
 

@@ -2,7 +2,7 @@
  * @file Objective Engine
  * @description Generates and manages overworld navigation objectives/goals.
  * Maps game stages to physical theater locations and provides in-game instructions.
- * 
+ *
  * Objective System:
  * Each stage has a corresponding theater location where the player must navigate:
  * - Equipment → Loading Dock
@@ -11,17 +11,17 @@
  * - Cable Coiling → Stage Wings
  * - Wrap-up → SM Desk (sign out)
  * - etc.
- * 
+ *
  * The overworld stage is a navigation puzzle where players must reach the correct
  * location to proceed to the next minigame. This ties story and mechanics together.
  */
 
 /**
  * Generates objective data for navigating to the next required location.
- * 
+ *
  * Determines which theater zone the player must reach and provides
  * narrative-appropriate instructions based on the next stage.
- * 
+ *
  * @param nextStageKey - Key of the upcoming stage to navigate to
  * @param department - Player's department (affects routing, e.g., sound → sound booth)
  * @returns Objective with targetZoneId, display label, and in-game instructions

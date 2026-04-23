@@ -1,13 +1,13 @@
 /**
  * @file Game Tutorials & Onboarding
  * @description Tutorial sequences and stage-specific instructions.
- * 
+ *
  * Tutorial System:
  * - **Stage Instructions**: Brief how-to text for each game stage
  * - **Tutorial Sequences**: Multi-step dialogue-based tutorials
  * - **Onboarding**: Guided introduction to game mechanics
  * - **Speaker Roles**: System messages, NPCs providing context and instruction
- * 
+ *
  * Tutorials teach players about:
  * - Character stats and their mechanical effects
  * - How to complete each stage's minigame

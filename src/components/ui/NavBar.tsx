@@ -1,19 +1,19 @@
 /**
  * @file Navigation Bar Component
  * @description Global navigation menu with tabs, stress indicator, and settings.
- * 
+ *
  * NavBar Features:
  * - **Tab Navigation**: Home, Shows, Stories, Contacts
  * - **Stress Indicator**: Live stress level bar (color-coded)
  * - **Unread Badge**: Shows if new messages from contacts
  * - **Settings Panel**: Accessibility and user preferences
  * - **Active Tab Highlighting**: Shows current page
- * 
+ *
  * Stress Color Coding:
  * - Green: 0-49 (calm)
  * - Yellow: 50-74 (stressed)
  * - Red: 75+ (critical)
- * 
+ *
  * @component
  */
 

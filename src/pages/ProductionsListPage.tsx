@@ -1,15 +1,15 @@
 /**
  * @file Productions List Page (Callboard)
  * @description Browse available productions and select one to play.
- * 
+ *
  * Functionality:
  * - Display all available productions with titles and descriptions
  * - Search/filter productions by title
  * - Navigate to difficulty selection for chosen production
- * 
+ *
  * Story Context: The callboard is where theater crews check for available gigs.
  * Each production links to a ShowDetailsPage with level/difficulty selection.
- * 
+ *
  * @page
  */
 

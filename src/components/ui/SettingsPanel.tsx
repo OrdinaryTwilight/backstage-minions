@@ -1,7 +1,7 @@
 /**
  * @file Settings Panel Component
  * @description Accessibility and user preferences modal dialog.
- * 
+ *
  * Settings Features:
  * - **Display**: Font size, contrast, color blind mode, theme
  * - **Motion**: Respect browser reduce-motion preferences
@@ -9,10 +9,10 @@
  * - **Save/Load**: Export/import game saves as JSON
  * - **Reset**: Clear all settings or game data
  * - **A11y**: Keyboard dismissal, semantic dialog element
- * 
+ *
  * Integrates with VisualSettingsContext for global accessibility settings.
  * Handles save/load via file I/O with user feedback.
- * 
+ *
  * @component
  */
 

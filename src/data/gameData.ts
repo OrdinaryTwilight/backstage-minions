@@ -2,11 +2,11 @@
  * @file Game Data Aggregator
  * @description Central export barrel file for all game data.
  * Re-exports from all data submodules to provide single import point.
- * 
+ *
  * This approach prevents import path breakage when moving or reorganizing data files.
  * Any component can import: `import { CHARACTERS, PRODUCTIONS } from '../data/gameData'`
  * Instead of: `import { CHARACTERS } from './characters'; import { PRODUCTIONS } from './productions'`
- * 
+ *
  * Exported modules:
  * - characters: Playable characters and NPCs
  * - productions: Game levels and venues

@@ -1,13 +1,13 @@
 /**
  * @file Unlockable Stories & Lore
  * @description Short narrative pieces about theater culture and mechanics.
- * 
+ *
  * Stories System:
  * - **Unlock Conditions**: Completed levels with minimum star rating
  * - **Narrative Content**: Lore about theater traditions and technical concepts
  * - **Theme**: Stories explain WHY the game mechanics work as they do
  * - **Education**: Teaching players about real theater terminology and practices
- * 
+ *
  * Examples: "The All-Black Uniform", "The God Voice", "Ghost Light"
  * Stories are unlocked through gameplay progression as rewards for good performance.
  */

@@ -2,7 +2,7 @@
  * @file Cue Execution Stage (Main Game Minigame)
  * @description The timing-based minigame where players execute technical cues.
  * Core gameplay mechanic: set faders to target levels and press GO exactly when cues arrive.
- * 
+ *
  * Stage Mechanics:
  * - **Fader Control**: Adjust channel levels to match target positions
  * - **Timeline**: Visual timeline shows when each cue should fire
@@ -10,14 +10,14 @@
  * - **Scoring**: Hits = +10 points, accuracy affects star rating
  * - **Scoring**: Misses = stress penalty, no points
  * - **Real-time**: Shows current elapsed time, fader positions, and cue status
- * 
+ *
  * Difficulty Affects:
  * - Cue window size (school=wider, professional=narrower)
  * - Number of simultaneous faders to manage
  * - Cue complexity and speed
- * 
+ *
  * Departments: Lighting and Sound both use this stage with different cue sheets.
- * 
+ *
  * @component
  */
 

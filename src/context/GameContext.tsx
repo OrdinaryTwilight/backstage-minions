@@ -3,7 +3,7 @@
  * @description Provides centralized state management for the entire game.
  * Manages persistent game progress (save/load), active game sessions, and UI state.
  * Uses React Context + Reducer pattern with localStorage/sessionStorage for data persistence.
- * 
+ *
  * Game Flow:
  * - Persistent state: level progress, character unlocks, chat history (localStorage)
  * - Session state: current run data, score, conflicts, stress levels (sessionStorage)
@@ -103,14 +103,14 @@ export const GameContext = createContext<GameContextType | null>(null);
 /**
  * GameProvider Component
  * Wraps the app with game state context. Initializes state from storage and auto-saves on changes.
- * 
+ *
  * Responsibilities:
  * - Load saved progress from localStorage (if exists)
  * - Load active session from sessionStorage (if exists)
  * - Migrate old save data to current format
  * - Auto-save state changes (with debounce)
  * - Inject new default contacts into existing saves
- * 
+ *
  * @param props - React component props
  * @param props.children - Child components that will access game state via useGame()
  * @returns Provider component wrapping children with game context
@@ -210,7 +210,7 @@ export function GameProvider({ children }: { readonly children: ReactNode }) {
 /**
  * Custom hook to access game state and dispatch within any component.
  * Must be used inside a GameProvider.
- * 
+ *
  * @returns Object with current state and dispatch function
  * @throws Error if used outside of GameProvider
  * @example

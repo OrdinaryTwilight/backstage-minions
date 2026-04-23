@@ -1,7 +1,7 @@
 /**
  * @file Root App Component
  * @description Main application component with routing and global providers.
- * 
+ *
  * App Architecture:
  * - **Router**: React Router for SPA navigation between pages
  * - **Providers**: GameProvider (state), VisualSettingsProvider (UI preferences)
@@ -9,7 +9,7 @@
  * - **Code Splitting**: Lazy loading for most pages to improve initial load time
  * - **Eager Loaded**: Critical pages (Home, Networks) for fast initial render
  * - **Styling**: Global styles, animations, components, overworld CSS
- * 
+ *
  * Routes:
  * - /: HomePage
  * - /productions: ProductionsListPage
@@ -29,13 +29,13 @@ import { GameProvider } from "./context/GameContext";
 import { VisualSettingsProvider } from "./context/VisualSettingsContext";
 
 // Eager load critical routes
+import Spinner from "./components/ui/Spinner";
 import "./index.css";
 import HomePage from "./pages/HomePage";
 import NetworksPage from "./pages/NetworksPage";
 import "./styles/animations.css";
 import "./styles/components.css";
 import "./styles/overworld.css";
-import Spinner from "./components/ui/Spinner";
 
 // Lazy load
 const ProductionsListPage = lazy(() => import("./pages/ProductionsListPage"));

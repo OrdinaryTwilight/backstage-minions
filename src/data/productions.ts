@@ -1,15 +1,15 @@
 /**
  * @file Productions & Venues Data
  * @description Game content: theatrical productions and performance venues.
- * 
+ *
  * Production System:
  * - **Productions**: Game levels with multiple difficulty variants (school/community/professional)
  * - **Venues**: Specific theater locations representing difficulty progression
  * - **Level Progression**: Each production has 3 difficulty tiers with different venues
- * 
+ *
  * Story Element: Venues and productions represent a career progression from high school
  * drama through community theater to professional broadway stages.
- * 
+ *
  * Each production is unlocked based on performance in lower difficulty versions.
  */
 
@@ -128,7 +128,7 @@ export const PRODUCTIONS: Production[] = [
       "The community theatre has bitten off more than it can chew. Fifty cast members, only twelve working wireless mics. A barricade made of actual trash that takes five minutes to push onstage.",
     learnMoreUrl: "https://en.wikipedia.org/wiki/Les_Misérables_(musical)",
     levels: {
-      community: { venueId: "church", unlocked: true }, 
+      community: { venueId: "church", unlocked: true },
     },
   },
   {

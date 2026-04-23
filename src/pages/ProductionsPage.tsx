@@ -1,14 +1,14 @@
 /**
  * @file Production Details Page
  * @description Shows details about a production and provides level selection.
- * 
+ *
  * Functionality:
  * - Display production title, description, and poster
  * - Show all available difficulty levels for the production
  * - Provide link to Wikipedia for background reading
  * - Clear session state on level selection
  * - Navigate to character selection on level choice
- * 
+ *
  * @page
  */
 

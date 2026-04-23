@@ -1,7 +1,7 @@
 /**
  * @file Level Flow Engine
  * @description Generates the sequence of game stages/minigames for each production level.
- * 
+ *
  * Stage Flow Architecture:
  * 1. **Equipment** (loading dock) - always first, player selects gear
  * 2. **Department-specific prep** - varies by character's department:
@@ -12,17 +12,17 @@
  *    - Wardrobe → Wardrobe pre-show (quick costume changes)
  * 3. **Cue Execution** (main event) - timing-based minigame for most departments
  * 4. **Post-show** - Cable Coiling (strike/cleanup) and Wrap-up (sign out)
- * 
+ *
  * Each stage represents a different theater department responsibility and contains
  * its own minigame mechanics and scoring rules.
  */
 
 /**
  * Dynamically generates the sequence of minigames/stages for a given session.
- * 
+ *
  * The sequence is deterministic based on the selected department - same character
  * always plays the same stage sequence, but conflicts and objectives are randomized.
- * 
+ *
  * @param department - Department of the selected character (affects which stages appear)
  * @returns Array of stage keys in order they will be played
  * @example

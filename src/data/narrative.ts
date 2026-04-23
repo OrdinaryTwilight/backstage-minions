@@ -1,13 +1,13 @@
 /**
  * @file Narrative & Dialogue Text
  * @description Game narrative sequences and background NPC chatter.
- * 
+ *
  * Narrative Elements:
  * - **Boot Sequence**: Flavor text played during game load
  * - **Overworld Chatter**: Random NPC background conversations in three phases (preShow, duringShow, postShow)
  * - **Comms Chatter**: Radio/headset dialogue during gameplay
  * - **Quest Narratives**: Story text for side objectives
- * 
+ *
  * These texts provide atmospheric storytelling and immersion in the theater setting.
  */
 

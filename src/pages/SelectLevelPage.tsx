@@ -1,15 +1,15 @@
 /**
  * @file Select Level / Difficulty Page
  * @description Allows player to select difficulty tier for a chosen production.
- * 
+ *
  * Difficulty Selection:
  * - **School**: Easy mode with 4 lives, wider cue windows, lower technical requirements
  * - **Community**: Medium mode with 3 lives, standard cue windows
  * - **Professional**: Hard mode with 2 lives, narrower cue windows, high technical demand
- * 
+ *
  * Each difficulty shows level-specific requirements and unlocked status.
  * Selecting difficulty navigates to character selection page.
- * 
+ *
  * @page
  */
 

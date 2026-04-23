@@ -2,12 +2,12 @@
  * @file Department Badge Component
  * @description Displays character's theater department with icon and label.
  * Used on character selection and other places to show department affiliation.
- * 
+ *
  * Departments represented:
  * - Lighting (🔦): Technical light operation
  * - Sound (🎧): Audio and sound design
  * - Others: Props, Wardrobe, Scenic, Management, etc.
- * 
+ *
  * @component
  */
 

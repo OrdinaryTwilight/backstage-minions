@@ -1,14 +1,14 @@
 /**
  * @file Home Page (Main Menu)
  * @description Main landing page of the game showing career stats, levels, and navigation.
- * 
+ *
  * Homepage displays:
  * - Career statistics: total shows completed, total stars earned
  * - Unread messages indicator (chat notifications)
  * - Button to browse available productions
  * - Button to continue active session (if one exists)
  * - Links to networks (social features) and stories (unlocked content)
- * 
+ *
  * @page
  */
 

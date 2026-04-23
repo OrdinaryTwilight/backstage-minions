@@ -1,20 +1,20 @@
 /**
  * @file Dialogue Manager Component
  * @description Manages branching dialogue trees with NPCs, including state-based responses and side effects.
- * 
+ *
  * Dialogue System Overview:
  * - Branching dialogue with multiple conversation threads (dialogue trees)
  * - State-aware responses: different dialogue based on stress level, affinity, stage, inventory
  * - Timed choices: some dialogue options have time limits that trigger auto-responses
  * - Side effects: dialogue choices can trigger quests, unlock contacts, modify affinity, add inventory
  * - Dynamic fallbacks: if NPC lacks specific variant (e.g., high-stress response), system generates one
- * 
+ *
  * Node Structure:
  * - Each dialogue tree has nodes (start, middle, end)
  * - Each node has variants (dialogue text for different states)
  * - Each variant has choices (player responses leading to next nodes)
  * - Choices can have conditions: required inventory, point changes, side effects
- * 
+ *
  * @component
  */
 

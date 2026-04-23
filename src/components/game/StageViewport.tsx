@@ -2,18 +2,18 @@
  * @file Stage Viewport Component
  * @description Renders a visual representation of theater stage lighting during Cue Execution and Planning stages.
  * Shows stage floor with animated light beams to provide visual feedback during timing-based minigames.
- * 
+ *
  * Visual Representation:
  * - Stage floor (black strip at bottom)
  * - Light beams (vertical gradients representing different light types)
  * - Positioned based on light fixture arrangement
  * - Different colors/styles for different light types (Fader, Par, Spot, etc.)
- * 
+ *
  * @component
  */
 
 interface StageViewportProps {
-  lights: ({ typeId: string } | null)[]; 
+  lights: ({ typeId: string } | null)[];
   cues: { id: string }[];
   currentCueIndex: number;
 }

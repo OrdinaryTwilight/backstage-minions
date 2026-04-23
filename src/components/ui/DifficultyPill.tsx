@@ -3,12 +3,12 @@
  * @description Displays level progress and unlock status for a single difficulty tier.
  * Shows stars earned and whether level is playable (unlocked).
  * Used on progress dashboard and level selection pages.
- * 
+ *
  * Visual states:
  * - **Unlocked**: Full opacity, normal styling
  * - **Locked**: Reduced opacity, grayscale, dashed border
  * - **Stars**: 0-3 stars displayed with emoji
- * 
+ *
  * @component
  */
 

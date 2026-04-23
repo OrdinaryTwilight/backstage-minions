@@ -1,7 +1,7 @@
 /**
  * @file Game Constants & Configuration
  * @description Central configuration for game mechanics, difficulty settings, and stage definitions.
- * 
+ *
  * Configuration Topics:
  * - **Stage Types**: Different game stages (equipment, planning, sound_design, etc.)
  * - **Difficulty Levels**: school, community, professional with different lives and scoring

@@ -1,18 +1,18 @@
 /**
  * @file Conflict Minigame Component
  * @description Displays conflict resolution UI where players make dialogue choices with story/gameplay consequences.
- * 
+ *
  * Conflict System Overview:
  * Conflicts are story moments that interrupt gameplay, allowing player choice with real consequences.
  * Each conflict shows an NPC's dialogue and presents 3 shuffled response options.
- * 
+ *
  * Mechanics:
  * - **Shuffled Choices**: Choices are deterministically shuffled (seeded by conflictId) so every playthrough varies
  * - **Stress Impact**: Escalated outcomes +25 stress, Resolved outcomes -15 stress
  * - **Score Impact**: Player choices award/deduct points (affects final star rating)
  * - **Side Effects**: Some choices unlock new contacts or trigger special events
  * - **Outcome Types**: "resolved" (good), "neutral" (ok), "escalated" (bad)
- * 
+ *
  * @component
  */
 

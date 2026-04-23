@@ -1,14 +1,14 @@
 /**
  * @file Conflicts & Story Moments
  * @description Dialogue encounters where player choices affect stress, score, and relationships.
- * 
+ *
  * Conflict System:
  * Each conflict is a story moment tied to a game stage with an NPC.
  * Player selects a response with real consequences:
  * - **Score impact**: Points earned/lost based on choice wisdom
  * - **Stress impact**: Resolved outcomes reduce stress, escalated outcomes increase stress
  * - **Relationship impact**: Good choices may unlock new contacts (allies)
- * 
+ *
  * Design: Conflicts interrupt gameplay to add narrative weight and player agency.
  * Different conflicts appear in different playthroughs based on stage sequence.
  */

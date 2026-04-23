@@ -2,15 +2,15 @@
  * @file Cue Stack Component
  * @description Displays list of all cues in order with hit/miss status.
  * Used in Cue Execution stage to show which cues player has completed.
- * 
+ *
  * Displays:
  * - All cues in sequence
  * - Current cue highlighting
  * - Hit/miss status for each cue (visual indicator)
  * - Cue label and timing information
- * 
+ *
  * Memoized for performance - only re-renders when cues or status changes.
- * 
+ *
  * @component
  */
 

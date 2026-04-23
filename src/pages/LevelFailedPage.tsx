@@ -1,13 +1,13 @@
 /**
  * @file Level Failed Page
  * @description Shown when player runs out of lives during a level.
- * 
+ *
  * Failure Screen displays:
  * - Department-specific failure scenario
  * - Option to retry the level
  * - Option to return to home/productions
  * - Clears session and session storage on navigation
- * 
+ *
  * @page
  */
 

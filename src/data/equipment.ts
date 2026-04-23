@@ -1,14 +1,14 @@
 /**
  * @file Equipment Configuration
  * @description Game stage constants and equipment definitions.
- * 
+ *
  * Equipment System:
  * - **Gear Packages**: Player selects equipment at start, affects difficulty (wider/narrower cue windows)
  * - **Light Types**: Different stage lighting fixture types with unique visual representation
  * - **Audio Types**: Different audio/sound equipment with unique mechanics
  * - **Planning Grid**: Grid layout for Planning stage lighting plot exercise
  * - **Console Config**: Audio console channel/bus configuration for Sound Design stage
- * 
+ *
  * Mechanics:
  * - Premium gear: Easier (wider windows, but costly)
  * - Budget gear: Harder (narrower windows, less reliable)
@@ -53,31 +53,32 @@ export const AUDIO_TYPES = [
  * - Premium: Easier (1.2x multiplier, -50 cost penalty)
  */
 export const GEAR_PACKAGES = [
-  { 
-    id: "budget", 
-    label: "Community Surplus", 
+  {
+    id: "budget",
+    label: "Community Surplus",
     description: "Old analog gear. Faders are sticky and comms are crackly.",
     multiplier: 0.8, // Harder: smaller hit windows
-    bonus: 50 
+    bonus: 50,
   },
-  { 
-    id: "standard", 
-    label: "Rental House Pro", 
-    description: "Solid, reliable digital equipment. Standard industry windows.",
-    multiplier: 1, 
-    bonus: 0 
+  {
+    id: "standard",
+    label: "Rental House Pro",
+    description:
+      "Solid, reliable digital equipment. Standard industry windows.",
+    multiplier: 1,
+    bonus: 0,
   },
-  { 
-    id: "premium", 
-    label: "State-of-the-Art", 
+  {
+    id: "premium",
+    label: "State-of-the-Art",
     description: "Brand new grandMA3/CL5. Silky smooth response.",
     multiplier: 1.2, // Easier: wider hit windows
-    bonus: -50 // Cost of luxury
-  }
+    bonus: -50, // Cost of luxury
+  },
 ];
 
 export const SOUND_CONSOLE_CONFIG = {
   sources: ["Vocals 1", "Vocals 2", "Pit Orchestra", "SFX Playback"],
   channels: [1, 2, 3, 4, 5],
-  outputBuses: ["Main L/R", "Foldback (Stage)", "Subwoofers"]
+  outputBuses: ["Main L/R", "Foldback (Stage)", "Subwoofers"],
 };

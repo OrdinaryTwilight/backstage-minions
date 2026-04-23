@@ -1,13 +1,13 @@
 /**
  * @file Chat Messages & NPC Communications
  * @description NPC dialogue for the comms terminal messaging system.
- * 
+ *
  * Chat System:
  * - **System Alerts**: Information channel for game notifications
  * - **NPC Chats**: Individual message threads with NPCs
  * - **Chat Choices**: Player responses with outcomes and side effects
  * - **Integration**: Accessed through CommsTerminal UI component
- * 
+ *
  * Each NPC has pre-written messages simulating ongoing communication.
  * Players can respond with choices that affect affinity and story progression.
  */

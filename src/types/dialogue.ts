@@ -1,14 +1,14 @@
 /**
  * @file Dialogue Type Definitions
  * @description TypeScript interfaces for dialogue system types.
- * 
+ *
  * Dialogue System Architecture:
  * - **DialogueTree**: Map of node IDs to nodes (graph structure for branching conversations)
  * - **DialogueNode**: Single conversation moment with variants and player choices
  * - **DialogueChoice**: A response option leading to next node
  * - **DialogueNode.variants**: Multiple text versions based on game state (stress, affinity, stage, etc.)
  * - **Conditions**: "high_stress", "low_affinity", "high_affinity", "pre_show", "post_show"
- * 
+ *
  * @see DialogueManager.tsx for dialogue tree evaluation logic
  */
 
