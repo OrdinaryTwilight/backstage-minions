@@ -51,3 +51,15 @@ export const WRAP_UP_UI_TEXT = {
   cues_label: "Cues Hit / Missed",
   sign_out_btn: "Power Down Console & Go Home",
 };
+
+// UX ADDITION: Decoupled praise quotes from the NPCs to display on the HomePage for perfect runs!
+export const COMMENDATION_PRAISE = [
+  "Des (SM): 'I didn't have to yell over headset once. Unprecedented.'",
+  "Bryan (Rigger): 'I'll admit it... you didn't mess up. Good job.'",
+  "Zainab (Costumes): 'The lighting actually made my fabrics look good!'",
+  "YG (Director): 'A visionary execution of my masterpiece!'",
+  "Elara (PM): 'Under budget and perfectly timed. Take tomorrow off.'",
+  "Leo (Flyman): 'Smooth as butter on the rail today.'",
+  "Richmond (FOH): 'Not a single audience complaint. A miracle.'",
+  "Jay (A2): 'Crisp audio, zero feedback. I'm crying tears of joy.'",
+];

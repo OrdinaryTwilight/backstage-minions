@@ -1,24 +1,7 @@
-/**
- * @file Settings Panel Component
- * @description Accessibility and user preferences modal dialog.
- *
- * Settings Features:
- * - **Display**: Font size, contrast, color blind mode, theme
- * - **Motion**: Respect browser reduce-motion preferences
- * - **Fonts**: System or dyslexia-friendly font option
- * - **Save/Load**: Export/import game saves as JSON
- * - **Reset**: Clear all settings or game data
- * - **A11y**: Keyboard dismissal, semantic dialog element
- *
- * Integrates with VisualSettingsContext for global accessibility settings.
- * Handles save/load via file I/O with user feedback.
- *
- * @component
- */
-
 import { useEffect, useRef, useState } from "react";
-import { GameSaveSchema, migrateIds, useGame } from "../../context/GameContext";
+import { useGame } from "../../context/GameContext";
 import { useVisualSettings } from "../../context/VisualSettingsContext";
+import { useSaveManager } from "../../hooks/useSaveManager";
 import Button from "./Button";
 
 interface SettingsPanelProps {
@@ -28,16 +11,14 @@ interface SettingsPanelProps {
 export default function SettingsPanel({
   onClose,
 }: Readonly<SettingsPanelProps>) {
-  const { state, dispatch } = useGame();
+  const { dispatch } = useGame();
   const { settings, updateSetting, resetToDefaults } = useVisualSettings();
   const [showReset, setShowReset] = useState(false);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [ioFeedback, setIoFeedback] = useState<{
-    msg: string;
-    type: "success" | "error";
-  } | null>(null);
+  // Instantly access all centralized logic from the custom hook!
+  const { fileInputRef, ioFeedback, handleExportSave, handleImportSave } =
+    useSaveManager();
 
   // --- Strict A11y Fix: Global Event Listeners ---
   useEffect(() => {
@@ -46,11 +27,8 @@ export default function SettingsPanel({
         onClose?.();
       }
     };
-
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        onClose?.();
-      }
+      if (e.key === "Escape") onClose?.();
     };
 
     if (onClose) {
@@ -66,7 +44,6 @@ export default function SettingsPanel({
     };
   }, [onClose]);
 
-  // --- Data Management Logic ---
   const handleErase = () => {
     const confirm = globalThis.confirm(
       "Are you absolutely sure? This will wipe all progress and contacts. This cannot be undone.",
@@ -77,68 +54,6 @@ export default function SettingsPanel({
       sessionStorage.clear();
       globalThis.location.reload();
     }
-  };
-
-  const handleExportSave = () => {
-    try {
-      const { session, ...persistentData } = state;
-      const jsonString = JSON.stringify(persistentData, null, 2);
-      const blob = new Blob([jsonString], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `backstage-minions-save-${new Date().toISOString().split("T")[0]}.json`;
-      a.click();
-
-      URL.revokeObjectURL(url);
-      setIoFeedback({
-        msg: "Save file exported successfully!",
-        type: "success",
-      });
-    } catch (err) {
-      console.error("Save export failed:", err);
-      setIoFeedback({ msg: "Failed to export save data.", type: "error" });
-    }
-  };
-
-  const handleImportSave = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const text = await file.text();
-      const json = JSON.parse(text);
-      const validation = GameSaveSchema.safeParse(json);
-
-      if (validation.success) {
-        const loadedState = { ...validation.data };
-
-        if (loadedState.contacts)
-          loadedState.contacts = migrateIds(loadedState.contacts);
-        if (loadedState.unreadContacts)
-          loadedState.unreadContacts = migrateIds(loadedState.unreadContacts);
-
-        dispatch({ type: "CLEAR_SESSION" });
-        dispatch({ type: "LOAD_SAVE", payload: loadedState });
-
-        setIoFeedback({
-          msg: "Save loaded successfully! Game state restored.",
-          type: "success",
-        });
-      } else {
-        console.error("Save validation failed:", validation.error);
-        setIoFeedback({
-          msg: "Invalid or corrupted save file.",
-          type: "error",
-        });
-      }
-    } catch (error) {
-      console.error("Save import failed:", error);
-      setIoFeedback({ msg: "Failed to read save file format.", type: "error" });
-    }
-
-    e.target.value = "";
   };
 
   return (
@@ -446,50 +361,6 @@ export default function SettingsPanel({
             </select>
           </div>
         </div>
-        {/* Action Buttons */}
-        <div
-          style={{
-            display: "flex",
-            marginTop: "2rem",
-            borderTop: "1px solid var(--glass-border)",
-            paddingTop: "1.5rem",
-          }}
-        >
-          {showReset ? (
-            <div style={{ display: "flex", gap: "1rem", width: "100%" }}>
-              <Button
-                onClick={() => {
-                  resetToDefaults();
-                  setShowReset(false);
-                }}
-                style={{
-                  background: "rgba(239,68,68,0.2)",
-                  border: "1px solid var(--bui-fg-danger)",
-                  flex: 1,
-                }}
-              >
-                ✓ Confirm Reset
-              </Button>
-              <Button
-                onClick={() => setShowReset(false)}
-                style={{ background: "rgba(100,100,100,0.2)", flex: 1 }}
-              >
-                ✕ Cancel
-              </Button>
-            </div>
-          ) : (
-            <Button
-              onClick={() => setShowReset(true)}
-              style={{
-                background: "rgba(255,165,0,0.2)",
-                border: "1px solid var(--bui-fg-warning)",
-                width: "100%",
-              }}
-            >
-              🔄 Reset Visuals to Defaults
-            </Button>
-          )}
-        </div>
 
         <hr style={{ borderColor: "var(--glass-border)", margin: "2rem 0" }} />
 
@@ -543,6 +414,7 @@ export default function SettingsPanel({
             >
               ↓ Download Save
             </Button>
+            {/* The Settings panel button remains generically labeled */}
             <Button
               variant="default"
               onClick={() => fileInputRef.current?.click()}
@@ -568,6 +440,51 @@ export default function SettingsPanel({
           >
             Erase All Progress
           </Button>
+        </div>
+
+        {/* Action Buttons */}
+        <div
+          style={{
+            display: "flex",
+            marginTop: "2rem",
+            borderTop: "1px solid var(--glass-border)",
+            paddingTop: "1.5rem",
+          }}
+        >
+          {showReset ? (
+            <div style={{ display: "flex", gap: "1rem", width: "100%" }}>
+              <Button
+                onClick={() => {
+                  resetToDefaults();
+                  setShowReset(false);
+                }}
+                style={{
+                  background: "rgba(239,68,68,0.2)",
+                  border: "1px solid var(--bui-fg-danger)",
+                  flex: 1,
+                }}
+              >
+                ✓ Confirm Reset
+              </Button>
+              <Button
+                onClick={() => setShowReset(false)}
+                style={{ background: "rgba(100,100,100,0.2)", flex: 1 }}
+              >
+                ✕ Cancel
+              </Button>
+            </div>
+          ) : (
+            <Button
+              onClick={() => setShowReset(true)}
+              style={{
+                background: "rgba(255,165,0,0.2)",
+                border: "1px solid var(--bui-fg-warning)",
+                width: "100%",
+              }}
+            >
+              🔄 Reset Visuals to Defaults
+            </Button>
+          )}
         </div>
       </dialog>
     </div>

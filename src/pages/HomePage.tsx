@@ -1,26 +1,32 @@
-/**
- * @file Home Page (Main Menu)
- * @description Main landing page of the game showing career stats, levels, and navigation.
- *
- * Homepage displays:
- * - Career statistics: total shows completed, total stars earned
- * - Unread messages indicator (chat notifications)
- * - Button to browse available productions
- * - Button to continue active session (if one exists)
- * - Links to networks (social features) and stories (unlocked content)
- *
- * @page
- */
-
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../components/ui/Button";
 import HardwarePanel from "../components/ui/HardwarePanel";
 import { useGame } from "../context/GameContext";
+import { COMMENDATION_PRAISE, PRODUCTIONS } from "../data/gameData";
+import { useSaveManager } from "../hooks/useSaveManager";
+
+// Helper function to decode the "phantom_school" ID back into UI-friendly details
+const getProductionDetails = (levelId: string) => {
+  for (const prod of PRODUCTIONS) {
+    for (const diff of ["school", "community", "professional"]) {
+      if (levelId === `${prod.id}_${diff}`) {
+        return { prod, difficulty: diff };
+      }
+    }
+  }
+  return null;
+};
 
 export default function HomePage() {
   const navigate = useNavigate();
   const { state: gameState } = useGame();
+
+  const {
+    fileInputRef,
+    ioFeedback: uploadFeedback,
+    handleImportSave,
+  } = useSaveManager();
 
   const hasUnread =
     gameState.unreadContacts && gameState.unreadContacts.length > 0;
@@ -29,7 +35,6 @@ export default function HomePage() {
     ([, prog]) => prog.stars === 3,
   );
 
-  // UX ADDITION: Career Stats calculation based on persistent progress
   const { totalStars, totalShows } = useMemo(() => {
     let stars = 0;
     let shows = 0;
@@ -94,6 +99,7 @@ export default function HomePage() {
             but we hold the power.
           </p>
 
+          {/* ACTION BUTTONS */}
           <div
             style={{
               display: "flex",
@@ -142,6 +148,56 @@ export default function HomePage() {
                 </span>
               )}
             </div>
+
+            {/* UX ADDITION: Quick Load Save Button */}
+            <Button
+              className="btn-xl"
+              variant="default"
+              style={{
+                fontFamily: "var(--font-sketch)",
+                fontSize: "1.25rem",
+                background: "rgba(255,255,255,0.1)",
+              }}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              Load Game
+            </Button>
+
+            <input
+              type="file"
+              accept=".json"
+              ref={fileInputRef}
+              style={{ display: "none" }}
+              onChange={handleImportSave}
+              tabIndex={-1}
+            />
+          </div>
+
+          <div
+            aria-live="polite"
+            style={{ minHeight: "1.5rem", marginTop: "1.5rem" }}
+          >
+            {uploadFeedback && (
+              <span
+                style={{
+                  color:
+                    uploadFeedback.type === "success"
+                      ? "var(--bui-fg-success)"
+                      : "var(--bui-fg-danger)",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "0.9rem",
+                  background:
+                    uploadFeedback.type === "success"
+                      ? "rgba(74, 222, 128, 0.1)"
+                      : "rgba(248, 113, 113, 0.1)",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "4px",
+                  border: `1px solid ${uploadFeedback.type === "success" ? "var(--bui-fg-success)" : "var(--bui-fg-danger)"}`,
+                }}
+              >
+                {uploadFeedback.msg}
+              </span>
+            )}
           </div>
         </HardwarePanel>
 
@@ -149,8 +205,8 @@ export default function HomePage() {
         {(totalShows > 0 || perfectScores.length > 0) && (
           <div
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
+              display: "flex",
+              flexDirection: "column",
               gap: "1.5rem",
               marginTop: "2rem",
             }}
@@ -241,39 +297,115 @@ export default function HomePage() {
                   style={{
                     fontFamily: "var(--font-sketch)",
                     color: "var(--bui-fg-info)",
-                    marginBottom: "1rem",
+                    marginBottom: "1.5rem",
                   }}
                 >
                   Crew Commendations
                 </h3>
+
                 <div
                   style={{
                     display: "flex",
-                    gap: "0.5rem",
-                    justifyContent: "center",
-                    flexWrap: "wrap",
+                    flexDirection: "column",
+                    gap: "1rem",
                   }}
                 >
-                  {perfectScores.map(([levelId]) => (
-                    <div
-                      key={levelId}
-                      title="Perfect Run!"
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: "40px",
-                        height: "40px",
-                        background: "rgba(251, 191, 36, 0.1)",
-                        border: "2px solid var(--bui-fg-warning)",
-                        borderRadius: "50%",
-                        fontSize: "1.2rem",
-                        boxShadow: "0 0 10px rgba(251, 191, 36, 0.3)",
-                      }}
-                    >
-                      ⭐
-                    </div>
-                  ))}
+                  {perfectScores.map(([levelId]) => {
+                    const details = getProductionDetails(levelId);
+                    if (!details) return null;
+                    const { prod, difficulty } = details;
+
+                    // Seed a random but consistent praise quote based on the level ID
+                    const quoteIndex =
+                      levelId
+                        .split("")
+                        .reduce(
+                          (acc, char) => acc + (char.codePointAt(0) ?? 0),
+                          0,
+                        ) % COMMENDATION_PRAISE.length;
+                    const quote = COMMENDATION_PRAISE[quoteIndex];
+
+                    return (
+                      <div
+                        key={levelId}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "1.2rem",
+                          background: "rgba(0,0,0,0.3)",
+                          padding: "1rem",
+                          borderRadius: "8px",
+                          borderLeft: "4px solid var(--bui-fg-warning)",
+                        }}
+                      >
+                        <div
+                          style={{
+                            fontSize: "2.5rem",
+                            filter:
+                              "drop-shadow(0 0 5px rgba(255,255,255,0.2))",
+                          }}
+                        >
+                          {prod.poster}
+                        </div>
+
+                        <div style={{ flex: 1, textAlign: "left" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.5rem",
+                              marginBottom: "0.25rem",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <strong
+                              style={{
+                                color: "#fff",
+                                fontSize: "1.1rem",
+                                fontFamily: "var(--font-sketch)",
+                              }}
+                            >
+                              {prod.title}
+                            </strong>
+                            <span
+                              style={{
+                                fontSize: "0.75rem",
+                                background: "rgba(255,255,255,0.1)",
+                                padding: "2px 6px",
+                                borderRadius: "4px",
+                                textTransform: "uppercase",
+                                color: "var(--color-pencil-light)",
+                              }}
+                            >
+                              {difficulty}
+                            </span>
+                          </div>
+                          <div
+                            style={{
+                              fontSize: "0.9rem",
+                              color: "var(--bui-fg-info)",
+                              fontStyle: "italic",
+                              fontFamily: "var(--font-mono)",
+                            }}
+                          >
+                            "{quote}"
+                          </div>
+                        </div>
+
+                        <div
+                          style={{
+                            display: "flex",
+                            gap: "2px",
+                            color: "var(--bui-fg-warning)",
+                            fontSize: "1.2rem",
+                            textShadow: "0 0 10px rgba(251, 191, 36, 0.5)",
+                          }}
+                        >
+                          ⭐⭐⭐
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}

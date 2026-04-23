@@ -94,8 +94,22 @@ export const CHAT_MESSAGES: Record<
       "Why is there a cast member trying to buy snacks at my concession stand?",
     ],
   },
-  char_shane: { sender: "{char_shane} (LX)", messages: [] },
-  char_wynn: { sender: "{char_wynn} (Audio)", messages: [] },
+  char_shane: {
+    sender: "{char_shane} (LX)",
+    messages: [
+      "Just blew another lamp on the front wash. Need a spare.",
+      "If the director asks for 'more blue' one more time, I'm quitting.",
+      "Who left their half-empty coffee on my lighting console?!",
+    ],
+  },
+  char_wynn: {
+    sender: "{char_wynn} (Audio)",
+    messages: [
+      "Actor 4 dropped their mic pack in the toilet. Again.",
+      "Can we please get some fresh AA batteries? These are all dead.",
+      "The wireless interference today is going to give me an aneurysm.",
+    ],
+  },
 
   // --- GROUP CHATS ---
   group_tech_survivors: {
@@ -184,6 +198,28 @@ export const CHAT_CHOICES: Record<string, ChatChoice[]> = {
     {
       text: "Send the actor back stage immediately.",
       response: "I'm physically shoving them through the stage door now.",
+    },
+  ],
+  char_shane: [
+    {
+      text: "I'll grab a lamp from the basement.",
+      response: "You're a lifesaver. Be careful on the ladder.",
+      sideEffect: "ally_gained",
+    },
+    {
+      text: "Tell the director no.",
+      response: "I wish I had your confidence.",
+    },
+  ],
+  char_wynn: [
+    {
+      text: "I have a stash of AAs in my bag.",
+      response: "Thank god. Bring them to the booth ASAP.",
+      sideEffect: "ally_gained",
+    },
+    {
+      text: "Make Actor 4 pay for it.",
+      response: "I'm sending the invoice to management right now.",
     },
   ],
 };
