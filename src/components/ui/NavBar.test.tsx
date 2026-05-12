@@ -12,6 +12,17 @@ vi.mock("./SettingsPanel", () => ({
   ),
 }));
 
+// Mock GameContext so NavBar's useGame() call doesn't throw
+vi.mock("../../context/GameContext", () => ({
+  useGame: vi.fn(() => ({
+    state: {
+      session: null,
+      unreadContacts: [],
+    },
+    dispatch: vi.fn(),
+  })),
+}));
+
 const renderNavBar = () => {
   return render(
     <BrowserRouter>
@@ -83,6 +94,7 @@ describe("NavBar Component", () => {
 
     expect(screen.getByTestId("settings-panel")).not.toBeNull();
 
+    // SONAR: window is correct here — fireEvent.keyDown requires the DOM Window type, not globalThis
     fireEvent.keyDown(window, { key: "Escape" });
 
     expect(screen.queryByTestId("settings-panel")).toBeNull();
@@ -110,12 +122,9 @@ describe("NavBar Component", () => {
 
     renderNavBar();
 
-    // Settings are closed by default, so no listener should be added
+    // Settings are closed by default, so no keydown listener should be added
     expect(
-      addEventListenerSpy.mock.calls.some(
-        (call) =>
-          call[0] === "keydown" && call[1].toString().includes("Escape"),
-      ),
+      addEventListenerSpy.mock.calls.some((call) => call[0] === "keydown"),
     ).toBe(false);
 
     addEventListenerSpy.mockRestore();

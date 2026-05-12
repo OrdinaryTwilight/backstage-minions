@@ -6,7 +6,7 @@
  */
 
 // src/context/GameContext.test.tsx
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { GameProvider, useGame } from "./GameContext";
 
@@ -37,7 +37,6 @@ describe("GameContext", () => {
   });
 
   it("throws an error if useGame is used outside of GameProvider", () => {
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
     const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     expect(() => render(<TestConsumer />)).toThrow(
       "useGame must be used within a GameProvider",
@@ -64,20 +63,29 @@ describe("GameContext", () => {
     expect(screen.getByTestId("state-dump").textContent).toBe("Has Shane");
   });
 
-  it("saves state to localStorage (excluding session) when state changes", () => {
+  it("saves state to localStorage (excluding session) when state changes", async () => {
+    vi.useFakeTimers();
+
     render(
       <GameProvider>
         <TestConsumer />
       </GameProvider>,
     );
 
-    expect(setItemSpy).toHaveBeenCalledWith(
-      "a3_backstage_save",
-      expect.stringContaining('"progress"'),
-    );
+    // Advance past the 1 second debounce in GameProvider's save useEffect
+    await act(async () => {
+      vi.advanceTimersByTime(1100);
+    });
 
-    const savedString = setItemSpy.mock.calls[0][1];
-    expect(savedString).not.toContain('"session"');
+    const savedCall = setItemSpy.mock.calls.find(
+      (call) => call[0] === "a3_backstage_save",
+    );
+    expect(savedCall).toBeDefined();
+    expect(savedCall?.[1]).toContain('"progress"');
+    // Session should never be serialised to localStorage
+    expect(savedCall?.[1]).not.toContain('"session"');
+
+    vi.useRealTimers();
   });
 
   it("silently ignores corrupted localStorage data", () => {
@@ -89,7 +97,7 @@ describe("GameContext", () => {
         </GameProvider>,
       ),
     ).not.toThrow();
-    // Default initial state contains "char_shane"
-    expect(screen.getByTestId("state-dump").textContent).toBe("Has Shane");
+    // Default initial contacts do NOT include char_shane – the app should be stable
+    expect(screen.getByTestId("state-dump").textContent).toBe("No Shane");
   });
 });

@@ -6,7 +6,12 @@ import globals from "globals";
 import tseslint from "typescript-eslint";
 
 export default defineConfig([
-  globalIgnores(["dist", "vite.config.ts", "eslint.config.mjs", "tsconfig*.json"]),
+  globalIgnores([
+    "dist",
+    "vite.config.ts",
+    "eslint.config.mjs",
+    "tsconfig*.json",
+  ]),
   {
     files: ["**/*.{ts,tsx}"],
     extends: [
@@ -33,6 +38,18 @@ export default defineConfig([
         { varsIgnorePattern: "^[A-Z_]" },
       ],
       "react-refresh/only-export-components": "off",
+    },
+  },
+  // Relax certain strict rules for test files
+  {
+    files: ["**/*.test.{ts,tsx}", "src/test/**"],
+    rules: {
+      "@typescript-eslint/no-empty-function": "off",
+      "@typescript-eslint/no-non-null-assertion": "off",
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { varsIgnorePattern: "^_" },
+      ],
     },
   },
 ]);

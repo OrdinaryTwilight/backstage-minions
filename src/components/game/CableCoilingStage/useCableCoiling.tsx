@@ -65,6 +65,7 @@ export function useCableCoiling(difficulty: string, onComplete: () => void) {
 
   useEffect(() => {
     if (timeLeft === 0 && !isComplete && !isPaused) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: timer expiry triggers game-over state transition
       setIsComplete(true);
       setFeedback({
         msg: "Time's up! The senior techs had to take over.",

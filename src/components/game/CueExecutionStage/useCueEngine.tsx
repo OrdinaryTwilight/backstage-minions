@@ -201,6 +201,7 @@ export function useCueEngine(
 
     animationFrameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(animationFrameId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- see above: elapsedMs omitted intentionally
   }, [isLastCue, isReady, isPaused]);
 
   useEffect(() => {

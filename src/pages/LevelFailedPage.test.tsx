@@ -33,6 +33,8 @@ describe("LevelFailedPage", () => {
       unlockedStories: [],
       contacts: [],
       unreadContacts: [],
+      chatHistory: {},
+      hasSeenIntro: false,
     };
     render(
       <MemoryRouter>
@@ -61,6 +63,8 @@ describe("LevelFailedPage", () => {
               unlockedStories: [],
               contacts: [],
               unreadContacts: [],
+              chatHistory: {},
+              hasSeenIntro: false,
             },
             dispatch: vi.fn(),
           }}
@@ -88,6 +92,8 @@ describe("LevelFailedPage", () => {
               unlockedStories: [],
               contacts: [],
               unreadContacts: [],
+              chatHistory: {},
+              hasSeenIntro: false,
             },
             dispatch: vi.fn(),
           }}
@@ -103,22 +109,36 @@ describe("LevelFailedPage", () => {
     expect(mockNavigate).toHaveBeenCalledWith("/productions");
   });
 
-  it("handles missing GameContext safely using the fallback", () => {
+  it("navigates back to '/' when Back to Home is clicked without a session", () => {
+    const mockDispatch2 = vi.fn();
     render(
       <MemoryRouter>
-        <LevelFailedPage />
+        <GameContext.Provider
+          value={{
+            state: {
+              session: null,
+              progress: {},
+              unlockedStories: [],
+              contacts: [],
+              unreadContacts: [],
+              chatHistory: {},
+              hasSeenIntro: false,
+            },
+            dispatch: mockDispatch2,
+          }}
+        >
+          <LevelFailedPage />
+        </GameContext.Provider>
       </MemoryRouter>,
     );
 
     const allButtons = screen.getAllByRole("button");
-    const backBtn = allButtons.filter(
+    const backBtn = allButtons.find(
       (btn) => btn.textContent === "Back to Home",
     );
-
-    expect(backBtn).toHaveLength(1);
-
-    // Clicking should not throw even if context is missing
-    expect(() => fireEvent.click(backBtn[0])).not.toThrow();
+    expect(backBtn).toBeDefined();
+    fireEvent.click(backBtn!);
+    expect(mockDispatch2).toHaveBeenCalledWith({ type: "CLEAR_SESSION" });
     expect(mockNavigate).toHaveBeenCalledWith("/");
   });
 });

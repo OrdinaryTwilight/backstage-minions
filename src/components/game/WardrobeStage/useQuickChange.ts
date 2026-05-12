@@ -86,6 +86,7 @@ export function useQuickChange(_difficulty: string, onComplete: () => void) {
     const hasNoExtras = equipped.every((id) => targetOutfit.includes(id));
 
     if (hasAll && hasNoExtras && equipped.length > 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: win-condition check triggers completion state
       setIsSuccess(true);
       setIsActive(false);
       const timeBonus = timeLeft * 5;

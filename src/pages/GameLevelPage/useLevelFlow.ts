@@ -22,6 +22,7 @@ export function useLevelFlow(
     const noOverworldStages = ["wrapup"];
 
     if (noOverworldStages.includes(currentStageKey) && isInOverworld) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: syncs overworld visibility to session stage
       setIsInOverworld(false);
     }
   }, [state.session, isInOverworld]);

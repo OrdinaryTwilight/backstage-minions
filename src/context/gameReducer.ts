@@ -76,6 +76,12 @@ export function gameReducer(state: GameState, action: GameAction): GameState {
         activeConflict: getNextConflict(session),
       }));
 
+    case "SET_GEAR":
+      return withSession(state, (session) => ({
+        ...session,
+        gearId: action.gearId,
+      }));
+
     case "ADD_SCORE":
       return withSession(state, (session) =>
         updateCounter(session, "score", action.delta || 0),

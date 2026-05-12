@@ -93,7 +93,8 @@ export default function NetworksPage() {
   const handleSendReply = (
     replyText: string,
     automatedResponse: string,
-    sideEffect?: string, // Safe to ignore if unused here, but kept for interface alignment
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- kept for interface alignment with CHAT_CHOICES
+    _sideEffect?: string,
   ) => {
     if (!activeContact) return;
 

@@ -49,6 +49,7 @@ export default function DialogueBox<T extends BaseChoice>({
 
   useEffect(() => {
     isAnsweredRef.current = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: synchronously resets timer bar to 100% on each new dialogue
     setTimeLeftWidth(100);
 
     if (!timeLimitMs) return;
@@ -84,14 +85,16 @@ export default function DialogueBox<T extends BaseChoice>({
         </div>
       )}
       <div className="dialogue-box-content flex-1 flex flex-col">
-        <h3
-          className="dialogue-box-speaker text-xl font-bold mb-2 text-bui-warning"
-          style={{ fontFamily: "var(--font-sketch)" }}
-        >
-          {speaker}
-        </h3>
+        {speaker && (
+          <h3
+            className="dialogue-box-speaker text-xl font-bold mb-2 text-bui-warning"
+            style={{ fontFamily: "var(--font-sketch)" }}
+          >
+            {speaker.toUpperCase()}
+          </h3>
+        )}
         <p className="dialogue-box-text text-lg mb-4 leading-relaxed opacity-90">
-          {text}
+          {text || "No dialogue"}
         </p>
 
         <div className="dialogue-box-choices flex flex-col gap-2 mt-auto">
@@ -99,6 +102,7 @@ export default function DialogueBox<T extends BaseChoice>({
             <Button
               key={choice.id}
               variant="default"
+              aria-label={choice.text}
               onClick={() => handleChoiceClick(choice)}
               style={{
                 justifyContent: "flex-start",

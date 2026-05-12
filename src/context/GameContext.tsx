@@ -150,15 +150,17 @@ export function GameProvider({ children }: { readonly children: ReactNode }) {
             ];
 
             defaultContacts.forEach((c) => {
-              if (!loadedState.contacts!.includes(c)) {
-                loadedState.contacts!.push(c);
+              loadedState.contacts ??= [];
+              loadedState.unreadContacts ??= [];
+              if (!loadedState.contacts.includes(c)) {
+                loadedState.contacts.push(c);
               }
               // If they didn't have it in their old save, give them a notification dot for it!
               if (
                 !oldContacts.has(c) &&
-                !loadedState.unreadContacts!.includes(c)
+                !loadedState.unreadContacts.includes(c)
               ) {
-                loadedState.unreadContacts!.push(c);
+                loadedState.unreadContacts.push(c);
               }
             });
           }

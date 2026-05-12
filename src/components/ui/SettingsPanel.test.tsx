@@ -1,16 +1,49 @@
-import { cleanup, render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { useGame } from "../../context/GameContext";
+import { useVisualSettings } from "../../context/VisualSettingsContext";
+import { useSaveManager } from "../../hooks/useSaveManager";
 import SettingsPanel from "./SettingsPanel";
 
 // Mock the VisualSettingsContext
 vi.mock("../../context/VisualSettingsContext", () => ({
   useVisualSettings: vi.fn(() => ({
     settings: {
-      colorblindMode: false,
-      animationSpeed: 1,
+      fontSize: "medium",
+      contrastMode: "normal",
+      colorBlindMode: "none",
+      motionPreference: "full",
+      fontFamily: "system",
+      theme: "dark",
     },
     updateSetting: vi.fn(),
     resetToDefaults: vi.fn(),
+  })),
+}));
+
+// Mock the GameContext so components using useGame() don't throw
+vi.mock("../../context/GameContext", () => ({
+  useGame: vi.fn(() => ({
+    state: {
+      session: null,
+      progress: {},
+      unlockedStories: [],
+      contacts: [],
+      unreadContacts: [],
+      chatHistory: {},
+      hasSeenIntro: false,
+    },
+    dispatch: vi.fn(),
+  })),
+}));
+
+// Mock useSaveManager to avoid file-system side-effects in unit tests
+vi.mock("../../hooks/useSaveManager", () => ({
+  useSaveManager: vi.fn(() => ({
+    fileInputRef: { current: null },
+    ioFeedback: null,
+    handleExportSave: vi.fn(),
+    handleImportSave: vi.fn(),
   })),
 }));
 
@@ -68,13 +101,11 @@ describe("SettingsPanel Component", () => {
   it("calls onClose when the close button is clicked", async () => {
     render(<SettingsPanel onClose={mockOnClose} />);
 
-    // Find the close button using the aria-label or name text
-    const closeButton = screen.getByRole("button", { name: /✕/i });
+    // The close button has aria-label="Close settings"
+    const closeButton = screen.getByRole("button", { name: /close settings/i });
 
-    // Click the close button
     closeButton.click();
 
-    // Ensure the onClose function was called once
     expect(mockOnClose).toHaveBeenCalledTimes(1);
   });
 
@@ -88,15 +119,14 @@ describe("SettingsPanel Component", () => {
     expect(selectElements.length).toBe(6); // Ensure 6 select elements
   });
 
-  it("checks that the Reset to Defaults button is visible", async () => {
+  it("checks that the Reset Visuals to Defaults button is visible", async () => {
     render(<SettingsPanel onClose={mockOnClose} />);
 
-    // Find the Reset to Defaults button
+    // The button text is '🔄 Reset Visuals to Defaults'
     const resetButton = screen.getByRole("button", {
-      name: /🔄 Reset to Defaults/i,
+      name: /reset visuals to defaults/i,
     });
 
-    // Ensure the button is rendered
     expect(resetButton).toBeDefined();
   });
 
@@ -109,5 +139,215 @@ describe("SettingsPanel Component", () => {
     // Ensure the title exists and is correct
     expect(title).toBeDefined();
     expect(title.textContent).toBe("⚙️ Settings");
+  });
+});
+
+describe("SettingsPanel - extended interactions", () => {
+  const mockUpdateSetting = vi.fn();
+  const mockResetToDefaults = vi.fn();
+  const mockDispatch = vi.fn();
+  const mockOnClose = vi.fn();
+
+  beforeEach(() => {
+    mockUpdateSetting.mockClear();
+    mockResetToDefaults.mockClear();
+    mockDispatch.mockClear();
+    mockOnClose.mockClear();
+  });
+
+  afterEach(() => {
+    cleanup();
+  });
+
+  it("calls updateSetting when a select is changed", async () => {
+    vi.mocked(useVisualSettings).mockReturnValue({
+      settings: {
+        fontSize: "medium",
+        contrastMode: "normal",
+        colorBlindMode: "none",
+        motionPreference: "full",
+        fontFamily: "system",
+        theme: "dark",
+      },
+      updateSetting: mockUpdateSetting,
+      resetToDefaults: mockResetToDefaults,
+    });
+
+    render(<SettingsPanel onClose={mockOnClose} />);
+    const selects = screen.getAllByRole("combobox");
+    // Change the first select (theme)
+    fireEvent.change(selects[0], { target: { value: "light" } });
+    expect(mockUpdateSetting).toHaveBeenCalledWith("theme", "light");
+  });
+
+  it("shows confirm/cancel reset buttons when Reset button is clicked", async () => {
+    vi.mocked(useVisualSettings).mockReturnValue({
+      settings: {
+        fontSize: "medium",
+        contrastMode: "normal",
+        colorBlindMode: "none",
+        motionPreference: "full",
+        fontFamily: "system",
+        theme: "dark",
+      },
+      updateSetting: mockUpdateSetting,
+      resetToDefaults: mockResetToDefaults,
+    });
+
+    render(<SettingsPanel onClose={mockOnClose} />);
+    const resetButton = screen.getByRole("button", {
+      name: /reset visuals to defaults/i,
+    });
+    fireEvent.click(resetButton);
+    expect(
+      screen.getByRole("button", { name: /confirm reset/i }),
+    ).toBeDefined();
+    expect(screen.getByRole("button", { name: /cancel/i })).toBeDefined();
+  });
+
+  it("calls resetToDefaults and hides confirm when Confirm Reset is clicked", async () => {
+    vi.mocked(useVisualSettings).mockReturnValue({
+      settings: {
+        fontSize: "medium",
+        contrastMode: "normal",
+        colorBlindMode: "none",
+        motionPreference: "full",
+        fontFamily: "system",
+        theme: "dark",
+      },
+      updateSetting: mockUpdateSetting,
+      resetToDefaults: mockResetToDefaults,
+    });
+
+    render(<SettingsPanel onClose={mockOnClose} />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /reset visuals to defaults/i }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: /confirm reset/i }));
+    expect(mockResetToDefaults).toHaveBeenCalledTimes(1);
+    // After confirm, the reset button should be visible again
+    expect(
+      screen.getByRole("button", { name: /reset visuals to defaults/i }),
+    ).toBeDefined();
+  });
+
+  it("hides confirm buttons when Cancel is clicked", async () => {
+    vi.mocked(useVisualSettings).mockReturnValue({
+      settings: {
+        fontSize: "medium",
+        contrastMode: "normal",
+        colorBlindMode: "none",
+        motionPreference: "full",
+        fontFamily: "system",
+        theme: "dark",
+      },
+      updateSetting: mockUpdateSetting,
+      resetToDefaults: mockResetToDefaults,
+    });
+
+    render(<SettingsPanel onClose={mockOnClose} />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /reset visuals to defaults/i }),
+    );
+    fireEvent.click(screen.getByRole("button", { name: /cancel/i }));
+    expect(screen.queryByRole("button", { name: /confirm reset/i })).toBeNull();
+    expect(
+      screen.getByRole("button", { name: /reset visuals to defaults/i }),
+    ).toBeDefined();
+  });
+
+  it("closes panel when Escape key is pressed", () => {
+    render(<SettingsPanel onClose={mockOnClose} />);
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(mockOnClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows success ioFeedback when provided", () => {
+    vi.mocked(useSaveManager).mockReturnValue({
+      fileInputRef: { current: null },
+      ioFeedback: { type: "success", msg: "Save exported!" },
+      handleExportSave: vi.fn(),
+      handleImportSave: vi.fn(),
+    });
+
+    render(<SettingsPanel onClose={mockOnClose} />);
+    expect(screen.getByText("Save exported!")).toBeDefined();
+  });
+
+  it("calls handleExportSave when Download Save button is clicked", () => {
+    const mockExport = vi.fn();
+    vi.mocked(useSaveManager).mockReturnValue({
+      fileInputRef: { current: null },
+      ioFeedback: null,
+      handleExportSave: mockExport,
+      handleImportSave: vi.fn(),
+    });
+
+    render(<SettingsPanel onClose={mockOnClose} />);
+    fireEvent.click(screen.getByRole("button", { name: /download save/i }));
+    expect(mockExport).toHaveBeenCalledTimes(1);
+  });
+
+  it("calls confirm and dispatches CLEAR_SESSION when erasing progress", () => {
+    const mockConfirmTrue = vi
+      .spyOn(globalThis, "confirm")
+      .mockReturnValue(true);
+    // location.reload isn't easily spyable in jsdom — just ignore the reload call
+
+    vi.mocked(useGame).mockReturnValue({
+      state: {
+        session: null,
+        progress: {},
+        unlockedStories: [],
+        contacts: [],
+        unreadContacts: [],
+        chatHistory: {},
+        hasSeenIntro: false,
+      },
+      dispatch: mockDispatch,
+    });
+
+    try {
+      render(<SettingsPanel onClose={mockOnClose} />);
+      fireEvent.click(
+        screen.getByRole("button", { name: /erase all progress/i }),
+      );
+    } catch {
+      // location.reload() throws in jsdom — that's expected
+    }
+
+    expect(mockConfirmTrue).toHaveBeenCalled();
+    expect(mockDispatch).toHaveBeenCalledWith({ type: "CLEAR_SESSION" });
+
+    mockConfirmTrue.mockRestore();
+  });
+
+  it("does not dispatch CLEAR_SESSION when erase is cancelled", () => {
+    const mockConfirmFalse = vi
+      .spyOn(globalThis, "confirm")
+      .mockReturnValue(false);
+
+    vi.mocked(useGame).mockReturnValue({
+      state: {
+        session: null,
+        progress: {},
+        unlockedStories: [],
+        contacts: [],
+        unreadContacts: [],
+        chatHistory: {},
+        hasSeenIntro: false,
+      },
+      dispatch: mockDispatch,
+    });
+
+    render(<SettingsPanel onClose={mockOnClose} />);
+    fireEvent.click(
+      screen.getByRole("button", { name: /erase all progress/i }),
+    );
+
+    expect(mockConfirmFalse).toHaveBeenCalled();
+    expect(mockDispatch).not.toHaveBeenCalledWith({ type: "CLEAR_SESSION" });
+
+    mockConfirmFalse.mockRestore();
   });
 });

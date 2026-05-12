@@ -85,6 +85,7 @@ export function useFlyPhysics(difficulty: string, onComplete: () => void) {
   useEffect(() => {
     if (!isActive) return;
     if (timeLeft <= 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: timer expiry triggers game-over state transition
       setIsActive(false);
       const finalScoreDelta = Math.floor(score / 5);
       dispatch({ type: "ADD_SCORE", delta: finalScoreDelta });

@@ -32,7 +32,7 @@ export function useSaveManager() {
 
   const handleExportSave = () => {
     try {
-      const { session, ...persistentData } = state;
+      const { session: _session, ...persistentData } = state;
       const jsonString = JSON.stringify(persistentData, null, 2);
       const blob = new Blob([jsonString], { type: "application/json" });
       const url = URL.createObjectURL(blob);

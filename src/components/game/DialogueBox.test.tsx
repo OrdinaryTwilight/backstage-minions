@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { act, fireEvent, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import DialogueBox from "./DialogueBox";
 
 interface TestChoice {
@@ -13,6 +13,10 @@ describe("DialogueBox", () => {
     { id: "1", text: "Yes" },
     { id: "2", text: "No" },
   ];
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
 
   it("renders with empty speaker name", () => {
     render(
@@ -38,9 +42,9 @@ describe("DialogueBox", () => {
       />,
     );
 
-    // Assert that the speaker's name is rendered
+    // Speaker name is shown in uppercase
     expect(screen.getByText("ALICE")).toBeDefined();
-    // Assert that fallback text appears if text is empty
+    // Fallback text appears when dialogue is empty
     expect(screen.getByText("No dialogue")).toBeDefined();
   });
 
@@ -54,14 +58,12 @@ describe("DialogueBox", () => {
       />,
     );
 
-    // Assert that buttons with choices are rendered
+    // Buttons use aria-label for accessible name (choice text without the decorative ▶ prefix)
     const yesButtons = screen.getAllByRole("button", { name: "Yes" });
-    expect(yesButtons.length).toBeGreaterThan(0); // Ensure at least one "Yes" button is rendered
+    expect(yesButtons.length).toBeGreaterThan(0);
 
-    // Click the first "Yes" button
     fireEvent.click(yesButtons[0]);
 
-    // Check that the mock function was called with the correct choice
     expect(mockOnChoice).toHaveBeenCalledWith(testChoices[0]);
   });
 
@@ -78,5 +80,64 @@ describe("DialogueBox", () => {
 
     // Assert that the dialogue text is rendered
     expect(screen.getByText(/hello with icon/i)).toBeDefined();
+  });
+
+  it("renders a timer bar when timeLimitMs is provided", () => {
+    render(
+      <DialogueBox
+        speaker="Timer"
+        text="Quick!"
+        choices={testChoices}
+        onChoice={mockOnChoice}
+        timeLimitMs={2000}
+      />,
+    );
+    // The timer element should be present
+    expect(screen.getByRole("timer")).toBeDefined();
+  });
+
+  it("auto-selects last choice when timer expires", async () => {
+    const onChoice = vi.fn();
+    vi.useFakeTimers();
+    render(
+      <DialogueBox
+        speaker="Auto"
+        text="Time up"
+        choices={testChoices}
+        onChoice={onChoice}
+        timeLimitMs={100}
+      />,
+    );
+    await act(async () => {
+      vi.advanceTimersByTime(200);
+    });
+    // The last choice (index 1, "No") should have been selected
+    expect(onChoice).toHaveBeenCalledWith(testChoices[testChoices.length - 1]);
+    vi.useRealTimers();
+  });
+
+  it("prevents double-selection if choice already selected before timer fires", async () => {
+    const onChoice = vi.fn();
+    vi.useFakeTimers();
+    render(
+      <DialogueBox
+        speaker="Race"
+        text="Choose fast"
+        choices={testChoices}
+        onChoice={onChoice}
+        timeLimitMs={500}
+      />,
+    );
+    // Click a choice before timer fires
+    const yesBtn = screen.getAllByRole("button", { name: "Yes" })[0];
+    fireEvent.click(yesBtn);
+    expect(onChoice).toHaveBeenCalledTimes(1);
+
+    // Advance timer past limit — should NOT call onChoice again
+    await act(async () => {
+      vi.advanceTimersByTime(600);
+    });
+    expect(onChoice).toHaveBeenCalledTimes(1);
+    vi.useRealTimers();
   });
 });

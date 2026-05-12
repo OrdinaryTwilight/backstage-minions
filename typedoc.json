@@ -1,5 +1,7 @@
 {
   "$schema": "https://typedoc.org/schema.json",
   "entryPoints": ["./src/main.tsx"],
-  "out": "docs"
+  "out": "docs",
+  "skipErrorChecking": true,
+  "exclude": ["**/*.test.ts", "**/*.test.tsx", "**/test/**"]
 }

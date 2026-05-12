@@ -1,14 +1,18 @@
 import { useCallback, useRef, useState } from "react";
 import { useGame } from "../../../context/GameContext";
 
-export type Actor = {
+export interface Actor {
   id: string;
   name: string;
   trait: string;
   requiresRoom?: string;
   avoids?: string;
-};
-export type Room = { id: string; name: string; capacity: number };
+}
+export interface Room {
+  id: string;
+  name: string;
+  capacity: number;
+}
 
 // UX/LOGIC FIX: Added varied puzzle requirements
 const PUZZLE_VARIATIONS: Actor[][] = [

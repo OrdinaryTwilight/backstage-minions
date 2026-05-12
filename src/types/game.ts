@@ -238,7 +238,7 @@ export type GameAction =
       difficulty: Difficulty;
       characterId: string;
     }
-  | { type: "MARK_INTRO_SEEN" }export const GameSaveSchema
+  | { type: "MARK_INTRO_SEEN" }
   | { type: "SET_GEAR"; gearId: string }
   | { type: "NEXT_STAGE" }
   | { type: "ADD_SCORE"; delta: number }

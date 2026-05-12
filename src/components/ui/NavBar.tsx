@@ -87,6 +87,8 @@ export default function NavBar() {
               onClick={() => navigate(t.path)}
               className={`nav-item ${pathname === t.path ? "active" : ""}`}
               style={{ position: "relative" }}
+              aria-label={t.label}
+              aria-current={pathname === t.path ? "page" : undefined}
             >
               <span>{t.icon}</span>
               <span>{t.label}</span>

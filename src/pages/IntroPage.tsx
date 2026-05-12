@@ -21,6 +21,7 @@ export default function IntroPage() {
 
   // Smooth fade-in effect for each text line
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional: resets animation before triggering fade-in
     setIsVisible(false);
     const timer = setTimeout(() => setIsVisible(true), 100);
     return () => clearTimeout(timer);
